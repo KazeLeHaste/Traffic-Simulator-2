@@ -1,0 +1,14 @@
+// Common interfaces to resolve circular dependencies
+export interface Car {
+  id: string;
+  length: number;
+  speed: number;
+  nextLane?: any;
+  popNextLane?(): any;
+  pickNextLane?(): any;
+}
+
+export interface NextCarDistance {
+  car: Car | null;
+  distance: number;
+}
