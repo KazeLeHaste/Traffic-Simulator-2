@@ -32,6 +32,7 @@ class Visualizer {
   public previousTime: number;
   public timeFactor: number;
   public debug: boolean;
+  public isBuilderMode: boolean = false; // New property to control simulation behavior
 
   constructor(world: any) {
     this.world = world;
@@ -82,16 +83,6 @@ class Visualizer {
   drawIntersection(intersection: any, alpha: number): void {
     const color = intersection.color || settings.colors.intersection;
     
-    // Debug intersection drawing - log more frequently during creation
-    if (Math.random() < 0.01) { // 1% chance to see what's being drawn
-      console.log('🎨 Drawing intersection:', {
-        id: intersection.id,
-        rect: { x: intersection.rect.x, y: intersection.rect.y, w: intersection.rect.width(), h: intersection.rect.height() },
-        color: color,
-        alpha: alpha
-      });
-    }
-    
     this.graphics.drawRect(intersection.rect);
     this.ctx.lineWidth = 0.4;
     this.graphics.stroke(settings.colors.roadMarking);
@@ -99,11 +90,24 @@ class Visualizer {
   }
 
   drawSignals(road: any): void {
-    const lightsColors = [settings.colors.redLight, settings.colors.greenLight];
+    // Safety checks to prevent errors
+    if (!road || !road.target || !road.target.controlSignals || !road.targetSide) {
+      return;
+    }
+    
     const intersection = road.target;
     const segment = road.targetSide;
     const sideId = road.targetSideId;
+    
+    // Additional safety checks
+    if (!intersection.controlSignals.state || !segment || sideId === undefined) {
+      return;
+    }
+    
     const lights = intersection.controlSignals.state[sideId];
+    if (!lights || !Array.isArray(lights)) {
+      return;
+    }
 
     this.ctx.save();
     this.ctx.translate(segment.center.x, segment.center.y);
@@ -142,9 +146,11 @@ class Visualizer {
       this.ctx.fillStyle = "black";
       this.ctx.font = "1px Arial";
       const center = intersection.rect.center();
-      const flipInterval = Math.round(intersection.controlSignals.flipInterval * 100) / 100;
-      const phaseOffset = Math.round(intersection.controlSignals.phaseOffset * 100) / 100;
-      this.ctx.fillText(flipInterval + ' ' + phaseOffset, center.x, center.y);
+      if (intersection.controlSignals.flipInterval && intersection.controlSignals.phaseOffset) {
+        const flipInterval = Math.round(intersection.controlSignals.flipInterval * 100) / 100;
+        const phaseOffset = Math.round(intersection.controlSignals.phaseOffset * 100) / 100;
+        this.ctx.fillText(flipInterval + ' ' + phaseOffset, center.x, center.y);
+      }
       this.ctx.restore();
     }
   }
@@ -231,41 +237,34 @@ class Visualizer {
   }
 
   updateCanvasSize(): void {
-    // Use multiple methods to get accurate window dimensions
-    const windowWidth = window.innerWidth || $(window).width() || document.documentElement.clientWidth || 800;
-    const windowHeight = window.innerHeight || $(window).height() || document.documentElement.clientHeight || 600;
+    // Get the canvas container dimensions instead of full window
+    const canvasContainer = this.canvas.parentElement;
+    if (!canvasContainer) return;
+    
+    const containerRect = canvasContainer.getBoundingClientRect();
+    const targetWidth = Math.max(containerRect.width, 600);
+    const targetHeight = Math.max(containerRect.height, 400);
     
     const currentWidth = this.canvas.width;
     const currentHeight = this.canvas.height;
     
-    console.log('🎪 Canvas size check:', {
-      current: { width: currentWidth, height: currentHeight },
-      target: { width: windowWidth, height: windowHeight },
-      needsUpdate: currentWidth !== windowWidth || currentHeight !== windowHeight
-    });
-    
-    if (currentWidth !== windowWidth || currentHeight !== windowHeight) {
-      console.log('🎪 Updating canvas size from', currentWidth, 'x', currentHeight, 'to', windowWidth, 'x', windowHeight);
+    if (currentWidth !== targetWidth || currentHeight !== targetHeight) {
+      // Set the canvas dimensions to fit the container
+      this.canvas.width = targetWidth;
+      this.canvas.height = targetHeight;
       
-      // Set the canvas dimensions directly
-      this.canvas.width = windowWidth;
-      this.canvas.height = windowHeight;
+      // Set CSS dimensions to fill the container
+      this.canvas.style.width = '100%';
+      this.canvas.style.height = '100%';
       
-      // Set CSS dimensions to match exactly
-      this.canvas.style.width = windowWidth + 'px';
-      this.canvas.style.height = windowHeight + 'px';
-      
-      // Ensure canvas is positioned correctly
-      this.canvas.style.position = 'absolute';
-      this.canvas.style.top = '0px';
-      this.canvas.style.left = '0px';
+      // Ensure canvas is positioned correctly within its container
+      this.canvas.style.position = 'relative';
       this.canvas.style.display = 'block';
       
       // Update zoomer's screen center when canvas size changes (only if zoomer exists and is initialized)
       if (this.zoomer && this.zoomer.screenCenter) {
-        this.zoomer.screenCenter = new Point(windowWidth / 2, windowHeight / 2);
-        this.zoomer.center = new Point(windowWidth / 2, windowHeight / 2);
-        console.log('🎪 Updated zoomer center to:', windowWidth / 2, windowHeight / 2);
+        this.zoomer.screenCenter = new Point(targetWidth / 2, targetHeight / 2);
+        this.zoomer.center = new Point(targetWidth / 2, targetHeight / 2);
       }
       
       // Force a repaint
@@ -283,8 +282,10 @@ class Visualizer {
       this.previousTime = time;
       
       try {
-        // Resume normal world updates - intersection creation is working fine
-        this.world.onTick(this.timeFactor * adjustedDelta / 1000);
+        // Only update world simulation if NOT in builder mode
+        if (!this.isBuilderMode) {
+          this.world.onTick(this.timeFactor * adjustedDelta / 1000);
+        }
         
         // Only update canvas size when actually needed, not every frame
         // This might be causing the flickering
@@ -302,51 +303,60 @@ class Visualizer {
         
         // Apply zoom transformation
         this.zoomer.transform();
+        
         this.drawGrid();
         
         // ALWAYS get fresh intersection list to ensure new intersections are drawn
-        const intersections = this.world.intersections.all();
+        const intersections = this.world?.intersections?.all() || {};
         const intersectionCount = Object.keys(intersections).length;
         
-        // Enhanced debug intersection drawing
-        if (Math.random() < 0.02) { // 2% chance to log for better visibility
-          console.log('🎨 Draw loop: Drawing', intersectionCount, 'intersections');
-          console.log('🎨 Intersection IDs:', Object.keys(intersections));
-        }
-        
         for (const id in intersections) {
-          this.drawIntersection(intersections[id], 0.9);
+          const intersection = intersections[id];
+          if (intersection) {
+            this.drawIntersection(intersection, 0.9);
+          }
         }
         
-        const roads = this.world.roads.all();
+        const roads = this.world?.roads?.all() || {};
         for (const id in roads) {
-          this.drawRoad(roads[id], 0.9);
+          const road = roads[id];
+          if (road) {
+            this.drawRoad(road, 0.9);
+          }
         }
         
+        // Draw signals with proper safety checks
         for (const id in roads) {
-          this.drawSignals(roads[id]);
+          const road = roads[id];
+          if (road && road.target && road.target.controlSignals) {
+            try {
+              this.drawSignals(road);
+            } catch (error) {
+              // Silently skip problematic signals to prevent console spam
+            }
+          }
         }
         
-        const cars = this.world.cars.all();
-        for (const id in cars) {
-          this.drawCar(cars[id]);
+        const cars = this.world?.cars?.all() || {};
+        // Only draw cars if NOT in builder mode
+        if (!this.isBuilderMode) {
+          for (const id in cars) {
+            this.drawCar(cars[id]);
+          }
         }
         
-        this.toolIntersectionBuilder.draw();
-        this.toolRoadbuilder.draw();
-        this.toolHighlighter.draw();
+        // Draw tools for builder interaction
+        if (this.toolIntersectionBuilder && this.toolIntersectionBuilder.draw) {
+          this.toolIntersectionBuilder.draw();
+        }
+        if (this.toolRoadbuilder && this.toolRoadbuilder.draw) {
+          this.toolRoadbuilder.draw();
+        }
+        if (this.toolHighlighter && this.toolHighlighter.draw) {
+          this.toolHighlighter.draw();
+        }
         
         this.ctx.restore(); // Restore to clean state
-        
-        // Test: Draw a bright red square that should always be visible (after zoom restore)
-        this.ctx.fillStyle = '#FF0000'; // Bright red
-        this.ctx.fillRect(50, 50, 100, 100);
-        
-        // Test: Draw intersection count as text - FORCE FRESH COUNT
-        const currentIntersectionCount = Object.keys(this.world.intersections.all()).length;
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = '20px Arial';
-        this.ctx.fillText(`Intersections: ${currentIntersectionCount}`, 10, 30);
         
       } catch (error) {
         console.error('🚨 ERROR in draw cycle:', error);
@@ -418,9 +428,8 @@ class Visualizer {
     this._running = false;
   }
   
+  // Method to force a single frame draw without starting animation loop
   drawSingleFrame(): void {
-    // Draw a single frame without starting the animation loop
-    // Used when simulation is paused but we need to show changes
     this.draw(performance.now());
   }
 }

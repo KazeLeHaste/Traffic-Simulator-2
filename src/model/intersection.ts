@@ -24,7 +24,14 @@ class Intersection {
     _.extend(result, intersection);
     result.roads = [];
     result.inRoads = [];
-    result.controlSignals = ControlSignals.copy(result.controlSignals, result);
+    
+    // Ensure controlSignals is properly initialized
+    if (intersection.controlSignals) {
+      result.controlSignals = ControlSignals.copy(intersection.controlSignals, result);
+    } else {
+      result.controlSignals = new ControlSignals(result);
+    }
+    
     return result;
   }
 

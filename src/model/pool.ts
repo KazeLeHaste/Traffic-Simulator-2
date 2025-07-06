@@ -59,11 +59,4 @@ class Pool<T extends Poolable> {
   }
 }
 
-// Set up properties using the CoffeeScript-style property decorator
-Pool.property('length', {
-  get: function<T extends Poolable>(this: Pool<T>) {
-    return Object.keys(this.objects).length;
-  }
-});
-
 export = Pool;

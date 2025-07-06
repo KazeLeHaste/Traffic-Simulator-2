@@ -64,7 +64,7 @@ class ControlSignals {
 
   get state(): number[][] {
     let stringState = this.states[this.stateNum % this.states.length];
-    if (this.intersection.roads.length <= 2) {
+    if (this.intersection.roads && this.intersection.roads.length <= 2) {
       stringState = ['LFR', 'LFR', 'LFR', 'LFR'];
     }
     return stringState.map(x => this._decode(x));
@@ -82,22 +82,5 @@ class ControlSignals {
     }
   }
 }
-
-// Set up properties using the CoffeeScript-style property decorator
-ControlSignals.property('flipInterval', {
-  get: function(this: ControlSignals) {
-    return (0.1 + 0.05 * this.flipMultiplier) * settings.lightsFlipInterval;
-  }
-});
-
-ControlSignals.property('state', {
-  get: function(this: ControlSignals) {
-    let stringState = this.states[this.stateNum % this.states.length];
-    if (this.intersection.roads.length <= 2) {
-      stringState = ['LFR', 'LFR', 'LFR', 'LFR'];
-    }
-    return stringState.map(x => this._decode(x));
-  }
-});
 
 export = ControlSignals;

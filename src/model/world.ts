@@ -21,7 +21,8 @@ class World {
   }
 
   get instantSpeed(): number {
-    const carsArray = Object.values(this.cars.all());
+    if (!this.cars) return 0;
+    const carsArray = Object.values(this.cars.all() || {});
     const speeds = _.map(carsArray, (car) => car.speed);
     if (speeds.length === 0) {
       return 0;
@@ -132,15 +133,23 @@ class World {
     }
     this.time += delta;
     this.refreshCars();
+    
+    // Update intersection control signals with safety checks
     for (const id in this.intersections.all()) {
       const intersection = this.intersections.all()[id];
-      intersection.controlSignals.onTick(delta);
+      if (intersection && intersection.controlSignals && typeof intersection.controlSignals.onTick === 'function') {
+        intersection.controlSignals.onTick(delta);
+      }
     }
+    
+    // Update cars with safety checks
     for (const id in this.cars.all()) {
       const car = this.cars.all()[id];
-      car.move(delta);
-      if (!car.alive) {
-        this.removeCar(car);
+      if (car && typeof car.move === 'function') {
+        car.move(delta);
+        if (!car.alive) {
+          this.removeCar(car);
+        }
       }
     }
   }
@@ -178,9 +187,7 @@ class World {
   }
 
   addIntersection(intersection: Intersection): void {
-    console.log('🟡 World: Adding intersection at', intersection.rect.x, intersection.rect.y);
     this.intersections.put(intersection);
-    console.log('🟡 World: Total intersections now:', Object.keys(this.intersections.all()).length);
   }
 
   getIntersection(id: string): Intersection {

@@ -42,8 +42,9 @@ module.exports = (env, argv) => {
         directory: path.join(__dirname, 'dist'),
       },
       compress: true,
-      port: 9000,
+      port: 8080,
       open: true,
+      historyApiFallback: true,
     },
     devtool: isProduction ? false : 'source-map',
   };

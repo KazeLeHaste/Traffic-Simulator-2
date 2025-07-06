@@ -1,21 +1,108 @@
 body, html {
     padding: 0;
     margin: 0;
+    background: #1a1a1a; /* Dark background */
+    color: #ffffff; /* White text */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    height: 100%;
+    overflow: hidden; /* Prevent body scrolling completely */
+}
+
+#app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Prevent any overflow on main container */
+    position: fixed; /* Fix to viewport to prevent any scrolling */
+    top: 0;
+    left: 0;
+    background: #1a1a1a; /* Dark background */
+}
+
+#nav-container {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 100;
+    background: #2d2d2d; /* Dark navigation */
+    border-bottom: 1px solid #404040;
+}
+
+#main-content {
+    flex: 1;
     overflow: hidden;
-    background: #97a1a1;
+    position: relative;
+    height: calc(100vh - 60px); /* Reserve space for navigation */
+    background: #1a1a1a;
+}
+
+/* Ensure pages fill their container completely */
+.builder-page,
+.simulation-page {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    background: #1a1a1a;
 }
 
 #canvas {
     padding: 0;
     margin: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative;
     z-index: 1;
     pointer-events: auto;
     display: block;
+    background: #2d2d2d;
+    border: 1px solid #404040;
+    width: 100%;
+    height: 100%;
 }
 
+.visualizer-area {
+    flex: 1;
+    position: relative;
+    min-height: 600px;
+    background: #2d2d2d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.visualizer-area canvas {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    background: #2d2d2d !important;
+    border: 1px solid #404040;
+    display: block !important;
+}
+
+.builder-content,
+.simulation-content {
+    display: flex;
+    height: 100%;
+}
+
+.sidebar {
+    width: 280px;
+    background: #2d2d2d;
+    border-right: 1px solid #404040;
+    overflow-y: auto;
+    pointer-events: auto;
+    z-index: 10;
+}
+
+/* Ensure buttons are always clickable */
+button, .btn {
+    pointer-events: auto;
+    cursor: pointer;
+    position: relative;
+    z-index: 20;
+}
+
+/* Debug helper - can be removed later */
 /* * { background-color: rgba(255, 0, 0, 0.1); } */
 /* * * { background-color: rgba(0, 255, 0, 0.2); } */
 /* * * * { background-color: rgba(0, 0, 255, 0.3); } */

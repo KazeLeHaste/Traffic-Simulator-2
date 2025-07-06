@@ -1,0 +1,144 @@
+/* dat-gui overrides for single panel layout */
+
+.dg {
+    color: #93a1a1 !important;
+    text-shadow: none !important;
+    z-index: 1000 !important;
+    position: fixed !important;
+    top: 10px !important;
+    right: 10px !important;
+    max-width: 280px !important;
+    width: 280px !important;
+    background: rgba(0, 43, 54, 0.95) !important;
+    border: 2px solid #073642 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Main container - single panel */
+.dg.main {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+}
+
+/* List styling for clean single panel */
+.dg ul {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 8px !important;
+    clear: both !important;
+    position: relative !important;
+}
+
+/* Individual control items */
+.dg li {
+    clear: both !important;
+    position: relative !important;
+    line-height: 32px !important;
+    height: auto !important;
+    min-height: 32px !important;
+    background: #002b36 !important;
+    border-bottom: 1px solid #073642 !important;
+    margin-bottom: 3px !important;
+    border-radius: 4px !important;
+    padding: 2px 4px !important;
+}
+
+.dg li:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+}
+
+/* Remove folder styling since we're not using folders */
+.dg .folder {
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+/* Close button styling */
+.dg.main .close-button {
+    background-color: #002b36 !important;
+    border-radius: 4px !important;
+}
+
+.dg.main .close-button:hover,
+.dg .cr.function:hover,
+.dg .cr.boolean:hover {
+    background: #073642 !important;
+}
+
+/* Input field styling */
+.dg .c input[type=text] {
+    background: #073642 !important;
+    color: #93a1a1 !important;
+    border: 1px solid #586e75 !important;
+    border-radius: 3px !important;
+    padding: 2px 4px !important;
+}
+
+.dg .c input[type=text]:hover {
+    background: #586e75 !important;
+    border-color: #93a1a1 !important;
+}
+
+.dg .c input[type=text]:focus {
+    background: #073642 !important;
+    border-color: #268bd2 !important;
+    outline: none !important;
+}
+
+/* Slider styling */
+.dg .c .slider {
+    background: #073642 !important;
+    border-radius: 3px !important;
+}
+
+.dg .c .slider:hover {
+    background: #586e75 !important;
+}
+
+/* Button styling for functions */
+.dg .cr.function {
+    border-radius: 3px !important;
+    background: #002b36 !important;
+}
+
+.dg .cr.function:hover {
+    background: #073642 !important;
+}
+
+/* Property name styling */
+.dg .property-name {
+    color: #93a1a1 !important;
+    font-weight: normal !important;
+}
+
+/* Control row padding */
+.dg .cr {
+    padding: 4px 8px !important;
+}
+
+/* Number input styling */
+.dg .c input[type=number] {
+    background: #073642 !important;
+    color: #93a1a1 !important;
+    border: 1px solid #586e75 !important;
+    border-radius: 3px !important;
+}
+
+/* Checkbox styling */
+.dg .c input[type=checkbox] {
+    margin-right: 8px !important;
+}
+
+/* Slider styling */
+.dg .c .slider {
+    background: #073642 !important;
+}
+
+.dg .c .slider:hover {
+    background: #586e75 !important;
+}
