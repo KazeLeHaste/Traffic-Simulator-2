@@ -71,6 +71,14 @@ class Zoomer {
       this.center = new Point(this.canvas.width / 2, this.canvas.height / 2);
     }
     
+    console.log('🔍 Zoomer transform:', {
+      canvasSize: { width: this.canvas.width, height: this.canvas.height },
+      center: { x: this.center.x, y: this.center.y },
+      scale: this.scale,
+      defaultZoom: this.defaultZoom,
+      finalScale: this.scale * this.defaultZoom
+    });
+    
     // Apply translation to center
     this.ctx.translate(this.center.x, this.center.y);
     
@@ -78,8 +86,7 @@ class Zoomer {
     const k = this.scale * this.defaultZoom;
     this.ctx.scale(k, k);
     
-    // Reduced logging to prevent console spam - only log on significant changes
-    // console.log('🔧 Zoomer transform applied: center=', this.center.x, this.center.y, 'scale=', k);
+    console.log('🔍 Transform applied - final scale:', k);
   }
 
   zoom(k?: number, zoomCenter?: Point): void {

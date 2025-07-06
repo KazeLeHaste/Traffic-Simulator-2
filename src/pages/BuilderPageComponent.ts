@@ -20,8 +20,11 @@ export class BuilderPageComponent {
     await this.loadLayouts();
     this.render();
     
-    // Add event listeners with a small delay to ensure DOM is fully rendered
-    setTimeout(() => this.addEventListeners(), 100);
+    // Add event listeners with longer delay and better error handling
+    setTimeout(() => {
+      console.log('🔗 Builder: Setting up event listeners...');
+      this.addEventListeners();
+    }, 500);
     
     await this.initializeWorld();
   }
@@ -121,21 +124,49 @@ export class BuilderPageComponent {
   }
 
   private addEventListeners() {
+    console.log('🔗 Builder: addEventListeners called');
+    
+    // Check if buttons exist
+    const saveBtn = document.getElementById('save-layout');
+    const generateBtn = document.getElementById('generate-map');
+    const clearBtn = document.getElementById('clear-world');
+    const loadBtn = document.getElementById('load-current');
+    
+    console.log('🔗 Builder: Button elements found:', {
+      saveBtn: !!saveBtn,
+      generateBtn: !!generateBtn,
+      clearBtn: !!clearBtn,
+      loadBtn: !!loadBtn
+    });
+
     // Toggle layout manager
     const toggleBtn = document.getElementById('toggle-layouts');
     const layoutManager = document.getElementById('layout-manager');
     
     toggleBtn?.addEventListener('click', () => {
+      console.log('🔗 Builder: Toggle layouts clicked');
       const isHidden = layoutManager?.style.display === 'none';
       layoutManager!.style.display = isHidden ? 'block' : 'none';
       toggleBtn.textContent = isHidden ? 'Hide Saved Layouts' : 'Show Saved Layouts';
     });
 
-    // Control buttons
-    document.getElementById('save-layout')?.addEventListener('click', () => this.saveLayout());
-    document.getElementById('load-current')?.addEventListener('click', () => this.loadLayout());
-    document.getElementById('clear-world')?.addEventListener('click', () => this.clearWorld());
-    document.getElementById('generate-map')?.addEventListener('click', () => this.generateMap());
+    // Control buttons with logging
+    saveBtn?.addEventListener('click', () => {
+      console.log('🔗 Builder: Save layout clicked');
+      this.saveLayout();
+    });
+    loadBtn?.addEventListener('click', () => {
+      console.log('🔗 Builder: Load layout clicked');
+      this.loadLayout();
+    });
+    clearBtn?.addEventListener('click', () => {
+      console.log('🔗 Builder: Clear world clicked');
+      this.clearWorld();
+    });
+    generateBtn?.addEventListener('click', () => {
+      console.log('🔗 Builder: Generate map clicked');
+      this.generateMap();
+    });
 
     // Layout management
     document.getElementById('load-layout')?.addEventListener('click', () => this.loadSelectedLayout());
@@ -198,36 +229,54 @@ export class BuilderPageComponent {
   }
 
   private initializeVisualizer() {
-    console.log('🎨 Initializing builder visualizer...');
+    console.log('🎨 Builder: Initializing visualizer...');
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     if (!canvas) {
-      console.error('❌ Canvas not found in DOM during builder initialization');
+      console.error('❌ Builder: Canvas not found in DOM');
       return;
     }
 
-    // Set up canvas dimensions based on container
+    // Debug canvas container
     const visualizerArea = canvas.parentElement;
+    console.log('🎨 Builder: Canvas container found:', !!visualizerArea);
+    
     if (visualizerArea) {
       const rect = visualizerArea.getBoundingClientRect();
-      const targetWidth = Math.max(rect.width, 600);
-      const targetHeight = Math.max(rect.height, 400);
+      console.log('🎨 Builder: Container dimensions:', rect);
+      
+      // Use the full container dimensions for responsive sizing
+      const targetWidth = Math.max(rect.width || 800, 400);
+      const targetHeight = Math.max(rect.height || 600, 300);
+      
+      console.log('🎨 Builder: Target canvas size:', targetWidth, 'x', targetHeight);
       
       canvas.width = targetWidth;
       canvas.height = targetHeight;
       
-      // Apply CSS for proper display
+      // Set responsive styling for builder canvas
       canvas.style.cssText = `
         width: 100% !important;
         height: 100% !important;
         display: block !important;
-        background: #2d2d2d !important;
-        border: 1px solid #404040;
+        border: 2px solid #0000ff !important;
+        position: relative !important;
+        z-index: 10 !important;
+        pointer-events: auto !important;
+        box-sizing: border-box !important;
       `;
+      
+      console.log('🎨 Builder: Canvas styled, final size:', canvas.width, 'x', canvas.height);
     }
 
     try {
       // Create visualizer in BUILDER MODE - all editing tools active
+      console.log('🎨 Builder: Creating visualizer with world...');
       this.visualizer = new Visualizer(this.world);
+      console.log('🎨 Builder: Visualizer created successfully');
+      
+      // Check if visualizer has canvas
+      console.log('🎨 Builder: Visualizer canvas:', this.visualizer.canvas);
+      console.log('🎨 Builder: Visualizer canvas size:', this.visualizer.canvas?.width, 'x', this.visualizer.canvas?.height);
       
       // BUILDER MODE: Keep cars at 0 and disable simulation
       this.world.carsNumber = 0;
@@ -239,19 +288,77 @@ export class BuilderPageComponent {
       this.visualizer.isBuilderMode = true;
       
       // Start visualizer for rendering (but not simulation)
+      console.log('🎨 Builder: Starting visualizer...');
       this.visualizer.start();
+      console.log('🎨 Builder: Visualizer started');
       
       // Force initial draw after a short delay
       setTimeout(() => {
-        if (this.visualizer && this.visualizer.drawSingleFrame) {
-          this.visualizer.drawSingleFrame();
+        console.log('🎨 Builder: Attempting to draw...');
+        
+        // Check if canvas still exists and has correct reference
+        const canvasCheck = document.getElementById('canvas') as HTMLCanvasElement;
+        console.log('🎨 Builder: Canvas check:', !!canvasCheck);
+        
+        // Only check reference if visualizer still exists
+        if (this.visualizer && this.visualizer.canvas) {
+          console.log('🎨 Builder: Canvas same reference?', canvasCheck === this.visualizer.canvas);
         }
-      }, 200);
+        
+        // Skip direct canvas test - let visualizer handle all drawing
+        console.log('🎨 Builder: Letting visualizer handle canvas drawing...');
+        
+        if (this.visualizer) {
+          // Skip test rendering - causes red background flash
+          // Test method has been commented out in visualizer.ts
+          
+          if (this.visualizer.drawSingleFrame) {
+            this.visualizer.drawSingleFrame();
+          }
+        }
+      }, 1000);
       
       console.log('✅ Builder visualizer initialized successfully');
     } catch (error) {
       console.error('❌ Error initializing builder visualizer:', error);
     }
+    
+    // Add window resize handler for responsive canvas
+    this.addResizeHandler();
+  }
+
+  private addResizeHandler() {
+    const resizeCanvas = () => {
+      const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+      const visualizerArea = canvas?.parentElement;
+      
+      if (canvas && visualizerArea) {
+        const rect = visualizerArea.getBoundingClientRect();
+        const targetWidth = Math.max(rect.width || 800, 400);
+        const targetHeight = Math.max(rect.height || 600, 300);
+        
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        
+        console.log('🎨 Builder: Canvas resized to:', targetWidth, 'x', targetHeight);
+        
+        // Redraw after resize
+        if (this.visualizer) {
+          setTimeout(() => {
+            if (this.visualizer.drawSingleFrame) {
+              this.visualizer.drawSingleFrame();
+            }
+          }, 100);
+        }
+      }
+    };
+    
+    // Debounced resize handler
+    let resizeTimeout: NodeJS.Timeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(resizeCanvas, 150);
+    });
   }
 
   private async saveLayout() {
@@ -457,16 +564,21 @@ export class BuilderPageComponent {
           position: relative;
           background: #1a1a1a;
           display: flex;
-          align-items: center;
-          justify-content: center;
+          align-items: stretch;
+          justify-content: stretch;
+          min-height: 0;
+          border: 2px solid #00ff00;
+          overflow: hidden;
         }
         
         .visualizer-area canvas {
           width: 100% !important;
           height: 100% !important;
-          background: #2d2d2d !important;
-          border: 1px solid #404040;
+          background: #ff0000 !important;
+          border: 2px solid #0000ff !important;
           display: block !important;
+          position: relative !important;
+          z-index: 10 !important;
         }
         
         .panel {
@@ -597,9 +709,26 @@ export class BuilderPageComponent {
   }
 
   destroy() {
+    console.log('🧹 Builder: Destroying page and cleaning up canvas...');
+    
     if (this.visualizer) {
       this.visualizer.stop();
+      this.visualizer = null;
     }
+    
+    // Remove the canvas element to prevent duplicates
+    const canvas = document.getElementById('canvas');
+    if (canvas) {
+      console.log('🗑️ Builder: Removing canvas element');
+      canvas.remove();
+    }
+    
+    // Clear the container
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
+    
+    console.log('✅ Builder: Page destroyed and cleaned up');
   }
 
   // Public interface methods for app integration

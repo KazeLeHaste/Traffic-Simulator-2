@@ -22616,8 +22616,11 @@ class BuilderPageComponent {
     async init() {
         await this.loadLayouts();
         this.render();
-        // Add event listeners with a small delay to ensure DOM is fully rendered
-        setTimeout(() => this.addEventListeners(), 100);
+        // Add event listeners with longer delay and better error handling
+        setTimeout(() => {
+            console.log('🔗 Builder: Setting up event listeners...');
+            this.addEventListeners();
+        }, 500);
         await this.initializeWorld();
     }
     async loadLayouts() {
@@ -22711,23 +22714,48 @@ class BuilderPageComponent {
         this.addStyles();
     }
     addEventListeners() {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b;
+        console.log('🔗 Builder: addEventListeners called');
+        // Check if buttons exist
+        const saveBtn = document.getElementById('save-layout');
+        const generateBtn = document.getElementById('generate-map');
+        const clearBtn = document.getElementById('clear-world');
+        const loadBtn = document.getElementById('load-current');
+        console.log('🔗 Builder: Button elements found:', {
+            saveBtn: !!saveBtn,
+            generateBtn: !!generateBtn,
+            clearBtn: !!clearBtn,
+            loadBtn: !!loadBtn
+        });
         // Toggle layout manager
         const toggleBtn = document.getElementById('toggle-layouts');
         const layoutManager = document.getElementById('layout-manager');
         toggleBtn === null || toggleBtn === void 0 ? void 0 : toggleBtn.addEventListener('click', () => {
+            console.log('🔗 Builder: Toggle layouts clicked');
             const isHidden = (layoutManager === null || layoutManager === void 0 ? void 0 : layoutManager.style.display) === 'none';
             layoutManager.style.display = isHidden ? 'block' : 'none';
             toggleBtn.textContent = isHidden ? 'Hide Saved Layouts' : 'Show Saved Layouts';
         });
-        // Control buttons
-        (_a = document.getElementById('save-layout')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.saveLayout());
-        (_b = document.getElementById('load-current')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.loadLayout());
-        (_c = document.getElementById('clear-world')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.clearWorld());
-        (_d = document.getElementById('generate-map')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.generateMap());
+        // Control buttons with logging
+        saveBtn === null || saveBtn === void 0 ? void 0 : saveBtn.addEventListener('click', () => {
+            console.log('🔗 Builder: Save layout clicked');
+            this.saveLayout();
+        });
+        loadBtn === null || loadBtn === void 0 ? void 0 : loadBtn.addEventListener('click', () => {
+            console.log('🔗 Builder: Load layout clicked');
+            this.loadLayout();
+        });
+        clearBtn === null || clearBtn === void 0 ? void 0 : clearBtn.addEventListener('click', () => {
+            console.log('🔗 Builder: Clear world clicked');
+            this.clearWorld();
+        });
+        generateBtn === null || generateBtn === void 0 ? void 0 : generateBtn.addEventListener('click', () => {
+            console.log('🔗 Builder: Generate map clicked');
+            this.generateMap();
+        });
         // Layout management
-        (_e = document.getElementById('load-layout')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => this.loadSelectedLayout());
-        (_f = document.getElementById('delete-layout')) === null || _f === void 0 ? void 0 : _f.addEventListener('click', () => this.deleteSelectedLayout());
+        (_a = document.getElementById('load-layout')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.loadSelectedLayout());
+        (_b = document.getElementById('delete-layout')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.deleteSelectedLayout());
         // Individual layout buttons
         document.querySelectorAll('.load-layout-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -22782,32 +22810,46 @@ class BuilderPageComponent {
         }
     }
     initializeVisualizer() {
-        console.log('🎨 Initializing builder visualizer...');
+        var _a, _b;
+        console.log('🎨 Builder: Initializing visualizer...');
         const canvas = document.getElementById('canvas');
         if (!canvas) {
-            console.error('❌ Canvas not found in DOM during builder initialization');
+            console.error('❌ Builder: Canvas not found in DOM');
             return;
         }
-        // Set up canvas dimensions based on container
+        // Debug canvas container
         const visualizerArea = canvas.parentElement;
+        console.log('🎨 Builder: Canvas container found:', !!visualizerArea);
         if (visualizerArea) {
             const rect = visualizerArea.getBoundingClientRect();
-            const targetWidth = Math.max(rect.width, 600);
-            const targetHeight = Math.max(rect.height, 400);
+            console.log('🎨 Builder: Container dimensions:', rect);
+            // Use the full container dimensions for responsive sizing
+            const targetWidth = Math.max(rect.width || 800, 400);
+            const targetHeight = Math.max(rect.height || 600, 300);
+            console.log('🎨 Builder: Target canvas size:', targetWidth, 'x', targetHeight);
             canvas.width = targetWidth;
             canvas.height = targetHeight;
-            // Apply CSS for proper display
+            // Set responsive styling for builder canvas
             canvas.style.cssText = `
         width: 100% !important;
         height: 100% !important;
         display: block !important;
-        background: #2d2d2d !important;
-        border: 1px solid #404040;
+        border: 2px solid #0000ff !important;
+        position: relative !important;
+        z-index: 10 !important;
+        pointer-events: auto !important;
+        box-sizing: border-box !important;
       `;
+            console.log('🎨 Builder: Canvas styled, final size:', canvas.width, 'x', canvas.height);
         }
         try {
             // Create visualizer in BUILDER MODE - all editing tools active
+            console.log('🎨 Builder: Creating visualizer with world...');
             this.visualizer = new Visualizer(this.world);
+            console.log('🎨 Builder: Visualizer created successfully');
+            // Check if visualizer has canvas
+            console.log('🎨 Builder: Visualizer canvas:', this.visualizer.canvas);
+            console.log('🎨 Builder: Visualizer canvas size:', (_a = this.visualizer.canvas) === null || _a === void 0 ? void 0 : _a.width, 'x', (_b = this.visualizer.canvas) === null || _b === void 0 ? void 0 : _b.height);
             // BUILDER MODE: Keep cars at 0 and disable simulation
             this.world.carsNumber = 0;
             if (this.world.cars && this.world.cars.clear) {
@@ -22816,18 +22858,64 @@ class BuilderPageComponent {
             // Set builder mode to prevent simulation
             this.visualizer.isBuilderMode = true;
             // Start visualizer for rendering (but not simulation)
+            console.log('🎨 Builder: Starting visualizer...');
             this.visualizer.start();
+            console.log('🎨 Builder: Visualizer started');
             // Force initial draw after a short delay
             setTimeout(() => {
-                if (this.visualizer && this.visualizer.drawSingleFrame) {
-                    this.visualizer.drawSingleFrame();
+                console.log('🎨 Builder: Attempting to draw...');
+                // Check if canvas still exists and has correct reference
+                const canvasCheck = document.getElementById('canvas');
+                console.log('🎨 Builder: Canvas check:', !!canvasCheck);
+                // Only check reference if visualizer still exists
+                if (this.visualizer && this.visualizer.canvas) {
+                    console.log('🎨 Builder: Canvas same reference?', canvasCheck === this.visualizer.canvas);
                 }
-            }, 200);
+                // Skip direct canvas test - let visualizer handle all drawing
+                console.log('🎨 Builder: Letting visualizer handle canvas drawing...');
+                if (this.visualizer) {
+                    // Skip test rendering - causes red background flash
+                    // Test method has been commented out in visualizer.ts
+                    if (this.visualizer.drawSingleFrame) {
+                        this.visualizer.drawSingleFrame();
+                    }
+                }
+            }, 1000);
             console.log('✅ Builder visualizer initialized successfully');
         }
         catch (error) {
             console.error('❌ Error initializing builder visualizer:', error);
         }
+        // Add window resize handler for responsive canvas
+        this.addResizeHandler();
+    }
+    addResizeHandler() {
+        const resizeCanvas = () => {
+            const canvas = document.getElementById('canvas');
+            const visualizerArea = canvas === null || canvas === void 0 ? void 0 : canvas.parentElement;
+            if (canvas && visualizerArea) {
+                const rect = visualizerArea.getBoundingClientRect();
+                const targetWidth = Math.max(rect.width || 800, 400);
+                const targetHeight = Math.max(rect.height || 600, 300);
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                console.log('🎨 Builder: Canvas resized to:', targetWidth, 'x', targetHeight);
+                // Redraw after resize
+                if (this.visualizer) {
+                    setTimeout(() => {
+                        if (this.visualizer.drawSingleFrame) {
+                            this.visualizer.drawSingleFrame();
+                        }
+                    }, 100);
+                }
+            }
+        };
+        // Debounced resize handler
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeCanvas, 150);
+        });
     }
     async saveLayout() {
         var _a, _b;
@@ -23024,16 +23112,21 @@ class BuilderPageComponent {
           position: relative;
           background: #1a1a1a;
           display: flex;
-          align-items: center;
-          justify-content: center;
+          align-items: stretch;
+          justify-content: stretch;
+          min-height: 0;
+          border: 2px solid #00ff00;
+          overflow: hidden;
         }
         
         .visualizer-area canvas {
           width: 100% !important;
           height: 100% !important;
-          background: #2d2d2d !important;
-          border: 1px solid #404040;
+          background: #ff0000 !important;
+          border: 2px solid #0000ff !important;
           display: block !important;
+          position: relative !important;
+          z-index: 10 !important;
         }
         
         .panel {
@@ -23163,9 +23256,22 @@ class BuilderPageComponent {
         }
     }
     destroy() {
+        console.log('🧹 Builder: Destroying page and cleaning up canvas...');
         if (this.visualizer) {
             this.visualizer.stop();
+            this.visualizer = null;
         }
+        // Remove the canvas element to prevent duplicates
+        const canvas = document.getElementById('canvas');
+        if (canvas) {
+            console.log('🗑️ Builder: Removing canvas element');
+            canvas.remove();
+        }
+        // Clear the container
+        if (this.container) {
+            this.container.innerHTML = '';
+        }
+        console.log('✅ Builder: Page destroyed and cleaned up');
     }
     // Public interface methods for app integration
     getContainer() {
@@ -23487,6 +23593,36 @@ class SimulationPageComponent {
         catch (error) {
             console.error('❌ Error initializing simulation visualizer:', error);
         }
+        // Add window resize handler for responsive canvas
+        this.addResizeHandler();
+    }
+    addResizeHandler() {
+        const resizeCanvas = () => {
+            const canvas = document.getElementById('canvas');
+            const visualizerArea = canvas === null || canvas === void 0 ? void 0 : canvas.parentElement;
+            if (canvas && visualizerArea) {
+                const rect = visualizerArea.getBoundingClientRect();
+                const targetWidth = Math.max(rect.width || 800, 400);
+                const targetHeight = Math.max(rect.height || 600, 300);
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                console.log('🎨 Simulation: Canvas resized to:', targetWidth, 'x', targetHeight);
+                // Redraw after resize
+                if (this.visualizer) {
+                    setTimeout(() => {
+                        if (this.visualizer.drawSingleFrame) {
+                            this.visualizer.drawSingleFrame();
+                        }
+                    }, 100);
+                }
+            }
+        };
+        // Debounced resize handler
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeCanvas, 150);
+        });
     }
     async loadSelectedLayout() {
         var _a, _b, _c;
@@ -23679,8 +23815,11 @@ class SimulationPageComponent {
           position: relative;
           background: #1a1a1a;
           display: flex;
-          align-items: center;
-          justify-content: center;
+          align-items: stretch;
+          justify-content: stretch;
+          min-height: 0;
+          border: 2px solid #00ff00;
+          overflow: hidden;
         }
         
         .visualizer-area canvas {
@@ -23689,6 +23828,8 @@ class SimulationPageComponent {
           background: #2d2d2d !important;
           border: 1px solid #404040;
           display: block !important;
+          position: relative !important;
+          z-index: 10 !important;
         }
         
         .panel {
@@ -23844,6 +23985,7 @@ class SimulationPageComponent {
         }
     }
     destroy() {
+        console.log('🧹 Simulation: Destroying page and cleaning up canvas...');
         if (this.visualizer) {
             this.visualizer.stop();
             this.visualizer = null;
@@ -23855,6 +23997,17 @@ class SimulationPageComponent {
         if (this.world) {
             this.world = null;
         }
+        // Remove the canvas element to prevent duplicates
+        const canvas = document.getElementById('canvas');
+        if (canvas) {
+            console.log('🗑️ Simulation: Removing canvas element');
+            canvas.remove();
+        }
+        // Clear the container
+        if (this.container) {
+            this.container.innerHTML = '';
+        }
+        console.log('✅ Simulation: Page destroyed and cleaned up');
     }
     // Public interface methods for app integration
     getContainer() {
@@ -24433,6 +24586,7 @@ const settings = __webpack_require__(/*! ../settings */ "./src/settings.ts");
 const { PI } = Math;
 class Visualizer {
     constructor(world) {
+        var _a, _b, _c;
         this.isBuilderMode = false; // New property to control simulation behavior
         this.draw = (time) => {
             var _a, _b, _c, _d, _e, _f;
@@ -24441,13 +24595,6 @@ class Visualizer {
                 const adjustedDelta = delta > 100 ? 100 : delta;
                 this.previousTime = time;
                 try {
-                    // Only update world simulation if NOT in builder mode
-                    if (!this.isBuilderMode) {
-                        this.world.onTick(this.timeFactor * adjustedDelta / 1000);
-                    }
-                    // Only update canvas size when actually needed, not every frame
-                    // This might be causing the flickering
-                    // this.updateCanvasSize();
                     // FORCE complete transformation reset with fallback
                     if (this.ctx.resetTransform) {
                         this.ctx.resetTransform();
@@ -24455,14 +24602,18 @@ class Visualizer {
                     else {
                         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
                     }
-                    this.ctx.save(); // Save the clean state
+                    // Clear canvas with proper background color
                     this.graphics.clear(settings.colors.background);
+                    this.ctx.save(); // Save the clean state
                     // Apply zoom transformation
                     this.zoomer.transform();
+                    // Debug world state occasionally to avoid spam
+                    if (Math.floor(time / 100) % 100 === 0) {
+                        this.debugWorldState();
+                    }
                     this.drawGrid();
                     // ALWAYS get fresh intersection list to ensure new intersections are drawn
                     const intersections = ((_b = (_a = this.world) === null || _a === void 0 ? void 0 : _a.intersections) === null || _b === void 0 ? void 0 : _b.all()) || {};
-                    const intersectionCount = Object.keys(intersections).length;
                     for (const id in intersections) {
                         const intersection = intersections[id];
                         if (intersection) {
@@ -24474,18 +24625,6 @@ class Visualizer {
                         const road = roads[id];
                         if (road) {
                             this.drawRoad(road, 0.9);
-                        }
-                    }
-                    // Draw signals with proper safety checks
-                    for (const id in roads) {
-                        const road = roads[id];
-                        if (road && road.target && road.target.controlSignals) {
-                            try {
-                                this.drawSignals(road);
-                            }
-                            catch (error) {
-                                // Silently skip problematic signals to prevent console spam
-                            }
                         }
                     }
                     const cars = ((_f = (_e = this.world) === null || _e === void 0 ? void 0 : _e.cars) === null || _f === void 0 ? void 0 : _f.all()) || {};
@@ -24516,9 +24655,22 @@ class Visualizer {
             }
         };
         this.world = world;
+        // Check for multiple canvas elements - log for debugging
+        const allCanvases = document.querySelectorAll('canvas');
+        console.log('🔍 CANVAS DEBUG: Found', allCanvases.length, 'canvas elements');
+        // Log all canvas elements for debugging
+        allCanvases.forEach((canvas, index) => {
+            console.log(`  - Canvas ${index}:`, canvas.id || 'no-id', canvas.width + 'x' + canvas.height, canvas.style.cssText || 'no-style');
+        });
+        // Get the canvas that should exist (created by page component)
         this.$canvas = $('#canvas');
         this.canvas = this.$canvas[0];
-        // Canvas setup - minimal logging
+        console.log('🔍 CANVAS STATUS:');
+        console.log('  - jQuery found canvas:', !!this.$canvas.length);
+        console.log('  - Canvas element:', !!this.canvas);
+        console.log('  - Canvas dimensions:', (_a = this.canvas) === null || _a === void 0 ? void 0 : _a.width, 'x', (_b = this.canvas) === null || _b === void 0 ? void 0 : _b.height);
+        console.log('  - Canvas style:', (_c = this.canvas) === null || _c === void 0 ? void 0 : _c.style.cssText);
+        // Canvas setup
         if (!this.canvas) {
             console.error('❌ Canvas element not found!');
             throw new Error('Canvas element with id "canvas" not found');
@@ -24559,50 +24711,57 @@ class Visualizer {
         this.graphics.fillRect(intersection.rect, color, alpha);
     }
     drawSignals(road) {
-        // Safety checks to prevent errors
-        if (!road || !road.target || !road.target.controlSignals || !road.targetSide) {
-            return;
-        }
-        const intersection = road.target;
-        const segment = road.targetSide;
-        const sideId = road.targetSideId;
-        // Additional safety checks
-        if (!intersection.controlSignals.state || !segment || sideId === undefined) {
-            return;
-        }
-        const lights = intersection.controlSignals.state[sideId];
-        if (!lights || !Array.isArray(lights)) {
-            return;
-        }
-        this.ctx.save();
-        this.ctx.translate(segment.center.x, segment.center.y);
-        this.ctx.rotate((sideId + 1) * PI / 2);
-        this.ctx.scale(1 * segment.length, 1 * segment.length);
-        // map lane ending to [(0, -0.5), (0, 0.5)]
-        if (lights[0]) {
-            this.graphics.drawTriangle(new Point(0.1, -0.2), new Point(0.2, -0.4), new Point(0.3, -0.2));
-            this.graphics.fill(settings.colors.greenLight);
-        }
-        if (lights[1]) {
-            this.graphics.drawTriangle(new Point(0.3, -0.1), new Point(0.5, 0), new Point(0.3, 0.1));
-            this.graphics.fill(settings.colors.greenLight);
-        }
-        if (lights[2]) {
-            this.graphics.drawTriangle(new Point(0.1, 0.2), new Point(0.2, 0.4), new Point(0.3, 0.2));
-            this.graphics.fill(settings.colors.greenLight);
-        }
-        this.ctx.restore();
-        if (this.debug) {
+        // Comprehensive safety checks to prevent errors
+        try {
+            if (!road || !road.target || !road.targetSide || road.targetSideId === undefined) {
+                return;
+            }
+            const intersection = road.target;
+            if (!intersection || !intersection.controlSignals || !intersection.controlSignals.state) {
+                return;
+            }
+            const segment = road.targetSide;
+            const sideId = road.targetSideId;
+            if (!segment || !segment.center || !segment.length) {
+                return;
+            }
+            const lights = intersection.controlSignals.state[sideId];
+            if (!lights || !Array.isArray(lights)) {
+                return;
+            }
             this.ctx.save();
-            this.ctx.fillStyle = "black";
-            this.ctx.font = "1px Arial";
-            const center = intersection.rect.center();
-            if (intersection.controlSignals.flipInterval && intersection.controlSignals.phaseOffset) {
-                const flipInterval = Math.round(intersection.controlSignals.flipInterval * 100) / 100;
-                const phaseOffset = Math.round(intersection.controlSignals.phaseOffset * 100) / 100;
-                this.ctx.fillText(flipInterval + ' ' + phaseOffset, center.x, center.y);
+            this.ctx.translate(segment.center.x, segment.center.y);
+            this.ctx.rotate((sideId + 1) * PI / 2);
+            this.ctx.scale(1 * segment.length, 1 * segment.length);
+            // map lane ending to [(0, -0.5), (0, 0.5)]
+            if (lights[0]) {
+                this.graphics.drawTriangle(new Point(0.1, -0.2), new Point(0.2, -0.4), new Point(0.3, -0.2));
+                this.graphics.fill(settings.colors.greenLight);
+            }
+            if (lights[1]) {
+                this.graphics.drawTriangle(new Point(0.3, -0.1), new Point(0.5, 0), new Point(0.3, 0.1));
+                this.graphics.fill(settings.colors.greenLight);
+            }
+            if (lights[2]) {
+                this.graphics.drawTriangle(new Point(0.1, 0.2), new Point(0.2, 0.4), new Point(0.3, 0.2));
+                this.graphics.fill(settings.colors.greenLight);
             }
             this.ctx.restore();
+            if (this.debug) {
+                this.ctx.save();
+                this.ctx.fillStyle = "black";
+                this.ctx.font = "1px Arial";
+                const center = intersection.rect.center();
+                if (intersection.controlSignals.flipInterval && intersection.controlSignals.phaseOffset) {
+                    const flipInterval = Math.round(intersection.controlSignals.flipInterval * 100) / 100;
+                    const phaseOffset = Math.round(intersection.controlSignals.phaseOffset * 100) / 100;
+                    this.ctx.fillText(flipInterval + ' ' + phaseOffset, center.x, center.y);
+                }
+                this.ctx.restore();
+            }
+        }
+        catch (error) {
+            // Silently handle drawing errors to prevent console spam
         }
     }
     drawRoad(road, alpha) {
@@ -24666,15 +24825,49 @@ class Visualizer {
     drawGrid() {
         const gridSize = settings.gridSize;
         const box = this.zoomer.getBoundingBox();
-        if (box.area() >= 2000 * gridSize * gridSize)
-            return;
-        const sz = 0.4;
-        for (let i = box.left(); i <= box.right(); i += gridSize) {
-            for (let j = box.top(); j <= box.bottom(); j += gridSize) {
+        console.log('🔳 Drawing grid - gridSize:', gridSize, 'canvas size:', this.canvas.width, 'x', this.canvas.height);
+        // Calculate grid bounds that will be visible on screen
+        const halfWidth = this.canvas.width / 2;
+        const halfHeight = this.canvas.height / 2;
+        const scale = this.zoomer.scale * this.zoomer.defaultZoom;
+        // Calculate visible world coordinates
+        const visibleLeft = -halfWidth / scale;
+        const visibleRight = halfWidth / scale;
+        const visibleTop = -halfHeight / scale;
+        const visibleBottom = halfHeight / scale;
+        console.log('🔳 Visible world bounds:', {
+            left: visibleLeft,
+            right: visibleRight,
+            top: visibleTop,
+            bottom: visibleBottom,
+            scale: scale
+        });
+        const sz = 2; // Make grid points larger and more visible
+        let pointsDrawn = 0;
+        // Draw grid within visible bounds
+        for (let i = Math.floor(visibleLeft / gridSize) * gridSize; i <= visibleRight; i += gridSize) {
+            for (let j = Math.floor(visibleTop / gridSize) * gridSize; j <= visibleBottom; j += gridSize) {
                 const rect = new Rect(i - sz / 2, j - sz / 2, sz, sz);
-                this.graphics.fillRect(rect, settings.colors.gridPoint);
+                this.graphics.fillRect(rect, '#00ff00'); // Bright green for visibility
+                pointsDrawn++;
+                // Log first few points for debugging
+                if (pointsDrawn <= 5) {
+                    console.log(`🔳 Grid point ${pointsDrawn}: (${i}, ${j}) -> rect(${rect.left()}, ${rect.top()}, ${rect.width()}, ${rect.height()})`);
+                }
             }
         }
+        console.log('🔳 Grid drawn - total points:', pointsDrawn, 'within visible bounds');
+        // Draw a large test rectangle at the center (0, 0)
+        const centerTestRect = new Rect(-10, -10, 20, 20);
+        this.graphics.fillRect(centerTestRect, '#ff00ff'); // Bright magenta
+        console.log('🔳 Center test rectangle drawn at origin');
+        // Draw test rectangles at the corners of the visible area
+        const cornerSize = 5;
+        this.graphics.fillRect(new Rect(visibleLeft, visibleTop, cornerSize, cornerSize), '#ffff00'); // Yellow
+        this.graphics.fillRect(new Rect(visibleRight - cornerSize, visibleTop, cornerSize, cornerSize), '#ff00ff'); // Magenta
+        this.graphics.fillRect(new Rect(visibleLeft, visibleBottom - cornerSize, cornerSize, cornerSize), '#00ffff'); // Cyan
+        this.graphics.fillRect(new Rect(visibleRight - cornerSize, visibleBottom - cornerSize, cornerSize, cornerSize), '#ffffff'); // White
+        console.log('🔳 Corner test rectangles drawn');
     }
     updateCanvasSize() {
         // Get the canvas container dimensions instead of full window
@@ -24752,17 +24945,47 @@ class Visualizer {
         }
     }
     start() {
+        console.log('🎬 VISUALIZER START CALLED - current running state:', this._running);
         if (!this._running) {
             this._running = true;
+            console.log('🎬 VISUALIZER STARTING - about to call draw(0)');
             this.draw(0);
+            console.log('🎬 VISUALIZER STARTED - draw(0) called');
+        }
+        else {
+            console.log('🎬 VISUALIZER ALREADY RUNNING');
         }
     }
     stop() {
+        console.log('🎬 VISUALIZER STOP CALLED');
         this._running = false;
     }
     // Method to force a single frame draw without starting animation loop
     drawSingleFrame() {
         this.draw(performance.now());
+    }
+    // Debug method to check world state
+    debugWorldState() {
+        var _a, _b, _c, _d, _e, _f;
+        console.log('🔍 DEBUG: World State Check:');
+        console.log('  - World exists:', !!this.world);
+        console.log('  - Intersections pool:', !!((_a = this.world) === null || _a === void 0 ? void 0 : _a.intersections));
+        console.log('  - Roads pool:', !!((_b = this.world) === null || _b === void 0 ? void 0 : _b.roads));
+        console.log('  - Cars pool:', !!((_c = this.world) === null || _c === void 0 ? void 0 : _c.cars));
+        if ((_d = this.world) === null || _d === void 0 ? void 0 : _d.intersections) {
+            const intersections = this.world.intersections.all();
+            console.log('  - Intersections count:', Object.keys(intersections || {}).length);
+            console.log('  - First intersection:', Object.values(intersections || {})[0]);
+        }
+        if ((_e = this.world) === null || _e === void 0 ? void 0 : _e.roads) {
+            const roads = this.world.roads.all();
+            console.log('  - Roads count:', Object.keys(roads || {}).length);
+            console.log('  - First road:', Object.values(roads || {})[0]);
+        }
+        if ((_f = this.world) === null || _f === void 0 ? void 0 : _f.cars) {
+            const cars = this.world.cars.all();
+            console.log('  - Cars count:', Object.keys(cars || {}).length);
+        }
     }
 }
 module.exports = Visualizer;
@@ -24831,13 +25054,19 @@ class Zoomer {
         if (!this.center) {
             this.center = new Point(this.canvas.width / 2, this.canvas.height / 2);
         }
+        console.log('🔍 Zoomer transform:', {
+            canvasSize: { width: this.canvas.width, height: this.canvas.height },
+            center: { x: this.center.x, y: this.center.y },
+            scale: this.scale,
+            defaultZoom: this.defaultZoom,
+            finalScale: this.scale * this.defaultZoom
+        });
         // Apply translation to center
         this.ctx.translate(this.center.x, this.center.y);
         // Apply scaling
         const k = this.scale * this.defaultZoom;
         this.ctx.scale(k, k);
-        // Reduced logging to prevent console spam - only log on significant changes
-        // console.log('🔧 Zoomer transform applied: center=', this.center.x, this.center.y, 'scale=', k);
+        console.log('🔍 Transform applied - final scale:', k);
     }
     zoom(k, zoomCenter) {
         k = k || 1;

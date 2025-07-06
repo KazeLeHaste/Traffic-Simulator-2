@@ -39,10 +39,12 @@ class Pool<T extends Poolable> {
   pop(obj: T | string): T {
     const id = typeof obj === 'string' ? obj : obj.id;
     const result = this.objects[id];
-    if (result.release) {
-      result.release();
+    if (result) {
+      if (result.release) {
+        result.release();
+      }
+      delete this.objects[id];
     }
-    delete this.objects[id];
     return result;
   }
 

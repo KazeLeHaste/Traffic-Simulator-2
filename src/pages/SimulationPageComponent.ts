@@ -314,6 +314,43 @@ export class SimulationPageComponent {
     } catch (error) {
       console.error('❌ Error initializing simulation visualizer:', error);
     }
+    
+    // Add window resize handler for responsive canvas
+    this.addResizeHandler();
+  }
+
+  private addResizeHandler() {
+    const resizeCanvas = () => {
+      const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+      const visualizerArea = canvas?.parentElement;
+      
+      if (canvas && visualizerArea) {
+        const rect = visualizerArea.getBoundingClientRect();
+        const targetWidth = Math.max(rect.width || 800, 400);
+        const targetHeight = Math.max(rect.height || 600, 300);
+        
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        
+        console.log('🎨 Simulation: Canvas resized to:', targetWidth, 'x', targetHeight);
+        
+        // Redraw after resize
+        if (this.visualizer) {
+          setTimeout(() => {
+            if (this.visualizer.drawSingleFrame) {
+              this.visualizer.drawSingleFrame();
+            }
+          }, 100);
+        }
+      }
+    };
+    
+    // Debounced resize handler
+    let resizeTimeout: NodeJS.Timeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(resizeCanvas, 150);
+    });
   }
 
   private async loadSelectedLayout() {
@@ -513,8 +550,11 @@ export class SimulationPageComponent {
           position: relative;
           background: #1a1a1a;
           display: flex;
-          align-items: center;
-          justify-content: center;
+          align-items: stretch;
+          justify-content: stretch;
+          min-height: 0;
+          border: 2px solid #00ff00;
+          overflow: hidden;
         }
         
         .visualizer-area canvas {
@@ -523,6 +563,8 @@ export class SimulationPageComponent {
           background: #2d2d2d !important;
           border: 1px solid #404040;
           display: block !important;
+          position: relative !important;
+          z-index: 10 !important;
         }
         
         .panel {
@@ -679,6 +721,8 @@ export class SimulationPageComponent {
   }
 
   destroy() {
+    console.log('🧹 Simulation: Destroying page and cleaning up canvas...');
+    
     if (this.visualizer) {
       this.visualizer.stop();
       this.visualizer = null;
@@ -690,6 +734,20 @@ export class SimulationPageComponent {
     if (this.world) {
       this.world = null;
     }
+    
+    // Remove the canvas element to prevent duplicates
+    const canvas = document.getElementById('canvas');
+    if (canvas) {
+      console.log('🗑️ Simulation: Removing canvas element');
+      canvas.remove();
+    }
+    
+    // Clear the container
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
+    
+    console.log('✅ Simulation: Page destroyed and cleaned up');
   }
 
   // Public interface methods for app integration

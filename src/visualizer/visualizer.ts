@@ -36,10 +36,27 @@ class Visualizer {
 
   constructor(world: any) {
     this.world = world;
+    
+    // Check for multiple canvas elements - log for debugging
+    const allCanvases = document.querySelectorAll('canvas');
+    console.log('🔍 CANVAS DEBUG: Found', allCanvases.length, 'canvas elements');
+    
+    // Log all canvas elements for debugging
+    allCanvases.forEach((canvas, index) => {
+      console.log(`  - Canvas ${index}:`, canvas.id || 'no-id', canvas.width + 'x' + canvas.height, canvas.style.cssText || 'no-style');
+    });
+    
+    // Get the canvas that should exist (created by page component)
     this.$canvas = $('#canvas');
     this.canvas = this.$canvas[0] as HTMLCanvasElement;
     
-    // Canvas setup - minimal logging
+    console.log('🔍 CANVAS STATUS:');
+    console.log('  - jQuery found canvas:', !!this.$canvas.length);
+    console.log('  - Canvas element:', !!this.canvas);
+    console.log('  - Canvas dimensions:', this.canvas?.width, 'x', this.canvas?.height);
+    console.log('  - Canvas style:', this.canvas?.style.cssText);
+    
+    // Canvas setup
     if (!this.canvas) {
       console.error('❌ Canvas element not found!');
       throw new Error('Canvas element with id "canvas" not found');
@@ -90,68 +107,75 @@ class Visualizer {
   }
 
   drawSignals(road: any): void {
-    // Safety checks to prevent errors
-    if (!road || !road.target || !road.target.controlSignals || !road.targetSide) {
-      return;
-    }
-    
-    const intersection = road.target;
-    const segment = road.targetSide;
-    const sideId = road.targetSideId;
-    
-    // Additional safety checks
-    if (!intersection.controlSignals.state || !segment || sideId === undefined) {
-      return;
-    }
-    
-    const lights = intersection.controlSignals.state[sideId];
-    if (!lights || !Array.isArray(lights)) {
-      return;
-    }
+    // Comprehensive safety checks to prevent errors
+    try {
+      if (!road || !road.target || !road.targetSide || road.targetSideId === undefined) {
+        return;
+      }
+      
+      const intersection = road.target;
+      if (!intersection || !intersection.controlSignals || !intersection.controlSignals.state) {
+        return;
+      }
+      
+      const segment = road.targetSide;
+      const sideId = road.targetSideId;
+      
+      if (!segment || !segment.center || !segment.length) {
+        return;
+      }
+      
+      const lights = intersection.controlSignals.state[sideId];
+      if (!lights || !Array.isArray(lights)) {
+        return;
+      }
 
-    this.ctx.save();
-    this.ctx.translate(segment.center.x, segment.center.y);
-    this.ctx.rotate((sideId + 1) * PI / 2);
-    this.ctx.scale(1 * segment.length, 1 * segment.length);
-    
-    // map lane ending to [(0, -0.5), (0, 0.5)]
-    if (lights[0]) {
-      this.graphics.drawTriangle(
-        new Point(0.1, -0.2),
-        new Point(0.2, -0.4),
-        new Point(0.3, -0.2)
-      );
-      this.graphics.fill(settings.colors.greenLight);
-    }
-    if (lights[1]) {
-      this.graphics.drawTriangle(
-        new Point(0.3, -0.1),
-        new Point(0.5, 0),
-        new Point(0.3, 0.1)
-      );
-      this.graphics.fill(settings.colors.greenLight);
-    }
-    if (lights[2]) {
-      this.graphics.drawTriangle(
-        new Point(0.1, 0.2),
-        new Point(0.2, 0.4),
-        new Point(0.3, 0.2)
-      );
-      this.graphics.fill(settings.colors.greenLight);
-    }
-    this.ctx.restore();
-    
-    if (this.debug) {
       this.ctx.save();
-      this.ctx.fillStyle = "black";
-      this.ctx.font = "1px Arial";
-      const center = intersection.rect.center();
-      if (intersection.controlSignals.flipInterval && intersection.controlSignals.phaseOffset) {
-        const flipInterval = Math.round(intersection.controlSignals.flipInterval * 100) / 100;
-        const phaseOffset = Math.round(intersection.controlSignals.phaseOffset * 100) / 100;
-        this.ctx.fillText(flipInterval + ' ' + phaseOffset, center.x, center.y);
+      this.ctx.translate(segment.center.x, segment.center.y);
+      this.ctx.rotate((sideId + 1) * PI / 2);
+      this.ctx.scale(1 * segment.length, 1 * segment.length);
+      
+      // map lane ending to [(0, -0.5), (0, 0.5)]
+      if (lights[0]) {
+        this.graphics.drawTriangle(
+          new Point(0.1, -0.2),
+          new Point(0.2, -0.4),
+          new Point(0.3, -0.2)
+        );
+        this.graphics.fill(settings.colors.greenLight);
+      }
+      if (lights[1]) {
+        this.graphics.drawTriangle(
+          new Point(0.3, -0.1),
+          new Point(0.5, 0),
+          new Point(0.3, 0.1)
+        );
+        this.graphics.fill(settings.colors.greenLight);
+      }
+      if (lights[2]) {
+        this.graphics.drawTriangle(
+          new Point(0.1, 0.2),
+          new Point(0.2, 0.4),
+          new Point(0.3, 0.2)
+        );
+        this.graphics.fill(settings.colors.greenLight);
       }
       this.ctx.restore();
+      
+      if (this.debug) {
+        this.ctx.save();
+        this.ctx.fillStyle = "black";
+        this.ctx.font = "1px Arial";
+        const center = intersection.rect.center();
+        if (intersection.controlSignals.flipInterval && intersection.controlSignals.phaseOffset) {
+          const flipInterval = Math.round(intersection.controlSignals.flipInterval * 100) / 100;
+          const phaseOffset = Math.round(intersection.controlSignals.phaseOffset * 100) / 100;
+          this.ctx.fillText(flipInterval + ' ' + phaseOffset, center.x, center.y);
+        }
+        this.ctx.restore();
+      }
+    } catch (error) {
+      // Silently handle drawing errors to prevent console spam
     }
   }
 
@@ -225,15 +249,60 @@ class Visualizer {
   drawGrid(): void {
     const gridSize = settings.gridSize;
     const box = this.zoomer.getBoundingBox();
-    if (box.area() >= 2000 * gridSize * gridSize) return;
-    const sz = 0.4;
+    
+    console.log('🔳 Drawing grid - gridSize:', gridSize, 'canvas size:', this.canvas.width, 'x', this.canvas.height);
+    
+    // Calculate grid bounds that will be visible on screen
+    const halfWidth = this.canvas.width / 2;
+    const halfHeight = this.canvas.height / 2;
+    const scale = this.zoomer.scale * this.zoomer.defaultZoom;
+    
+    // Calculate visible world coordinates
+    const visibleLeft = -halfWidth / scale;
+    const visibleRight = halfWidth / scale;
+    const visibleTop = -halfHeight / scale;
+    const visibleBottom = halfHeight / scale;
+    
+    console.log('🔳 Visible world bounds:', {
+      left: visibleLeft,
+      right: visibleRight,
+      top: visibleTop,
+      bottom: visibleBottom,
+      scale: scale
+    });
+    
+    const sz = 2; // Make grid points larger and more visible
+    let pointsDrawn = 0;
 
-    for (let i = box.left(); i <= box.right(); i += gridSize) {
-      for (let j = box.top(); j <= box.bottom(); j += gridSize) {
+    // Draw grid within visible bounds
+    for (let i = Math.floor(visibleLeft / gridSize) * gridSize; i <= visibleRight; i += gridSize) {
+      for (let j = Math.floor(visibleTop / gridSize) * gridSize; j <= visibleBottom; j += gridSize) {
         const rect = new Rect(i - sz / 2, j - sz / 2, sz, sz);
-        this.graphics.fillRect(rect, settings.colors.gridPoint);
+        this.graphics.fillRect(rect, '#00ff00'); // Bright green for visibility
+        pointsDrawn++;
+        
+        // Log first few points for debugging
+        if (pointsDrawn <= 5) {
+          console.log(`🔳 Grid point ${pointsDrawn}: (${i}, ${j}) -> rect(${rect.left()}, ${rect.top()}, ${rect.width()}, ${rect.height()})`);
+        }
       }
     }
+    
+    console.log('🔳 Grid drawn - total points:', pointsDrawn, 'within visible bounds');
+    
+    // Draw a large test rectangle at the center (0, 0)
+    const centerTestRect = new Rect(-10, -10, 20, 20);
+    this.graphics.fillRect(centerTestRect, '#ff00ff'); // Bright magenta
+    console.log('🔳 Center test rectangle drawn at origin');
+    
+    // Draw test rectangles at the corners of the visible area
+    const cornerSize = 5;
+    this.graphics.fillRect(new Rect(visibleLeft, visibleTop, cornerSize, cornerSize), '#ffff00'); // Yellow
+    this.graphics.fillRect(new Rect(visibleRight - cornerSize, visibleTop, cornerSize, cornerSize), '#ff00ff'); // Magenta
+    this.graphics.fillRect(new Rect(visibleLeft, visibleBottom - cornerSize, cornerSize, cornerSize), '#00ffff'); // Cyan
+    this.graphics.fillRect(new Rect(visibleRight - cornerSize, visibleBottom - cornerSize, cornerSize, cornerSize), '#ffffff'); // White
+    
+    console.log('🔳 Corner test rectangles drawn');
   }
 
   updateCanvasSize(): void {
@@ -282,33 +351,30 @@ class Visualizer {
       this.previousTime = time;
       
       try {
-        // Only update world simulation if NOT in builder mode
-        if (!this.isBuilderMode) {
-          this.world.onTick(this.timeFactor * adjustedDelta / 1000);
-        }
-        
-        // Only update canvas size when actually needed, not every frame
-        // This might be causing the flickering
-        // this.updateCanvasSize();
-        
         // FORCE complete transformation reset with fallback
         if (this.ctx.resetTransform) {
           this.ctx.resetTransform();
         } else {
           this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         }
-        this.ctx.save(); // Save the clean state
         
+        // Clear canvas with proper background color
         this.graphics.clear(settings.colors.background);
+        
+        this.ctx.save(); // Save the clean state
         
         // Apply zoom transformation
         this.zoomer.transform();
+        
+        // Debug world state occasionally to avoid spam
+        if (Math.floor(time / 100) % 100 === 0) {
+          this.debugWorldState();
+        }
         
         this.drawGrid();
         
         // ALWAYS get fresh intersection list to ensure new intersections are drawn
         const intersections = this.world?.intersections?.all() || {};
-        const intersectionCount = Object.keys(intersections).length;
         
         for (const id in intersections) {
           const intersection = intersections[id];
@@ -322,18 +388,6 @@ class Visualizer {
           const road = roads[id];
           if (road) {
             this.drawRoad(road, 0.9);
-          }
-        }
-        
-        // Draw signals with proper safety checks
-        for (const id in roads) {
-          const road = roads[id];
-          if (road && road.target && road.target.controlSignals) {
-            try {
-              this.drawSignals(road);
-            } catch (error) {
-              // Silently skip problematic signals to prevent console spam
-            }
           }
         }
         
@@ -418,13 +472,19 @@ class Visualizer {
   }
 
   start(): void {
+    console.log('🎬 VISUALIZER START CALLED - current running state:', this._running);
     if (!this._running) {
       this._running = true;
+      console.log('🎬 VISUALIZER STARTING - about to call draw(0)');
       this.draw(0);
+      console.log('🎬 VISUALIZER STARTED - draw(0) called');
+    } else {
+      console.log('🎬 VISUALIZER ALREADY RUNNING');
     }
   }
 
   stop(): void {
+    console.log('🎬 VISUALIZER STOP CALLED');
     this._running = false;
   }
   
@@ -432,6 +492,61 @@ class Visualizer {
   drawSingleFrame(): void {
     this.draw(performance.now());
   }
+
+  // Debug method to check world state
+  debugWorldState(): void {
+    console.log('🔍 DEBUG: World State Check:');
+    console.log('  - World exists:', !!this.world);
+    console.log('  - Intersections pool:', !!this.world?.intersections);
+    console.log('  - Roads pool:', !!this.world?.roads);
+    console.log('  - Cars pool:', !!this.world?.cars);
+    
+    if (this.world?.intersections) {
+      const intersections = this.world.intersections.all();
+      console.log('  - Intersections count:', Object.keys(intersections || {}).length);
+      console.log('  - First intersection:', Object.values(intersections || {})[0]);
+    }
+    
+    if (this.world?.roads) {
+      const roads = this.world.roads.all();
+      console.log('  - Roads count:', Object.keys(roads || {}).length);
+      console.log('  - First road:', Object.values(roads || {})[0]);
+    }
+    
+    if (this.world?.cars) {
+      const cars = this.world.cars.all();
+      console.log('  - Cars count:', Object.keys(cars || {}).length);
+    }
+  }
+
+  // DEBUG: Simple canvas test method (removed to prevent red background flash)
+  // testCanvasRendering(): void {
+  //   console.log('🧪 Testing basic canvas rendering...');
+  //   
+  //   // Clear any existing transforms
+  //   this.ctx.resetTransform();
+  //   
+  //   // Clear canvas with solid color
+  //   this.ctx.fillStyle = '#ff0000';
+  //   this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  //   
+  //   // Draw test shapes at screen coordinates
+  //   this.ctx.fillStyle = '#00ff00';
+  //   this.ctx.fillRect(50, 50, 200, 100);
+  //   
+  //   this.ctx.fillStyle = '#0000ff';
+  //   this.ctx.fillRect(300, 200, 150, 100);
+  //   
+  //   // Draw large visible text
+  //   this.ctx.fillStyle = '#ffffff';
+  //   this.ctx.font = 'bold 30px Arial';
+  //   this.ctx.fillText('CANVAS TEST OK!', 50, 150);
+  //   
+  //   this.ctx.font = 'bold 20px Arial';
+  //   this.ctx.fillText('Canvas size: ' + this.canvas.width + 'x' + this.canvas.height, 50, 180);
+  //   
+  //   console.log('🧪 Basic canvas test completed - should be RED with GREEN/BLUE boxes');
+  // }
 }
 
 export = Visualizer;

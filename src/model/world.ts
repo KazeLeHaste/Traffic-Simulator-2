@@ -216,15 +216,4 @@ class World {
   }
 }
 
-// Set up properties using the CoffeeScript-style property decorator
-World.property('instantSpeed', {
-  get: function(this: World) {
-    const speeds = _.map(Object.values(this.cars.all()), (car) => car.speed);
-    if (speeds.length === 0) {
-      return 0;
-    }
-    return _.reduce(speeds, (a, b) => a + b, 0) / speeds.length;
-  }
-});
-
 export = World;
