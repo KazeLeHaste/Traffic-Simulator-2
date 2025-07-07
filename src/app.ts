@@ -21,6 +21,9 @@ $(() => {
   
   // Wait for DOM to be ready
   setTimeout(() => {
+    // Clear any existing content
+    document.body.innerHTML = '';
+
     // Create main application container
     const appContainer = $('<div id="app-container"></div>');
     $(document.body).append(appContainer);
@@ -58,6 +61,10 @@ $(() => {
         simulationPage = null;
       }
       
+      // Allow scrolling on home page
+      document.body.classList.remove('no-scroll');
+      document.body.classList.add('allow-scroll');
+      
       // Clear content and create fresh home page
       mainContent.innerHTML = '';
       homePage = new HomePage(mainContent, router);
@@ -79,6 +86,10 @@ $(() => {
         builderPage = null;
       }
       
+      // Prevent scrolling on builder page
+      document.body.classList.remove('allow-scroll');
+      document.body.classList.add('no-scroll');
+      
       // Clear content and create fresh builder page
       mainContent.innerHTML = '';
       builderPage = new BuilderPageComponent(mainContent);
@@ -99,6 +110,10 @@ $(() => {
         simulationPage.destroy();
         simulationPage = null;
       }
+      
+      // Prevent scrolling on simulation page
+      document.body.classList.remove('allow-scroll');
+      document.body.classList.add('no-scroll');
       
       // Clear content and create fresh simulation page
       mainContent.innerHTML = '';

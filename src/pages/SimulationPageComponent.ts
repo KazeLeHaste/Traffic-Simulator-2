@@ -37,6 +37,15 @@ export class SimulationPageComponent {
     setTimeout(() => this.addEventListeners(), 100);
     
     await this.initializeSimulation();
+    
+    // Check if there's a selected layout to load (from home page)
+    if (appState.selectedLayoutId) {
+      const layoutId = appState.selectedLayoutId;
+      // Clear the selected layout so it doesn't reload on next navigation
+      appState.selectedLayoutId = null;
+      // Load the selected layout
+      await this.loadLayoutById(layoutId);
+    }
   }
 
   private async loadLayouts() {
@@ -847,96 +856,181 @@ export class SimulationPageComponent {
   private async showLoadDialog(): Promise<void> {
     try {
       if (this.layouts.length === 0) {
-        this.showNotification('No saved layouts found', 'warning');
+        this.showNotification('No saved layouts found. Create one in the Builder first!', 'warning');
         return;
       }
       
-      // Create modal dialog
-      const modal = document.createElement('div');
-      modal.style.position = 'fixed';
-      modal.style.top = '0';
-      modal.style.left = '0';
-      modal.style.width = '100%';
-      modal.style.height = '100%';
-      modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
-      modal.style.display = 'flex';
-      modal.style.justifyContent = 'center';
-      modal.style.alignItems = 'center';
-      modal.style.zIndex = '1000';
+      // Create load dialog
+      const dialog = document.createElement('div');
+      dialog.className = 'modal-overlay';
+      dialog.innerHTML = `
+        <div class="modal-dialog modal-large">
+          <div class="modal-header">
+            <h3>Load Layout</h3>
+            <button class="close-btn" id="close-load-dialog">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Select a layout to load for simulation:</p>
+            <div class="layout-grid">
+              ${this.layouts.map(layout => `
+                <div class="layout-card" data-layout-id="${layout.id}">
+                  <div class="layout-info">
+                    <h4>${layout.name || 'Unnamed Layout'}</h4>
+                    <small>Created: ${new Date(layout.createdAt).toLocaleString()}</small>
+                  </div>
+                  <div class="layout-actions">
+                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
+          </div>
+        </div>
+      `;
       
-      // Create modal content
-      const content = document.createElement('div');
-      content.style.backgroundColor = '#fff';
-      content.style.borderRadius = '8px';
-      content.style.padding = '20px';
-      content.style.width = '500px';
-      content.style.maxWidth = '90%';
-      content.style.maxHeight = '80vh';
-      content.style.overflowY = 'auto';
+      // Add CSS for the dialog
+      const styleElement = document.createElement('style');
+      if (!document.getElementById('modal-dialog-styles')) {
+        styleElement.id = 'modal-dialog-styles';
+        styleElement.textContent = `
+          .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          
+          .modal-dialog {
+            background-color: #2d2d2d;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #404040;
+          }
+          
+          .modal-large {
+            max-width: 800px;
+          }
+          
+          .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          
+          .modal-header h3 {
+            margin: 0;
+            color: #ffffff;
+          }
+          
+          .close-btn {
+            background: transparent;
+            border: none;
+            color: #b0b0b0;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+          }
+          
+          .close-btn:hover {
+            color: #ffffff;
+          }
+          
+          .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(90vh - 140px);
+          }
+          
+          .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #404040;
+            text-align: right;
+          }
+          
+          .layout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+          }
+          
+          .layout-card {
+            border: 1px solid #404040;
+            background-color: #333333;
+            border-radius: 5px;
+            padding: 15px;
+            transition: all 0.2s ease;
+          }
+          
+          .layout-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-color: #007bff;
+          }
+          
+          .layout-info h4 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #ffffff;
+          }
+          
+          .layout-info small {
+            color: #b0b0b0;
+            display: block;
+            margin-bottom: 15px;
+          }
+          
+          .layout-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+          }
+        `;
+        document.head.appendChild(styleElement);
+      }
       
-      // Create header
-      const header = document.createElement('h3');
-      header.textContent = 'Load Layout';
-      header.style.marginTop = '0';
+      document.body.appendChild(dialog);
       
-      // Create layout list
-      const list = document.createElement('div');
-      list.style.marginBottom = '20px';
+      // Event listeners
+      const cancelLoad = document.getElementById('cancel-load');
+      const closeLoad = document.getElementById('close-load-dialog');
       
-      // Add each layout
-      this.layouts.forEach(layout => {
-        const item = document.createElement('div');
-        item.style.padding = '10px';
-        item.style.borderBottom = '1px solid #eee';
-        item.style.cursor = 'pointer';
-        item.style.display = 'flex';
-        item.style.justifyContent = 'space-between';
-        item.style.alignItems = 'center';
-        
-        const name = document.createElement('span');
-        name.textContent = layout.name || `Layout ${layout.id}`;
-        
-        const date = document.createElement('small');
-        date.style.color = '#777';
-        date.textContent = new Date(layout.updatedAt || layout.createdAt).toLocaleString();
-        
-        const loadBtn = document.createElement('button');
-        loadBtn.className = 'btn btn-primary';
-        loadBtn.textContent = 'Load';
-        loadBtn.onclick = async () => {
-          document.body.removeChild(modal);
-          await this.loadLayoutById(layout.id);
-        };
-        
-        item.appendChild(name);
-        item.appendChild(date);
-        item.appendChild(loadBtn);
-        list.appendChild(item);
-      });
-      
-      // Create close button
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'btn btn-secondary';
-      closeBtn.textContent = 'Cancel';
-      closeBtn.style.marginRight = '10px';
-      closeBtn.onclick = () => {
-        document.body.removeChild(modal);
+      const closeDialog = () => {
+        if (dialog && dialog.parentNode) {
+          document.body.removeChild(dialog);
+        }
       };
       
-      // Create footer
-      const footer = document.createElement('div');
-      footer.style.marginTop = '20px';
-      footer.style.textAlign = 'right';
-      footer.appendChild(closeBtn);
+      // Load layout buttons
+      dialog.querySelectorAll('.load-layout-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const layoutId = (e.target as HTMLElement).getAttribute('data-layout-id');
+          if (layoutId) {
+            closeDialog();
+            await this.loadLayoutById(layoutId);
+          }
+        });
+      });
       
-      // Assemble modal
-      content.appendChild(header);
-      content.appendChild(list);
-      content.appendChild(footer);
-      modal.appendChild(content);
+      cancelLoad?.addEventListener('click', closeDialog);
+      closeLoad?.addEventListener('click', closeDialog);
       
-      // Show modal
-      document.body.appendChild(modal);
     } catch (error) {
       console.error('Error showing load dialog:', error);
       this.showNotification('Failed to show load dialog', 'error');

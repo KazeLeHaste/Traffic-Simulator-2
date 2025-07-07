@@ -14,6 +14,11 @@ export class NavigationComponent {
   }
 
   private render() {
+    console.log('🧭 [NAV] Rendering navigation bar');
+    
+    // Ensure container is empty before rendering
+    this.container.innerHTML = '';
+    
     this.container.innerHTML = `
       <nav class="navbar">
         <div class="nav-container">

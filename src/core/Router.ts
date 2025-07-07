@@ -14,10 +14,19 @@ export class Router {
   }
 
   navigate(path: string) {
+    console.log(`Router attempting to navigate to: ${path}`);
     if (this.routes[path]) {
+      console.log(`Route handler found for ${path}, updating state and history`);
       this.currentRoute = path;
       window.history.pushState({ path }, '', path);
-      this.routes[path]();
+      try {
+        this.routes[path]();
+        console.log(`Successfully navigated to ${path}`);
+      } catch (error) {
+        console.error(`Error executing route handler for ${path}:`, error);
+      }
+    } else {
+      console.warn(`No route handler registered for path: ${path}`);
     }
   }
 

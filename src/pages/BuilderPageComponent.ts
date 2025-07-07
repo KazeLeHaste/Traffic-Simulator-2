@@ -27,6 +27,15 @@ export class BuilderPageComponent {
     }, 500);
     
     await this.initializeWorld();
+    
+    // Check if there's a selected layout to load (from home page)
+    if (appState.selectedLayoutId) {
+      const layoutId = appState.selectedLayoutId;
+      // Clear the selected layout so it doesn't reload on next navigation
+      appState.selectedLayoutId = null;
+      // Load the selected layout
+      await this.loadLayoutById(layoutId);
+    }
   }
 
   private async loadLayouts() {

@@ -5,7 +5,13 @@ body, html {
     color: #ffffff; /* White text */
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     height: 100%;
-    overflow: hidden; /* Prevent body scrolling completely */
+    width: 100%;
+    overflow: hidden; /* Default to hidden */
+}
+
+/* Style for pages where we want to allow scrolling */
+body.allow-scroll {
+    overflow: auto;
 }
 
 #app-container {
@@ -13,11 +19,13 @@ body, html {
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    overflow: hidden; /* Prevent any overflow on main container */
-    position: fixed; /* Fix to viewport to prevent any scrolling */
-    top: 0;
-    left: 0;
+    overflow: hidden; /* Prevent overflow by default */
     background: #1a1a1a; /* Dark background */
+}
+
+/* Allow scrolling on home page */
+.allow-scroll #app-container {
+    overflow: auto;
 }
 
 #nav-container {
@@ -30,10 +38,15 @@ body, html {
 
 #main-content {
     flex: 1;
-    overflow: hidden;
+    overflow: hidden; /* Hide overflow by default */
     position: relative;
     height: calc(100vh - 60px); /* Reserve space for navigation */
     background: #1a1a1a;
+}
+
+/* Allow scrolling for home page */
+.allow-scroll #main-content {
+    overflow: auto;
 }
 
 /* Ensure pages fill their container completely */

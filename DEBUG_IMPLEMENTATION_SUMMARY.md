@@ -49,6 +49,36 @@ This document outlines the debugging process and fixes implemented to resolve va
   - `src/app.ts`
   - Added `css/dark-theme.css`
 
+### 6. Home Page Navigation Issues
+- **Problem**: Navigation buttons on the home page ("Start Building" and "View Simulation") were not working, and scrolling was not possible on the home page.
+- **Solution**: Fixed event listener timing and CSS conflicts affecting scrolling
+- **Implementation**: 
+  - Added delayed event listener attachment using setTimeout to ensure DOM elements are fully rendered
+  - Added debugging logs to track button click events
+  - Modified CSS to allow proper scrolling on the home page while maintaining fixed layout on simulation/builder pages
+  - Added conditional body classes to manage overflow behavior based on the current page
+- **Files Modified**: 
+  - `src/pages/HomePage.ts`
+  - `src/core/Router.ts`
+  - `src/app.ts`
+  - `css/style.css`
+
+### 7. Home Page Content Duplication
+- **Problem**: When refreshing the page, two instances of the home page would appear with blank space at the top
+- **Solution**: Fixed page initialization, DOM clearing, and CSS positioning conflicts
+- **Implementation**:
+  - Changed `body` and container overflow behaviors to more consistent defaults
+  - Cleared existing content from the DOM before creating new elements
+  - Updated element positioning to use relative instead of absolute
+  - Removed duplicate elements in the HTML template
+  - Added proper debugging logs to track page initialization
+- **Files Modified**:
+  - `src/pages/HomePage.ts`
+  - `src/components/NavigationComponent.ts` 
+  - `css/style.css`
+  - `index.html`
+  - `src/app.ts`
+
 ## Debug Logging Added
 
 ### 1. World State Operations (`src/model/world.ts`)
