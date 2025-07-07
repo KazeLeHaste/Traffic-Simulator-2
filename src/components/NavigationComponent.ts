@@ -22,6 +22,10 @@ export class NavigationComponent {
           </div>
           
           <div class="nav-links">
+            <a href="/" class="nav-link" data-route="/">
+              🏠 Home
+            </a>
+            
             <a href="/builder" class="nav-link" data-route="/builder">
               🏗️ Builder
             </a>
@@ -38,7 +42,7 @@ export class NavigationComponent {
     this.container.querySelectorAll('[data-route]').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        const route = (e.target as HTMLElement).getAttribute('data-route') || '/builder';
+        const route = (e.target as HTMLElement).getAttribute('data-route') || '/';
         this.router.navigate(route);
         this.updateActiveLink(route);
       });

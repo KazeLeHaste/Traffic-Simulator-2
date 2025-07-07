@@ -38,8 +38,13 @@ class Graphics {
   }
 
   clear(color: string): void {
-    this.ctx.fillStyle = color;
-    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    try {
+      this.ctx.fillStyle = color;
+      this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    } catch (error) {
+      console.error('🎨 [GRAPHICS ERROR] clear() failed:', error);
+      throw error;
+    }
   }
 
   moveTo(point: Point): void {

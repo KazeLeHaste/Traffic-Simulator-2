@@ -15,6 +15,11 @@ class ToolIntersectionBuilder extends Tool {
   }
 
   mousedown(e: any): void {
+    // Don't allow intersection creation in simulation mode
+    if (!this.visualizer.isBuilderMode) {
+      return;
+    }
+    
     // Simple shift key detection like the original
     if (e.shiftKey) {
       console.log('🟡 SHIFT+CLICK detected - creating intersection');
@@ -38,6 +43,11 @@ class ToolIntersectionBuilder extends Tool {
   }
 
   mouseup(e: any): void {
+    // Don't allow intersection creation in simulation mode
+    if (!this.visualizer.isBuilderMode) {
+      return;
+    }
+    
     if (this.tempIntersection) {
       console.log('🟡 IntersectionBuilder: Finalizing intersection creation');
       console.log('🟡 Final intersection rect:', this.tempIntersection.rect.x, this.tempIntersection.rect.y, this.tempIntersection.rect.width(), this.tempIntersection.rect.height());

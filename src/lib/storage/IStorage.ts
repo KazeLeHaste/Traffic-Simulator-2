@@ -6,7 +6,7 @@ export interface IStorage {
   /**
    * Save a road network layout
    */
-  saveLayout(layout: any): Promise<void>;
+  saveLayout(layout: any, layoutName?: string): Promise<void>;
 
   /**
    * Load the most recent layout

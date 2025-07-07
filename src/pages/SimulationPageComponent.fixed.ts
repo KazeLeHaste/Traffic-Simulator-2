@@ -27,9 +27,6 @@ export class SimulationPageComponent {
   }
 
   private async init() {
-    // Apply styles first to prevent theme flicker
-    this.addStyles();
-    
     await this.loadLayouts();
     this.render();
     
@@ -160,6 +157,8 @@ export class SimulationPageComponent {
         </div>
       </div>
     `;
+
+    this.addStyles();
   }
 
   private addEventListeners() {
@@ -667,9 +666,6 @@ export class SimulationPageComponent {
       return;
     }
     
-    // Force dark theme styles to be applied
-    document.body.classList.add('dark-theme');
-    
     const styleElement = document.createElement('style');
     styleElement.id = 'simulation-page-styles';
     styleElement.innerHTML = `
@@ -681,13 +677,13 @@ export class SimulationPageComponent {
       
       .page-header {
         padding: 15px;
-        background-color: #2d2d2d;
-        border-bottom: 1px solid #404040;
+        background-color: #f5f5f5;
+        border-bottom: 1px solid #ddd;
       }
       
       .page-header h2 {
         margin: 0;
-        color: #ffffff;
+        color: #333;
         font-size: 24px;
       }
       
@@ -700,14 +696,14 @@ export class SimulationPageComponent {
       .sidebar {
         width: 280px;
         overflow-y: auto;
-        background-color: #2d2d2d;
-        border-right: 1px solid #404040;
+        background-color: #fafafa;
+        border-right: 1px solid #ddd;
         padding: 10px;
       }
       
       .panel {
-        background-color: #333333;
-        border: 1px solid #404040;
+        background-color: #fff;
+        border: 1px solid #ddd;
         border-radius: 4px;
         margin-bottom: 15px;
         padding: 10px;
@@ -717,22 +713,19 @@ export class SimulationPageComponent {
         margin-top: 0;
         margin-bottom: 10px;
         font-size: 16px;
-        border-bottom: 1px solid #404040;
+        border-bottom: 1px solid #eee;
         padding-bottom: 5px;
-        color: #ffffff;
       }
       
       .visualizer-area {
         flex: 1;
         overflow: hidden;
         position: relative;
-        background: #1a1a1a;
       }
       
       .visualizer-area canvas {
         width: 100%;
         height: 100%;
-        background: #1a1a1a;
       }
       
       .control-group {
@@ -758,16 +751,11 @@ export class SimulationPageComponent {
         width: 100%;
       }
       
-      .btn-primary { background-color: #375a7f; color: white; border: 1px solid #375a7f; }
-      .btn-primary:hover { background-color: #2e4c6d; }
-      .btn-success { background-color: #00bc8c; color: white; border: 1px solid #00bc8c; }
-      .btn-success:hover { background-color: #00a085; }
-      .btn-info { background-color: #3498db; color: white; border: 1px solid #3498db; }
-      .btn-info:hover { background-color: #2980b9; }
-      .btn-warning { background-color: #f39c12; color: #212529; border: 1px solid #f39c12; }
-      .btn-warning:hover { background-color: #e67e22; }
-      .btn-secondary { background-color: #444444; color: white; border: 1px solid #666666; }
-      .btn-secondary:hover { background-color: #555555; }
+      .btn-primary { background-color: #007bff; color: white; }
+      .btn-success { background-color: #28a745; color: white; }
+      .btn-info { background-color: #17a2b8; color: white; }
+      .btn-warning { background-color: #ffc107; color: #212529; }
+      .btn-secondary { background-color: #6c757d; color: white; }
       
       .slider {
         width: 100%;
@@ -948,21 +936,15 @@ export class SimulationPageComponent {
    */
   private async loadLayoutById(layoutId: string): Promise<void> {
     try {
-      console.log('🔄 [SIM DEBUG] Starting loadLayoutById for ID:', layoutId);
-      
       // Show loading state
       this.showNotification(`Loading layout...`, 'info');
       
       // Find layout from previously loaded layouts
       const layout = this.layouts.find(l => l.id === layoutId);
-      console.log('🔄 [SIM DEBUG] Layout found:', layout ? layout.name : 'Not found');
-      
       if (!layout) {
         this.showNotification(`Layout not found (ID: ${layoutId})`, 'error');
         return;
       }
-      
-      console.log('🔄 [SIM DEBUG] Layout data:', layout.data);
       
       // Stop current simulation if running
       const wasRunning = this.isRunning;
@@ -975,8 +957,7 @@ export class SimulationPageComponent {
       
       // Load the layout into world
       if (this.world) {
-        // Stringify the layout data because World.load expects a string
-        this.world.load(JSON.stringify(layout.data));
+        this.world.load(layout.data);
         
         // Update analytics
         this.updateAnalytics();

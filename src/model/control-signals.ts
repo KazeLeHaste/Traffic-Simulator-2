@@ -36,17 +36,29 @@ class ControlSignals {
       return new ControlSignals(intersection);
     }
     const result = Object.create(ControlSignals.prototype);
-    result.flipMultiplier = controlSignals.flipMultiplier;
-    result.time = result.phaseOffset = controlSignals.phaseOffset;
-    result.stateNum = 0;
+    result.flipMultiplier = controlSignals.flipMultiplier || Math.random();
+    result.phaseOffset = controlSignals.phaseOffset || 100 * Math.random();
+    result.time = result.phaseOffset;
+    result.stateNum = controlSignals.stateNum || 0;
     result.intersection = intersection;
+    
+    // Ensure we have the proper states array if it was serialized
+    result.states = controlSignals.states || [
+      ['L', '', 'L', ''],
+      ['FR', '', 'FR', ''],
+      ['', 'L', '', 'L'],
+      ['', 'FR', '', 'FR']
+    ];
+    
     return result;
   }
 
   toJSON(): any {
     return {
       flipMultiplier: this.flipMultiplier,
-      phaseOffset: this.phaseOffset
+      phaseOffset: this.phaseOffset,
+      stateNum: this.stateNum,
+      states: this.states
     };
   }
 

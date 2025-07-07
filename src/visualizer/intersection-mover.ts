@@ -10,6 +10,11 @@ class ToolIntersectionMover extends Tool {
   }
 
   mousedown(e: any): void {
+    // Don't allow intersection moving in simulation mode
+    if (!this.visualizer.isBuilderMode) {
+      return;
+    }
+    
     const intersection = this.getHoveredIntersection(this.getCell(e));
     if (intersection) {
       this.intersection = intersection;
@@ -22,6 +27,11 @@ class ToolIntersectionMover extends Tool {
   }
 
   mousemove(e: any): void {
+    // Don't allow intersection moving in simulation mode
+    if (!this.visualizer.isBuilderMode) {
+      return;
+    }
+    
     if (this.intersection) {
       const cell = this.getCell(e);
       this.intersection.rect.left(cell.x);

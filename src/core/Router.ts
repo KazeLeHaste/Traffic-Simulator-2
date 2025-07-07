@@ -3,7 +3,7 @@
  */
 export class Router {
   private routes: { [key: string]: () => void } = {};
-  private currentRoute: string = '/builder';
+  private currentRoute: string = '/';
 
   constructor() {
     this.init();
@@ -28,16 +28,21 @@ export class Router {
   private init() {
     // Handle browser back/forward buttons
     window.addEventListener('popstate', (event) => {
-      const path = event.state?.path || '/builder';
+      const path = event.state?.path || '/';
       if (this.routes[path]) {
         this.currentRoute = path;
         this.routes[path]();
       }
     });
 
-    // Handle initial route
+    // Handle initial route - always start at home
     const path = window.location.pathname;
-    this.currentRoute = this.routes[path] ? path : '/builder';
+    this.currentRoute = '/'; // Always start at home page
+    
+    // If user directly navigates to a specific page, redirect to home
+    if (path !== '/') {
+      window.history.replaceState({ path: '/' }, '', '/');
+    }
   }
 
   start() {

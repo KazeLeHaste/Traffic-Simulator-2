@@ -16,6 +16,7 @@ class Pool<T extends Poolable> {
   constructor(factory: PoolableFactory<T>, pool?: any) {
     this.factory = factory;
     this.objects = {};
+    
     if (pool && pool.objects) {
       for (const k in pool.objects) {
         const v = pool.objects[k];

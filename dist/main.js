@@ -20749,6 +20749,10 @@ class NavigationComponent {
           </div>
           
           <div class="nav-links">
+            <a href="/" class="nav-link" data-route="/">
+              🏠 Home
+            </a>
+            
             <a href="/builder" class="nav-link" data-route="/builder">
               🏗️ Builder
             </a>
@@ -20764,7 +20768,7 @@ class NavigationComponent {
         this.container.querySelectorAll('[data-route]').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const route = e.target.getAttribute('data-route') || '/builder';
+                const route = e.target.getAttribute('data-route') || '/';
                 this.router.navigate(route);
                 this.updateActiveLink(route);
             });
@@ -20941,7 +20945,7 @@ exports.Router = void 0;
 class Router {
     constructor() {
         this.routes = {};
-        this.currentRoute = '/builder';
+        this.currentRoute = '/';
         this.init();
     }
     addRoute(path, handler) {
@@ -20961,15 +20965,19 @@ class Router {
         // Handle browser back/forward buttons
         window.addEventListener('popstate', (event) => {
             var _a;
-            const path = ((_a = event.state) === null || _a === void 0 ? void 0 : _a.path) || '/builder';
+            const path = ((_a = event.state) === null || _a === void 0 ? void 0 : _a.path) || '/';
             if (this.routes[path]) {
                 this.currentRoute = path;
                 this.routes[path]();
             }
         });
-        // Handle initial route
+        // Handle initial route - always start at home
         const path = window.location.pathname;
-        this.currentRoute = this.routes[path] ? path : '/builder';
+        this.currentRoute = '/'; // Always start at home page
+        // If user directly navigates to a specific page, redirect to home
+        if (path !== '/') {
+            window.history.replaceState({ path: '/' }, '', '/');
+        }
     }
     start() {
         if (this.routes[this.currentRoute]) {
@@ -21342,15 +21350,13 @@ class LocalStorage {
         this.ANALYTICS_KEY = 'traffic_simulator_analytics';
         this.CURRENT_LAYOUT_KEY = 'traffic_simulator_current_layout';
     }
-    async saveLayout(layout) {
+    async saveLayout(layout, layoutName) {
         try {
-            // Save as current layout (for backward compatibility)
-            localStorage.setItem(this.CURRENT_LAYOUT_KEY, JSON.stringify(layout));
-            // Also add to layouts collection with timestamp
+            // Only add to layouts collection - don't auto-save as current layout
             const layouts = await this.loadAllLayouts();
             const newLayout = {
                 id: `layout_${Date.now()}`,
-                name: `Layout ${new Date().toLocaleString()}`,
+                name: layoutName || `Layout ${new Date().toLocaleString()}`,
                 data: layout,
                 createdAt: new Date().toISOString()
             };
@@ -21442,18 +21448,20 @@ class Car {
     constructor(lane, position) {
         this.id = _.uniqueId('car');
         this.color = (300 + 240 * random()) % 360;
-        this._speed = 0;
         this.width = 1.7;
         this.length = 3 + 2 * random();
-        this.maxSpeed = 30;
-        this.s0 = 2;
-        this.timeHeadway = 1.5;
-        this.maxAcceleration = 1;
-        this.maxDeceleration = 3;
+        // Vehicle dynamics parameters
+        this.maxSpeed = 30 + 5 * random(); // Varied max speeds for realistic traffic
+        this._speed = 5 + 2 * random(); // Start with some initial speed
+        this.s0 = 2; // Minimum distance (meters)
+        this.timeHeadway = 1.5; // Time headway (seconds)
+        this.maxAcceleration = 0.8 + 0.4 * random(); // Varied acceleration
+        this.maxDeceleration = 3; // Maximum braking deceleration
         this.trajectory = new Trajectory(this, lane, position);
         this.alive = true;
         this.preferedLane = null;
         this.nextLane = null;
+        // Initialization logging removed to reduce lag
     }
     static copy(car) {
         const result = Object.create(Car.prototype);
@@ -21481,55 +21489,243 @@ class Car {
     }
     getAcceleration() {
         var _a;
-        const nextCarDistance = this.trajectory.nextCarDistance;
-        const distanceToNextCar = max(nextCarDistance.distance, 0);
-        const a = this.maxAcceleration;
-        const b = this.maxDeceleration;
-        const deltaSpeed = (this.speed - (((_a = nextCarDistance.car) === null || _a === void 0 ? void 0 : _a.speed) || 0));
-        const freeRoadCoeff = Math.pow(this.speed / this.maxSpeed, 4);
-        const distanceGap = this.s0;
-        const timeGap = this.speed * this.timeHeadway;
-        const breakGap = this.speed * deltaSpeed / (2 * sqrt(a * b));
-        const safeDistance = distanceGap + timeGap + breakGap;
-        const busyRoadCoeff = Math.pow(safeDistance / distanceToNextCar, 2);
-        const safeIntersectionDistance = 1 + timeGap + Math.pow(this.speed, 2) / (2 * b);
-        const intersectionCoeff = Math.pow(safeIntersectionDistance / this.trajectory.distanceToStopLine, 2);
-        const coeff = 1 - freeRoadCoeff - busyRoadCoeff - intersectionCoeff;
-        return this.maxAcceleration * coeff;
+        try {
+            // Get the distance to the next car ahead
+            if (!this.trajectory) {
+                console.error('🚗 [CAR ERROR] Missing trajectory in getAcceleration');
+                return 0;
+            }
+            const nextCarDistance = this.trajectory.nextCarDistance;
+            if (!nextCarDistance) {
+                console.warn('🚗 [CAR WARN] No nextCarDistance information');
+                // Default to small acceleration if we can't calculate
+                return 0.1;
+            }
+            // Ensure we have valid distance (prevent division by zero)
+            const distanceToNextCar = max(nextCarDistance.distance || 0, 0.1);
+            // IDM parameters
+            const a = this.maxAcceleration;
+            const b = this.maxDeceleration;
+            // Calculate relative speed (avoid NaN)
+            const nextCarSpeed = ((_a = nextCarDistance.car) === null || _a === void 0 ? void 0 : _a.speed) || 0;
+            const deltaSpeed = (this.speed - nextCarSpeed);
+            // === INTELLIGENT DRIVER MODEL (IDM) IMPLEMENTATION ===
+            // 1. Free road coefficient - approaches 1 as speed approaches max speed
+            // This term makes the car slow down as it approaches its maximum speed
+            const freeRoadCoeff = Math.pow(this.speed / this.maxSpeed, 4);
+            // 2. Calculate the desired safe following distance
+            // s* = s0 + vT + v*deltaV/(2*sqrt(ab))
+            const distanceGap = this.s0; // Minimum gap when stopped
+            const timeGap = this.speed * this.timeHeadway; // Time headway component
+            // Break gap component - increases with positive speed difference
+            let breakGap = 0;
+            const sqrtProduct = sqrt(max(a * b, 0.001)); // Avoid sqrt of negative/zero
+            if (sqrtProduct > 0) {
+                breakGap = (deltaSpeed > 0) ? (this.speed * deltaSpeed / (2 * sqrtProduct)) : 0;
+            }
+            // Total safe distance needed
+            const safeDistance = max(distanceGap + timeGap + breakGap, 0.1);
+            // 3. Calculate interaction deceleration with leading vehicle
+            // This term approaches 1 when actual distance is less than safe distance
+            const busyRoadCoeff = Math.pow(safeDistance / distanceToNextCar, 2);
+            // 4. Intersection handling - for traffic signals
+            let intersectionCoeff = 0;
+            const distanceToStopLine = this.trajectory.distanceToStopLine;
+            if (distanceToStopLine && distanceToStopLine > 0 && distanceToStopLine < 50) { // Only consider nearby intersections
+                // Calculate safe braking distance to intersection
+                const safeIntersectionDistance = 1 + timeGap + Math.pow(this.speed, 2) / (2 * max(b, 0.1));
+                // If we need to stop (red light) and we're approaching the intersection
+                intersectionCoeff = Math.pow(safeIntersectionDistance / distanceToStopLine, 2);
+                // Make intersection coefficient stronger when we're very close
+                if (distanceToStopLine < 5) {
+                    intersectionCoeff *= 1.5;
+                }
+            }
+            // 5. Calculate final acceleration
+            // a = a_max * (1 - (v/v_0)^4 - (s*/s)^2)
+            let coeff = 1 - freeRoadCoeff - busyRoadCoeff - intersectionCoeff;
+            // Prevent extreme acceleration/deceleration
+            coeff = Math.max(Math.min(coeff, 1), -3);
+            const acceleration = this.maxAcceleration * coeff;
+            // Debug output only when significant changes occur
+            if (Math.abs(acceleration) > 0.5) {
+                // IDM logging removed to reduce lag
+            }
+            // Don't allow extreme deceleration that might cause glitches
+            return Math.max(acceleration, -this.maxDeceleration);
+        }
+        catch (error) {
+            console.error('🚗 [CAR ERROR] Error in getAcceleration:', error);
+            // Return small positive acceleration to keep cars moving
+            return 0.1;
+        }
+    }
+    /**
+     * Evaluate lane change to a target lane using MOBIL model principles
+     * Returns true if changing lanes is beneficial and safe
+     */
+    shouldChangeLane(targetLane) {
+        if (!targetLane || this.trajectory.isChangingLanes) {
+            return false;
+        }
+        try {
+            const currentLane = this.trajectory.current.lane;
+            if (!currentLane || currentLane === targetLane) {
+                return false;
+            }
+            // Safety: ensure we have enough space in target lane
+            // Get our current position
+            const myPosition = this.trajectory.current.position;
+            // Check cars in target lane (simplified MOBIL model)
+            let safeGapAhead = true;
+            let safeGapBehind = true;
+            let advantageFactor = 0;
+            // Check safety gap with vehicles in target lane
+            const safetyGap = 2 * this.length; // Minimum distance needed
+            // Find cars in target lane and check if there's enough space
+            const carsInTargetLane = targetLane.carsPositions || {};
+            for (const id in carsInTargetLane) {
+                const otherPosition = carsInTargetLane[id].position;
+                const otherCar = carsInTargetLane[id].car;
+                const distance = otherPosition - myPosition;
+                // If car ahead in target lane
+                if (distance > 0 && distance < this.speed * 2 + safetyGap) {
+                    safeGapAhead = false;
+                    break;
+                }
+                // If car behind in target lane
+                if (distance < 0 && Math.abs(distance) < otherCar.speed * 1.5 + safetyGap) {
+                    safeGapBehind = false;
+                    break;
+                }
+                // Calculate advantage - prefer lanes with more space ahead
+                if (distance > 0 && distance < 50) { // Only consider cars within 50 units ahead
+                    advantageFactor -= 1 / distance; // More distance = less negative impact
+                }
+            }
+            // Calculate incentive based on current lane congestion
+            const currentLaneCars = currentLane.carsPositions || {};
+            for (const id in currentLaneCars) {
+                if (id !== this.id) { // Don't count ourselves
+                    const otherPosition = currentLaneCars[id].position;
+                    const distance = otherPosition - myPosition;
+                    // If car ahead in current lane within relevant distance
+                    if (distance > 0 && distance < 40) {
+                        advantageFactor += 2 / distance; // More congestion in current lane = more incentive to change
+                    }
+                }
+            }
+            // Check for strategic lane change (if we need to make a turn)
+            if (this.nextLane) {
+                const turnNumber = currentLane.getTurnDirection(this.nextLane);
+                // If we need to turn left and target lane is to the left
+                if (turnNumber === 0 && targetLane === currentLane.leftAdjacent) {
+                    advantageFactor += 0.5;
+                }
+                // If we need to turn right and target lane is to the right
+                if (turnNumber === 2 && targetLane === currentLane.rightAdjacent) {
+                    advantageFactor += 0.5;
+                }
+            }
+            // Only change if safe and advantageous
+            const shouldChange = safeGapAhead && safeGapBehind && advantageFactor > 0.1;
+            if (shouldChange) {
+                // Lane change evaluation logging removed to reduce lag
+            }
+            return shouldChange;
+        }
+        catch (error) {
+            console.error('🚗 [CAR ERROR] Error evaluating lane change:', error);
+            return false;
+        }
     }
     move(delta) {
-        const acceleration = this.getAcceleration();
-        this.speed += acceleration * delta;
-        if (!this.trajectory.isChangingLanes && this.nextLane) {
-            const currentLane = this.trajectory.current.lane;
-            const turnNumber = currentLane.getTurnDirection(this.nextLane);
-            let preferedLane;
-            switch (turnNumber) {
-                case 0:
-                    preferedLane = currentLane.leftmostAdjacent;
-                    break;
-                case 2:
-                    preferedLane = currentLane.rightmostAdjacent;
-                    break;
-                default:
-                    preferedLane = currentLane;
-            }
-            if (preferedLane !== currentLane) {
-                this.trajectory.changeLane(preferedLane);
-            }
-        }
-        const step = this.speed * delta + 0.5 * acceleration * Math.pow(delta, 2);
-        // TODO: hacks, should have changed speed
-        if (this.trajectory.nextCarDistance.distance < step) {
-            console.log('bad IDM');
-        }
-        if (this.trajectory.timeToMakeTurn(step)) {
-            if (!this.nextLane) {
-                this.alive = false;
+        try {
+            if (!delta || isNaN(delta) || delta <= 0) {
+                console.warn('🚗 [CAR WARN] Invalid delta in move:', delta);
                 return;
             }
+            // Get acceleration and update speed
+            const acceleration = this.getAcceleration();
+            const oldSpeed = this.speed;
+            this.speed += acceleration * delta;
+            // Log if speed changed significantly
+            if (Math.abs(this.speed - oldSpeed) > 0.5) {
+                // Speed change logging removed to reduce lag
+            }
+            // Handle strategic lane changing (for upcoming turns)
+            if (!this.trajectory.isChangingLanes && this.nextLane) {
+                try {
+                    const currentLane = this.trajectory.current.lane;
+                    if (currentLane) {
+                        const turnNumber = currentLane.getTurnDirection(this.nextLane);
+                        let preferredLane = null;
+                        // Choose preferred lane based on upcoming turn
+                        switch (turnNumber) {
+                            case 0: // Left turn coming up - move to leftmost lane
+                                preferredLane = currentLane.leftmostAdjacent;
+                                break;
+                            case 2: // Right turn coming up - move to rightmost lane
+                                preferredLane = currentLane.rightmostAdjacent;
+                                break;
+                            default:
+                                preferredLane = null; // No preference for straight ahead
+                        }
+                        // If we have a preference and it's different from current lane
+                        if (preferredLane && preferredLane !== currentLane && this.shouldChangeLane(preferredLane)) {
+                            // Lane change logging removed to reduce lag
+                            this.trajectory.changeLane(preferredLane);
+                        }
+                    }
+                }
+                catch (laneError) {
+                    console.error('🚗 [CAR ERROR] Error in strategic lane change logic:', laneError);
+                }
+            }
+            // Handle opportunistic lane changing (MOBIL model - looking for better traffic flow)
+            if (!this.trajectory.isChangingLanes && !this.nextLane && Math.random() < 0.02) { // Only occasionally check
+                try {
+                    const currentLane = this.trajectory.current.lane;
+                    if (currentLane) {
+                        // Check if changing to left lane would be beneficial
+                        if (currentLane.leftAdjacent && this.shouldChangeLane(currentLane.leftAdjacent)) {
+                            // Left lane change logging removed to reduce lag
+                            this.trajectory.changeLane(currentLane.leftAdjacent);
+                        }
+                        // Otherwise check if changing to right lane would be beneficial
+                        else if (currentLane.rightAdjacent && this.shouldChangeLane(currentLane.rightAdjacent)) {
+                            // Right lane change logging removed to reduce lag
+                            this.trajectory.changeLane(currentLane.rightAdjacent);
+                        }
+                    }
+                }
+                catch (laneError) {
+                    console.error('🚗 [CAR ERROR] Error in opportunistic lane change logic:', laneError);
+                }
+            }
+            // Calculate how far to move
+            const step = this.speed * delta + 0.5 * acceleration * Math.pow(delta, 2);
+            if (step <= 0) {
+                console.warn('🚗 [CAR WARN] Car', this.id, 'not moving, step =', step);
+            }
+            else if (this.speed > 5) { // Only log significant movements to reduce spam
+                // Movement logging removed to reduce lag
+            }
+            // Check if we need to make a turn
+            if (this.trajectory.timeToMakeTurn(step)) {
+                if (!this.nextLane) {
+                    // End of path logging removed to reduce lag
+                    this.alive = false;
+                    return;
+                }
+            }
+            // Move the car forward
+            this.trajectory.moveForward(step);
         }
-        this.trajectory.moveForward(step);
+        catch (error) {
+            console.error('🚗 [CAR ERROR] Error moving car', this.id, ':', error);
+            console.error('🚗 [CAR ERROR] Stack trace:', error.stack);
+        }
     }
     pickNextRoad() {
         const intersection = this.trajectory.nextIntersection;
@@ -21642,16 +21838,26 @@ class ControlSignals {
             return new ControlSignals(intersection);
         }
         const result = Object.create(ControlSignals.prototype);
-        result.flipMultiplier = controlSignals.flipMultiplier;
-        result.time = result.phaseOffset = controlSignals.phaseOffset;
-        result.stateNum = 0;
+        result.flipMultiplier = controlSignals.flipMultiplier || Math.random();
+        result.phaseOffset = controlSignals.phaseOffset || 100 * Math.random();
+        result.time = result.phaseOffset;
+        result.stateNum = controlSignals.stateNum || 0;
         result.intersection = intersection;
+        // Ensure we have the proper states array if it was serialized
+        result.states = controlSignals.states || [
+            ['L', '', 'L', ''],
+            ['FR', '', 'FR', ''],
+            ['', 'L', '', 'L'],
+            ['', 'FR', '', 'FR']
+        ];
         return result;
     }
     toJSON() {
         return {
             flipMultiplier: this.flipMultiplier,
-            phaseOffset: this.phaseOffset
+            phaseOffset: this.phaseOffset,
+            stateNum: this.stateNum,
+            states: this.states
         };
     }
     get flipInterval() {
@@ -21998,10 +22204,12 @@ class Pool {
     pop(obj) {
         const id = typeof obj === 'string' ? obj : obj.id;
         const result = this.objects[id];
-        if (result.release) {
-            result.release();
+        if (result) {
+            if (result.release) {
+                result.release();
+            }
+            delete this.objects[id];
         }
-        delete this.objects[id];
         return result;
     }
     all() {
@@ -22222,27 +22430,81 @@ class Trajectory {
     }
     moveForward(distance) {
         var _a, _b;
-        distance = max(distance, 0);
-        this.current.position += distance;
-        this.next.position += distance;
-        this.temp.position += distance;
-        if (this.timeToMakeTurn() && this.canEnterIntersection() && this.isValidTurn()) {
-            this._startChangingLanes(this.car.popNextLane(), 0);
+        try {
+            // Reduce log spam, only log significant movements
+            if (distance > 0.5) {
+                console.log('🚗 [TRAJ DEBUG] moveForward called with distance:', distance.toFixed(2));
+            }
+            // Ensure distance is valid
+            distance = max(distance, 0);
+            if (distance === 0) {
+                return; // Nothing to do
+            }
+            // Update positions
+            this.current.position += distance;
+            this.next.position += distance;
+            this.temp.position += distance;
+            // Check if we need to make a turn at an intersection
+            const atIntersection = this.timeToMakeTurn();
+            const canEnter = this.canEnterIntersection();
+            if (atIntersection && canEnter && this.car.nextLane) {
+                try {
+                    // We're at an intersection and have green light - perform the turn
+                    const nextLane = this.car.popNextLane();
+                    if (nextLane) {
+                        console.log('🚗 [TRAJ INFO] Car is at intersection and proceeding to next lane');
+                        this._startChangingLanes(nextLane, 0);
+                    }
+                }
+                catch (turnError) {
+                    console.error('🚗 [TRAJ ERROR] Error making turn at intersection:', turnError);
+                }
+            }
+            else if (atIntersection && !canEnter) {
+                // We're at a red light - log this event
+                console.log('🚗 [TRAJ INFO] Car waiting at red light/intersection');
+            }
+            // Calculate relative position and gap for lane changing
+            let tempLaneLength = (_a = this.temp.lane) === null || _a === void 0 ? void 0 : _a.length;
+            if (!tempLaneLength || tempLaneLength <= 0) {
+                tempLaneLength = 1; // Avoid division by zero
+            }
+            const tempRelativePosition = this.temp.position / tempLaneLength;
+            const gap = 2 * this.car.length;
+            // === Lane changing state management ===
+            // Phase 1: Starting lane change - We've moved enough to start releasing current lane
+            if (this.isChangingLanes && this.temp.position > gap && !this.current.free) {
+                this.current.release();
+                console.log('🚗 [TRAJ INFO] Released current lane during lane change');
+            }
+            // Phase 2: Middle of lane change - We're approaching new lane and can acquire it
+            if (this.isChangingLanes && this.next.free &&
+                this.temp.position + gap > (((_b = this.temp.lane) === null || _b === void 0 ? void 0 : _b.length) || 0)) {
+                this.next.acquire();
+                console.log('🚗 [TRAJ INFO] Acquired next lane during lane change');
+            }
+            // Phase 3: End of lane change - We've completed the curved trajectory
+            if (this.isChangingLanes && tempRelativePosition >= 1) {
+                this._finishChangingLanes();
+                console.log('🚗 [TRAJ INFO] Completed lane change');
+            }
+            // Plan ahead - if we don't have a next lane selected, pick one
+            if (this.current.lane && !this.isChangingLanes && !this.car.nextLane) {
+                try {
+                    // Don't spam logs during normal operation
+                    const nextLane = this.car.pickNextLane();
+                    if (nextLane) {
+                        console.log('🚗 [TRAJ INFO] Selected next lane:', nextLane.id || 'unknown');
+                    }
+                }
+                catch (pickError) {
+                    console.error('🚗 [TRAJ ERROR] Error picking next lane:', pickError);
+                }
+            }
         }
-        const tempRelativePosition = this.temp.position / (((_a = this.temp.lane) === null || _a === void 0 ? void 0 : _a.length) || 1);
-        const gap = 2 * this.car.length;
-        if (this.isChangingLanes && this.temp.position > gap && !this.current.free) {
-            this.current.release();
-        }
-        if (this.isChangingLanes && this.next.free &&
-            this.temp.position + gap > (((_b = this.temp.lane) === null || _b === void 0 ? void 0 : _b.length) || 0)) {
-            this.next.acquire();
-        }
-        if (this.isChangingLanes && tempRelativePosition >= 1) {
-            this._finishChangingLanes();
-        }
-        if (this.current.lane && !this.isChangingLanes && !this.car.nextLane) {
-            this.car.pickNextLane();
+        catch (error) {
+            console.error('🚗 [TRAJ ERROR] Error in moveForward:', error);
+            console.error('🚗 [TRAJ ERROR] Stack trace:', error.stack);
         }
     }
     changeLane(nextLane) {
@@ -22265,22 +22527,108 @@ class Trajectory {
         this._startChangingLanes(nextLane, nextPosition);
     }
     _getIntersectionLaneChangeCurve() {
-        // Implementation needed
-        throw new Error('Not implemented');
+        try {
+            // When turning at an intersection, we need to create a curve that simulates
+            // the car's path through the intersection from one road to another
+            // Get the end point of current lane and start point of next lane
+            const p1 = this.current.lane.getPoint(1.0); // End of current lane
+            const p2 = this.next.lane.getPoint(0.0); // Start of next lane
+            if (!p1 || !p2) {
+                throw new Error('Invalid points for intersection curve creation');
+            }
+            // Get the intersection center for better curve calculation
+            const intersection = this.nextIntersection;
+            const center = intersection.rect.center();
+            // Calculate control points based on the turn type
+            const sourceLane = this.current.lane;
+            const targetLane = this.next.lane;
+            const turnNumber = sourceLane.getTurnDirection(targetLane);
+            // Calculate control points based on the turn type
+            let control1, control2;
+            switch (turnNumber) {
+                case 0: // Left turn
+                    // For left turns, we want a wider curve
+                    control1 = center.add(p1.subtract(center).rotate(-Math.PI / 4).mult(0.5));
+                    control2 = center.add(p2.subtract(center).rotate(Math.PI / 4).mult(0.5));
+                    break;
+                case 2: // Right turn
+                    // For right turns, we want a tighter curve
+                    control1 = p1.add(p2.subtract(p1).mult(0.25));
+                    control2 = p1.add(p2.subtract(p1).mult(0.75));
+                    break;
+                case 1: // Straight
+                default:
+                    // For going straight, use simpler control points
+                    control1 = p1.add(center.subtract(p1).mult(0.5));
+                    control2 = p2.add(center.subtract(p2).mult(0.5));
+                    break;
+            }
+            return new Curve(p1, p2, control1, control2);
+        }
+        catch (error) {
+            console.error('🚗 [TRAJ ERROR] Error creating intersection curve:', error);
+            // Fallback to using adjacent lane change curve if this fails
+            return this._getAdjacentLaneChangeCurve();
+        }
     }
     _getAdjacentLaneChangeCurve() {
-        const p1 = this.current.lane.getPoint(this.current.relativePosition);
-        const p2 = this.next.lane.getPoint(this.next.relativePosition);
-        const distance = p2.subtract(p1).length;
-        const direction1 = this.current.lane.middleLine.vector.normalized.mult(distance * 0.3);
-        const control1 = p1.add(direction1);
-        const direction2 = this.next.lane.middleLine.vector.normalized.mult(distance * 0.3);
-        const control2 = p2.subtract(direction2);
-        return new Curve(p1, p2, control1, control2);
+        try {
+            // Get points for current and next positions
+            const p1 = this.current.lane.getPoint(this.current.relativePosition);
+            const p2 = this.next.lane.getPoint(this.next.relativePosition);
+            if (!p1 || !p2) {
+                throw new Error('Invalid points for curve creation');
+            }
+            const distance = p2.subtract(p1).length;
+            // Create a smoother curve for lane change by adjusting control points
+            let controlPointFactor = 0.3; // Default control point factor
+            // If high speed, make the curve more gradual
+            if (this.car.speed > 15) {
+                controlPointFactor = 0.4; // More gradual curve at higher speeds
+            }
+            // Create control points for smooth Bezier curve
+            const direction1 = this.current.lane.middleLine.vector.normalized.mult(distance * controlPointFactor);
+            const control1 = p1.add(direction1);
+            const direction2 = this.next.lane.middleLine.vector.normalized.mult(distance * controlPointFactor);
+            const control2 = p2.subtract(direction2);
+            // Create the curve with proper control points
+            return new Curve(p1, p2, control1, control2);
+        }
+        catch (error) {
+            console.error('🚗 [TRAJ ERROR] Error creating lane change curve:', error);
+            // Fallback to a simpler curve if there's an error
+            const p1 = this.current.lane.getPoint(this.current.relativePosition);
+            const p2 = this.next.lane.getPoint(this.next.relativePosition);
+            const midpoint = p1.add(p2.subtract(p1).mult(0.5));
+            return new Curve(p1, p2, midpoint, midpoint);
+        }
     }
     _getCurve() {
-        // FIXME: race condition due to using relativePosition on intersections
-        return this._getAdjacentLaneChangeCurve();
+        // Choose the appropriate curve type based on context
+        try {
+            // If this is a lane change within the same road
+            if (this.current.lane.road === this.next.lane.road) {
+                return this._getAdjacentLaneChangeCurve();
+            }
+            // If this is a turn at an intersection
+            else {
+                // Verify we're at an intersection
+                const atIntersection = this.getDistanceToIntersection() <= 1.0;
+                if (atIntersection) {
+                    return this._getIntersectionLaneChangeCurve();
+                }
+                else {
+                    console.warn('🚗 [TRAJ WARN] Attempt to change to lane on different road not at intersection');
+                    // Fall back to adjacent lane curve if something's wrong
+                    return this._getAdjacentLaneChangeCurve();
+                }
+            }
+        }
+        catch (error) {
+            console.error('🚗 [TRAJ ERROR] Error selecting curve type:', error);
+            // Fall back to adjacent lane curve if there's an error
+            return this._getAdjacentLaneChangeCurve();
+        }
     }
     _startChangingLanes(nextLane, nextPosition) {
         if (this.isChangingLanes) {
@@ -22394,34 +22742,69 @@ const Car = __webpack_require__(/*! ./car */ "./src/model/car.ts");
 const Intersection = __webpack_require__(/*! ./intersection */ "./src/model/intersection.ts");
 const Road = __webpack_require__(/*! ./road */ "./src/model/road.ts");
 const Pool = __webpack_require__(/*! ./pool */ "./src/model/pool.ts");
-const Rect = __webpack_require__(/*! ../geom/rect */ "./src/geom/rect.ts");
-const settings = __webpack_require__(/*! ../settings */ "./src/settings.ts");
 const { random } = Math;
 class World {
     constructor() {
         this.onTick = (delta) => {
+            var _a, _b;
+            console.log('🌎 [WORLD DEBUG] onTick called with delta:', delta);
             if (delta > 1) {
-                throw new Error('delta > 1');
+                console.error('🌎 [WORLD ERROR] Delta too large:', delta);
+                delta = 1; // Cap instead of throwing
             }
             this.time += delta;
-            this.refreshCars();
-            // Update intersection control signals with safety checks
-            for (const id in this.intersections.all()) {
-                const intersection = this.intersections.all()[id];
-                if (intersection && intersection.controlSignals && typeof intersection.controlSignals.onTick === 'function') {
-                    intersection.controlSignals.onTick(delta);
-                }
+            // Refresh cars if needed (add/remove to match target count)
+            const carsBefore = Object.keys(((_a = this.cars) === null || _a === void 0 ? void 0 : _a.all()) || {}).length;
+            console.log('🌎 [WORLD DEBUG] Cars before refresh:', carsBefore);
+            try {
+                this.refreshCars();
             }
-            // Update cars with safety checks
-            for (const id in this.cars.all()) {
-                const car = this.cars.all()[id];
-                if (car && typeof car.move === 'function') {
-                    car.move(delta);
-                    if (!car.alive) {
-                        this.removeCar(car);
+            catch (refreshError) {
+                console.error('🌎 [WORLD ERROR] Error refreshing cars:', refreshError);
+            }
+            const carsAfterRefresh = Object.keys(((_b = this.cars) === null || _b === void 0 ? void 0 : _b.all()) || {}).length;
+            console.log('🌎 [WORLD DEBUG] Cars after refresh:', carsAfterRefresh);
+            // Update intersection control signals with safety checks
+            let intersectionCount = 0;
+            try {
+                for (const id in this.intersections.all()) {
+                    const intersection = this.intersections.all()[id];
+                    if (intersection && intersection.controlSignals && typeof intersection.controlSignals.onTick === 'function') {
+                        intersection.controlSignals.onTick(delta);
+                        intersectionCount++;
                     }
                 }
             }
+            catch (intersectionError) {
+                console.error('🌎 [WORLD ERROR] Error updating intersections:', intersectionError);
+            }
+            console.log('🌎 [WORLD DEBUG] Updated', intersectionCount, 'intersections');
+            // Update cars with safety checks
+            let carsMoved = 0;
+            let carsRemoved = 0;
+            try {
+                for (const id in this.cars.all()) {
+                    const car = this.cars.all()[id];
+                    if (car && typeof car.move === 'function') {
+                        try {
+                            car.move(delta);
+                            carsMoved++;
+                            if (!car.alive) {
+                                this.removeCar(car);
+                                carsRemoved++;
+                            }
+                        }
+                        catch (carMoveError) {
+                            console.error('🌎 [WORLD ERROR] Error moving car', id, ':', carMoveError);
+                        }
+                    }
+                }
+            }
+            catch (carsError) {
+                console.error('🌎 [WORLD ERROR] Error updating cars:', carsError);
+            }
+            console.log('🌎 [WORLD DEBUG] Moved', carsMoved, 'cars, removed', carsRemoved, 'cars');
+            console.log('🌎 [WORLD DEBUG] onTick completed');
         };
         this.set({});
     }
@@ -22436,12 +22819,18 @@ class World {
         return _.reduce(speeds, (a, b) => a + b, 0) / speeds.length;
     }
     set(obj) {
+        console.log('🌍 [WORLD DEBUG] set() called with obj:', obj);
         obj = obj || {};
+        console.log('🌍 [WORLD DEBUG] Creating new pools...');
         this.intersections = new Pool(Intersection, obj.intersections);
+        console.log('🌍 [WORLD DEBUG] Intersections pool created:', Object.keys(this.intersections.all()).length);
         this.roads = new Pool(Road, obj.roads);
+        console.log('🌍 [WORLD DEBUG] Roads pool created:', Object.keys(this.roads.all()).length);
         this.cars = new Pool(Car, obj.cars);
+        console.log('🌍 [WORLD DEBUG] Cars pool created:', Object.keys(this.cars.all()).length);
         this.carsNumber = 0;
         this.time = 0;
+        console.log('🌍 [WORLD DEBUG] set() completed');
     }
     save() {
         const data = _.extend({}, this);
@@ -22449,17 +22838,30 @@ class World {
         localStorage.world = JSON.stringify(data);
     }
     load(data) {
+        console.log('🌍 [WORLD DEBUG] load() called');
+        console.log('🌍 [WORLD DEBUG] Data provided:', !!data);
         data = data || localStorage.world;
+        console.log('🌍 [WORLD DEBUG] Using data source:', data ? 'provided/localStorage' : 'none');
         const parsedData = data && JSON.parse(data);
+        console.log('🌍 [WORLD DEBUG] Parsed data:', parsedData);
         if (!parsedData) {
+            console.log('🌍 [WORLD DEBUG] No data to load, returning early');
             return;
         }
+        console.log('🌍 [WORLD DEBUG] Calling clear() before loading...');
         this.clear();
+        console.log('🌍 [WORLD DEBUG] clear() completed, now loading data...');
         this.carsNumber = parsedData.carsNumber || 0;
+        console.log('🌍 [WORLD DEBUG] Set carsNumber to:', this.carsNumber);
+        let intersectionCount = 0;
         for (const id in parsedData.intersections) {
             const intersection = parsedData.intersections[id];
+            console.log('🌍 [WORLD DEBUG] Loading intersection:', id, intersection);
             this.addIntersection(Intersection.copy(intersection));
+            intersectionCount++;
         }
+        console.log('🌍 [WORLD DEBUG] Loaded', intersectionCount, 'intersections');
+        let roadCount = 0;
         for (const id in parsedData.roads) {
             const road = parsedData.roads[id];
             const roadCopy = Road.copy(road);
@@ -22468,68 +22870,109 @@ class World {
             this.addRoad(roadCopy);
         }
     }
-    generateMap(minX = -2, maxX = 2, minY = -2, maxY = 2) {
-        this.clear();
-        const intersectionsNumber = (0.8 * (maxX - minX + 1) * (maxY - minY + 1)) | 0;
-        const map = {};
-        const gridSize = settings.gridSize;
-        const step = 5 * gridSize;
-        this.carsNumber = 100;
-        let remainingIntersections = intersectionsNumber;
-        while (remainingIntersections > 0) {
-            const x = _.random(minX, maxX);
-            const y = _.random(minY, maxY);
-            const key = `${x},${y}`;
-            if (!map[key]) {
-                const rect = new Rect(step * x, step * y, gridSize, gridSize);
-                const intersection = new Intersection(rect);
-                this.addIntersection(intersection);
-                map[key] = intersection;
-                remainingIntersections -= 1;
-            }
-        }
-        for (let x = minX; x <= maxX; x++) {
-            let previous = null;
-            for (let y = minY; y <= maxY; y++) {
-                const key = `${x},${y}`;
-                const intersection = map[key];
-                if (intersection) {
-                    if (random() < 0.9) {
-                        if (previous) {
-                            this.addRoad(new Road(intersection, previous));
-                            this.addRoad(new Road(previous, intersection));
-                        }
-                    }
-                    previous = intersection;
-                }
-            }
-        }
-        for (let y = minY; y <= maxY; y++) {
-            let previous = null;
-            for (let x = minX; x <= maxX; x++) {
-                const key = `${x},${y}`;
-                const intersection = map[key];
-                if (intersection) {
-                    if (random() < 0.9) {
-                        if (previous) {
-                            this.addRoad(new Road(intersection, previous));
-                            this.addRoad(new Road(previous, intersection));
-                        }
-                    }
-                    previous = intersection;
-                }
-            }
-        }
-    }
     clear() {
-        this.set({});
+        var _a, _b, _c, _d, _e, _f;
+        console.log('🌍 [WORLD DEBUG] clear() called');
+        try {
+            console.log('🌍 [WORLD DEBUG] Current state before clear:', {
+                intersections: Object.keys(((_a = this.intersections) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
+                roads: Object.keys(((_b = this.roads) === null || _b === void 0 ? void 0 : _b.all()) || {}).length,
+                cars: Object.keys(((_c = this.cars) === null || _c === void 0 ? void 0 : _c.all()) || {}).length,
+                carsNumber: this.carsNumber
+            });
+            // First explicitly clear each pool to ensure complete cleanup
+            if (this.intersections && typeof this.intersections.clear === 'function') {
+                this.intersections.clear();
+            }
+            if (this.roads && typeof this.roads.clear === 'function') {
+                this.roads.clear();
+            }
+            if (this.cars && typeof this.cars.clear === 'function') {
+                this.cars.clear();
+            }
+            // Reset car count
+            this.carsNumber = 0;
+            // Then do a full reset with set({})
+            this.set({});
+            console.log('🌍 [WORLD DEBUG] State after clear:', {
+                intersections: Object.keys(((_d = this.intersections) === null || _d === void 0 ? void 0 : _d.all()) || {}).length,
+                roads: Object.keys(((_e = this.roads) === null || _e === void 0 ? void 0 : _e.all()) || {}).length,
+                cars: Object.keys(((_f = this.cars) === null || _f === void 0 ? void 0 : _f.all()) || {}).length,
+                carsNumber: this.carsNumber
+            });
+            console.log('🌍 [WORLD DEBUG] clear() completed');
+        }
+        catch (error) {
+            console.error('🌍 [WORLD ERROR] Failed to clear world:', error);
+            // Recovery: force recreation of pools
+            console.log('🌍 [WORLD DEBUG] Attempting recovery by recreating pools...');
+            this.intersections = new Pool(Intersection);
+            this.roads = new Pool(Road);
+            this.cars = new Pool(Car);
+            this.carsNumber = 0;
+            this.time = 0;
+            console.log('🌍 [WORLD DEBUG] Recovery completed');
+        }
     }
     refreshCars() {
-        if (this.cars.length < this.carsNumber) {
-            this.addRandomCar();
+        try {
+            // Safety check for cars pool
+            if (!this.cars || !this.cars.all) {
+                console.error('🌎 [WORLD ERROR] Cars pool is invalid in refreshCars');
+                return;
+            }
+            // Get current count of cars
+            const currentCarCount = Object.keys(this.cars.all()).length;
+            // For better performance, do full refresh if there's a big difference or after reset
+            const shouldDoFullRefresh = Math.abs(currentCarCount - this.carsNumber) > 20 || currentCarCount === 0;
+            // Full refresh - clear and add all at once when starting fresh
+            if (shouldDoFullRefresh && this.carsNumber > 0) {
+                // Clear existing cars
+                this.cars.clear();
+                // Add all new cars with slight delay between batches to prevent freezing
+                const batchSize = 10; // Process in batches of 10 for better performance
+                for (let i = 0; i < this.carsNumber; i += batchSize) {
+                    const count = Math.min(batchSize, this.carsNumber - i);
+                    for (let j = 0; j < count; j++) {
+                        try {
+                            this.addRandomCar();
+                        }
+                        catch (addError) {
+                            // Silently catch error to avoid excessive logging
+                        }
+                    }
+                }
+                return;
+            }
+            // Gradual refresh - add or remove cars gradually
+            // Add cars if we have too few
+            if (currentCarCount < this.carsNumber) {
+                // Add cars gradually to avoid sudden performance impact
+                const carsToAdd = Math.min(5, this.carsNumber - currentCarCount);
+                for (let i = 0; i < carsToAdd; i++) {
+                    try {
+                        this.addRandomCar();
+                    }
+                    catch (addError) {
+                        // Silently catch error to avoid excessive logging
+                    }
+                }
+            }
+            // Remove cars if we have too many
+            if (currentCarCount > this.carsNumber) {
+                const carsToRemove = Math.min(3, currentCarCount - this.carsNumber);
+                for (let i = 0; i < carsToRemove; i++) {
+                    try {
+                        this.removeRandomCar();
+                    }
+                    catch (removeError) {
+                        // Silently catch error to avoid excessive logging
+                    }
+                }
+            }
         }
-        if (this.cars.length > this.carsNumber) {
-            this.removeRandomCar();
+        catch (error) {
+            console.error('🌎 [WORLD ERROR] Error in refreshCars:', error);
         }
     }
     addRoad(road) {
@@ -22557,14 +23000,104 @@ class World {
         return this.intersections.get(id);
     }
     addRandomCar() {
-        const roadsAll = this.roads.all();
-        const roadsArray = Object.values(roadsAll);
-        const road = _.sample(roadsArray);
-        if (road) {
-            const lane = _.sample(road.lanes);
-            if (lane) {
-                this.addCar(new Car(lane, 0));
+        try {
+            // Get all roads in the world
+            const roadsAll = this.roads.all();
+            if (!roadsAll || Object.keys(roadsAll).length === 0) {
+                console.warn('🌎 [WORLD WARN] No roads available to add car');
+                return;
             }
+            const roadsArray = Object.values(roadsAll);
+            // Try multiple times to find a suitable road
+            let road = null;
+            let lane = null;
+            let attempts = 0;
+            while (!lane && attempts < 5) {
+                attempts++;
+                // Get a random road
+                road = _.sample(roadsArray);
+                if (!road) {
+                    console.warn('🌎 [WORLD WARN] Failed to get random road');
+                    continue;
+                }
+                // Check if road has lanes
+                if (!road.lanes || road.lanes.length === 0) {
+                    console.warn('🌎 [WORLD WARN] Road has no lanes:', road.id);
+                    continue;
+                }
+                // Get a random lane - prefer lanes with fewer cars
+                let bestLane = null;
+                let fewestCars = Infinity;
+                for (const currentLane of road.lanes) {
+                    if (currentLane && currentLane.carsPositions) {
+                        const carCount = Object.keys(currentLane.carsPositions).length;
+                        if (carCount < fewestCars) {
+                            fewestCars = carCount;
+                            bestLane = currentLane;
+                        }
+                    }
+                }
+                // If we found a lane with a reasonable number of cars, use it
+                if (bestLane && fewestCars < 5) {
+                    lane = bestLane;
+                }
+                else {
+                    // Otherwise just pick a random lane
+                    lane = _.sample(road.lanes);
+                }
+                if (!lane) {
+                    console.warn('🌎 [WORLD WARN] Failed to get random lane from road:', road.id);
+                    continue;
+                }
+            }
+            // If we found a valid lane, create car
+            if (lane) {
+                // Choose a good position to add the car
+                // Try to position it with some gap to any car ahead
+                let position = 0;
+                let foundSafePosition = false;
+                // Check if there are other cars in this lane
+                if (lane.carsPositions && Object.keys(lane.carsPositions).length > 0) {
+                    // Try a few different positions
+                    for (let pos of [0, lane.length * 0.1, lane.length * 0.2]) {
+                        let isSafe = true;
+                        // Check minimum distance to any other car
+                        for (const id in lane.carsPositions) {
+                            const otherPos = lane.carsPositions[id].position;
+                            if (Math.abs(otherPos - pos) < 10) { // Minimum safe distance
+                                isSafe = false;
+                                break;
+                            }
+                        }
+                        if (isSafe) {
+                            position = pos;
+                            foundSafePosition = true;
+                            break;
+                        }
+                    }
+                    // If we couldn't find a safe position, try another lane
+                    if (!foundSafePosition) {
+                        console.log('🌎 [WORLD INFO] Lane too congested, trying another lane');
+                        this.addRandomCar(); // Try again with a different lane
+                        return;
+                    }
+                }
+                console.log(`🌎 [WORLD INFO] Creating new car at position ${position.toFixed(2)}`);
+                // Create car with computed position
+                const car = new Car(lane, position);
+                // Set initial speed to something reasonable but non-zero
+                // to ensure cars start moving immediately
+                car.speed = 5 + Math.random() * 10; // Random speed between 5-15
+                // Add car to the world
+                console.log('🌎 [WORLD DEBUG] Adding car to world:', car.id);
+                this.addCar(car);
+            }
+            else {
+                console.error('🌎 [WORLD ERROR] Failed to find valid lane for new car after', attempts, 'attempts');
+            }
+        }
+        catch (error) {
+            console.error('🌎 [WORLD ERROR] Error in addRandomCar:', error);
         }
     }
     removeRandomCar() {
@@ -22576,16 +23109,6 @@ class World {
         }
     }
 }
-// Set up properties using the CoffeeScript-style property decorator
-World.property('instantSpeed', {
-    get: function () {
-        const speeds = _.map(Object.values(this.cars.all()), (car) => car.speed);
-        if (speeds.length === 0) {
-            return 0;
-        }
-        return _.reduce(speeds, (a, b) => a + b, 0) / speeds.length;
-    }
-});
 module.exports = World;
 
 
@@ -22643,53 +23166,11 @@ class BuilderPageComponent {
         <div class="builder-content">
           <div class="sidebar">
             <div class="panel">
-              <h3>Layout Manager</h3>
-              <button id="toggle-layouts" class="btn btn-primary btn-block">
-                Show Saved Layouts
-              </button>
-              
-              <div id="layout-manager" class="layout-manager" style="display: none;">
-                <h4>Saved Layouts (${this.layouts.length})</h4>
-                
-                ${this.layouts.length > 0 ? `
-                  <div class="layout-selector">
-                    <select id="layout-select" class="form-control">
-                      <option value="">Select a layout...</option>
-                      ${this.layouts.map(layout => `<option value="${layout.id}">${layout.name}</option>`).join('')}
-                    </select>
-                    
-                    <div class="layout-actions">
-                      <button id="load-layout" class="btn btn-secondary btn-sm">Load</button>
-                      <button id="delete-layout" class="btn btn-danger btn-sm">Delete</button>
-                    </div>
-                  </div>
-                  
-                  <div class="layout-items">
-                    ${this.layouts.map(layout => `
-                      <div class="layout-item" data-layout-id="${layout.id}">
-                        <div class="layout-info">
-                          <strong>${layout.name}</strong>
-                          <small>${new Date(layout.createdAt).toLocaleString()}</small>
-                        </div>
-                        <div class="layout-item-actions">
-                          <button class="btn btn-sm btn-outline load-layout-btn" data-layout-id="${layout.id}">Load</button>
-                          <button class="btn btn-sm btn-danger-outline delete-layout-btn" data-layout-id="${layout.id}">✕</button>
-                        </div>
-                      </div>
-                    `).join('')}
-                  </div>
-                ` : `
-                  <p class="no-layouts">No saved layouts yet. Create and save your first layout!</p>
-                `}
-              </div>
-            </div>
-            
-            <div class="panel">
               <h3>Controls</h3>
               <button id="save-layout" class="btn btn-success btn-block">💾 Save Layout</button>
-              <button id="load-current" class="btn btn-secondary btn-block">📂 Load Layout</button>
-              <button id="clear-world" class="btn btn-warning btn-block">🗑️ Clear</button>
-              <button id="generate-map" class="btn btn-info btn-block">🎲 Generate Map</button>
+              <button id="load-layout" class="btn btn-secondary btn-block">📁 Load Layout</button>
+              <button id="clear-world" class="btn btn-danger btn-block">🗑️ Clear</button>
+
             </div>
             
             <div class="panel">
@@ -22714,62 +23195,28 @@ class BuilderPageComponent {
         this.addStyles();
     }
     addEventListeners() {
-        var _a, _b;
         console.log('🔗 Builder: addEventListeners called');
         // Check if buttons exist
         const saveBtn = document.getElementById('save-layout');
-        const generateBtn = document.getElementById('generate-map');
         const clearBtn = document.getElementById('clear-world');
-        const loadBtn = document.getElementById('load-current');
+        const loadBtn = document.getElementById('load-layout');
         console.log('🔗 Builder: Button elements found:', {
             saveBtn: !!saveBtn,
-            generateBtn: !!generateBtn,
             clearBtn: !!clearBtn,
             loadBtn: !!loadBtn
-        });
-        // Toggle layout manager
-        const toggleBtn = document.getElementById('toggle-layouts');
-        const layoutManager = document.getElementById('layout-manager');
-        toggleBtn === null || toggleBtn === void 0 ? void 0 : toggleBtn.addEventListener('click', () => {
-            console.log('🔗 Builder: Toggle layouts clicked');
-            const isHidden = (layoutManager === null || layoutManager === void 0 ? void 0 : layoutManager.style.display) === 'none';
-            layoutManager.style.display = isHidden ? 'block' : 'none';
-            toggleBtn.textContent = isHidden ? 'Hide Saved Layouts' : 'Show Saved Layouts';
         });
         // Control buttons with logging
         saveBtn === null || saveBtn === void 0 ? void 0 : saveBtn.addEventListener('click', () => {
             console.log('🔗 Builder: Save layout clicked');
-            this.saveLayout();
+            this.showSaveDialog();
         });
         loadBtn === null || loadBtn === void 0 ? void 0 : loadBtn.addEventListener('click', () => {
             console.log('🔗 Builder: Load layout clicked');
-            this.loadLayout();
+            this.showLoadDialog();
         });
         clearBtn === null || clearBtn === void 0 ? void 0 : clearBtn.addEventListener('click', () => {
             console.log('🔗 Builder: Clear world clicked');
             this.clearWorld();
-        });
-        generateBtn === null || generateBtn === void 0 ? void 0 : generateBtn.addEventListener('click', () => {
-            console.log('🔗 Builder: Generate map clicked');
-            this.generateMap();
-        });
-        // Layout management
-        (_a = document.getElementById('load-layout')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.loadSelectedLayout());
-        (_b = document.getElementById('delete-layout')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.deleteSelectedLayout());
-        // Individual layout buttons
-        document.querySelectorAll('.load-layout-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const layoutId = e.target.getAttribute('data-layout-id');
-                if (layoutId)
-                    this.loadLayoutById(layoutId);
-            });
-        });
-        document.querySelectorAll('.delete-layout-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const layoutId = e.target.getAttribute('data-layout-id');
-                if (layoutId)
-                    this.deleteLayoutById(layoutId);
-            });
         });
     }
     async initializeWorld() {
@@ -22777,25 +23224,9 @@ class BuilderPageComponent {
         console.log('🌍 Initializing world for builder...');
         try {
             this.world = new World();
-            // Try to load existing layout first, or generate a fresh map
-            try {
-                const savedData = await AppState_1.appState.storage.loadLayout();
-                if (savedData) {
-                    this.world.load(JSON.stringify(savedData));
-                }
-                else {
-                    this.world.generateMap();
-                }
-            }
-            catch (error) {
-                console.warn('No saved layout found, generating fresh map');
-                this.world.generateMap();
-            }
-            // BUILDER MODE: NO cars, purely for layout editing
+            // Start with completely empty world for builder
+            this.world.clear();
             this.world.carsNumber = 0;
-            if (this.world.cars && this.world.cars.clear) {
-                this.world.cars.clear();
-            }
             console.log('🌍 World initialized with:', {
                 intersections: Object.keys(((_a = this.world.intersections) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
                 roads: Object.keys(((_b = this.world.roads) === null || _b === void 0 ? void 0 : _b.all()) || {}).length,
@@ -22809,85 +23240,52 @@ class BuilderPageComponent {
             console.error('🚨 Failed to initialize world:', error);
         }
     }
-    initializeVisualizer() {
-        var _a, _b;
-        console.log('🎨 Builder: Initializing visualizer...');
-        const canvas = document.getElementById('canvas');
-        if (!canvas) {
-            console.error('❌ Builder: Canvas not found in DOM');
-            return;
-        }
-        // Debug canvas container
-        const visualizerArea = canvas.parentElement;
-        console.log('🎨 Builder: Canvas container found:', !!visualizerArea);
-        if (visualizerArea) {
-            const rect = visualizerArea.getBoundingClientRect();
-            console.log('🎨 Builder: Container dimensions:', rect);
-            // Use the full container dimensions for responsive sizing
-            const targetWidth = Math.max(rect.width || 800, 400);
-            const targetHeight = Math.max(rect.height || 600, 300);
-            console.log('🎨 Builder: Target canvas size:', targetWidth, 'x', targetHeight);
-            canvas.width = targetWidth;
-            canvas.height = targetHeight;
-            // Set responsive styling for builder canvas
-            canvas.style.cssText = `
-        width: 100% !important;
-        height: 100% !important;
-        display: block !important;
-        border: 2px solid #0000ff !important;
-        position: relative !important;
-        z-index: 10 !important;
-        pointer-events: auto !important;
-        box-sizing: border-box !important;
-      `;
-            console.log('🎨 Builder: Canvas styled, final size:', canvas.width, 'x', canvas.height);
-        }
+    destroyVisualizer() {
+        console.log('🎨 [DEBUG] Destroying visualizer...');
         try {
-            // Create visualizer in BUILDER MODE - all editing tools active
-            console.log('🎨 Builder: Creating visualizer with world...');
-            this.visualizer = new Visualizer(this.world);
-            console.log('🎨 Builder: Visualizer created successfully');
-            // Check if visualizer has canvas
-            console.log('🎨 Builder: Visualizer canvas:', this.visualizer.canvas);
-            console.log('🎨 Builder: Visualizer canvas size:', (_a = this.visualizer.canvas) === null || _a === void 0 ? void 0 : _a.width, 'x', (_b = this.visualizer.canvas) === null || _b === void 0 ? void 0 : _b.height);
-            // BUILDER MODE: Keep cars at 0 and disable simulation
-            this.world.carsNumber = 0;
-            if (this.world.cars && this.world.cars.clear) {
-                this.world.cars.clear();
+            if (this.visualizer) {
+                // Stop any running animation
+                if (this.visualizer.running) {
+                    this.visualizer.running = false;
+                }
+                // Call the visualizer's destroy method to clean up resources
+                if (typeof this.visualizer.destroy === 'function') {
+                    this.visualizer.destroy();
+                }
+                // Clear visualizer reference
+                this.visualizer = null;
+                console.log('🎨 [DEBUG] Visualizer destroyed successfully');
             }
-            // Set builder mode to prevent simulation
-            this.visualizer.isBuilderMode = true;
-            // Start visualizer for rendering (but not simulation)
-            console.log('🎨 Builder: Starting visualizer...');
-            this.visualizer.start();
-            console.log('🎨 Builder: Visualizer started');
-            // Force initial draw after a short delay
-            setTimeout(() => {
-                console.log('🎨 Builder: Attempting to draw...');
-                // Check if canvas still exists and has correct reference
-                const canvasCheck = document.getElementById('canvas');
-                console.log('🎨 Builder: Canvas check:', !!canvasCheck);
-                // Only check reference if visualizer still exists
-                if (this.visualizer && this.visualizer.canvas) {
-                    console.log('🎨 Builder: Canvas same reference?', canvasCheck === this.visualizer.canvas);
-                }
-                // Skip direct canvas test - let visualizer handle all drawing
-                console.log('🎨 Builder: Letting visualizer handle canvas drawing...');
-                if (this.visualizer) {
-                    // Skip test rendering - causes red background flash
-                    // Test method has been commented out in visualizer.ts
-                    if (this.visualizer.drawSingleFrame) {
-                        this.visualizer.drawSingleFrame();
-                    }
-                }
-            }, 1000);
-            console.log('✅ Builder visualizer initialized successfully');
+            else {
+                console.log('🎨 [DEBUG] No visualizer to destroy');
+            }
         }
         catch (error) {
-            console.error('❌ Error initializing builder visualizer:', error);
+            console.error('🎨 [ERROR] Error destroying visualizer:', error);
         }
-        // Add window resize handler for responsive canvas
-        this.addResizeHandler();
+    }
+    initializeVisualizer() {
+        if (!this.world) {
+            console.error('🎨 [ERROR] Cannot initialize visualizer without world');
+            return;
+        }
+        console.log('🎨 [DEBUG] Initializing new visualizer...');
+        try {
+            // Create new visualizer with the world
+            this.visualizer = new Visualizer(this.world);
+            // Set builder mode
+            this.visualizer.isBuilderMode = true;
+            // Ensure zooming is at a reasonable level
+            if (this.visualizer.zoomer) {
+                this.visualizer.zoomer.defaultZoom = 4;
+            }
+            console.log('🎨 [DEBUG] Visualizer initialized successfully');
+            // Do a single draw to show the initial state
+            this.visualizer.forceRefresh();
+        }
+        catch (error) {
+            console.error('🎨 [ERROR] Failed to initialize visualizer:', error);
+        }
     }
     addResizeHandler() {
         const resizeCanvas = () => {
@@ -22917,7 +23315,7 @@ class BuilderPageComponent {
             resizeTimeout = setTimeout(resizeCanvas, 150);
         });
     }
-    async saveLayout() {
+    async saveLayout(layoutName) {
         var _a, _b;
         if (!this.world)
             return;
@@ -22928,7 +23326,9 @@ class BuilderPageComponent {
                 carsNumber: this.world.carsNumber || 0,
                 time: this.world.time || 0
             };
-            await AppState_1.appState.storage.saveLayout(worldData);
+            console.log('💾 Saving world data:', worldData);
+            // Pass the world data and layout name
+            await AppState_1.appState.storage.saveLayout(worldData, layoutName);
             this.showNotification('Layout saved successfully!');
             await this.loadLayouts();
             this.render(); // Re-render to update layout list
@@ -22962,16 +23362,62 @@ class BuilderPageComponent {
         }
     }
     async loadLayoutById(layoutId) {
+        var _a, _b, _c, _d;
+        console.log('🔄 [DEBUG] Starting loadLayoutById for ID:', layoutId);
         const layout = this.layouts.find(l => l.id === layoutId);
         if (layout && this.world) {
             try {
+                console.log('🔄 [DEBUG] Layout found:', layout.name);
+                console.log('🔄 [DEBUG] Layout data:', layout.data);
+                console.log('🔄 [DEBUG] World exists:', !!this.world);
+                console.log('🔄 [DEBUG] Visualizer exists:', !!this.visualizer);
+                // Validate layout data structure
+                if (!layout.data || typeof layout.data !== 'object') {
+                    throw new Error('Invalid layout data structure');
+                }
+                // Check what the world looks like before loading
+                console.log('🔄 [DEBUG] World before loading:', {
+                    intersections: Object.keys(((_a = this.world.intersections) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
+                    roads: Object.keys(((_b = this.world.roads) === null || _b === void 0 ? void 0 : _b.all()) || {}).length
+                });
+                // Load the layout data
+                console.log('🔄 [DEBUG] Calling world.load()...');
                 this.world.load(JSON.stringify(layout.data));
-                this.showNotification('Layout loaded successfully!');
+                console.log('🔄 [DEBUG] World.load() completed');
+                // Check what the world looks like after loading
+                console.log('🔄 [DEBUG] World after loading:', {
+                    intersections: Object.keys(((_c = this.world.intersections) === null || _c === void 0 ? void 0 : _c.all()) || {}).length,
+                    roads: Object.keys(((_d = this.world.roads) === null || _d === void 0 ? void 0 : _d.all()) || {}).length
+                });
+                // Ensure builder mode - no cars
+                console.log('🔄 [DEBUG] Setting builder mode - clearing cars...');
+                this.world.carsNumber = 0;
+                if (this.world.cars && this.world.cars.clear) {
+                    this.world.cars.clear();
+                }
+                console.log('🔄 [DEBUG] Cars cleared');
+                // Complete visualizer reset: destroy and recreate
+                console.log('🔄 [DEBUG] Performing complete visualizer reset...');
+                // First destroy any existing visualizer
+                this.destroyVisualizer();
+                // Then create a fresh visualizer instance
+                console.log('🔄 [DEBUG] Initializing new visualizer after layout load...');
+                this.initializeVisualizer();
+                console.log('🔄 [DEBUG] Visualizer reset completed successfully');
+                console.log('🔄 [DEBUG] loadLayoutById completed successfully');
+                this.showNotification(`Layout "${layout.name}" loaded successfully!`);
             }
             catch (error) {
-                console.error('Failed to load layout:', error);
-                this.showNotification('Failed to load layout!', 'error');
+                console.error('🔄 [ERROR] Failed to load layout:', error);
+                console.error('🔄 [ERROR] Stack trace:', error.stack);
+                this.showNotification('Failed to load layout: ' + error.message, 'error');
             }
+        }
+        else {
+            console.error('🔄 [ERROR] Layout not found or world not initialized');
+            console.error('🔄 [ERROR] Layout exists:', !!layout);
+            console.error('🔄 [ERROR] World exists:', !!this.world);
+            this.showNotification('Layout not found!', 'error');
         }
     }
     async deleteSelectedLayout() {
@@ -22998,44 +23444,50 @@ class BuilderPageComponent {
         }
     }
     clearWorld() {
+        var _a;
         if (!this.world)
             return;
-        console.log('🧹 Clearing world...');
+        console.log('🧹 [DEBUG] Starting clearWorld operation...');
+        console.log('🧹 [DEBUG] World exists:', !!this.world);
+        console.log('🧹 [DEBUG] Visualizer exists:', !!this.visualizer);
+        console.log('🧹 [DEBUG] Visualizer running:', (_a = this.visualizer) === null || _a === void 0 ? void 0 : _a.running);
         try {
-            this.world.set({}); // Reset world to empty state
+            // Stop visualizer first to prevent animation issues
+            if (this.visualizer && this.visualizer.running) {
+                console.log('🧹 [DEBUG] Stopping visualizer...');
+                this.visualizer.running = false;
+            }
+            // Use clear method instead of set({}) to properly reset
+            console.log('🧹 [DEBUG] Calling world.clear()...');
+            this.world.clear();
             this.world.carsNumber = 0;
+            console.log('🧹 [DEBUG] World cleared successfully');
+            // Re-initialize visualizer
+            if (this.visualizer) {
+                console.log('🧹 [DEBUG] Reinitializing visualizer...');
+                // Ensure we're in builder mode
+                this.visualizer.isBuilderMode = true;
+                // Clean approach: recreate the visualizer for a fresh state
+                this.destroyVisualizer();
+                this.initializeVisualizer();
+                console.log('🧹 [DEBUG] Visualizer reinitialized successfully');
+            }
+            else {
+                console.log('🧹 [DEBUG] No visualizer to manage');
+                // Create a new visualizer if needed
+                this.initializeVisualizer();
+            }
+            console.log('🧹 [DEBUG] clearWorld operation completed');
             this.showNotification('World cleared successfully!');
-            // Ensure visualization is updated
-            if (this.visualizer) {
-                this.visualizer.running = false;
-            }
         }
         catch (error) {
-            console.error('Failed to clear world:', error);
+            console.error('🧹 [ERROR] Failed to clear world:', error);
+            console.error('🧹 [ERROR] Stack trace:', error.stack);
             this.showNotification('Failed to clear world!', 'error');
-        }
-    }
-    generateMap() {
-        if (!this.world) {
-            return;
-        }
-        try {
-            this.world.generateMap();
-            // BUILDER MODE: No cars, purely for layout editing
-            this.world.carsNumber = 0;
-            if (this.world.cars && this.world.cars.clear) {
-                this.world.cars.clear();
-            }
-            this.showNotification('New map generated successfully!');
-            // Ensure visualization is updated
-            if (this.visualizer) {
-                // No need to stop/start in builder mode, just ensure no simulation
-                this.visualizer.running = false;
-            }
-        }
-        catch (error) {
-            console.error('Failed to generate map:', error);
-            this.showNotification('Failed to generate map!', 'error');
+            // Recovery attempt
+            console.log('🧹 [DEBUG] Attempting recovery...');
+            this.destroyVisualizer();
+            this.initializeVisualizer();
         }
     }
     showNotification(message, type = 'success') {
@@ -23115,15 +23567,15 @@ class BuilderPageComponent {
           align-items: stretch;
           justify-content: stretch;
           min-height: 0;
-          border: 2px solid #00ff00;
+          border: 1px solid #404040;
           overflow: hidden;
         }
         
         .visualizer-area canvas {
           width: 100% !important;
           height: 100% !important;
-          background: #ff0000 !important;
-          border: 2px solid #0000ff !important;
+          background: #1a1a1a !important;
+          border: 2px solid #404040 !important;
           display: block !important;
           position: relative !important;
           z-index: 10 !important;
@@ -23251,15 +23703,344 @@ class BuilderPageComponent {
         .instructions strong {
           color: #ffffff;
         }
+        
+        /* Modal Dialogs */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
+        
+        .modal-dialog {
+          background: #2d2d2d;
+          border-radius: 8px;
+          border: 1px solid #404040;
+          max-width: 500px;
+          width: 90%;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-large {
+          max-width: 800px;
+        }
+        
+        .modal-header {
+          padding: 20px;
+          border-bottom: 1px solid #404040;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .modal-header h3 {
+          margin: 0;
+          color: #ffffff;
+        }
+        
+        .close-btn {
+          background: none;
+          border: none;
+          color: #ffffff;
+          font-size: 24px;
+          cursor: pointer;
+          padding: 0;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+        }
+        
+        .close-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-body {
+          padding: 20px;
+        }
+        
+        .modal-body label {
+          display: block;
+          margin-bottom: 8px;
+          color: #ffffff;
+          font-weight: 500;
+        }
+        
+        .modal-body input {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #404040;
+          border-radius: 4px;
+          background: #404040;
+          color: #ffffff;
+          font-size: 14px;
+          margin-bottom: 10px;
+        }
+        
+        .modal-body input:focus {
+          outline: none;
+          border-color: #007bff;
+        }
+        
+        .modal-body small {
+          color: #cccccc;
+          font-size: 12px;
+        }
+        
+        .modal-footer {
+          padding: 20px;
+          border-top: 1px solid #404040;
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+        }
+        
+        .layout-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 15px;
+          margin-top: 15px;
+        }
+        
+        .layout-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid #404040;
+          border-radius: 8px;
+          padding: 15px;
+          transition: all 0.3s ease;
+        }
+        
+        .layout-card:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: #007bff;
+        }
+        
+        .layout-card h4 {
+          margin: 0 0 8px 0;
+          color: #ffffff;
+          font-size: 16px;
+        }
+        
+        .layout-card small {
+          color: #cccccc;
+          font-size: 12px;
+        }
+        
+        .layout-actions {
+          margin-top: 15px;
+          display: flex;
+          gap: 10px;
+        }
+        
+        .layout-actions .btn {
+          flex: 1;
+          padding: 8px 16px;
+          font-size: 14px;
+        }
+        
+        .notification {
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          background: #00bc8c;
+          color: white;
+          padding: 12px 20px;
+          border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          z-index: 1001;
+          border: 1px solid #009473;
+        }
+        
+        .notification.error {
+          background: #e74c3c;
+          color: white;
+          border: 1px solid #c0392b;
+        }
+        
+        .notification.success {
+          background: #00bc8c;
+          color: white;
+          border: 1px solid #009473;
+        }
       `;
             document.head.appendChild(style);
+        }
+    }
+    showSaveDialog() {
+        // Create save dialog
+        const dialog = document.createElement('div');
+        dialog.className = 'modal-overlay';
+        dialog.innerHTML = `
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Save Layout</h3>
+          <button class="close-btn" id="close-save-dialog">×</button>
+        </div>
+        <div class="modal-body">
+          <label for="layout-name">Layout Name:</label>
+          <input type="text" id="layout-name" placeholder="Enter layout name..." maxlength="50">
+          <small>Choose a descriptive name for your road network layout</small>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancel-save">Cancel</button>
+          <button class="btn btn-success" id="confirm-save">Save</button>
+        </div>
+      </div>
+    `;
+        document.body.appendChild(dialog);
+        // Focus on input
+        const nameInput = document.getElementById('layout-name');
+        nameInput.focus();
+        // Event listeners
+        const confirmSave = document.getElementById('confirm-save');
+        const cancelSave = document.getElementById('cancel-save');
+        const closeSave = document.getElementById('close-save-dialog');
+        const closeDialog = () => {
+            if (dialog && dialog.parentNode) {
+                document.body.removeChild(dialog);
+            }
+        };
+        confirmSave === null || confirmSave === void 0 ? void 0 : confirmSave.addEventListener('click', () => {
+            const layoutName = nameInput.value.trim();
+            if (!layoutName) {
+                alert('Please enter a layout name');
+                return;
+            }
+            this.saveLayout(layoutName);
+            closeDialog();
+        });
+        cancelSave === null || cancelSave === void 0 ? void 0 : cancelSave.addEventListener('click', closeDialog);
+        closeSave === null || closeSave === void 0 ? void 0 : closeSave.addEventListener('click', closeDialog);
+        // Close on escape
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                closeDialog();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+        // Close on backdrop click
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) {
+                closeDialog();
+            }
+        });
+    }
+    async showLoadDialog() {
+        try {
+            // Load all layouts
+            const layouts = await AppState_1.appState.storage.loadAllLayouts();
+            if (layouts.length === 0) {
+                alert('No saved layouts found. Create and save a layout first!');
+                return;
+            }
+            // Create load dialog
+            const dialog = document.createElement('div');
+            dialog.className = 'modal-overlay';
+            dialog.innerHTML = `
+        <div class="modal-dialog modal-large">
+          <div class="modal-header">
+            <h3>Load Layout</h3>
+            <button class="close-btn" id="close-load-dialog">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Select a layout to load:</p>
+            <div class="layout-grid">
+              ${layouts.map(layout => `
+                <div class="layout-card" data-layout-id="${layout.id}">
+                  <div class="layout-info">
+                    <h4>${layout.name}</h4>
+                    <small>Created: ${new Date(layout.createdAt).toLocaleString()}</small>
+                  </div>
+                  <div class="layout-actions">
+                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load</button>
+                    <button class="btn btn-danger delete-layout-btn" data-layout-id="${layout.id}">Delete</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
+          </div>
+        </div>
+      `;
+            document.body.appendChild(dialog);
+            // Event listeners
+            const cancelLoad = document.getElementById('cancel-load');
+            const closeLoad = document.getElementById('close-load-dialog');
+            const closeDialog = () => {
+                if (dialog && dialog.parentNode) {
+                    document.body.removeChild(dialog);
+                }
+            };
+            // Load layout buttons
+            dialog.querySelectorAll('.load-layout-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const layoutId = e.target.getAttribute('data-layout-id');
+                    if (layoutId) {
+                        await this.loadLayoutById(layoutId);
+                        closeDialog();
+                    }
+                });
+            });
+            // Delete layout buttons
+            dialog.querySelectorAll('.delete-layout-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const layoutId = e.target.getAttribute('data-layout-id');
+                    if (layoutId && confirm('Are you sure you want to delete this layout?')) {
+                        await this.deleteLayoutById(layoutId);
+                        // Refresh the dialog
+                        closeDialog();
+                        this.showLoadDialog();
+                    }
+                });
+            });
+            cancelLoad === null || cancelLoad === void 0 ? void 0 : cancelLoad.addEventListener('click', closeDialog);
+            closeLoad === null || closeLoad === void 0 ? void 0 : closeLoad.addEventListener('click', closeDialog);
+            // Close on escape
+            const escapeHandler = (e) => {
+                if (e.key === 'Escape') {
+                    closeDialog();
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            document.addEventListener('keydown', escapeHandler);
+            // Close on backdrop click
+            dialog.addEventListener('click', (e) => {
+                if (e.target === dialog) {
+                    closeDialog();
+                }
+            });
+        }
+        catch (error) {
+            console.error('Failed to load layouts:', error);
+            alert('Failed to load layouts');
         }
     }
     destroy() {
         console.log('🧹 Builder: Destroying page and cleaning up canvas...');
         if (this.visualizer) {
-            this.visualizer.stop();
+            if (this.visualizer.destroy) {
+                this.visualizer.destroy();
+            }
+            else {
+                this.visualizer.stop();
+            }
             this.visualizer = null;
+        }
+        if (this.world) {
+            this.world = null;
         }
         // Remove the canvas element to prevent duplicates
         const canvas = document.getElementById('canvas');
@@ -23293,6 +24074,289 @@ class BuilderPageComponent {
     }
 }
 exports.BuilderPageComponent = BuilderPageComponent;
+
+
+/***/ }),
+
+/***/ "./src/pages/HomePage.ts":
+/*!*******************************!*\
+  !*** ./src/pages/HomePage.ts ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.HomePage = void 0;
+/**
+ * Home page - landing page for the traffic simulator
+ */
+class HomePage {
+    constructor(container, router) {
+        this.container = container;
+        this.router = router;
+        this.render();
+    }
+    render() {
+        this.container.innerHTML = `
+      <div class="home-page">
+        <div class="hero-section">
+          <div class="hero-content">
+            <h1>Road Traffic Simulator</h1>
+            <p class="hero-subtitle">Design, build, and simulate traffic flow through custom road networks</p>
+            
+            <div class="feature-cards">
+              <div class="feature-card">
+                <div class="feature-icon">🏗️</div>
+                <h3>Network Builder</h3>
+                <p>Create custom road networks with intersections, lanes, and traffic signals</p>
+                <button class="btn btn-primary" id="go-to-builder">
+                  Start Building
+                </button>
+              </div>
+              
+              <div class="feature-card">
+                <div class="feature-icon">🚗</div>
+                <h3>Traffic Simulation</h3>
+                <p>Run realistic traffic simulations on your custom road networks</p>
+                <button class="btn btn-secondary" id="go-to-simulation">
+                  View Simulation
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="info-section">
+          <div class="info-content">
+            <h2>How to Use</h2>
+            <div class="steps">
+              <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <h4>Design Your Network</h4>
+                  <p>Use the Builder to create intersections (Shift+Click) and connect them with roads (Shift+Drag)</p>
+                </div>
+              </div>
+              
+              <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <h4>Save Your Layout</h4>
+                  <p>Save your road network designs to load them later or share with others</p>
+                </div>
+              </div>
+              
+              <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <h4>Run Simulations</h4>
+                  <p>Switch to Simulation mode to see how traffic flows through your network</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <style>
+        .home-page {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+          color: #ffffff;
+          overflow-y: auto;
+        }
+        
+        .hero-section {
+          padding: 60px 40px;
+          text-align: center;
+          background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-content h1 {
+          font-size: 3.5rem;
+          margin-bottom: 20px;
+          background: linear-gradient(45deg, #375a7f, #00bc8c);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        
+        .hero-subtitle {
+          font-size: 1.2rem;
+          margin-bottom: 40px;
+          color: #cccccc;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        
+        .feature-cards {
+          display: flex;
+          gap: 40px;
+          justify-content: center;
+          flex-wrap: wrap;
+          margin-top: 40px;
+        }
+        
+        .feature-card {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          padding: 30px;
+          max-width: 300px;
+          text-align: center;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .feature-icon {
+          font-size: 3rem;
+          margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+          margin-bottom: 15px;
+          color: #ffffff;
+        }
+        
+        .feature-card p {
+          color: #cccccc;
+          margin-bottom: 25px;
+          line-height: 1.5;
+        }
+        
+        .info-section {
+          padding: 60px 40px;
+          background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .info-content {
+          max-width: 800px;
+          margin: 0 auto;
+        }
+        
+        .info-content h2 {
+          text-align: center;
+          margin-bottom: 40px;
+          font-size: 2.5rem;
+          color: #ffffff;
+        }
+        
+        .steps {
+          display: flex;
+          flex-direction: column;
+          gap: 30px;
+        }
+        
+        .step {
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          padding: 20px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .step-number {
+          background: #375a7f;
+          color: white;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          font-size: 1.2rem;
+          flex-shrink: 0;
+        }
+        
+        .step-content h4 {
+          margin: 0 0 10px 0;
+          color: #ffffff;
+        }
+        
+        .step-content p {
+          margin: 0;
+          color: #cccccc;
+          line-height: 1.5;
+        }
+        
+        .btn {
+          padding: 12px 24px;
+          border: none;
+          border-radius: 6px;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-decoration: none;
+          display: inline-block;
+          min-width: 150px;
+        }
+        
+        .btn-primary {
+          background: linear-gradient(45deg, #375a7f, #4a6fa5);
+          color: white;
+        }
+        
+        .btn-primary:hover {
+          background: linear-gradient(45deg, #4a6fa5, #375a7f);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(55, 90, 127, 0.4);
+        }
+        
+        .btn-secondary {
+          background: linear-gradient(45deg, #00bc8c, #00d4aa);
+          color: white;
+        }
+        
+        .btn-secondary:hover {
+          background: linear-gradient(45deg, #00d4aa, #00bc8c);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(0, 188, 140, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+          .hero-content h1 {
+            font-size: 2.5rem;
+          }
+          
+          .feature-cards {
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          .hero-section,
+          .info-section {
+            padding: 40px 20px;
+          }
+        }
+      </style>
+    `;
+        this.addEventListeners();
+    }
+    addEventListeners() {
+        const builderBtn = document.getElementById('go-to-builder');
+        const simulationBtn = document.getElementById('go-to-simulation');
+        if (builderBtn) {
+            builderBtn.addEventListener('click', () => {
+                this.router.navigate('builder');
+            });
+        }
+        if (simulationBtn) {
+            simulationBtn.addEventListener('click', () => {
+                this.router.navigate('simulation');
+            });
+        }
+    }
+}
+exports.HomePage = HomePage;
 
 
 /***/ }),
@@ -23357,32 +24421,16 @@ class SimulationPageComponent {
             <!-- Layout Selection -->
             <div class="panel">
               <h3>Layout Selection</h3>
-              <button id="toggle-layouts" class="btn btn-primary btn-block">
-                Show Layout Selector
+              <button id="load-layout" class="btn btn-primary btn-block">
+                📁 Load Layout
               </button>
               
-              <div id="layout-selector" class="layout-selector" style="display: none;">
-                <div class="layout-info">
-                  <p>Choose a layout created in the Builder to simulate:</p>
-                </div>
-                
-                <label>Available Layouts:</label>
-                <select id="layout-select" class="form-control">
-                  <option value="">-- Select a Layout --</option>
-                  ${this.layouts.map(layout => `<option value="${layout.id}">${layout.name}</option>`).join('')}
-                </select>
-                
-                <button id="load-layout" class="btn btn-success btn-block">
-                  Load Selected Layout
-                </button>
-                
-                <div class="layout-status">
-                  <small class="text-muted">
-                    ${this.layouts.length > 0
+              <div class="layout-status">
+                <small class="text-muted">
+                  ${this.layouts.length > 0
             ? `${this.layouts.length} saved layout(s) available`
             : 'No saved layouts found. Create one in the Builder first.'}
-                  </small>
-                </div>
+                </small>
               </div>
             </div>
             
@@ -23474,16 +24522,9 @@ class SimulationPageComponent {
         this.addStyles();
     }
     addEventListeners() {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e;
         // Toggle panels
-        (_a = document.getElementById('toggle-layouts')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
-            const panel = document.getElementById('layout-selector');
-            const btn = document.getElementById('toggle-layouts');
-            const isHidden = (panel === null || panel === void 0 ? void 0 : panel.style.display) === 'none';
-            panel.style.display = isHidden ? 'block' : 'none';
-            btn.textContent = isHidden ? 'Hide Layout Selector' : 'Show Layout Selector';
-        });
-        (_b = document.getElementById('toggle-analytics')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
+        (_a = document.getElementById('toggle-analytics')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
             const panel = document.getElementById('analytics-panel');
             const btn = document.getElementById('toggle-analytics');
             const isHidden = (panel === null || panel === void 0 ? void 0 : panel.style.display) === 'none';
@@ -23491,10 +24532,10 @@ class SimulationPageComponent {
             btn.textContent = isHidden ? 'Hide Analytics' : 'Show Analytics';
         });
         // Simulation controls
-        (_c = document.getElementById('toggle-simulation')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.toggleSimulation());
-        (_d = document.getElementById('reset-simulation')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.resetSimulation());
-        (_e = document.getElementById('load-layout')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => this.loadSelectedLayout());
-        (_f = document.getElementById('save-analytics')) === null || _f === void 0 ? void 0 : _f.addEventListener('click', () => this.saveAnalytics());
+        (_b = document.getElementById('toggle-simulation')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.toggleSimulation());
+        (_c = document.getElementById('reset-simulation')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.resetSimulation());
+        (_d = document.getElementById('load-layout')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.showLoadDialog());
+        (_e = document.getElementById('save-analytics')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => this.saveAnalytics());
         // Sliders
         const carsRange = document.getElementById('cars-range');
         const carsValue = document.getElementById('cars-value');
@@ -23516,36 +24557,52 @@ class SimulationPageComponent {
         });
     }
     async initializeSimulation() {
-        var _a, _b;
+        var _a, _b, _c;
         console.log('🌍 Initializing world for simulation...');
         try {
             this.world = new World();
-            // Try to load existing layout first, or generate a fresh map
-            try {
-                const savedData = await AppState_1.appState.storage.loadLayout();
-                if (savedData) {
-                    this.world.load(JSON.stringify(savedData));
-                }
-                else {
-                    this.world.generateMap();
-                }
+            // Start with completely empty world for simulation - user loads layouts manually
+            this.world.clear();
+            this.world.carsNumber = 0;
+            // Ensure no cars are spawned initially
+            if (this.world.cars && this.world.cars.clear) {
+                this.world.cars.clear();
             }
-            catch (error) {
-                console.warn('No saved layout found, generating fresh map');
-                this.world.generateMap();
-            }
-            // Set initial number of cars for simulation
-            this.world.carsNumber = 100;
             console.log('🌍 World initialized with:', {
                 intersections: Object.keys(((_a = this.world.intersections) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
                 roads: Object.keys(((_b = this.world.roads) === null || _b === void 0 ? void 0 : _b.all()) || {}).length,
-                cars: this.world.carsNumber
+                cars: this.world.carsNumber,
+                actualCars: ((_c = this.world.cars) === null || _c === void 0 ? void 0 : _c.length) || 0
             });
             // Initialize visualizer with delay to ensure DOM is ready
             setTimeout(() => this.initializeVisualizer(), 300);
         }
         catch (error) {
             console.error('🚨 Failed to initialize simulation world:', error);
+        }
+    }
+    destroyVisualizer() {
+        console.log('🎨 [SIM DEBUG] Destroying visualizer...');
+        try {
+            if (this.visualizer) {
+                // Stop any running animation
+                if (this.visualizer.running) {
+                    this.visualizer.running = false;
+                }
+                // Call the visualizer's destroy method to clean up resources
+                if (typeof this.visualizer.destroy === 'function') {
+                    this.visualizer.destroy();
+                }
+                // Clear visualizer reference
+                this.visualizer = null;
+                console.log('🎨 [SIM DEBUG] Visualizer destroyed successfully');
+            }
+            else {
+                console.log('🎨 [SIM DEBUG] No visualizer to destroy');
+            }
+        }
+        catch (error) {
+            console.error('🎨 [SIM ERROR] Error destroying visualizer:', error);
         }
     }
     initializeVisualizer() {
@@ -23575,11 +24632,18 @@ class SimulationPageComponent {
         try {
             // Create visualizer in SIMULATION MODE
             this.visualizer = new Visualizer(this.world);
-            // SIMULATION MODE: Keep editing tools active for layout modification
-            // Set isBuilderMode to false to allow simulation
+            // SIMULATION MODE: Start with no cars and no simulation running
+            this.world.carsNumber = 0;
+            if (this.world.cars && this.world.cars.clear) {
+                this.world.cars.clear();
+            }
+            // Set to simulation mode but don't start simulation automatically
             this.visualizer.isBuilderMode = false;
-            // Start the visualizer for rendering
+            // Start the visualizer for rendering but not simulation
             this.visualizer.start();
+            // Ensure simulation is NOT running initially
+            this.visualizer.running = false;
+            this.isRunning = false;
             // Start analytics updates
             this.startAnalyticsUpdates();
             // Force initial draw after a short delay
@@ -23588,7 +24652,7 @@ class SimulationPageComponent {
                     this.visualizer.drawSingleFrame();
                 }
             }, 200);
-            console.log('✅ Simulation visualizer initialized successfully');
+            console.log('✅ Simulation visualizer initialized successfully (not running)');
         }
         catch (error) {
             console.error('❌ Error initializing simulation visualizer:', error);
@@ -23637,6 +24701,8 @@ class SimulationPageComponent {
                 this.world.carsNumber = parseInt(((_a = document.getElementById('cars-range')) === null || _a === void 0 ? void 0 : _a.value) || '100');
                 this.updateAnalytics();
                 this.showNotification('Layout loaded successfully!');
+                // Always re-initialize the visualizer after loading a layout
+                this.initializeVisualizer();
                 // Restart visualizer if running
                 if (this.isRunning) {
                     (_b = this.visualizer) === null || _b === void 0 ? void 0 : _b.stop();
@@ -23650,40 +24716,116 @@ class SimulationPageComponent {
         }
     }
     toggleSimulation() {
-        if (!this.visualizer)
+        var _a;
+        console.log('🎮 [SIM] Toggle simulation called');
+        if (!this.visualizer || !this.world) {
+            console.error('🎮 [SIM ERROR] Visualizer or world not available');
             return;
+        }
         const button = document.getElementById('toggle-simulation');
         if (this.isRunning) {
+            console.log('🎮 [SIM] Stopping simulation');
             // Stop simulation (pause)
             this.visualizer.running = false;
             this.isRunning = false;
-            button.innerHTML = '▶️ Start Simulation';
-            button.className = 'btn btn-success btn-block';
+            if (button) {
+                button.innerHTML = '▶️ Start Simulation';
+                button.className = 'btn btn-success btn-block';
+            }
+            console.log('🎮 [SIM] Simulation stopped');
         }
         else {
+            console.log('🎮 [SIM] Starting simulation');
             // Start simulation 
+            // Ensure visualizer is in simulation mode (not builder mode)
+            this.visualizer.isBuilderMode = false;
+            // Make sure we have the right number of cars
+            const carsRange = document.getElementById('cars-range');
+            let targetCarCount = 100; // Default
+            if (carsRange) {
+                targetCarCount = parseInt(carsRange.value || '100');
+            }
+            console.log('🎮 [SIM] Setting car count to', targetCarCount);
+            this.world.carsNumber = targetCarCount;
+            // Reset all cars to ensure a clean start
+            console.log('🎮 [SIM] Clearing existing cars');
+            if (this.world.cars && this.world.cars.clear) {
+                this.world.cars.clear();
+            }
+            // Force refresh cars to spawn them with proper state
+            console.log('🎮 [SIM] Refreshing cars');
+            // Use refreshCars instead of manually adding each car
+            this.world.refreshCars();
+            console.log('🎮 [SIM] Car count after refresh:', Object.keys(((_a = this.world.cars) === null || _a === void 0 ? void 0 : _a.all()) || {}).length);
+            // Set proper time factor from slider
+            const timeFactorSlider = document.getElementById('time-factor-range');
+            if (timeFactorSlider && this.visualizer) {
+                const factor = parseFloat(timeFactorSlider.value || '1.0');
+                console.log('🎮 [SIM] Setting time factor to', factor);
+                this.visualizer.timeFactor = factor;
+            }
+            // Start the animation loop
+            console.log('🎮 [SIM] Setting visualizer.running = true');
             this.visualizer.running = true;
             this.isRunning = true;
-            button.innerHTML = '⏸️ Pause Simulation';
-            button.className = 'btn btn-warning btn-block';
+            if (button) {
+                button.innerHTML = '⏸️ Pause Simulation';
+                button.className = 'btn btn-warning btn-block';
+            }
+            console.log('🎮 [SIM] Simulation started');
         }
     }
     resetSimulation() {
-        var _a;
-        if (!this.world || !this.visualizer)
+        console.log('🔄 [SIM DEBUG] Reset simulation requested');
+        if (!this.world || !this.visualizer) {
+            console.error('🔄 [SIM ERROR] Cannot reset - world or visualizer is not available');
             return;
+        }
+        // Always stop the simulation first
+        const wasRunning = this.isRunning;
+        if (this.isRunning) {
+            console.log('🔄 [SIM DEBUG] Stopping running simulation');
+            this.visualizer.running = false;
+            this.isRunning = false;
+        }
         // Clear all cars and reset time
+        console.log('🔄 [SIM DEBUG] Clearing cars and resetting time');
         this.world.cars.clear();
         this.world.time = 0;
-        this.world.carsNumber = parseInt(((_a = document.getElementById('cars-range')) === null || _a === void 0 ? void 0 : _a.value) || '100');
+        // Update car count from slider
+        const carSlider = document.getElementById('cars-range');
+        if (carSlider) {
+            this.world.carsNumber = parseInt(carSlider.value || '100');
+            console.log('🔄 [SIM DEBUG] Set cars number to:', this.world.carsNumber);
+        }
+        // Ensure visualizer is in simulation mode (not builder mode)
+        if (this.visualizer.isBuilderMode) {
+            console.log('🔄 [SIM DEBUG] Switching to simulation mode');
+            this.visualizer.isBuilderMode = false;
+        }
+        // Force refresh to ensure all state is reset
+        console.log('🔄 [SIM DEBUG] Refreshing visualizer');
+        if (this.visualizer.forceRefresh) {
+            this.visualizer.forceRefresh();
+        }
+        // Force refresh cars to spawn them
+        console.log('🔄 [SIM DEBUG] Refreshing cars');
+        this.world.refreshCars();
         this.updateAnalytics();
         this.showNotification('Simulation reset!');
-        // If it was running, restart it
-        if (this.isRunning) {
-            this.visualizer.running = false;
+        // If it was previously running, restart it after a short delay
+        if (wasRunning) {
+            console.log('🔄 [SIM DEBUG] Restarting simulation after reset');
             setTimeout(() => {
                 this.visualizer.running = true;
-            }, 100);
+                this.isRunning = true;
+                // Update UI
+                const toggleBtn = document.getElementById('toggle-simulation');
+                if (toggleBtn) {
+                    toggleBtn.textContent = '⏸️ Pause Simulation';
+                    toggleBtn.className = 'btn btn-warning btn-block';
+                }
+            }, 300);
         }
     }
     startAnalyticsUpdates() {
@@ -23818,7 +24960,7 @@ class SimulationPageComponent {
           align-items: stretch;
           justify-content: stretch;
           min-height: 0;
-          border: 2px solid #00ff00;
+          border: 1px solid #404040;
           overflow: hidden;
         }
         
@@ -23980,6 +25122,126 @@ class SimulationPageComponent {
         .text-muted {
           color: #6c757d;
         }
+        
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1050;
+        }
+        
+        .modal-dialog {
+          background: #2d2d2d;
+          border-radius: 8px;
+          overflow: hidden;
+          max-width: 800px;
+          width: 90%;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+          padding: 16px;
+          border-bottom: 1px solid #404040;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .modal-header h3 {
+          margin: 0;
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #ffffff;
+        }
+        
+        .close-btn {
+          background: transparent;
+          border: none;
+          color: #ffffff;
+          font-size: 1.5rem;
+          cursor: pointer;
+        }
+        
+        .modal-body {
+          padding: 16px;
+          color: #ffffff;
+        }
+        
+        .layout-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 16px;
+        }
+        
+        .layout-card {
+          background: #333333;
+          border: 1px solid #404040;
+          border-radius: 8px;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          transition: transform 0.2s;
+        }
+        
+        .layout-card:hover {
+          transform: translateY(-2px);
+        }
+        
+        .layout-info {
+          padding: 16px;
+          flex: 1;
+        }
+        
+        .layout-info h4 {
+          margin: 0 0 8px 0;
+          font-size: 1.1rem;
+          color: #ffffff;
+        }
+        
+        .layout-info small {
+          color: #b0b0b0;
+          font-size: 0.875rem;
+        }
+        
+        .layout-actions {
+          padding: 16px;
+          border-top: 1px solid #404040;
+          display: flex;
+          justify-content: flex-end;
+        }
+        
+        .modal-footer {
+          padding: 16px;
+          border-top: 1px solid #404040;
+          display: flex;
+          justify-content: flex-end;
+        }
+        
+        .btn-secondary {
+          background-color: #444444;
+          color: white;
+        }
+        
+        .btn-secondary:hover {
+          background-color: #555555;
+        }
+        
+        @media (max-width: 768px) {
+          .sidebar {
+            width: 100%;
+            order: 2;
+          }
+          
+          .visualizer-area {
+            order: 1;
+          }
+        }
       `;
             document.head.appendChild(style);
         }
@@ -23987,7 +25249,12 @@ class SimulationPageComponent {
     destroy() {
         console.log('🧹 Simulation: Destroying page and cleaning up canvas...');
         if (this.visualizer) {
-            this.visualizer.stop();
+            if (this.visualizer.destroy) {
+                this.visualizer.destroy();
+            }
+            else {
+                this.visualizer.stop();
+            }
             this.visualizer = null;
         }
         if (this.analyticsInterval) {
@@ -24021,6 +25288,167 @@ class SimulationPageComponent {
     hide() {
         if (this.container) {
             this.container.style.display = 'none';
+        }
+    }
+    async showLoadDialog() {
+        try {
+            // Load all layouts
+            const layouts = await AppState_1.appState.storage.loadAllLayouts();
+            if (layouts.length === 0) {
+                alert('No saved layouts found. Create and save a layout in the Builder first!');
+                return;
+            }
+            // Create load dialog (without delete functionality for simulation page)
+            const dialog = document.createElement('div');
+            dialog.className = 'modal-overlay';
+            dialog.innerHTML = `
+        <div class="modal-dialog modal-large">
+          <div class="modal-header">
+            <h3>Load Layout for Simulation</h3>
+            <button class="close-btn" id="close-load-dialog">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Select a layout to load for simulation:</p>
+            <div class="layout-grid">
+              ${layouts.map(layout => `
+                <div class="layout-card" data-layout-id="${layout.id}">
+                  <div class="layout-info">
+                    <h4>${layout.name}</h4>
+                    <small>Created: ${new Date(layout.createdAt).toLocaleString()}</small>
+                  </div>
+                  <div class="layout-actions">
+                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load for Simulation</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
+          </div>
+        </div>
+      `;
+            document.body.appendChild(dialog);
+            // Event listeners
+            const cancelLoad = document.getElementById('cancel-load');
+            const closeLoad = document.getElementById('close-load-dialog');
+            const closeDialog = () => {
+                if (dialog && dialog.parentNode) {
+                    document.body.removeChild(dialog);
+                }
+            };
+            // Load layout buttons
+            dialog.querySelectorAll('.load-layout-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const layoutId = e.target.getAttribute('data-layout-id');
+                    if (layoutId) {
+                        await this.loadLayoutById(layoutId);
+                        closeDialog();
+                    }
+                });
+            });
+            cancelLoad === null || cancelLoad === void 0 ? void 0 : cancelLoad.addEventListener('click', closeDialog);
+            closeLoad === null || closeLoad === void 0 ? void 0 : closeLoad.addEventListener('click', closeDialog);
+            // Close on escape
+            const escapeHandler = (e) => {
+                if (e.key === 'Escape') {
+                    closeDialog();
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            document.addEventListener('keydown', escapeHandler);
+            // Close on backdrop click
+            dialog.addEventListener('click', (e) => {
+                if (e.target === dialog) {
+                    closeDialog();
+                }
+            });
+        }
+        catch (error) {
+            console.error('Failed to load layouts:', error);
+            alert('Failed to load layouts');
+        }
+    }
+    async loadLayoutById(layoutId) {
+        var _a, _b, _c, _d;
+        console.log('🔄 [SIM DEBUG] Starting loadLayoutById for ID:', layoutId);
+        const layout = this.layouts.find(l => l.id === layoutId);
+        if (layout && this.world) {
+            try {
+                console.log('🔄 [SIM DEBUG] Layout found:', layout.name);
+                console.log('🔄 [SIM DEBUG] Layout data:', layout.data);
+                console.log('🔄 [SIM DEBUG] World exists:', !!this.world);
+                console.log('🔄 [SIM DEBUG] Visualizer exists:', !!this.visualizer);
+                console.log('🔄 [SIM DEBUG] Simulation running before load:', this.isRunning);
+                // Check what the world looks like before loading
+                console.log('🔄 [SIM DEBUG] World before loading:', {
+                    intersections: Object.keys(((_a = this.world.intersections) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
+                    roads: Object.keys(((_b = this.world.roads) === null || _b === void 0 ? void 0 : _b.all()) || {}).length
+                });
+                // Stop any running simulation first
+                if (this.visualizer) {
+                    console.log('🔄 [SIM DEBUG] Stopping visualizer before load...');
+                    this.visualizer.running = false;
+                }
+                this.isRunning = false;
+                console.log('🔄 [SIM DEBUG] Simulation stopped');
+                // Update UI button to reflect stopped state
+                const button = document.getElementById('toggle-simulation');
+                if (button) {
+                    console.log('🔄 [SIM DEBUG] Updating simulation button UI...');
+                    button.innerHTML = '▶️ Start Simulation';
+                    button.className = 'btn btn-success btn-block';
+                }
+                // Load the layout data
+                console.log('🔄 [SIM DEBUG] Calling world.load()...');
+                this.world.load(JSON.stringify(layout.data));
+                console.log('🔄 [SIM DEBUG] World.load() completed');
+                // Check what the world looks like after loading
+                console.log('🔄 [SIM DEBUG] World after loading:', {
+                    intersections: Object.keys(((_c = this.world.intersections) === null || _c === void 0 ? void 0 : _c.all()) || {}).length,
+                    roads: Object.keys(((_d = this.world.roads) === null || _d === void 0 ? void 0 : _d.all()) || {}).length
+                });
+                // Set cars to the current slider value but don't spawn them yet
+                const carsSlider = document.getElementById('cars-range');
+                const carCount = parseInt((carsSlider === null || carsSlider === void 0 ? void 0 : carsSlider.value) || '100');
+                console.log('🔄 [SIM DEBUG] Setting car count to:', carCount);
+                this.world.carsNumber = carCount;
+                // Clear any existing cars
+                console.log('🔄 [SIM DEBUG] Clearing existing cars...');
+                if (this.world.cars && this.world.cars.clear) {
+                    this.world.cars.clear();
+                }
+                console.log('🔄 [SIM DEBUG] Cars cleared');
+                // Complete visualizer reset: destroy and recreate
+                console.log('🔄 [SIM DEBUG] Performing complete visualizer reset...');
+                // First destroy any existing visualizer
+                this.destroyVisualizer();
+                // Then create a fresh visualizer instance
+                console.log('🔄 [SIM DEBUG] Initializing new visualizer after layout load...');
+                this.initializeVisualizer();
+                // Ensure simulation mode is set
+                if (this.visualizer) {
+                    this.visualizer.isBuilderMode = false;
+                    // We need to force a single draw but don't start simulation yet
+                    console.log('🔄 [SIM DEBUG] Forcing a single frame draw...');
+                    this.visualizer.drawSingleFrame();
+                }
+                console.log('🔄 [SIM DEBUG] Visualizer reset completed successfully');
+                console.log('🔄 [SIM DEBUG] Updating analytics...');
+                this.updateAnalytics();
+                console.log('🔄 [SIM DEBUG] loadLayoutById completed successfully');
+                this.showNotification(`Layout "${layout.name}" loaded successfully!`);
+            }
+            catch (error) {
+                console.error('🔄 [SIM ERROR] Failed to load layout:', error);
+                console.error('🔄 [SIM ERROR] Stack trace:', error.stack);
+                this.showNotification('Failed to load layout!', 'error');
+            }
+        }
+        else {
+            console.error('🔄 [SIM ERROR] Layout not found or world not initialized');
+            console.error('🔄 [SIM ERROR] Layout exists:', !!layout);
+            console.error('🔄 [SIM ERROR] World exists:', !!this.world);
         }
     }
 }
@@ -24100,8 +25528,14 @@ class Graphics {
         this.ctx.drawImage(image, rect.left(), rect.top(), rect.width(), rect.height());
     }
     clear(color) {
-        this.ctx.fillStyle = color;
-        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        try {
+            this.ctx.fillStyle = color;
+            this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        }
+        catch (error) {
+            console.error('🎨 [GRAPHICS ERROR] clear() failed:', error);
+            throw error;
+        }
     }
     moveTo(point) {
         this.ctx.moveTo(point.x, point.y);
@@ -24198,24 +25632,112 @@ class ToolHighlighter extends Tool {
         this.hoveredCell = null;
     }
     mousemove(e) {
-        const cell = this.getCell(e);
-        const hoveredIntersection = this.getHoveredIntersection(cell);
-        this.hoveredCell = cell;
-        const intersections = this.visualizer.world.intersections.all();
-        for (const id in intersections) {
-            intersections[id].color = null;
+        try {
+            // Skip if visualizer or world are unavailable
+            if (!this.visualizer || !this.visualizer.world || !this.visualizer.world.intersections) {
+                this.hoveredCell = null; // Reset the hover state if world isn't ready
+                return;
+            }
+            // Get cell safely
+            const cell = this.getCell(e);
+            if (!cell) {
+                this.hoveredCell = null; // Reset if no cell detected
+                return;
+            }
+            // Only update if cell actually changed
+            if (this.hoveredCell &&
+                this.hoveredCell.x === cell.x &&
+                this.hoveredCell.y === cell.y) {
+                return; // Skip if cell hasn't changed to avoid redundant processing
+            }
+            // Update hovered cell
+            this.hoveredCell = cell;
+            // Find intersection under hover
+            const hoveredIntersection = this.getHoveredIntersection(cell);
+            // Safely get intersections with extra verification
+            try {
+                const intersections = this.visualizer.world.intersections.all() || {};
+                // Reset all intersection colors
+                for (const id in intersections) {
+                    if (intersections[id]) {
+                        intersections[id].color = null;
+                    }
+                }
+                // Set color for hovered intersection
+                if (hoveredIntersection) {
+                    hoveredIntersection.color = settings.colors.hoveredIntersection;
+                }
+                // Force a single redraw if visualizer exists but don't start animation loop
+                if (this.visualizer.drawSingleFrame && !this.visualizer.running) {
+                    this.visualizer.drawSingleFrame();
+                }
+            }
+            catch (innerError) {
+                console.error('🔧 [HIGHLIGHTER ERROR] Error handling intersections:', innerError);
+                // Reset state on error
+                this.hoveredCell = null;
+            }
         }
-        if (hoveredIntersection) {
-            hoveredIntersection.color = settings.colors.hoveredIntersection;
+        catch (error) {
+            console.error('🔧 [HIGHLIGHTER ERROR] mousemove failed:', error);
+            this.hoveredCell = null; // Reset on error
         }
     }
     mouseout(e) {
-        this.hoveredCell = null;
+        try {
+            // Clear hover state
+            this.hoveredCell = null;
+            // Reset intersection colors
+            if (this.visualizer && this.visualizer.world && this.visualizer.world.intersections) {
+                const intersections = this.visualizer.world.intersections.all();
+                for (const id in intersections) {
+                    if (intersections[id]) {
+                        intersections[id].color = null;
+                    }
+                }
+                // Force a single redraw if visualizer exists but don't start animation loop
+                if (this.visualizer.drawSingleFrame && !this.visualizer.running) {
+                    this.visualizer.drawSingleFrame();
+                }
+            }
+        }
+        catch (error) {
+            console.error('🔧 [HIGHLIGHTER ERROR] mouseout failed:', error);
+        }
+    }
+    reset() {
+        try {
+            // Clear hover state
+            this.hoveredCell = null;
+            // Clear any intersection colors
+            if (this.visualizer && this.visualizer.world && this.visualizer.world.intersections) {
+                const intersections = this.visualizer.world.intersections.all();
+                for (const id in intersections) {
+                    if (intersections[id]) {
+                        intersections[id].color = null;
+                    }
+                }
+            }
+        }
+        catch (error) {
+            console.error('🔧 [HIGHLIGHTER ERROR] reset failed:', error);
+        }
     }
     draw() {
-        if (this.hoveredCell) {
-            const color = settings.colors.hoveredGrid;
-            this.visualizer.graphics.fillRect(this.hoveredCell, color, 0.5);
+        try {
+            // Safely check all needed components before drawing
+            if (this.hoveredCell &&
+                this.visualizer &&
+                this.visualizer.graphics &&
+                typeof this.visualizer.graphics.fillRect === 'function') {
+                const color = settings.colors.hoveredGrid;
+                this.visualizer.graphics.fillRect(this.hoveredCell, color, 0.5);
+            }
+        }
+        catch (error) {
+            console.error('🔧 [HIGHLIGHTER ERROR] draw failed:', error);
+            // Reset state on error to prevent future errors
+            this.hoveredCell = null;
         }
     }
 }
@@ -24243,6 +25765,10 @@ class ToolIntersectionBuilder extends Tool {
         this.mouseDownPos = null;
     }
     mousedown(e) {
+        // Don't allow intersection creation in simulation mode
+        if (!this.visualizer.isBuilderMode) {
+            return;
+        }
         // Simple shift key detection like the original
         if (e.shiftKey) {
             console.log('🟡 SHIFT+CLICK detected - creating intersection');
@@ -24259,6 +25785,10 @@ class ToolIntersectionBuilder extends Tool {
         }
     }
     mouseup(e) {
+        // Don't allow intersection creation in simulation mode
+        if (!this.visualizer.isBuilderMode) {
+            return;
+        }
         if (this.tempIntersection) {
             console.log('🟡 IntersectionBuilder: Finalizing intersection creation');
             console.log('🟡 Final intersection rect:', this.tempIntersection.rect.x, this.tempIntersection.rect.y, this.tempIntersection.rect.width(), this.tempIntersection.rect.height());
@@ -24320,6 +25850,10 @@ class ToolIntersectionMover extends Tool {
         this.intersection = null;
     }
     mousedown(e) {
+        // Don't allow intersection moving in simulation mode
+        if (!this.visualizer.isBuilderMode) {
+            return;
+        }
         const intersection = this.getHoveredIntersection(this.getCell(e));
         if (intersection) {
             this.intersection = intersection;
@@ -24330,6 +25864,10 @@ class ToolIntersectionMover extends Tool {
         this.intersection = null;
     }
     mousemove(e) {
+        // Don't allow intersection moving in simulation mode
+        if (!this.visualizer.isBuilderMode) {
+            return;
+        }
         if (this.intersection) {
             const cell = this.getCell(e);
             this.intersection.rect.left(cell.x);
@@ -24414,6 +25952,10 @@ class ToolRoadBuilder extends Tool {
         this.dualRoad = null;
     }
     mousedown(e) {
+        // Don't allow road creation in simulation mode
+        if (!this.visualizer.isBuilderMode) {
+            return;
+        }
         console.log('RoadBuilder mousedown - shift:', e.shiftKey);
         const cell = this.getCell(e);
         const hoveredIntersection = this.getHoveredIntersection(cell);
@@ -24425,6 +25967,10 @@ class ToolRoadBuilder extends Tool {
         }
     }
     mouseup(e) {
+        // Don't allow road creation in simulation mode
+        if (!this.visualizer.isBuilderMode) {
+            return;
+        }
         if (this.road) {
             this.visualizer.world.addRoad(this.road);
         }
@@ -24434,6 +25980,10 @@ class ToolRoadBuilder extends Tool {
         this.road = this.dualRoad = this.sourceIntersection = null;
     }
     mousemove(e) {
+        // Don't allow road creation in simulation mode
+        if (!this.visualizer.isBuilderMode) {
+            return;
+        }
         const cell = this.getCell(e);
         const hoveredIntersection = this.getHoveredIntersection(cell);
         if (this.sourceIntersection && hoveredIntersection &&
@@ -24583,16 +26133,22 @@ const ToolRoadBuilder = __webpack_require__(/*! ./road-builder */ "./src/visuali
 const ToolHighlighter = __webpack_require__(/*! ./highlighter */ "./src/visualizer/highlighter.ts");
 const Zoomer = __webpack_require__(/*! ./zoomer */ "./src/visualizer/zoomer.ts");
 const settings = __webpack_require__(/*! ../settings */ "./src/settings.ts");
+const Pool = __webpack_require__(/*! ../model/pool */ "./src/model/pool.ts");
+const Car = __webpack_require__(/*! ../model/car */ "./src/model/car.ts");
+const Road = __webpack_require__(/*! ../model/road */ "./src/model/road.ts");
+const Intersection = __webpack_require__(/*! ../model/intersection */ "./src/model/intersection.ts");
 const { PI } = Math;
 class Visualizer {
     constructor(world) {
-        var _a, _b, _c;
         this.isBuilderMode = false; // New property to control simulation behavior
+        this.toolCheckInterval = null; // Track interval to prevent duplicates
         this.draw = (time) => {
-            var _a, _b, _c, _d, _e, _f;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+            // Calculate time delta - capped for stability
             const delta = (time - this.previousTime) || 0;
-            if (delta > 30) {
-                const adjustedDelta = delta > 100 ? 100 : delta;
+            // Process draw cycle at stable frame rate
+            if (delta > 16) { // ~60fps target rate
+                const adjustedDelta = Math.min(delta, 100); // Cap at 100ms for stability
                 this.previousTime = time;
                 try {
                     // FORCE complete transformation reset with fallback
@@ -24602,74 +26158,143 @@ class Visualizer {
                     else {
                         this.ctx.setTransform(1, 0, 0, 1, 0, 0);
                     }
-                    // Clear canvas with proper background color
+                    // Clear canvas with proper background color - ensure it's always clearing with the right color
                     this.graphics.clear(settings.colors.background);
                     this.ctx.save(); // Save the clean state
                     // Apply zoom transformation
-                    this.zoomer.transform();
-                    // Debug world state occasionally to avoid spam
-                    if (Math.floor(time / 100) % 100 === 0) {
-                        this.debugWorldState();
+                    if (this.zoomer) {
+                        this.zoomer.transform();
                     }
+                    // ALWAYS draw these elements regardless of simulation state
                     this.drawGrid();
-                    // ALWAYS get fresh intersection list to ensure new intersections are drawn
-                    const intersections = ((_b = (_a = this.world) === null || _a === void 0 ? void 0 : _a.intersections) === null || _b === void 0 ? void 0 : _b.all()) || {};
+                    // Step the world simulation if running in simulation mode
+                    if (!this.isBuilderMode && this.running && this.world && this.world.onTick) {
+                        try {
+                            console.log('🎨 [SIM DEBUG] Calling world.onTick() with delta:', this.timeFactor * adjustedDelta / 1000);
+                            console.log('🎨 [SIM DEBUG] Current carsNumber:', this.world.carsNumber);
+                            console.log('🎨 [SIM DEBUG] Current cars count:', Object.keys(((_b = (_a = this.world) === null || _a === void 0 ? void 0 : _a.cars) === null || _b === void 0 ? void 0 : _b.all()) || {}).length);
+                            this.world.onTick(this.timeFactor * adjustedDelta / 1000);
+                            console.log('🎨 [SIM DEBUG] After onTick, cars count:', Object.keys(((_d = (_c = this.world) === null || _c === void 0 ? void 0 : _c.cars) === null || _d === void 0 ? void 0 : _d.all()) || {}).length);
+                        }
+                        catch (simError) {
+                            console.error('🎨 [SIM ERROR] Error in simulation tick:', simError);
+                            console.error('🎨 [SIM ERROR] Stack trace:', simError.stack);
+                            // Continue rendering even if simulation step fails
+                        }
+                    }
+                    // ALWAYS DRAW ALL WORLD OBJECTS, regardless of simulation state or errors
+                    // This ensures we never get a black canvas during simulation
+                    // Draw intersections
+                    const intersections = ((_f = (_e = this.world) === null || _e === void 0 ? void 0 : _e.intersections) === null || _f === void 0 ? void 0 : _f.all()) || {};
                     for (const id in intersections) {
                         const intersection = intersections[id];
-                        if (intersection) {
-                            this.drawIntersection(intersection, 0.9);
+                        try {
+                            if (intersection && typeof intersection === 'object') {
+                                this.drawIntersection(intersection, 0.9);
+                            }
+                        }
+                        catch (error) {
+                            // Log but continue with other elements
+                            console.error('🎨 [VIZ ERROR] Failed to draw intersection:', id, error);
                         }
                     }
-                    const roads = ((_d = (_c = this.world) === null || _c === void 0 ? void 0 : _c.roads) === null || _d === void 0 ? void 0 : _d.all()) || {};
+                    // Draw roads
+                    const roads = ((_h = (_g = this.world) === null || _g === void 0 ? void 0 : _g.roads) === null || _h === void 0 ? void 0 : _h.all()) || {};
                     for (const id in roads) {
                         const road = roads[id];
-                        if (road) {
-                            this.drawRoad(road, 0.9);
+                        try {
+                            if (road && typeof road === 'object') {
+                                this.drawRoad(road, 0.9);
+                            }
+                        }
+                        catch (error) {
+                            // Log but continue with other elements
+                            console.error('🎨 [VIZ ERROR] Failed to draw road:', id, error);
                         }
                     }
-                    const cars = ((_f = (_e = this.world) === null || _e === void 0 ? void 0 : _e.cars) === null || _f === void 0 ? void 0 : _f.all()) || {};
-                    // Only draw cars if NOT in builder mode
-                    if (!this.isBuilderMode) {
+                    // Draw traffic signals for roads
+                    for (const id in roads) {
+                        const road = roads[id];
+                        try {
+                            if (road) {
+                                this.drawSignals(road);
+                            }
+                        }
+                        catch (error) {
+                            // Log but continue with other elements
+                            console.error('🎨 [VIZ ERROR] Failed to draw signals:', id, error);
+                        }
+                    }
+                    // Draw cars - CRITICAL for simulation visibility
+                    // Specifically handle cars in a way that avoids skipping them during simulation
+                    try {
+                        // Double check that cars collection exists and has vehicles
+                        const cars = ((_k = (_j = this.world) === null || _j === void 0 ? void 0 : _j.cars) === null || _k === void 0 ? void 0 : _k.all()) || {};
+                        const carCount = Object.keys(cars).length;
+                        // Always try to draw cars, regardless of builder/simulation mode
+                        // This ensures vehicles are visible during simulation
                         for (const id in cars) {
-                            this.drawCar(cars[id]);
+                            try {
+                                if (cars[id]) {
+                                    this.drawCar(cars[id]);
+                                }
+                            }
+                            catch (carError) {
+                                // Log but continue with other cars - don't let one bad car ruin everything
+                                console.error('🎨 [VIZ ERROR] Failed to draw car:', id, carError);
+                            }
+                        }
+                        // If in simulation mode but no cars were found, try to refresh them
+                        if (!this.isBuilderMode && this.running && carCount === 0 && ((_l = this.world) === null || _l === void 0 ? void 0 : _l.refreshCars)) {
+                            console.log('🎨 [VIZ DEBUG] No cars found in simulation mode, trying to refresh');
+                            try {
+                                this.world.refreshCars();
+                            }
+                            catch (refreshError) {
+                                console.error('🎨 [VIZ ERROR] Failed to refresh cars:', refreshError);
+                            }
                         }
                     }
-                    // Draw tools for builder interaction
-                    if (this.toolIntersectionBuilder && this.toolIntersectionBuilder.draw) {
-                        this.toolIntersectionBuilder.draw();
+                    catch (carsError) {
+                        console.error('🎨 [VIZ ERROR] Error processing cars:', carsError);
                     }
-                    if (this.toolRoadbuilder && this.toolRoadbuilder.draw) {
-                        this.toolRoadbuilder.draw();
-                    }
-                    if (this.toolHighlighter && this.toolHighlighter.draw) {
-                        this.toolHighlighter.draw();
+                    // Draw builder tools last (only relevant in builder mode)
+                    if (this.isBuilderMode) {
+                        if (this.toolIntersectionBuilder && this.toolIntersectionBuilder.draw) {
+                            this.toolIntersectionBuilder.draw();
+                        }
+                        if (this.toolRoadbuilder && this.toolRoadbuilder.draw) {
+                            this.toolRoadbuilder.draw();
+                        }
+                        if (this.toolHighlighter && this.toolHighlighter.draw) {
+                            this.toolHighlighter.draw();
+                        }
                     }
                     this.ctx.restore(); // Restore to clean state
                 }
                 catch (error) {
-                    console.error('🚨 ERROR in draw cycle:', error);
+                    console.error('🎨 [VIZ ERROR] ERROR in draw cycle:', error);
+                    // Recovery: try to clear the canvas with the right color
+                    try {
+                        this.ctx.resetTransform();
+                        this.graphics.clear(settings.colors.background);
+                    }
+                    catch (clearError) {
+                        console.error('🎨 [VIZ ERROR] ERROR clearing canvas during recovery:', clearError);
+                    }
                 }
             }
+            // ALWAYS request the next frame when running - this is critical for simulation
             if (this.running) {
                 window.requestAnimationFrame(this.draw);
             }
         };
         this.world = world;
-        // Check for multiple canvas elements - log for debugging
-        const allCanvases = document.querySelectorAll('canvas');
-        console.log('🔍 CANVAS DEBUG: Found', allCanvases.length, 'canvas elements');
-        // Log all canvas elements for debugging
-        allCanvases.forEach((canvas, index) => {
-            console.log(`  - Canvas ${index}:`, canvas.id || 'no-id', canvas.width + 'x' + canvas.height, canvas.style.cssText || 'no-style');
-        });
+        // Ensure draw method is properly bound to this instance
+        this.draw = this.draw.bind(this);
         // Get the canvas that should exist (created by page component)
         this.$canvas = $('#canvas');
         this.canvas = this.$canvas[0];
-        console.log('🔍 CANVAS STATUS:');
-        console.log('  - jQuery found canvas:', !!this.$canvas.length);
-        console.log('  - Canvas element:', !!this.canvas);
-        console.log('  - Canvas dimensions:', (_a = this.canvas) === null || _a === void 0 ? void 0 : _a.width, 'x', (_b = this.canvas) === null || _b === void 0 ? void 0 : _b.height);
-        console.log('  - Canvas style:', (_c = this.canvas) === null || _c === void 0 ? void 0 : _c.style.cssText);
         // Canvas setup
         if (!this.canvas) {
             console.error('❌ Canvas element not found!');
@@ -24704,11 +26329,25 @@ class Visualizer {
         });
     }
     drawIntersection(intersection, alpha) {
-        const color = intersection.color || settings.colors.intersection;
-        this.graphics.drawRect(intersection.rect);
-        this.ctx.lineWidth = 0.4;
-        this.graphics.stroke(settings.colors.roadMarking);
-        this.graphics.fillRect(intersection.rect, color, alpha);
+        try {
+            if (!intersection) {
+                console.warn('🎨 [VIZ WARN] Invalid intersection passed to drawIntersection');
+                return;
+            }
+            if (!intersection.rect) {
+                console.warn('🎨 [VIZ WARN] Intersection missing rect:', intersection.id);
+                return;
+            }
+            const color = intersection.color || settings.colors.intersection;
+            this.graphics.drawRect(intersection.rect);
+            this.ctx.lineWidth = 0.4;
+            this.graphics.stroke(settings.colors.roadMarking);
+            this.graphics.fillRect(intersection.rect, color, alpha);
+        }
+        catch (error) {
+            console.error('🎨 [VIZ ERROR] Failed to draw intersection:', intersection === null || intersection === void 0 ? void 0 : intersection.id, error);
+            throw error;
+        }
     }
     drawSignals(road) {
         // Comprehensive safety checks to prevent errors
@@ -24765,67 +26404,104 @@ class Visualizer {
         }
     }
     drawRoad(road, alpha) {
-        if (!road.source || !road.target) {
-            throw new Error('invalid road');
-        }
-        const sourceSide = road.sourceSide;
-        const targetSide = road.targetSide;
-        this.ctx.save();
-        this.ctx.lineWidth = 0.4;
-        const leftLine = road.leftmostLane.leftBorder;
-        this.graphics.drawSegment(leftLine);
-        this.graphics.stroke(settings.colors.roadMarking);
-        const rightLine = road.rightmostLane.rightBorder;
-        this.graphics.drawSegment(rightLine);
-        this.graphics.stroke(settings.colors.roadMarking);
-        this.ctx.restore();
-        this.graphics.polyline(sourceSide.source, sourceSide.target, targetSide.source, targetSide.target);
-        this.graphics.fill(settings.colors.road, alpha);
-        this.ctx.save();
-        for (let i = 1; i < road.lanes.length; i++) {
-            const lane = road.lanes[i];
-            const line = lane.rightBorder;
-            const dashSize = 1;
-            this.graphics.drawSegment(line);
-            this.ctx.lineWidth = 0.2;
-            this.ctx.lineDashOffset = 1.5 * dashSize;
-            this.ctx.setLineDash([dashSize]);
-            this.graphics.stroke(settings.colors.roadMarking);
-        }
-        this.ctx.restore();
-    }
-    drawCar(car) {
-        var _a;
-        const angle = car.direction;
-        const center = car.coords;
-        const rect = new Rect(0, 0, 1.1 * car.length, 1.7 * car.width);
-        rect.center(new Point(0, 0));
-        const boundRect = new Rect(0, 0, car.length, car.width);
-        boundRect.center(new Point(0, 0));
-        this.graphics.save();
-        this.ctx.translate(center.x, center.y);
-        this.ctx.rotate(angle);
-        const l = 0.90 - 0.30 * car.speed / car.maxSpeed;
-        const style = chroma(car.color, 0.8, l, 'hsl').hex();
-        // this.graphics.drawImage(this.carImage, rect);
-        this.graphics.fillRect(boundRect, style);
-        this.graphics.restore();
-        if (this.debug) {
+        try {
+            if (!road) {
+                console.warn('🎨 [VIZ WARN] Invalid road passed to drawRoad');
+                return;
+            }
+            if (!road.source || !road.target) {
+                console.error('🎨 [VIZ ERROR] Road missing source or target:', road.id, {
+                    source: !!road.source,
+                    target: !!road.target
+                });
+                throw new Error('invalid road');
+            }
+            const sourceSide = road.sourceSide;
+            const targetSide = road.targetSide;
             this.ctx.save();
-            this.ctx.fillStyle = "black";
-            this.ctx.font = "1px Arial";
-            this.ctx.fillText(car.id.toString(), center.x, center.y);
-            const curve = (_a = car.trajectory.temp) === null || _a === void 0 ? void 0 : _a.lane;
-            if (curve) {
-                this.graphics.drawCurve(curve, 0.1, 'red');
+            this.ctx.lineWidth = 0.4;
+            const leftLine = road.leftmostLane.leftBorder;
+            this.graphics.drawSegment(leftLine);
+            this.graphics.stroke(settings.colors.roadMarking);
+            const rightLine = road.rightmostLane.rightBorder;
+            this.graphics.drawSegment(rightLine);
+            this.graphics.stroke(settings.colors.roadMarking);
+            this.ctx.restore();
+            this.graphics.polyline(sourceSide.source, sourceSide.target, targetSide.source, targetSide.target);
+            this.graphics.fill(settings.colors.road, alpha);
+            this.ctx.save();
+            for (let i = 1; i < road.lanes.length; i++) {
+                const lane = road.lanes[i];
+                const line = lane.rightBorder;
+                const dashSize = 1;
+                this.graphics.drawSegment(line);
+                this.ctx.lineWidth = 0.2;
+                this.ctx.lineDashOffset = 1.5 * dashSize;
+                this.ctx.setLineDash([dashSize]);
+                this.graphics.stroke(settings.colors.roadMarking);
             }
             this.ctx.restore();
+        }
+        catch (error) {
+            console.error('🎨 [VIZ ERROR] Failed to draw road:', road === null || road === void 0 ? void 0 : road.id, error);
+            throw error;
+        }
+    }
+    drawCar(car) {
+        var _a, _b;
+        try {
+            // Safety checks to avoid errors
+            if (!car || !car.coords || car.direction === undefined) {
+                console.warn('🎨 [VIZ WARN] Invalid car data in drawCar');
+                return;
+            }
+            const angle = car.direction;
+            const center = car.coords;
+            const rect = new Rect(0, 0, 1.1 * car.length, 1.7 * car.width);
+            rect.center(new Point(0, 0));
+            const boundRect = new Rect(0, 0, car.length, car.width);
+            boundRect.center(new Point(0, 0));
+            this.graphics.save();
+            this.ctx.translate(center.x, center.y);
+            this.ctx.rotate(angle);
+            // Calculate color - ensure we have valid values to prevent black cars
+            let style = '#FF0000'; // Default to red if there's an issue
+            try {
+                // Make sure speed and maxSpeed are numbers to prevent NaN issues
+                const speed = typeof car.speed === 'number' ? car.speed : 0;
+                const maxSpeed = typeof car.maxSpeed === 'number' && car.maxSpeed > 0 ? car.maxSpeed : 1;
+                // Calculate a luminance value that can't go too dark
+                const l = Math.max(0.4, 0.90 - 0.30 * speed / maxSpeed);
+                // Use the car's color or a default if not present
+                const carColor = car.color || '#3388FF';
+                style = chroma(carColor, 0.8, l, 'hsl').hex();
+            }
+            catch (colorError) {
+                // Fallback to a visible color if there's an issue with chroma
+                style = '#FF4433';
+            }
+            // Draw the car with the calculated or fallback style
+            this.graphics.fillRect(boundRect, style);
+            this.graphics.restore();
+            if (this.debug) {
+                this.ctx.save();
+                this.ctx.fillStyle = "black";
+                this.ctx.font = "1px Arial";
+                this.ctx.fillText(car.id.toString(), center.x, center.y);
+                const curve = (_b = (_a = car.trajectory) === null || _a === void 0 ? void 0 : _a.temp) === null || _b === void 0 ? void 0 : _b.lane;
+                if (curve) {
+                    this.graphics.drawCurve(curve, 0.1, 'red');
+                }
+                this.ctx.restore();
+            }
+        }
+        catch (error) {
+            console.error('🎨 [VIZ ERROR] Error in drawCar:', error);
+            // Continue execution - don't let one car crash the whole render
         }
     }
     drawGrid() {
         const gridSize = settings.gridSize;
-        const box = this.zoomer.getBoundingBox();
-        console.log('🔳 Drawing grid - gridSize:', gridSize, 'canvas size:', this.canvas.width, 'x', this.canvas.height);
         // Calculate grid bounds that will be visible on screen
         const halfWidth = this.canvas.width / 2;
         const halfHeight = this.canvas.height / 2;
@@ -24835,39 +26511,14 @@ class Visualizer {
         const visibleRight = halfWidth / scale;
         const visibleTop = -halfHeight / scale;
         const visibleBottom = halfHeight / scale;
-        console.log('🔳 Visible world bounds:', {
-            left: visibleLeft,
-            right: visibleRight,
-            top: visibleTop,
-            bottom: visibleBottom,
-            scale: scale
-        });
-        const sz = 2; // Make grid points larger and more visible
-        let pointsDrawn = 0;
+        const sz = 2; // Grid point size
         // Draw grid within visible bounds
         for (let i = Math.floor(visibleLeft / gridSize) * gridSize; i <= visibleRight; i += gridSize) {
             for (let j = Math.floor(visibleTop / gridSize) * gridSize; j <= visibleBottom; j += gridSize) {
                 const rect = new Rect(i - sz / 2, j - sz / 2, sz, sz);
-                this.graphics.fillRect(rect, '#00ff00'); // Bright green for visibility
-                pointsDrawn++;
-                // Log first few points for debugging
-                if (pointsDrawn <= 5) {
-                    console.log(`🔳 Grid point ${pointsDrawn}: (${i}, ${j}) -> rect(${rect.left()}, ${rect.top()}, ${rect.width()}, ${rect.height()})`);
-                }
+                this.graphics.fillRect(rect, settings.colors.gridPoint);
             }
         }
-        console.log('🔳 Grid drawn - total points:', pointsDrawn, 'within visible bounds');
-        // Draw a large test rectangle at the center (0, 0)
-        const centerTestRect = new Rect(-10, -10, 20, 20);
-        this.graphics.fillRect(centerTestRect, '#ff00ff'); // Bright magenta
-        console.log('🔳 Center test rectangle drawn at origin');
-        // Draw test rectangles at the corners of the visible area
-        const cornerSize = 5;
-        this.graphics.fillRect(new Rect(visibleLeft, visibleTop, cornerSize, cornerSize), '#ffff00'); // Yellow
-        this.graphics.fillRect(new Rect(visibleRight - cornerSize, visibleTop, cornerSize, cornerSize), '#ff00ff'); // Magenta
-        this.graphics.fillRect(new Rect(visibleLeft, visibleBottom - cornerSize, cornerSize, cornerSize), '#00ffff'); // Cyan
-        this.graphics.fillRect(new Rect(visibleRight - cornerSize, visibleBottom - cornerSize, cornerSize, cornerSize), '#ffffff'); // White
-        console.log('🔳 Corner test rectangles drawn');
     }
     updateCanvasSize() {
         // Get the canvas container dimensions instead of full window
@@ -24900,8 +26551,8 @@ class Visualizer {
             this.ctx.clearRect(0, 0, 1, 1);
         }
     }
-    ensureToolsAreBound() {
-        // Immediate binding check - match original order
+    unbindAllTools() {
+        console.log('🔧 [TOOLS DEBUG] unbindAllTools() called');
         const tools = [
             this.toolRoadbuilder,
             this.toolIntersectionBuilder,
@@ -24909,29 +26560,97 @@ class Visualizer {
             this.toolIntersectionMover,
             this.toolMover
         ];
-        tools.forEach(tool => {
-            if (!tool.isBound) {
-                tool.bind();
+        tools.forEach((tool) => {
+            if (tool && tool.isBound) {
+                try {
+                    console.log('🔧 [TOOLS DEBUG] Unbinding tool:', tool.constructor.name);
+                    tool.unbind();
+                }
+                catch (error) {
+                    console.error('🔧 [TOOLS ERROR] Failed to unbind tool:', error);
+                }
             }
         });
-        // Set up periodic check to ensure tools stay bound - reduce frequency to avoid performance issues
-        setInterval(() => {
-            let needsRebinding = false;
-            tools.forEach(tool => {
-                if (!tool.isBound) {
-                    tool.bind();
-                    needsRebinding = true;
+        console.log('🔧 [TOOLS DEBUG] unbindAllTools() completed');
+    }
+    resetToolStates() {
+        console.log('🔧 [TOOLS DEBUG] resetToolStates() called');
+        const tools = [
+            this.toolRoadbuilder,
+            this.toolIntersectionBuilder,
+            this.toolHighlighter,
+            this.toolIntersectionMover,
+            this.toolMover
+        ];
+        tools.forEach((tool) => {
+            if (tool) {
+                try {
+                    // Reset highlighter state specifically
+                    if (tool.hoveredCell !== undefined) {
+                        console.log('🔧 [TOOLS DEBUG] Resetting hoveredCell for tool');
+                        tool.hoveredCell = null;
+                    }
+                    // Reset any other tool-specific state
+                    if (typeof tool.reset === 'function') {
+                        console.log('🔧 [TOOLS DEBUG] Calling tool.reset() method');
+                        tool.reset();
+                    }
                 }
-            });
-        }, 5000); // Check every 5 seconds instead of every second
-        // Also re-bind on focus/visibility changes
-        $(window).on('focus', () => {
-            tools.forEach(tool => {
-                if (!tool.isBound) {
-                    tool.bind();
+                catch (error) {
+                    console.error('🔧 [TOOLS ERROR] Failed to reset tool state:', error);
                 }
-            });
+            }
         });
+        // Clear any intersection colors that might be stuck
+        if (this.world && this.world.intersections) {
+            const intersections = this.world.intersections.all();
+            for (const id in intersections) {
+                if (intersections[id]) {
+                    intersections[id].color = null;
+                }
+            }
+        }
+        console.log('🔧 [TOOLS DEBUG] resetToolStates() completed');
+    }
+    ensureToolsAreBound() {
+        console.log('🔧 [TOOLS DEBUG] ensureToolsAreBound() called');
+        // Clear any existing tool check intervals first
+        if (this.toolCheckInterval !== null) {
+            clearInterval(this.toolCheckInterval);
+            this.toolCheckInterval = null;
+        }
+        const tools = [
+            this.toolRoadbuilder,
+            this.toolIntersectionBuilder,
+            this.toolHighlighter,
+            this.toolIntersectionMover,
+            this.toolMover
+        ];
+        // Properly unbind all tools first to ensure clean state
+        tools.forEach((tool) => {
+            if (tool && tool.isBound) {
+                try {
+                    console.log('🔧 [TOOLS DEBUG] Unbinding tool to rebind:', tool.constructor.name);
+                    tool.unbind();
+                }
+                catch (error) {
+                    console.error('🔧 [TOOLS ERROR] Failed to unbind tool:', error);
+                }
+            }
+        });
+        // Now bind all tools
+        tools.forEach((tool) => {
+            if (tool) {
+                try {
+                    console.log('🔧 [TOOLS DEBUG] Binding tool:', tool.constructor.name);
+                    tool.bind();
+                }
+                catch (error) {
+                    console.error('🔧 [TOOLS ERROR] Failed to bind tool:', error);
+                }
+            }
+        });
+        console.log('🔧 [TOOLS DEBUG] ensureToolsAreBound() completed');
     }
     get running() {
         return this._running;
@@ -24945,24 +26664,159 @@ class Visualizer {
         }
     }
     start() {
-        console.log('🎬 VISUALIZER START CALLED - current running state:', this._running);
         if (!this._running) {
             this._running = true;
-            console.log('🎬 VISUALIZER STARTING - about to call draw(0)');
             this.draw(0);
-            console.log('🎬 VISUALIZER STARTED - draw(0) called');
-        }
-        else {
-            console.log('🎬 VISUALIZER ALREADY RUNNING');
         }
     }
     stop() {
-        console.log('🎬 VISUALIZER STOP CALLED');
         this._running = false;
     }
     // Method to force a single frame draw without starting animation loop
     drawSingleFrame() {
-        this.draw(performance.now());
+        console.log('🎨 [VIZ DEBUG] drawSingleFrame() called');
+        try {
+            // Force a complete redraw by calling draw with current time
+            const currentTime = performance.now();
+            this.previousTime = currentTime - 33; // ~30fps timing for smooth single frame
+            // Store current running state
+            const wasRunning = this.running;
+            // Temporarily disable running flag to prevent animation loop
+            this._running = false;
+            // Ensure transformation is reset
+            if (this.ctx.resetTransform) {
+                this.ctx.resetTransform();
+            }
+            else {
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            }
+            // Clear with proper background to ensure no black canvas
+            this.graphics.clear(settings.colors.background);
+            // Draw the frame with a larger delta to ensure all elements are drawn
+            this.draw(currentTime);
+            // If the canvas is still black or appears incorrect, force another full redraw
+            setTimeout(() => {
+                if (this.ctx && this.canvas) {
+                    // Check a pixel to see if it's black (this is a heuristic)
+                    const pixelData = this.ctx.getImageData(this.canvas.width / 2, this.canvas.height / 2, 1, 1).data;
+                    const isBlack = pixelData[0] < 20 && pixelData[1] < 20 && pixelData[2] < 20;
+                    if (isBlack) {
+                        console.log('🎨 [VIZ DEBUG] Canvas appears black, forcing another redraw');
+                        // Force a complete redraw cycle
+                        if (this.ctx.resetTransform) {
+                            this.ctx.resetTransform();
+                        }
+                        else {
+                            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        }
+                        this.graphics.clear(settings.colors.background);
+                        this.draw(performance.now());
+                    }
+                }
+                // Restore original running state
+                this._running = wasRunning;
+                // If it was running, ensure animation loop continues
+                if (wasRunning) {
+                    window.requestAnimationFrame(this.draw);
+                }
+            }, 50);
+        }
+        catch (error) {
+            console.error('🎨 [VIZ ERROR] drawSingleFrame failed:', error);
+            // Recovery attempt - reset running state
+            this._running = false;
+            // Try a simple redraw to recover
+            try {
+                this.ctx.resetTransform();
+                this.graphics.clear(settings.colors.background);
+            }
+            catch (e) {
+                console.error('🎨 [VIZ ERROR] Recovery failed:', e);
+            }
+        }
+    }
+    // Method to force canvas refresh after state changes
+    forceRefresh() {
+        console.log('🎨 [VIZ DEBUG] forceRefresh() called');
+        try {
+            // Safety check - don't proceed if critical components are missing
+            if (!this.canvas || !this.ctx || !this.graphics) {
+                console.error('🎨 [VIZ ERROR] Missing required objects for refresh');
+                return;
+            }
+            // Store current state
+            const wasRunning = this._running;
+            // First, stop any running animation
+            if (wasRunning) {
+                this._running = false;
+            }
+            // Force transformation reset
+            if (this.ctx.resetTransform) {
+                this.ctx.resetTransform();
+            }
+            else {
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            }
+            // Clear with proper background - use a known good color
+            this.ctx.fillStyle = settings.colors.background;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            // Then use the graphics method for proper clearing
+            this.graphics.clear(settings.colors.background);
+            // Ensure the world state is valid - check for cars, roads, and intersections
+            if (this.world) {
+                // Make sure pools are accessible
+                if (!this.world.cars || !this.world.cars.all) {
+                    console.warn('🎨 [VIZ WARN] Cars pool missing or invalid - recreating');
+                    this.world.cars = this.world.cars || new Pool(Car);
+                }
+                if (!this.world.roads || !this.world.roads.all) {
+                    console.warn('🎨 [VIZ WARN] Roads pool missing or invalid - recreating');
+                    this.world.roads = this.world.roads || new Pool(Road);
+                }
+                if (!this.world.intersections || !this.world.intersections.all) {
+                    console.warn('🎨 [VIZ WARN] Intersections pool missing or invalid - recreating');
+                    this.world.intersections = this.world.intersections || new Pool(Intersection);
+                }
+            }
+            // Reset and rebind tools to ensure clean state
+            this.unbindAllTools();
+            this.resetToolStates();
+            // Wait briefly to ensure all DOM operations complete
+            setTimeout(() => {
+                try {
+                    // Rebind all tools
+                    this.ensureToolsAreBound();
+                    // Draw a single frame first to ensure canvas is rendered
+                    this.drawSingleFrame();
+                    // After the single frame draw, if we should be running
+                    // wait a bit then restore animation state
+                    if (wasRunning) {
+                        setTimeout(() => {
+                            this._running = true;
+                            window.requestAnimationFrame(this.draw);
+                            console.log('🎨 [VIZ DEBUG] Animation loop restarted');
+                        }, 100);
+                    }
+                    console.log('🎨 [VIZ DEBUG] forceRefresh() completed successfully');
+                }
+                catch (innerError) {
+                    console.error('🎨 [VIZ ERROR] Inner forceRefresh operation failed:', innerError);
+                }
+            }, 100);
+        }
+        catch (error) {
+            console.error('🎨 [VIZ ERROR] forceRefresh failed:', error);
+            // Emergency recovery
+            try {
+                if (this.ctx && this.graphics) {
+                    this.ctx.resetTransform();
+                    this.graphics.clear('#333333'); // Use a different color to show recovery
+                }
+            }
+            catch (e) {
+                console.error('🎨 [VIZ ERROR] Emergency recovery failed:', e);
+            }
+        }
     }
     // Debug method to check world state
     debugWorldState() {
@@ -24975,17 +26829,44 @@ class Visualizer {
         if ((_d = this.world) === null || _d === void 0 ? void 0 : _d.intersections) {
             const intersections = this.world.intersections.all();
             console.log('  - Intersections count:', Object.keys(intersections || {}).length);
-            console.log('  - First intersection:', Object.values(intersections || {})[0]);
+            if (Object.keys(intersections || {}).length > 0) {
+                console.log('  - First intersection:', Object.values(intersections || {})[0]);
+            }
         }
         if ((_e = this.world) === null || _e === void 0 ? void 0 : _e.roads) {
             const roads = this.world.roads.all();
             console.log('  - Roads count:', Object.keys(roads || {}).length);
-            console.log('  - First road:', Object.values(roads || {})[0]);
+            if (Object.keys(roads || {}).length > 0) {
+                console.log('  - First road:', Object.values(roads || {})[0]);
+            }
         }
         if ((_f = this.world) === null || _f === void 0 ? void 0 : _f.cars) {
             const cars = this.world.cars.all();
             console.log('  - Cars count:', Object.keys(cars || {}).length);
         }
+    }
+    // Cleanup method to prevent memory leaks
+    destroy() {
+        // Stop any running animation
+        this.stop();
+        // Clear tool check interval
+        if (this.toolCheckInterval) {
+            clearInterval(this.toolCheckInterval);
+            this.toolCheckInterval = null;
+        }
+        // Unbind tools
+        const tools = [
+            this.toolRoadbuilder,
+            this.toolIntersectionBuilder,
+            this.toolHighlighter,
+            this.toolIntersectionMover,
+            this.toolMover
+        ];
+        tools.forEach(tool => {
+            if (tool && tool.unbind) {
+                tool.unbind();
+            }
+        });
     }
 }
 module.exports = Visualizer;
@@ -25020,10 +26901,8 @@ class Zoomer {
         const height = this.canvas.height || 600;
         this.screenCenter = new Point(width / 2, height / 2);
         this.center = new Point(width / 2, height / 2);
-        console.log('🔧 Zoomer initialized with canvas size:', width, 'x', height, 'center at:', this.center.x, this.center.y);
         // Bind mousewheel event for zooming
         if (autobind) {
-            console.log('🔧 Binding mousewheel events to canvas');
             $(this.canvas).on('mousewheel DOMMouseScroll wheel', this.mousewheel.bind(this));
         }
     }
@@ -25054,19 +26933,11 @@ class Zoomer {
         if (!this.center) {
             this.center = new Point(this.canvas.width / 2, this.canvas.height / 2);
         }
-        console.log('🔍 Zoomer transform:', {
-            canvasSize: { width: this.canvas.width, height: this.canvas.height },
-            center: { x: this.center.x, y: this.center.y },
-            scale: this.scale,
-            defaultZoom: this.defaultZoom,
-            finalScale: this.scale * this.defaultZoom
-        });
         // Apply translation to center
         this.ctx.translate(this.center.x, this.center.y);
         // Apply scaling
         const k = this.scale * this.defaultZoom;
         this.ctx.scale(k, k);
-        console.log('🔍 Transform applied - final scale:', k);
     }
     zoom(k, zoomCenter) {
         k = k || 1;
@@ -25209,6 +27080,7 @@ __webpack_require__(/*! jquery-mousewheel */ "./node_modules/jquery-mousewheel/j
 const AppState_1 = __webpack_require__(/*! ./core/AppState */ "./src/core/AppState.ts");
 const Router_1 = __webpack_require__(/*! ./core/Router */ "./src/core/Router.ts");
 const NavigationComponent_1 = __webpack_require__(/*! ./components/NavigationComponent */ "./src/components/NavigationComponent.ts");
+const HomePage_1 = __webpack_require__(/*! ./pages/HomePage */ "./src/pages/HomePage.ts");
 const BuilderPageComponent_1 = __webpack_require__(/*! ./pages/BuilderPageComponent */ "./src/pages/BuilderPageComponent.ts");
 const SimulationPageComponent_1 = __webpack_require__(/*! ./pages/SimulationPageComponent */ "./src/pages/SimulationPageComponent.ts");
 // Initialize the modernized application
@@ -25230,12 +27102,31 @@ $(() => {
         // Initialize navigation component
         const navigation = new NavigationComponent_1.NavigationComponent(navContainer, router);
         // Initialize page components (lazy loading)
+        let homePage = null;
         let builderPage = null;
         let simulationPage = null;
         // Add routes
+        router.addRoute('/', () => {
+            console.log('🏠 Navigating to Home page');
+            // Properly destroy any existing pages
+            if (builderPage) {
+                builderPage.destroy();
+                builderPage = null;
+            }
+            if (simulationPage) {
+                simulationPage.destroy();
+                simulationPage = null;
+            }
+            // Clear content and create fresh home page
+            mainContent.innerHTML = '';
+            homePage = new HomePage_1.HomePage(mainContent, router);
+        });
         router.addRoute('/builder', () => {
             console.log('📐 Navigating to Builder page');
             // Properly destroy any existing pages
+            if (homePage) {
+                homePage = null;
+            }
             if (simulationPage) {
                 simulationPage.destroy();
                 simulationPage = null;
@@ -25251,6 +27142,9 @@ $(() => {
         router.addRoute('/simulation', () => {
             console.log('🏃 Navigating to Simulation page');
             // Properly destroy any existing pages
+            if (homePage) {
+                homePage = null;
+            }
             if (builderPage) {
                 builderPage.destroy();
                 builderPage = null;
@@ -25266,6 +27160,7 @@ $(() => {
         // Start the router (which will trigger the initial route)
         router.start();
         console.log('🚀 Modern application ready');
+        console.log('🏠 Home page: Welcome and navigation');
         console.log('📐 Builder mode: Create and edit road layouts');
         console.log('🏃 Simulation mode: Run traffic simulations on saved layouts');
         // Expose useful debugging functions
@@ -25274,9 +27169,10 @@ $(() => {
         window.getBuilderPage = () => builderPage;
         window.getSimulationPage = () => simulationPage;
         // Navigation helper functions for debugging
+        window.goToHome = () => router.navigate('/');
         window.goToBuilder = () => router.navigate('/builder');
         window.goToSimulation = () => router.navigate('/simulation');
-        console.log('🛠️ Debug functions available: appState, router, getBuilderPage(), getSimulationPage(), goToBuilder(), goToSimulation()');
+        console.log('🛠️ Debug functions available: appState, router, getBuilderPage(), getSimulationPage(), goToHome(), goToBuilder(), goToSimulation()');
     }, 10);
 });
 

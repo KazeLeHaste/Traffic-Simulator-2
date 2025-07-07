@@ -9,16 +9,13 @@ export class LocalStorage implements IStorage {
   private readonly ANALYTICS_KEY = 'traffic_simulator_analytics';
   private readonly CURRENT_LAYOUT_KEY = 'traffic_simulator_current_layout';
 
-  async saveLayout(layout: any): Promise<void> {
+  async saveLayout(layout: any, layoutName?: string): Promise<void> {
     try {
-      // Save as current layout (for backward compatibility)
-      localStorage.setItem(this.CURRENT_LAYOUT_KEY, JSON.stringify(layout));
-      
-      // Also add to layouts collection with timestamp
+      // Only add to layouts collection - don't auto-save as current layout
       const layouts = await this.loadAllLayouts();
       const newLayout = {
         id: `layout_${Date.now()}`,
-        name: `Layout ${new Date().toLocaleString()}`,
+        name: layoutName || `Layout ${new Date().toLocaleString()}`,
         data: layout,
         createdAt: new Date().toISOString()
       };

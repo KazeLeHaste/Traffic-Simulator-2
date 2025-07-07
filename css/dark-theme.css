@@ -1,0 +1,153 @@
+/* Dark Theme CSS for RoadTrafficSimulator */
+:root {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-panel: #333333;
+  --border-color: #404040;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --btn-primary-bg: #375a7f;
+  --btn-primary-hover: #2e4c6d;
+  --btn-success-bg: #00bc8c;
+  --btn-success-hover: #00a085;
+  --btn-info-bg: #3498db;
+  --btn-info-hover: #2980b9;
+  --btn-warning-bg: #f39c12;
+  --btn-warning-hover: #e67e22;
+  --btn-secondary-bg: #444444;
+  --btn-secondary-hover: #555555;
+  --btn-danger-bg: #e74c3c;
+  --btn-danger-hover: #c0392b;
+}
+
+/* Make sure the dark theme is always applied */
+body, html {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+#app-container {
+  background-color: var(--bg-primary) !important;
+}
+
+.simulation-page,
+.builder-page {
+  background-color: var(--bg-primary) !important;
+}
+
+.page-header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.page-header h2 {
+  color: var(--text-primary) !important;
+}
+
+.sidebar {
+  background-color: var(--bg-secondary) !important;
+  border-right: 1px solid var(--border-color) !important;
+}
+
+.panel {
+  background-color: var(--bg-panel) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.panel h3 {
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.visualizer-area {
+  background-color: var(--bg-primary) !important;
+}
+
+.visualizer-area canvas {
+  background-color: var(--bg-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Button styles */
+.btn-primary { 
+  background-color: var(--btn-primary-bg) !important; 
+  color: var(--text-primary) !important; 
+  border: 1px solid var(--btn-primary-bg) !important;
+}
+.btn-primary:hover { 
+  background-color: var(--btn-primary-hover) !important; 
+}
+
+.btn-success { 
+  background-color: var(--btn-success-bg) !important; 
+  color: var(--text-primary) !important; 
+  border: 1px solid var(--btn-success-bg) !important;
+}
+.btn-success:hover { 
+  background-color: var(--btn-success-hover) !important; 
+}
+
+.btn-info { 
+  background-color: var(--btn-info-bg) !important; 
+  color: var(--text-primary) !important; 
+  border: 1px solid var(--btn-info-bg) !important;
+}
+.btn-info:hover { 
+  background-color: var(--btn-info-hover) !important; 
+}
+
+.btn-warning { 
+  background-color: var(--btn-warning-bg) !important; 
+  color: #212529 !important; 
+  border: 1px solid var(--btn-warning-bg) !important;
+}
+.btn-warning:hover { 
+  background-color: var(--btn-warning-hover) !important; 
+}
+
+.btn-secondary { 
+  background-color: var(--btn-secondary-bg) !important; 
+  color: var(--text-primary) !important; 
+  border: 1px solid var(--border-color) !important;
+}
+.btn-secondary:hover { 
+  background-color: var(--btn-secondary-hover) !important; 
+}
+
+.btn-danger { 
+  background-color: var(--btn-danger-bg) !important; 
+  color: var(--text-primary) !important; 
+  border: 1px solid var(--btn-danger-bg) !important;
+}
+.btn-danger:hover { 
+  background-color: var(--btn-danger-hover) !important; 
+}
+
+/* Make all form inputs match dark theme */
+input, select, textarea, .form-control {
+  background-color: #404040 !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+input:focus, select:focus, textarea:focus, .form-control:focus {
+  border-color: var(--btn-primary-bg) !important;
+  box-shadow: 0 0 0 2px rgba(55, 90, 127, 0.25) !important;
+}
+
+/* Ensure dark theme for all dialogs */
+.modal, .modal-content, .dialog {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Handle text colors */
+h1, h2, h3, h4, h5, h6, p, span, div, label {
+  color: var(--text-primary) !important;
+}
+
+.text-muted {
+  color: var(--text-secondary) !important;
+}

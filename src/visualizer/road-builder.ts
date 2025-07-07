@@ -15,6 +15,11 @@ class ToolRoadBuilder extends Tool {
   }
 
   mousedown(e: any): void {
+    // Don't allow road creation in simulation mode
+    if (!this.visualizer.isBuilderMode) {
+      return;
+    }
+    
     console.log('RoadBuilder mousedown - shift:', e.shiftKey);
     const cell = this.getCell(e);
     const hoveredIntersection = this.getHoveredIntersection(cell);
@@ -27,6 +32,11 @@ class ToolRoadBuilder extends Tool {
   }
 
   mouseup(e: any): void {
+    // Don't allow road creation in simulation mode
+    if (!this.visualizer.isBuilderMode) {
+      return;
+    }
+    
     if (this.road) {
       this.visualizer.world.addRoad(this.road);
     }
@@ -37,6 +47,11 @@ class ToolRoadBuilder extends Tool {
   }
 
   mousemove(e: any): void {
+    // Don't allow road creation in simulation mode
+    if (!this.visualizer.isBuilderMode) {
+      return;
+    }
+    
     const cell = this.getCell(e);
     const hoveredIntersection = this.getHoveredIntersection(cell);
     if (this.sourceIntersection && hoveredIntersection && 

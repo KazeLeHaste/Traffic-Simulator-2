@@ -49,55 +49,11 @@ export class BuilderPageComponent {
         <div class="builder-content">
           <div class="sidebar">
             <div class="panel">
-              <h3>Layout Manager</h3>
-              <button id="toggle-layouts" class="btn btn-primary btn-block">
-                Show Saved Layouts
-              </button>
-              
-              <div id="layout-manager" class="layout-manager" style="display: none;">
-                <h4>Saved Layouts (${this.layouts.length})</h4>
-                
-                ${this.layouts.length > 0 ? `
-                  <div class="layout-selector">
-                    <select id="layout-select" class="form-control">
-                      <option value="">Select a layout...</option>
-                      ${this.layouts.map(layout => 
-                        `<option value="${layout.id}">${layout.name}</option>`
-                      ).join('')}
-                    </select>
-                    
-                    <div class="layout-actions">
-                      <button id="load-layout" class="btn btn-secondary btn-sm">Load</button>
-                      <button id="delete-layout" class="btn btn-danger btn-sm">Delete</button>
-                    </div>
-                  </div>
-                  
-                  <div class="layout-items">
-                    ${this.layouts.map(layout => `
-                      <div class="layout-item" data-layout-id="${layout.id}">
-                        <div class="layout-info">
-                          <strong>${layout.name}</strong>
-                          <small>${new Date(layout.createdAt).toLocaleString()}</small>
-                        </div>
-                        <div class="layout-item-actions">
-                          <button class="btn btn-sm btn-outline load-layout-btn" data-layout-id="${layout.id}">Load</button>
-                          <button class="btn btn-sm btn-danger-outline delete-layout-btn" data-layout-id="${layout.id}">✕</button>
-                        </div>
-                      </div>
-                    `).join('')}
-                  </div>
-                ` : `
-                  <p class="no-layouts">No saved layouts yet. Create and save your first layout!</p>
-                `}
-              </div>
-            </div>
-            
-            <div class="panel">
               <h3>Controls</h3>
               <button id="save-layout" class="btn btn-success btn-block">💾 Save Layout</button>
-              <button id="load-current" class="btn btn-secondary btn-block">📂 Load Layout</button>
-              <button id="clear-world" class="btn btn-warning btn-block">🗑️ Clear</button>
-              <button id="generate-map" class="btn btn-info btn-block">🎲 Generate Map</button>
+              <button id="load-layout" class="btn btn-secondary btn-block">📁 Load Layout</button>
+              <button id="clear-world" class="btn btn-danger btn-block">🗑️ Clear</button>
+
             </div>
             
             <div class="panel">
@@ -128,64 +84,32 @@ export class BuilderPageComponent {
     
     // Check if buttons exist
     const saveBtn = document.getElementById('save-layout');
-    const generateBtn = document.getElementById('generate-map');
     const clearBtn = document.getElementById('clear-world');
-    const loadBtn = document.getElementById('load-current');
+    const loadBtn = document.getElementById('load-layout');
     
     console.log('🔗 Builder: Button elements found:', {
       saveBtn: !!saveBtn,
-      generateBtn: !!generateBtn,
       clearBtn: !!clearBtn,
       loadBtn: !!loadBtn
-    });
-
-    // Toggle layout manager
-    const toggleBtn = document.getElementById('toggle-layouts');
-    const layoutManager = document.getElementById('layout-manager');
-    
-    toggleBtn?.addEventListener('click', () => {
-      console.log('🔗 Builder: Toggle layouts clicked');
-      const isHidden = layoutManager?.style.display === 'none';
-      layoutManager!.style.display = isHidden ? 'block' : 'none';
-      toggleBtn.textContent = isHidden ? 'Hide Saved Layouts' : 'Show Saved Layouts';
     });
 
     // Control buttons with logging
     saveBtn?.addEventListener('click', () => {
       console.log('🔗 Builder: Save layout clicked');
-      this.saveLayout();
+      this.showSaveDialog();
     });
+    
     loadBtn?.addEventListener('click', () => {
       console.log('🔗 Builder: Load layout clicked');
-      this.loadLayout();
+      this.showLoadDialog();
     });
+    
     clearBtn?.addEventListener('click', () => {
       console.log('🔗 Builder: Clear world clicked');
       this.clearWorld();
     });
-    generateBtn?.addEventListener('click', () => {
-      console.log('🔗 Builder: Generate map clicked');
-      this.generateMap();
-    });
+    
 
-    // Layout management
-    document.getElementById('load-layout')?.addEventListener('click', () => this.loadSelectedLayout());
-    document.getElementById('delete-layout')?.addEventListener('click', () => this.deleteSelectedLayout());
-
-    // Individual layout buttons
-    document.querySelectorAll('.load-layout-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const layoutId = (e.target as HTMLElement).getAttribute('data-layout-id');
-        if (layoutId) this.loadLayoutById(layoutId);
-      });
-    });
-
-    document.querySelectorAll('.delete-layout-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const layoutId = (e.target as HTMLElement).getAttribute('data-layout-id');
-        if (layoutId) this.deleteLayoutById(layoutId);
-      });
-    });
   }
 
   private async initializeWorld() {
@@ -194,24 +118,9 @@ export class BuilderPageComponent {
     try {
       this.world = new World();
 
-      // Try to load existing layout first, or generate a fresh map
-      try {
-        const savedData = await appState.storage.loadLayout();
-        if (savedData) {
-          this.world.load(JSON.stringify(savedData));
-        } else {
-          this.world.generateMap();
-        }
-      } catch (error) {
-        console.warn('No saved layout found, generating fresh map');
-        this.world.generateMap();
-      }
-
-      // BUILDER MODE: NO cars, purely for layout editing
+      // Start with completely empty world for builder
+      this.world.clear();
       this.world.carsNumber = 0;
-      if (this.world.cars && this.world.cars.clear) {
-        this.world.cars.clear();
-      }
 
       console.log('🌍 World initialized with:', {
         intersections: Object.keys(this.world.intersections?.all() || {}).length,
@@ -228,103 +137,59 @@ export class BuilderPageComponent {
     }
   }
 
-  private initializeVisualizer() {
-    console.log('🎨 Builder: Initializing visualizer...');
-    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-    if (!canvas) {
-      console.error('❌ Builder: Canvas not found in DOM');
+  private destroyVisualizer(): void {
+    console.log('🎨 [DEBUG] Destroying visualizer...');
+    try {
+      if (this.visualizer) {
+        // Stop any running animation
+        if (this.visualizer.running) {
+          this.visualizer.running = false;
+        }
+        
+        // Call the visualizer's destroy method to clean up resources
+        if (typeof this.visualizer.destroy === 'function') {
+          this.visualizer.destroy();
+        }
+        
+        // Clear visualizer reference
+        this.visualizer = null;
+        
+        console.log('🎨 [DEBUG] Visualizer destroyed successfully');
+      } else {
+        console.log('🎨 [DEBUG] No visualizer to destroy');
+      }
+    } catch (error) {
+      console.error('🎨 [ERROR] Error destroying visualizer:', error);
+    }
+  }
+
+  private initializeVisualizer(): void {
+    if (!this.world) {
+      console.error('🎨 [ERROR] Cannot initialize visualizer without world');
       return;
     }
-
-    // Debug canvas container
-    const visualizerArea = canvas.parentElement;
-    console.log('🎨 Builder: Canvas container found:', !!visualizerArea);
     
-    if (visualizerArea) {
-      const rect = visualizerArea.getBoundingClientRect();
-      console.log('🎨 Builder: Container dimensions:', rect);
-      
-      // Use the full container dimensions for responsive sizing
-      const targetWidth = Math.max(rect.width || 800, 400);
-      const targetHeight = Math.max(rect.height || 600, 300);
-      
-      console.log('🎨 Builder: Target canvas size:', targetWidth, 'x', targetHeight);
-      
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-      
-      // Set responsive styling for builder canvas
-      canvas.style.cssText = `
-        width: 100% !important;
-        height: 100% !important;
-        display: block !important;
-        border: 2px solid #0000ff !important;
-        position: relative !important;
-        z-index: 10 !important;
-        pointer-events: auto !important;
-        box-sizing: border-box !important;
-      `;
-      
-      console.log('🎨 Builder: Canvas styled, final size:', canvas.width, 'x', canvas.height);
-    }
-
+    console.log('🎨 [DEBUG] Initializing new visualizer...');
+    
     try {
-      // Create visualizer in BUILDER MODE - all editing tools active
-      console.log('🎨 Builder: Creating visualizer with world...');
+      // Create new visualizer with the world
       this.visualizer = new Visualizer(this.world);
-      console.log('🎨 Builder: Visualizer created successfully');
       
-      // Check if visualizer has canvas
-      console.log('🎨 Builder: Visualizer canvas:', this.visualizer.canvas);
-      console.log('🎨 Builder: Visualizer canvas size:', this.visualizer.canvas?.width, 'x', this.visualizer.canvas?.height);
-      
-      // BUILDER MODE: Keep cars at 0 and disable simulation
-      this.world.carsNumber = 0;
-      if (this.world.cars && this.world.cars.clear) {
-        this.world.cars.clear();
-      }
-      
-      // Set builder mode to prevent simulation
+      // Set builder mode
       this.visualizer.isBuilderMode = true;
       
-      // Start visualizer for rendering (but not simulation)
-      console.log('🎨 Builder: Starting visualizer...');
-      this.visualizer.start();
-      console.log('🎨 Builder: Visualizer started');
+      // Ensure zooming is at a reasonable level
+      if (this.visualizer.zoomer) {
+        this.visualizer.zoomer.defaultZoom = 4;
+      }
       
-      // Force initial draw after a short delay
-      setTimeout(() => {
-        console.log('🎨 Builder: Attempting to draw...');
-        
-        // Check if canvas still exists and has correct reference
-        const canvasCheck = document.getElementById('canvas') as HTMLCanvasElement;
-        console.log('🎨 Builder: Canvas check:', !!canvasCheck);
-        
-        // Only check reference if visualizer still exists
-        if (this.visualizer && this.visualizer.canvas) {
-          console.log('🎨 Builder: Canvas same reference?', canvasCheck === this.visualizer.canvas);
-        }
-        
-        // Skip direct canvas test - let visualizer handle all drawing
-        console.log('🎨 Builder: Letting visualizer handle canvas drawing...');
-        
-        if (this.visualizer) {
-          // Skip test rendering - causes red background flash
-          // Test method has been commented out in visualizer.ts
-          
-          if (this.visualizer.drawSingleFrame) {
-            this.visualizer.drawSingleFrame();
-          }
-        }
-      }, 1000);
+      console.log('🎨 [DEBUG] Visualizer initialized successfully');
       
-      console.log('✅ Builder visualizer initialized successfully');
+      // Do a single draw to show the initial state
+      this.visualizer.forceRefresh();
     } catch (error) {
-      console.error('❌ Error initializing builder visualizer:', error);
+      console.error('🎨 [ERROR] Failed to initialize visualizer:', error);
     }
-    
-    // Add window resize handler for responsive canvas
-    this.addResizeHandler();
   }
 
   private addResizeHandler() {
@@ -361,7 +226,7 @@ export class BuilderPageComponent {
     });
   }
 
-  private async saveLayout() {
+  private async saveLayout(layoutName: string) {
     if (!this.world) return;
 
     try {
@@ -372,7 +237,10 @@ export class BuilderPageComponent {
         time: this.world.time || 0
       };
 
-      await appState.storage.saveLayout(worldData);
+      console.log('💾 Saving world data:', worldData);
+
+      // Pass the world data and layout name
+      await appState.storage.saveLayout(worldData, layoutName);
       this.showNotification('Layout saved successfully!');
       await this.loadLayouts();
       this.render(); // Re-render to update layout list
@@ -407,15 +275,70 @@ export class BuilderPageComponent {
   }
 
   private async loadLayoutById(layoutId: string) {
+    console.log('🔄 [DEBUG] Starting loadLayoutById for ID:', layoutId);
+    
     const layout = this.layouts.find(l => l.id === layoutId);
     if (layout && this.world) {
       try {
+        console.log('🔄 [DEBUG] Layout found:', layout.name);
+        console.log('🔄 [DEBUG] Layout data:', layout.data);
+        console.log('🔄 [DEBUG] World exists:', !!this.world);
+        console.log('🔄 [DEBUG] Visualizer exists:', !!this.visualizer);
+        
+        // Validate layout data structure
+        if (!layout.data || typeof layout.data !== 'object') {
+          throw new Error('Invalid layout data structure');
+        }
+        
+        // Check what the world looks like before loading
+        console.log('🔄 [DEBUG] World before loading:', {
+          intersections: Object.keys(this.world.intersections?.all() || {}).length,
+          roads: Object.keys(this.world.roads?.all() || {}).length
+        });
+        
+        // Load the layout data
+        console.log('🔄 [DEBUG] Calling world.load()...');
         this.world.load(JSON.stringify(layout.data));
-        this.showNotification('Layout loaded successfully!');
+        console.log('🔄 [DEBUG] World.load() completed');
+        
+        // Check what the world looks like after loading
+        console.log('🔄 [DEBUG] World after loading:', {
+          intersections: Object.keys(this.world.intersections?.all() || {}).length,
+          roads: Object.keys(this.world.roads?.all() || {}).length
+        });
+        
+        // Ensure builder mode - no cars
+        console.log('🔄 [DEBUG] Setting builder mode - clearing cars...');
+        this.world.carsNumber = 0;
+        if (this.world.cars && this.world.cars.clear) {
+          this.world.cars.clear();
+        }
+        console.log('🔄 [DEBUG] Cars cleared');
+        
+        // Complete visualizer reset: destroy and recreate
+        console.log('🔄 [DEBUG] Performing complete visualizer reset...');
+        
+        // First destroy any existing visualizer
+        this.destroyVisualizer();
+        
+        // Then create a fresh visualizer instance
+        console.log('🔄 [DEBUG] Initializing new visualizer after layout load...');
+        this.initializeVisualizer();
+        
+        console.log('🔄 [DEBUG] Visualizer reset completed successfully');
+        
+        console.log('🔄 [DEBUG] loadLayoutById completed successfully');
+        this.showNotification(`Layout "${layout.name}" loaded successfully!`);
       } catch (error) {
-        console.error('Failed to load layout:', error);
-        this.showNotification('Failed to load layout!', 'error');
+        console.error('🔄 [ERROR] Failed to load layout:', error);
+        console.error('🔄 [ERROR] Stack trace:', error.stack);
+        this.showNotification('Failed to load layout: ' + error.message, 'error');
       }
+    } else {
+      console.error('🔄 [ERROR] Layout not found or world not initialized');
+      console.error('🔄 [ERROR] Layout exists:', !!layout);
+      console.error('🔄 [ERROR] World exists:', !!this.world);
+      this.showNotification('Layout not found!', 'error');
     }
   }
 
@@ -446,48 +369,57 @@ export class BuilderPageComponent {
   private clearWorld() {
     if (!this.world) return;
     
-    console.log('🧹 Clearing world...');
+    console.log('🧹 [DEBUG] Starting clearWorld operation...');
+    console.log('🧹 [DEBUG] World exists:', !!this.world);
+    console.log('🧹 [DEBUG] Visualizer exists:', !!this.visualizer);
+    console.log('🧹 [DEBUG] Visualizer running:', this.visualizer?.running);
+    
     try {
-      this.world.set({}); // Reset world to empty state
-      this.world.carsNumber = 0;
-      this.showNotification('World cleared successfully!');
-      
-      // Ensure visualization is updated
-      if (this.visualizer) {
+      // Stop visualizer first to prevent animation issues
+      if (this.visualizer && this.visualizer.running) {
+        console.log('🧹 [DEBUG] Stopping visualizer...');
         this.visualizer.running = false;
       }
+      
+      // Use clear method instead of set({}) to properly reset
+      console.log('🧹 [DEBUG] Calling world.clear()...');
+      this.world.clear();
+      this.world.carsNumber = 0;
+      console.log('🧹 [DEBUG] World cleared successfully');
+      
+      // Re-initialize visualizer
+      if (this.visualizer) {
+        console.log('🧹 [DEBUG] Reinitializing visualizer...');
+        
+        // Ensure we're in builder mode
+        this.visualizer.isBuilderMode = true;
+        
+        // Clean approach: recreate the visualizer for a fresh state
+        this.destroyVisualizer();
+        this.initializeVisualizer();
+        
+        console.log('🧹 [DEBUG] Visualizer reinitialized successfully');
+      } else {
+        console.log('🧹 [DEBUG] No visualizer to manage');
+        // Create a new visualizer if needed
+        this.initializeVisualizer();
+      }
+      
+      console.log('🧹 [DEBUG] clearWorld operation completed');
+      this.showNotification('World cleared successfully!');
     } catch (error) {
-      console.error('Failed to clear world:', error);
+      console.error('🧹 [ERROR] Failed to clear world:', error);
+      console.error('🧹 [ERROR] Stack trace:', error.stack);
       this.showNotification('Failed to clear world!', 'error');
+      
+      // Recovery attempt
+      console.log('🧹 [DEBUG] Attempting recovery...');
+      this.destroyVisualizer();
+      this.initializeVisualizer();
     }
   }
 
-  private generateMap() {
-    if (!this.world) {
-      return;
-    }
-    
-    try {
-      this.world.generateMap();
-      
-      // BUILDER MODE: No cars, purely for layout editing
-      this.world.carsNumber = 0;
-      if (this.world.cars && this.world.cars.clear) {
-        this.world.cars.clear();
-      }
-      
-      this.showNotification('New map generated successfully!');
-      
-      // Ensure visualization is updated
-      if (this.visualizer) {
-        // No need to stop/start in builder mode, just ensure no simulation
-        this.visualizer.running = false;
-      }
-    } catch (error) {
-      console.error('Failed to generate map:', error);
-      this.showNotification('Failed to generate map!', 'error');
-    }
-  }
+
 
   private showNotification(message: string, type: 'success' | 'error' = 'success') {
     const notification = document.createElement('div');
@@ -567,15 +499,15 @@ export class BuilderPageComponent {
           align-items: stretch;
           justify-content: stretch;
           min-height: 0;
-          border: 2px solid #00ff00;
+          border: 1px solid #404040;
           overflow: hidden;
         }
         
         .visualizer-area canvas {
           width: 100% !important;
           height: 100% !important;
-          background: #ff0000 !important;
-          border: 2px solid #0000ff !important;
+          background: #1a1a1a !important;
+          border: 2px solid #404040 !important;
           display: block !important;
           position: relative !important;
           z-index: 10 !important;
@@ -703,8 +635,349 @@ export class BuilderPageComponent {
         .instructions strong {
           color: #ffffff;
         }
+        
+        /* Modal Dialogs */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+        }
+        
+        .modal-dialog {
+          background: #2d2d2d;
+          border-radius: 8px;
+          border: 1px solid #404040;
+          max-width: 500px;
+          width: 90%;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-large {
+          max-width: 800px;
+        }
+        
+        .modal-header {
+          padding: 20px;
+          border-bottom: 1px solid #404040;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .modal-header h3 {
+          margin: 0;
+          color: #ffffff;
+        }
+        
+        .close-btn {
+          background: none;
+          border: none;
+          color: #ffffff;
+          font-size: 24px;
+          cursor: pointer;
+          padding: 0;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+        }
+        
+        .close-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-body {
+          padding: 20px;
+        }
+        
+        .modal-body label {
+          display: block;
+          margin-bottom: 8px;
+          color: #ffffff;
+          font-weight: 500;
+        }
+        
+        .modal-body input {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #404040;
+          border-radius: 4px;
+          background: #404040;
+          color: #ffffff;
+          font-size: 14px;
+          margin-bottom: 10px;
+        }
+        
+        .modal-body input:focus {
+          outline: none;
+          border-color: #007bff;
+        }
+        
+        .modal-body small {
+          color: #cccccc;
+          font-size: 12px;
+        }
+        
+        .modal-footer {
+          padding: 20px;
+          border-top: 1px solid #404040;
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+        }
+        
+        .layout-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 15px;
+          margin-top: 15px;
+        }
+        
+        .layout-card {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid #404040;
+          border-radius: 8px;
+          padding: 15px;
+          transition: all 0.3s ease;
+        }
+        
+        .layout-card:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: #007bff;
+        }
+        
+        .layout-card h4 {
+          margin: 0 0 8px 0;
+          color: #ffffff;
+          font-size: 16px;
+        }
+        
+        .layout-card small {
+          color: #cccccc;
+          font-size: 12px;
+        }
+        
+        .layout-actions {
+          margin-top: 15px;
+          display: flex;
+          gap: 10px;
+        }
+        
+        .layout-actions .btn {
+          flex: 1;
+          padding: 8px 16px;
+          font-size: 14px;
+        }
+        
+        .notification {
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          background: #00bc8c;
+          color: white;
+          padding: 12px 20px;
+          border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          z-index: 1001;
+          border: 1px solid #009473;
+        }
+        
+        .notification.error {
+          background: #e74c3c;
+          color: white;
+          border: 1px solid #c0392b;
+        }
+        
+        .notification.success {
+          background: #00bc8c;
+          color: white;
+          border: 1px solid #009473;
+        }
       `;
       document.head.appendChild(style);
+    }
+  }
+
+  private showSaveDialog() {
+    // Create save dialog
+    const dialog = document.createElement('div');
+    dialog.className = 'modal-overlay';
+    dialog.innerHTML = `
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Save Layout</h3>
+          <button class="close-btn" id="close-save-dialog">×</button>
+        </div>
+        <div class="modal-body">
+          <label for="layout-name">Layout Name:</label>
+          <input type="text" id="layout-name" placeholder="Enter layout name..." maxlength="50">
+          <small>Choose a descriptive name for your road network layout</small>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancel-save">Cancel</button>
+          <button class="btn btn-success" id="confirm-save">Save</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(dialog);
+    
+    // Focus on input
+    const nameInput = document.getElementById('layout-name') as HTMLInputElement;
+    nameInput.focus();
+    
+    // Event listeners
+    const confirmSave = document.getElementById('confirm-save');
+    const cancelSave = document.getElementById('cancel-save');
+    const closeSave = document.getElementById('close-save-dialog');
+    
+    const closeDialog = () => {
+      if (dialog && dialog.parentNode) {
+        document.body.removeChild(dialog);
+      }
+    };
+    
+    confirmSave?.addEventListener('click', () => {
+      const layoutName = nameInput.value.trim();
+      if (!layoutName) {
+        alert('Please enter a layout name');
+        return;
+      }
+      this.saveLayout(layoutName);
+      closeDialog();
+    });
+    
+    cancelSave?.addEventListener('click', closeDialog);
+    closeSave?.addEventListener('click', closeDialog);
+    
+    // Close on escape
+    const escapeHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeDialog();
+        document.removeEventListener('keydown', escapeHandler);
+      }
+    };
+    document.addEventListener('keydown', escapeHandler);
+    
+    // Close on backdrop click
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) {
+        closeDialog();
+      }
+    });
+  }
+
+  private async showLoadDialog() {
+    try {
+      // Load all layouts
+      const layouts = await appState.storage.loadAllLayouts();
+      
+      if (layouts.length === 0) {
+        alert('No saved layouts found. Create and save a layout first!');
+        return;
+      }
+      
+      // Create load dialog
+      const dialog = document.createElement('div');
+      dialog.className = 'modal-overlay';
+      dialog.innerHTML = `
+        <div class="modal-dialog modal-large">
+          <div class="modal-header">
+            <h3>Load Layout</h3>
+            <button class="close-btn" id="close-load-dialog">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Select a layout to load:</p>
+            <div class="layout-grid">
+              ${layouts.map(layout => `
+                <div class="layout-card" data-layout-id="${layout.id}">
+                  <div class="layout-info">
+                    <h4>${layout.name}</h4>
+                    <small>Created: ${new Date(layout.createdAt).toLocaleString()}</small>
+                  </div>
+                  <div class="layout-actions">
+                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load</button>
+                    <button class="btn btn-danger delete-layout-btn" data-layout-id="${layout.id}">Delete</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(dialog);
+      
+      // Event listeners
+      const cancelLoad = document.getElementById('cancel-load');
+      const closeLoad = document.getElementById('close-load-dialog');
+      
+      const closeDialog = () => {
+        if (dialog && dialog.parentNode) {
+          document.body.removeChild(dialog);
+        }
+      };
+      
+      // Load layout buttons
+      dialog.querySelectorAll('.load-layout-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const layoutId = (e.target as HTMLElement).getAttribute('data-layout-id');
+          if (layoutId) {
+            await this.loadLayoutById(layoutId);
+            closeDialog();
+          }
+        });
+      });
+      
+      // Delete layout buttons
+      dialog.querySelectorAll('.delete-layout-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const layoutId = (e.target as HTMLElement).getAttribute('data-layout-id');
+          if (layoutId && confirm('Are you sure you want to delete this layout?')) {
+            await this.deleteLayoutById(layoutId);
+            // Refresh the dialog
+            closeDialog();
+            this.showLoadDialog();
+          }
+        });
+      });
+      
+      cancelLoad?.addEventListener('click', closeDialog);
+      closeLoad?.addEventListener('click', closeDialog);
+      
+      // Close on escape
+      const escapeHandler = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          closeDialog();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+      
+      // Close on backdrop click
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) {
+          closeDialog();
+        }
+      });
+      
+    } catch (error) {
+      console.error('Failed to load layouts:', error);
+      alert('Failed to load layouts');
     }
   }
 
@@ -712,8 +985,16 @@ export class BuilderPageComponent {
     console.log('🧹 Builder: Destroying page and cleaning up canvas...');
     
     if (this.visualizer) {
-      this.visualizer.stop();
+      if (this.visualizer.destroy) {
+        this.visualizer.destroy();
+      } else {
+        this.visualizer.stop();
+      }
       this.visualizer = null;
+    }
+    
+    if (this.world) {
+      this.world = null;
     }
     
     // Remove the canvas element to prevent duplicates
