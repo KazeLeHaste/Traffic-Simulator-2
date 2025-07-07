@@ -64,146 +64,143 @@ class Trajectory {
     return this.current.lane.road.source;
   }
 
+  // Check if turn is valid based on lane positioning (simplified from reference)
   isValidTurn(): boolean {
-    // TODO right turn is only allowed from the right lane
-    const nextLane = this.car.nextLane;
-    const sourceLane = this.current.lane;
-    if (!nextLane) {
-      throw new Error('no road to enter');
-    }
-    const turnNumber = sourceLane.getTurnDirection(nextLane);
-    if (turnNumber === 3) {
-      throw new Error('no U-turns are allowed');
-    }
-    if (turnNumber === 0 && !sourceLane.isLeftmost) {
-      throw new Error('no left turns from this lane');
-    }
-    if (turnNumber === 2 && !sourceLane.isRightmost) {
-      throw new Error('no right turns from this lane');
-    }
-    return true;
-  }
-
-  canEnterIntersection(): boolean {
-    const nextLane = this.car.nextLane;
-    const sourceLane = this.current.lane;
-    if (!nextLane) {
+    try {
+      // Get next lane and current lane
+      const nextLane = this.car.nextLane;
+      const sourceLane = this.current.lane;
+      
+      // Must have a next lane to make a turn
+      if (!nextLane) {
+        throw Error('no road to enter');
+      }
+      
+      // Get the turn direction
+      const turnNumber = sourceLane.getTurnDirection(nextLane);
+      
+      // No U-turns allowed
+      if (turnNumber === 3) {
+        throw Error('no U-turns are allowed');
+      }
+      
+      // Left turns must be from the leftmost lane
+      if (turnNumber === 0 && !sourceLane.isLeftmost) {
+        throw Error('no left turns from this lane');
+      }
+      
+      // Right turns must be from the rightmost lane
+      if (turnNumber === 2 && !sourceLane.isRightmost) {
+        throw Error('no right turns from this lane');
+      }
+      
       return true;
+    } catch (error) {
+      // Any error means the turn is invalid
+      return false;
     }
-    const intersection = this.nextIntersection;
-    const turnNumber = sourceLane.getTurnDirection(nextLane);
-    const sideId = sourceLane.road.targetSideId;
-    return intersection.controlSignals.state[sideId][turnNumber];
   }
 
+  // Check if traffic signals allow entry into intersection (simplified from reference)
+  canEnterIntersection(): boolean {
+    try {
+      // Get the next lane for the car
+      const nextLane = this.car.nextLane;
+      const sourceLane = this.current.lane;
+      
+      // If no next lane, we're not planning to enter the intersection
+      if (!nextLane) {
+        return true;
+      }
+      
+      // Get the intersection and its traffic signals
+      const intersection = this.nextIntersection;
+      
+      // Get the turn direction and side ID
+      const turnNumber = sourceLane.getTurnDirection(nextLane);
+      const sideId = sourceLane.road.targetSideId;
+      
+      // Check if the signal state allows entry
+      return intersection.controlSignals.state[sideId][turnNumber] === 1;
+    } catch (error) {
+      // On error, prevent entry for safety
+      return false;
+    }
+  }
+
+  // Calculate distance to the next intersection
   getDistanceToIntersection(): number {
     const distance = this.current.lane.length - this.car.length / 2 - this.current.position;
     return !this.isChangingLanes ? max(distance, 0) : Infinity;
   }
 
+  // Check if we need to make a turn at the upcoming intersection
   timeToMakeTurn(plannedStep: number = 0): boolean {
     return this.getDistanceToIntersection() <= plannedStep;
   }
 
+  // Move the car forward along its trajectory (simplified to match reference)
   moveForward(distance: number): void {
     try {
-      // Ensure distance is valid
+      // Ensure distance is valid (directly from reference)
       distance = max(distance, 0);
-      if (distance === 0) {
-        return; // Nothing to do
-      }
       
-      // Check for potential collision before moving
-      // Get information about the car ahead
-      const nextCarInfo = this.nextCarDistance;
-      
-      // If there's a car ahead, ensure we don't move through it
-      if (nextCarInfo.car && nextCarInfo.distance < distance) {
-        // We would collide with the next car if we moved the full distance
-        // Limit our movement to just before the next car
-        const safeDistance = max(nextCarInfo.distance - 0.5, 0); // 0.5 meter safety margin
-        
-        // Debug collision avoidance only when significantly reducing distance
-        if (safeDistance < distance * 0.5) {
-          console.log(`🚗 [TRAJ INFO] Collision avoided: wanted to move ${distance.toFixed(2)}m but next car is ${nextCarInfo.distance.toFixed(2)}m ahead`);
-        }
-        
-        distance = safeDistance;
-      }
-      
-      // Update positions
+      // Update positions (directly from reference)
       this.current.position += distance;
       this.next.position += distance;
       this.temp.position += distance;
       
-      // Check if we need to make a turn at an intersection
-      const atIntersection = this.timeToMakeTurn();
-      const canEnter = this.canEnterIntersection();
-      
-      if (atIntersection && canEnter && this.car.nextLane) {
+      // === INTERSECTION LOGIC (simplified from reference) ===
+      // If at intersection and can enter it, make turn if we have a next lane
+      if (this.timeToMakeTurn() && this.canEnterIntersection() && this.isValidTurn()) {
         try {
-          // We're at an intersection and have green light - perform the turn
           const nextLane = this.car.popNextLane();
           if (nextLane) {
-            console.log('🚗 [TRAJ INFO] Car is at intersection and proceeding to next lane');
             this._startChangingLanes(nextLane, 0);
           }
-        } catch (turnError) {
-          console.error('🚗 [TRAJ ERROR] Error making turn at intersection:', turnError);
+        } catch (error) {
+          // If turn fails, car will be removed in the car's move method
+          this.car.alive = false;
+          return;
         }
-      } else if (atIntersection && !canEnter) {
-        // We're at a red light - log this event
-        console.log('🚗 [TRAJ INFO] Car waiting at red light/intersection');
       }
       
-      // Calculate relative position and gap for lane changing
-      let tempLaneLength = this.temp.lane?.length;
-      if (!tempLaneLength || tempLaneLength <= 0) {
-        tempLaneLength = 1; // Avoid division by zero
-      }
-      
-      const tempRelativePosition = this.temp.position / tempLaneLength;
+      // === LANE CHANGING MANAGEMENT (directly from reference) ===
+      const tempRelativePosition = this.temp.position / (this.temp.lane?.length || 1);
       const gap = 2 * this.car.length;
       
-      // === Lane changing state management ===
-      
-      // Phase 1: Starting lane change - We've moved enough to start releasing current lane
+      // Phase 1: Release current lane after moving enough into new lane
       if (this.isChangingLanes && this.temp.position > gap && !this.current.free) {
         this.current.release();
-        console.log('🚗 [TRAJ INFO] Released current lane during lane change');
       }
       
-      // Phase 2: Middle of lane change - We're approaching new lane and can acquire it
+      // Phase 2: Acquire next lane as we approach it
       if (this.isChangingLanes && this.next.free && 
           this.temp.position + gap > (this.temp.lane?.length || 0)) {
         this.next.acquire();
-        console.log('🚗 [TRAJ INFO] Acquired next lane during lane change');
       }
       
-      // Phase 3: End of lane change - We've completed the curved trajectory
+      // Phase 3: Complete the lane change when we reach the end of the curve
       if (this.isChangingLanes && tempRelativePosition >= 1) {
         this._finishChangingLanes();
-        console.log('🚗 [TRAJ INFO] Completed lane change');
       }
       
-      // Plan ahead - if we don't have a next lane selected, pick one
+      // Plan ahead - if we're not changing lanes and don't have a next lane, pick one
       if (this.current.lane && !this.isChangingLanes && !this.car.nextLane) {
         try {
-          // Don't spam logs during normal operation
-          const nextLane = this.car.pickNextLane();
-          if (nextLane) {
-            console.log('🚗 [TRAJ INFO] Selected next lane:', nextLane.id || 'unknown');
-          }
-        } catch (pickError) {
-          console.error('🚗 [TRAJ ERROR] Error picking next lane:', pickError);
+          this.car.pickNextLane();
+        } catch (error) {
+          // Sometimes there's no valid next lane, which is fine
+          // The car will be despawned when it reaches the intersection
         }
       }
+      
     } catch (error) {
       console.error('🚗 [TRAJ ERROR] Error in moveForward:', error);
-      console.error('🚗 [TRAJ ERROR] Stack trace:', error.stack);
     }
   }
 
+  // Change to an adjacent lane on the same road
   changeLane(nextLane: any): void {
     if (this.isChangingLanes) {
       throw new Error('already changing lane');
@@ -224,6 +221,7 @@ class Trajectory {
     this._startChangingLanes(nextLane, nextPosition);
   }
 
+  // Create a curve for turning at an intersection
   private _getIntersectionLaneChangeCurve(): Curve {
     try {
       // When turning at an intersection, we need to create a curve that simulates
@@ -280,6 +278,7 @@ class Trajectory {
     }
   }
 
+  // Create a curve for changing to an adjacent lane
   private _getAdjacentLaneChangeCurve(): Curve {
     try {
       // Get points for current and next positions
@@ -307,47 +306,27 @@ class Trajectory {
       const direction2 = this.next.lane.middleLine.vector.normalized.mult(distance * controlPointFactor);
       const control2 = p2.subtract(direction2);
       
-      // Create the curve with proper control points
       return new Curve(p1, p2, control1, control2);
     } catch (error) {
-      console.error('🚗 [TRAJ ERROR] Error creating lane change curve:', error);
+      console.error('🚗 [TRAJ ERROR] Error creating adjacent lane curve:', error);
       
-      // Fallback to a simpler curve if there's an error
+      // Emergency fallback - straight line between points
       const p1 = this.current.lane.getPoint(this.current.relativePosition);
       const p2 = this.next.lane.getPoint(this.next.relativePosition);
-      const midpoint = p1.add(p2.subtract(p1).mult(0.5));
       
-      return new Curve(p1, p2, midpoint, midpoint);
+      // Simple linear control points if proper curve fails
+      return new Curve(p1, p2, p1, p2);
     }
   }
 
+  // Get the appropriate curve based on the lane change type
   private _getCurve(): Curve {
-    // Choose the appropriate curve type based on context
-    try {
-      // If this is a lane change within the same road
-      if (this.current.lane.road === this.next.lane.road) {
-        return this._getAdjacentLaneChangeCurve();
-      } 
-      // If this is a turn at an intersection
-      else {
-        // Verify we're at an intersection
-        const atIntersection = this.getDistanceToIntersection() <= 1.0;
-        
-        if (atIntersection) {
-          return this._getIntersectionLaneChangeCurve();
-        } else {
-          console.warn('🚗 [TRAJ WARN] Attempt to change to lane on different road not at intersection');
-          // Fall back to adjacent lane curve if something's wrong
-          return this._getAdjacentLaneChangeCurve();
-        }
-      }
-    } catch (error) {
-      console.error('🚗 [TRAJ ERROR] Error selecting curve type:', error);
-      // Fall back to adjacent lane curve if there's an error
-      return this._getAdjacentLaneChangeCurve();
-    }
+    return this.current.lane.road === this.next.lane.road
+      ? this._getAdjacentLaneChangeCurve()
+      : this._getIntersectionLaneChangeCurve();
   }
 
+  // Start the lane changing process
   private _startChangingLanes(nextLane: any, nextPosition: number): void {
     if (this.isChangingLanes) {
       throw new Error('already changing lane');
@@ -366,12 +345,12 @@ class Trajectory {
     this.next.position -= this.temp.lane.length;
   }
 
+  // Complete the lane changing process
   private _finishChangingLanes(): any {
     if (!this.isChangingLanes) {
       throw new Error('no lane changing is going on');
     }
     this.isChangingLanes = false;
-    // TODO swap current and next
     this.current.lane = this.next.lane;
     this.current.position = this.next.position || 0;
     this.current.acquire();
@@ -382,6 +361,7 @@ class Trajectory {
     return this.current.lane;
   }
 
+  // Release all lane positions
   release(): void {
     if (this.current) {
       this.current.release();

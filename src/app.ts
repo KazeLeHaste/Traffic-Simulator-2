@@ -111,9 +111,33 @@ $(() => {
         simulationPage = null;
       }
       
-      // Prevent scrolling on simulation page
-      document.body.classList.remove('allow-scroll');
-      document.body.classList.add('no-scroll');
+      // Important: Pre-apply critical simulation styles for immediate effect
+      document.body.className = 'simulation-mode no-scroll';
+      document.body.style.backgroundColor = '#1a1a1a';
+      document.body.style.color = '#ffffff';
+      
+      // Pre-load dark theme CSS before creating the simulation page
+      // This ensures the theme is ready before content renders
+      let darkThemeCss = document.getElementById('dark-theme-css') as HTMLLinkElement;
+      if (!darkThemeCss) {
+        darkThemeCss = document.createElement('link');
+        darkThemeCss.id = 'dark-theme-css';
+        darkThemeCss.rel = 'stylesheet';
+        darkThemeCss.href = 'css/dark-theme.css';
+        document.head.appendChild(darkThemeCss);
+      }
+      if (!darkThemeCss) {
+        darkThemeCss = document.createElement('link');
+        darkThemeCss.id = 'dark-theme-css';
+        darkThemeCss.rel = 'stylesheet';
+        darkThemeCss.href = 'css/dark-theme.css';
+        document.head.appendChild(darkThemeCss);
+      }
+      
+      // Apply critical styles directly
+      document.body.style.backgroundColor = '#1a1a1a';
+      document.body.style.color = '#ffffff';
+      mainContent.style.backgroundColor = '#1a1a1a';
       
       // Clear content and create fresh simulation page
       mainContent.innerHTML = '';

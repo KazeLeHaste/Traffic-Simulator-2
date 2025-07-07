@@ -2,6 +2,7 @@ import { appState } from '../core/AppState';
 import World = require('../model/world');
 import Visualizer = require('../visualizer/visualizer');
 import _ = require('underscore');
+import settings = require('../settings');
 
 /**
  * Simulation page for running traffic simulations
@@ -19,7 +20,7 @@ export class SimulationPageComponent {
     totalRoads: 0,
     simulationTime: 0
   };
-  private analyticsInterval: number | null = null;
+  private analyticsInterval: NodeJS.Timeout | null = null;
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -109,6 +110,18 @@ export class SimulationPageComponent {
                 <label for="time-factor-range">Time Factor: <span id="time-factor-value">1.0</span>x</label>
                 <input type="range" id="time-factor-range" min="0.1" max="5" step="0.1" value="1" class="slider">
               </div>
+              
+              <div class="control-group">
+                <label for="lights-flip-interval">Lights Flip Interval: <span id="lights-flip-value">160</span></label>
+                <input type="range" id="lights-flip-interval" min="20" max="400" step="10" value="160" class="slider">
+              </div>
+              
+              <div class="control-group">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="debug-toggle" class="checkbox">
+                  <label for="debug-toggle">Show Debug Information</label>
+                </div>
+              </div>
             </div>
             
             <!-- Analytics Panel -->
@@ -150,12 +163,30 @@ export class SimulationPageComponent {
               </div>
             </div>
             
+            <!-- Traffic Pattern Controls -->
+            <div class="panel">
+              <h3>Traffic Pattern</h3>
+              <div class="control-group">
+                <label for="traffic-pattern">Select Pattern:</label>
+                <select id="traffic-pattern" class="form-control">
+                  <option value="random">Random</option>
+                  <option value="heavy">Heavy Traffic</option>
+                  <option value="light">Light Traffic</option>
+                  <option value="rush-hour">Rush Hour</option>
+                </select>
+              </div>
+              <button id="apply-pattern" class="btn btn-secondary btn-block">
+                Apply Pattern
+              </button>
+            </div>
+            
             <!-- Instructions -->
             <div class="panel">
               <h3>Instructions</h3>
               <ul class="instructions">
                 <li>Select a saved layout or use the current one</li>
                 <li>Adjust the number of cars and simulation speed</li>
+                <li>Modify the traffic light timing as needed</li>
                 <li>Click Start to begin the simulation</li>
                 <li>Monitor real-time analytics</li>
                 <li>Save analytics for later analysis</li>
@@ -186,8 +217,9 @@ export class SimulationPageComponent {
     document.getElementById('reset-simulation')?.addEventListener('click', () => this.resetSimulation());
     document.getElementById('load-layout')?.addEventListener('click', () => this.showLoadDialog());
     document.getElementById('save-analytics')?.addEventListener('click', () => this.saveAnalytics());
+    document.getElementById('apply-pattern')?.addEventListener('click', () => this.applyTrafficPattern());
 
-    // Sliders
+    // Cars slider
     const carsRange = document.getElementById('cars-range') as HTMLInputElement;
     const carsValue = document.getElementById('cars-value');
     carsRange?.addEventListener('input', (e) => {
@@ -198,6 +230,7 @@ export class SimulationPageComponent {
       }
     });
 
+    // Time factor slider
     const timeFactorRange = document.getElementById('time-factor-range') as HTMLInputElement;
     const timeFactorValue = document.getElementById('time-factor-value');
     timeFactorRange?.addEventListener('input', (e) => {
@@ -207,35 +240,103 @@ export class SimulationPageComponent {
         this.visualizer.timeFactor = value;
       }
     });
+    
+    // Lights flip interval slider
+    const lightsFlipRange = document.getElementById('lights-flip-interval') as HTMLInputElement;
+    const lightsFlipValue = document.getElementById('lights-flip-value');
+    lightsFlipRange?.addEventListener('input', (e) => {
+      const value = parseInt((e.target as HTMLInputElement).value);
+      lightsFlipValue!.textContent = value.toString();
+      
+      // Update the global setting for traffic light timing
+      settings.lightsFlipInterval = value;
+      
+      // Visual feedback
+      lightsFlipValue!.style.fontWeight = 'bold';
+      setTimeout(() => {
+        lightsFlipValue!.style.fontWeight = 'normal';
+      }, 500);
+    });
+    
+    // Debug information toggle
+    const debugToggle = document.getElementById('debug-toggle') as HTMLInputElement;
+    debugToggle?.addEventListener('change', () => {
+      if (this.visualizer) {
+        this.visualizer.debug.enabled = debugToggle.checked;
+        this.visualizer.debug.showIds = debugToggle.checked;
+        console.log(`Debug mode ${debugToggle.checked ? 'enabled' : 'disabled'}`);
+      }
+    });
   }
 
   private async initializeSimulation() {
-    console.log('🌍 Initializing world for simulation...');
-    
     try {
+      // Create new world instance
       this.world = new World();
-
-      // Start with completely empty world for simulation - user loads layouts manually
-      this.world.clear();
-      this.world.carsNumber = 0;
       
-      // Ensure no cars are spawned initially
-      if (this.world.cars && this.world.cars.clear) {
-        this.world.cars.clear();
+      // Create a default road network if none exists
+      if (!localStorage.world) {
+        this.world.generateMap();
+        this.world.carsNumber = 100;
+      } else {
+        // Load existing world
+        this.world.load();
       }
       
-      console.log('🌍 World initialized with:', {
-        intersections: Object.keys(this.world.intersections?.all() || {}).length,
-        roads: Object.keys(this.world.roads?.all() || {}).length,
-        cars: this.world.carsNumber,
-        actualCars: this.world.cars?.length || 0
-      });
+      // Initialize visualizer
+      this.visualizer = new Visualizer(this.world);
       
-      // Initialize visualizer with delay to ensure DOM is ready
-      setTimeout(() => this.initializeVisualizer(), 300);
+      // Important: Configure visualizer for simulation mode (not builder mode)
+      this.visualizer.setMode(false); // false = simulation mode
       
+      // Set initial values for controls
+      this.updateControlValues();
+      
+      // Start the simulation
+      this.visualizer.start();
+      this.isRunning = true;
+      
+      // Start analytics update
+      this.startAnalyticsUpdates();
+      
+      // Update UI to reflect the simulation is running
+      const toggleButton = document.getElementById('toggle-simulation');
+      if (toggleButton) {
+        toggleButton.innerHTML = '⏸️ Pause Simulation';
+        toggleButton.classList.remove('btn-success');
+        toggleButton.classList.add('btn-warning');
+      }
     } catch (error) {
-      console.error('🚨 Failed to initialize simulation world:', error);
+      console.error('Failed to initialize simulation:', error);
+    }
+  }
+  
+  private updateControlValues() {
+    // Update car count slider
+    const carsRange = document.getElementById('cars-range') as HTMLInputElement;
+    const carsValue = document.getElementById('cars-value');
+    
+    if (carsRange && carsValue) {
+      carsRange.value = String(this.world.carsNumber);
+      carsValue.textContent = String(this.world.carsNumber);
+    }
+    
+    // Update time factor slider
+    const timeFactorRange = document.getElementById('time-factor-range') as HTMLInputElement;
+    const timeFactorValue = document.getElementById('time-factor-value');
+    
+    if (timeFactorRange && timeFactorValue && this.visualizer) {
+      timeFactorRange.value = String(this.visualizer.timeFactor);
+      timeFactorValue.textContent = String(this.visualizer.timeFactor);
+    }
+    
+    // Update lights flip interval slider
+    const lightsFlipRange = document.getElementById('lights-flip-interval') as HTMLInputElement;
+    const lightsFlipValue = document.getElementById('lights-flip-value');
+    
+    if (lightsFlipRange && lightsFlipValue) {
+      lightsFlipRange.value = String(settings.lightsFlipInterval);
+      lightsFlipValue.textContent = String(settings.lightsFlipInterval);
     }
   }
 
@@ -304,8 +405,13 @@ export class SimulationPageComponent {
         this.world.cars.clear();
       }
       
-      // Set to simulation mode but don't start simulation automatically
+      // Set to simulation mode first before binding tools
       this.visualizer.isBuilderMode = false;
+      
+      // Explicitly rebind tools with simulation mode settings to prevent flickering
+      if (typeof this.visualizer.bindTools === 'function') {
+        this.visualizer.bindTools();
+      }
       
       // Start the visualizer for rendering but not simulation
       this.visualizer.start();
@@ -319,8 +425,9 @@ export class SimulationPageComponent {
       
       // Force initial draw after a short delay
       setTimeout(() => {
-        if (this.visualizer && this.visualizer.drawSingleFrame) {
-          this.visualizer.drawSingleFrame();
+        if (this.visualizer) {
+          // Use proper method to force a redraw without animation
+          this.visualizer.forceRedraw();
         }
       }, 200);
       
@@ -351,8 +458,9 @@ export class SimulationPageComponent {
         // Redraw after resize
         if (this.visualizer) {
           setTimeout(() => {
-            if (this.visualizer.drawSingleFrame) {
-              this.visualizer.drawSingleFrame();
+            if (this.visualizer) {
+              // Use proper method to force a redraw without animation
+              this.visualizer.forceRedraw();
             }
           }, 100);
         }
@@ -367,28 +475,100 @@ export class SimulationPageComponent {
     });
   }
 
-  private async loadSelectedLayout() {
-    const select = document.getElementById('layout-select') as HTMLSelectElement;
-    const layoutId = select?.value;
-    if (!layoutId) return;
-    const layout = this.layouts.find(l => l.id === layoutId);
-    if (layout && this.world) {
-      try {
+  private async loadLayoutById(layoutId: string) {
+    try {
+      const layout = await appState.storage.loadLayout(layoutId);
+      if (layout && this.world) {
         this.world.load(JSON.stringify(layout.data));
-        this.world.carsNumber = parseInt((document.getElementById('cars-range') as HTMLInputElement)?.value || '100');
+        
+        // Set car count from slider
+        const carsRange = document.getElementById('cars-range') as HTMLInputElement;
+        this.world.carsNumber = parseInt(carsRange?.value || '100');
+        
         this.updateAnalytics();
         this.showNotification('Layout loaded successfully!');
+        
         // Always re-initialize the visualizer after loading a layout
         this.initializeVisualizer();
-        // Restart visualizer if running
-        if (this.isRunning) {
-          this.visualizer?.stop();
-          this.visualizer?.start();
-        }
-      } catch (error) {
-        console.error('Failed to load layout:', error);
-        this.showNotification('Failed to load layout!', 'error');
       }
+    } catch (error) {
+      console.error('Failed to load layout:', error);
+      this.showNotification('Failed to load layout!', 'error');
+    }
+  }
+
+  private async showLoadDialog() {
+    try {
+      // Refresh layouts list
+      await this.loadLayouts();
+      
+      if (this.layouts.length === 0) {
+        this.showNotification('No layouts available to load. Create one in the Builder first!', 'warning');
+        return;
+      }
+      
+      // Remove any existing modal dialogs first
+      const existingDialogs = document.querySelectorAll('.modal-dialog, .modal-overlay');
+      existingDialogs.forEach(dialog => dialog.remove());
+      
+      // Create modal dialog with consistent styling to match BuilderPage
+      const dialog = document.createElement('div');
+      dialog.className = 'modal-overlay';
+      dialog.innerHTML = `
+        <div class="modal-dialog modal-large">
+          <div class="modal-header">
+            <h3>Load Layout</h3>
+            <button class="close-btn" id="close-load-dialog">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Select a layout to load:</p>
+            <div class="layout-grid">
+              ${this.layouts.map(layout => `
+                <div class="layout-card" data-layout-id="${layout.id}">
+                  <div class="layout-info">
+                    <h4>${layout.name || 'Unnamed Layout'}</h4>
+                    <small>Created: ${new Date(layout.timestamp || layout.createdAt).toLocaleString()}</small>
+                  </div>
+                  <div class="layout-actions">
+                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
+          </div>
+        </div>
+      `;
+      
+      // Add to document
+      document.body.appendChild(dialog);
+      
+      // Set up event handlers
+      document.getElementById('close-load-dialog')?.addEventListener('click', () => {
+        dialog.remove();
+      });
+      
+      document.getElementById('cancel-load')?.addEventListener('click', () => {
+        dialog.remove();
+      });
+      
+      // Set up load buttons
+      const loadButtons = dialog.querySelectorAll('.load-layout-btn');
+      loadButtons.forEach(button => {
+        button.addEventListener('click', async (event) => {
+          const layoutId = (event.currentTarget as HTMLElement).getAttribute('data-layout-id');
+          if (layoutId) {
+            await this.loadLayoutById(layoutId);
+            dialog.remove();
+          }
+        });
+      });
+      
+    } catch (error) {
+      console.error('Failed to show load dialog:', error);
+      this.showNotification('Error showing layout dialog!', 'error');
     }
   }
 
@@ -452,6 +632,14 @@ export class SimulationPageComponent {
         const factor = parseFloat(timeFactorSlider.value || '1.0');
         console.log('🎮 [SIM] Setting time factor to', factor);
         this.visualizer.timeFactor = factor;
+      }
+      
+      // Apply traffic light interval from slider
+      const lightsFlipSlider = document.getElementById('lights-flip-interval') as HTMLInputElement;
+      if (lightsFlipSlider) {
+        const interval = parseInt(lightsFlipSlider.value || '160');
+        console.log('🎮 [SIM] Setting lights flip interval to', interval);
+        settings.lightsFlipInterval = interval;
       }
       
       // Start the animation loop
@@ -574,16 +762,6 @@ export class SimulationPageComponent {
     }
   }
 
-  private startAnalyticsUpdates() {
-    if (this.analyticsInterval) {
-      clearInterval(this.analyticsInterval);
-    }
-
-    this.analyticsInterval = window.setInterval(() => {
-      this.updateAnalytics();
-    }, 1000);
-  }
-
   private updateAnalytics() {
     if (!this.world) return;
 
@@ -608,538 +786,324 @@ export class SimulationPageComponent {
     if (totalRoadsEl) totalRoadsEl.textContent = this.analytics.totalRoads.toString();
     if (simulationTimeEl) simulationTimeEl.textContent = this.analytics.simulationTime.toFixed(1) + 's';
   }
-  
-  /**
-   * Shows a notification message to the user
-   * @param message Message to display
-   * @param type Optional type ('info', 'success', 'warning', 'error')
-   * @param duration Time in ms to show the notification
-   */
-  private showNotification(message: string, type: string = 'info', duration: number = 3000): void {
-    // Check if a notification container exists, if not create it
-    let notificationContainer = document.getElementById('notification-container');
-    if (!notificationContainer) {
-      notificationContainer = document.createElement('div');
-      notificationContainer.id = 'notification-container';
-      notificationContainer.style.position = 'fixed';
-      notificationContainer.style.top = '20px';
-      notificationContainer.style.right = '20px';
-      notificationContainer.style.zIndex = '9999';
-      document.body.appendChild(notificationContainer);
+
+  private startAnalyticsUpdates() {
+    // Clear any existing interval
+    if (this.analyticsInterval) {
+      clearInterval(this.analyticsInterval);
     }
     
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = 'notification ' + type;
-    notification.style.backgroundColor = this.getNotificationColor(type);
-    notification.style.color = '#fff';
-    notification.style.padding = '10px 15px';
-    notification.style.margin = '5px 0';
-    notification.style.borderRadius = '4px';
-    notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-    notification.style.transition = 'all 0.3s ease';
-    notification.style.opacity = '0';
-    notification.textContent = message;
-    
-    // Add to container
-    notificationContainer.appendChild(notification);
-    
-    // Fade in
-    setTimeout(() => {
-      notification.style.opacity = '1';
-    }, 10);
-    
-    // Remove after duration
-    setTimeout(() => {
-      notification.style.opacity = '0';
-      setTimeout(() => {
-        notification.remove();
-      }, 300);
-    }, duration);
+    // Update analytics every second
+    this.analyticsInterval = setInterval(() => {
+      this.updateAnalytics();
+    }, 1000);
   }
-  
-  private getNotificationColor(type: string): string {
-    switch (type) {
-      case 'success': return '#4caf50';
-      case 'warning': return '#ff9800';
-      case 'error': return '#f44336';
-      default: return '#2196f3'; // info
-    }
-  }
-  
-  /**
-   * Adds CSS styles required for the simulation page
-   */
-  private addStyles(): void {
-    // Avoid duplicate style elements
-    if (document.getElementById('simulation-page-styles')) {
-      return;
-    }
-    
-    // Force dark theme styles to be applied
-    document.body.classList.add('dark-theme');
-    
-    const styleElement = document.createElement('style');
-    styleElement.id = 'simulation-page-styles';
-    styleElement.innerHTML = `
-      .simulation-page {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-      }
-      
-      .page-header {
-        padding: 15px;
-        background-color: #2d2d2d;
-        border-bottom: 1px solid #404040;
-      }
-      
-      .page-header h2 {
-        margin: 0;
-        color: #ffffff;
-        font-size: 24px;
-      }
-      
-      .simulation-content {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
-      }
-      
-      .sidebar {
-        width: 280px;
-        overflow-y: auto;
-        background-color: #2d2d2d;
-        border-right: 1px solid #404040;
-        padding: 10px;
-      }
-      
-      .panel {
-        background-color: #333333;
-        border: 1px solid #404040;
-        border-radius: 4px;
-        margin-bottom: 15px;
-        padding: 10px;
-      }
-      
-      .panel h3 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        font-size: 16px;
-        border-bottom: 1px solid #404040;
-        padding-bottom: 5px;
-        color: #ffffff;
-      }
-      
-      .visualizer-area {
-        flex: 1;
-        overflow: hidden;
-        position: relative;
-        background: #1a1a1a;
-      }
-      
-      .visualizer-area canvas {
-        width: 100%;
-        height: 100%;
-        background: #1a1a1a;
-      }
-      
-      .control-group {
-        margin-bottom: 10px;
-      }
-      
-      .btn {
-        display: inline-block;
-        padding: 6px 12px;
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 1.5;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: middle;
-        cursor: pointer;
-        border: 1px solid transparent;
-        border-radius: 4px;
-      }
-      
-      .btn-block {
-        display: block;
-        width: 100%;
-      }
-      
-      .btn-primary { background-color: #375a7f; color: white; border: 1px solid #375a7f; }
-      .btn-primary:hover { background-color: #2e4c6d; }
-      .btn-success { background-color: #00bc8c; color: white; border: 1px solid #00bc8c; }
-      .btn-success:hover { background-color: #00a085; }
-      .btn-info { background-color: #3498db; color: white; border: 1px solid #3498db; }
-      .btn-info:hover { background-color: #2980b9; }
-      .btn-warning { background-color: #f39c12; color: #212529; border: 1px solid #f39c12; }
-      .btn-warning:hover { background-color: #e67e22; }
-      .btn-secondary { background-color: #444444; color: white; border: 1px solid #666666; }
-      .btn-secondary:hover { background-color: #555555; }
-      
-      .slider {
-        width: 100%;
-      }
-      
-      .analytics {
-        margin-top: 10px;
-      }
-      
-      .metric {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 5px;
-      }
-      
-      .instructions {
-        padding-left: 20px;
-        margin-top: 0;
-      }
-      
-      .instructions li {
-        margin-bottom: 5px;
-      }
-    `;
-    document.head.appendChild(styleElement);
-  }
-  
-  /**
-   * Saves current simulation analytics data
-   */
-  private async saveAnalytics(): Promise<void> {
+
+  private saveAnalytics() {
     try {
       if (!this.world) {
-        this.showNotification('No simulation data to save', 'warning');
+        this.showNotification('No simulation data to save!', 'error');
         return;
       }
       
-      // Generate filename based on time
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `traffic-sim-analytics-${timestamp}.json`;
+      // Generate timestamp for the filename
+      const timestamp = new Date().toISOString().replace(/:/g, '-').substring(0, 19);
       
-      // Create and save analytics data
+      // Create analytics data object
       const analyticsData = {
         timestamp: new Date().toISOString(),
         metrics: this.analytics,
-        layout: {
-          roads: Object.keys(this.world.roads?.all() || {}).length,
-          intersections: Object.keys(this.world.intersections?.all() || {}).length
-        },
-        simulation: {
-          time: this.world.time || 0,
-          carCount: Object.keys(this.world.cars?.all() || {}).length
+        worldState: {
+          carCount: this.world.carsNumber,
+          intersectionCount: Object.keys(this.world.intersections?.all() || {}).length,
+          roadCount: Object.keys(this.world.roads?.all() || {}).length,
         }
       };
       
-      // Create a blob from the data
-      const blob = new Blob([JSON.stringify(analyticsData, null, 2)], { type: 'application/json' });
+      // Convert to JSON string
+      const jsonData = JSON.stringify(analyticsData, null, 2);
       
-      // Create download link and trigger it
+      // Create a download link
+      const blob = new Blob([jsonData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.download = filename;
+      link.href = url;
+      link.download = `traffic-sim-analytics-${timestamp}.json`;
+      
+      // Trigger the download
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
       
-      this.showNotification('Analytics saved successfully', 'success');
+      // Clean up
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      }, 100);
+      
+      this.showNotification('Analytics saved successfully!', 'success');
     } catch (error) {
       console.error('Failed to save analytics:', error);
-      this.showNotification('Failed to save analytics', 'error');
+      this.showNotification('Failed to save analytics!', 'error');
     }
   }
-  
-  /**
-   * Shows a dialog to load a saved layout
-   */
-  private async showLoadDialog(): Promise<void> {
-    try {
-      if (this.layouts.length === 0) {
-        this.showNotification('No saved layouts found. Create one in the Builder first!', 'warning');
-        return;
-      }
+
+  private applyTrafficPattern() {
+    const patternSelect = document.getElementById('traffic-pattern') as HTMLSelectElement;
+    const pattern = patternSelect.value;
+    
+    if (!this.world) {
+      this.showNotification('World not initialized!', 'error');
+      return;
+    }
+    
+    // Get current car count slider
+    const carsSlider = document.getElementById('cars-range') as HTMLInputElement;
+    const timeFactorSlider = document.getElementById('time-factor-range') as HTMLInputElement;
+    const lightsFlipSlider = document.getElementById('lights-flip-interval') as HTMLInputElement;
+    
+    let carCount = 100;
+    let timeFactor = 1.0;
+    let flipInterval = 160;
+    
+    // Apply different patterns based on selection
+    switch (pattern) {
+      case 'heavy':
+        carCount = 180;
+        timeFactor = 1.2;
+        flipInterval = 220;
+        break;
+      case 'light':
+        carCount = 50;
+        timeFactor = 2.0;
+        flipInterval = 100;
+        break;
+      case 'rush-hour':
+        carCount = 200;
+        timeFactor = 0.8;
+        flipInterval = 300;
+        break;
+      default: // random
+        carCount = Math.floor(Math.random() * 150) + 50; // 50-200
+        timeFactor = Math.random() * 2 + 0.5; // 0.5-2.5
+        flipInterval = Math.floor(Math.random() * 300) + 50; // 50-350
+    }
+    
+    // Update sliders and apply values
+    carsSlider.value = carCount.toString();
+    document.getElementById('cars-value')!.textContent = carCount.toString();
+    this.world.carsNumber = carCount;
+    
+    timeFactorSlider.value = timeFactor.toString();
+    document.getElementById('time-factor-value')!.textContent = timeFactor.toFixed(1);
+    if (this.visualizer) {
+      this.visualizer.timeFactor = timeFactor;
+    }
+    
+    lightsFlipSlider.value = flipInterval.toString();
+    document.getElementById('lights-flip-value')!.textContent = flipInterval.toString();
+    settings.lightsFlipInterval = flipInterval;
+    
+    // Show notification
+    this.showNotification(`Applied ${pattern} traffic pattern!`, 'success');
+  }
+
+  // Utility function for showing notifications
+  private showNotification(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+      notification.style.opacity = '1';
+      notification.style.transform = 'translateY(0)';
+    }, 10);
+    
+    // Remove after timeout
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transform = 'translateY(-20px)';
       
-      // Create load dialog
-      const dialog = document.createElement('div');
-      dialog.className = 'modal-overlay';
-      dialog.innerHTML = `
-        <div class="modal-dialog modal-large">
-          <div class="modal-header">
-            <h3>Load Layout</h3>
-            <button class="close-btn" id="close-load-dialog">×</button>
-          </div>
-          <div class="modal-body">
-            <p>Select a layout to load for simulation:</p>
-            <div class="layout-grid">
-              ${this.layouts.map(layout => `
-                <div class="layout-card" data-layout-id="${layout.id}">
-                  <div class="layout-info">
-                    <h4>${layout.name || 'Unnamed Layout'}</h4>
-                    <small>Created: ${new Date(layout.createdAt).toLocaleString()}</small>
-                  </div>
-                  <div class="layout-actions">
-                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load</button>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
-          </div>
-        </div>
-      `;
-      
-      // Add CSS for the dialog
-      const styleElement = document.createElement('style');
-      if (!document.getElementById('modal-dialog-styles')) {
-        styleElement.id = 'modal-dialog-styles';
-        styleElement.textContent = `
-          .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-          
-          .modal-dialog {
-            background-color: #2d2d2d;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #404040;
-          }
-          
-          .modal-large {
-            max-width: 800px;
-          }
-          
-          .modal-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #404040;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          
-          .modal-header h3 {
-            margin: 0;
-            color: #ffffff;
-          }
-          
-          .close-btn {
-            background: transparent;
-            border: none;
-            color: #b0b0b0;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0;
-          }
-          
-          .close-btn:hover {
-            color: #ffffff;
-          }
-          
-          .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            max-height: calc(90vh - 140px);
-          }
-          
-          .modal-footer {
-            padding: 15px 20px;
-            border-top: 1px solid #404040;
-            text-align: right;
-          }
-          
-          .layout-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-          }
-          
-          .layout-card {
-            border: 1px solid #404040;
-            background-color: #333333;
-            border-radius: 5px;
-            padding: 15px;
-            transition: all 0.2s ease;
-          }
-          
-          .layout-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border-color: #007bff;
-          }
-          
-          .layout-info h4 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            color: #ffffff;
-          }
-          
-          .layout-info small {
-            color: #b0b0b0;
-            display: block;
-            margin-bottom: 15px;
-          }
-          
-          .layout-actions {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-          }
-        `;
-        document.head.appendChild(styleElement);
-      }
-      
-      document.body.appendChild(dialog);
-      
-      // Event listeners
-      const cancelLoad = document.getElementById('cancel-load');
-      const closeLoad = document.getElementById('close-load-dialog');
-      
-      const closeDialog = () => {
-        if (dialog && dialog.parentNode) {
-          document.body.removeChild(dialog);
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
         }
-      };
+      }, 500);
+    }, 3000);
+  }
+  
+  // Helper method to ensure a CSS file is loaded
+  private ensureCssFileLoaded(id: string, href: string): Promise<void> {
+    return new Promise((resolve) => {
+      // Check if the CSS file is already loaded
+      let styleLink = document.getElementById(id) as HTMLLinkElement;
       
-      // Load layout buttons
-      dialog.querySelectorAll('.load-layout-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const layoutId = (e.target as HTMLElement).getAttribute('data-layout-id');
-          if (layoutId) {
-            closeDialog();
-            await this.loadLayoutById(layoutId);
-          }
-        });
+      if (!styleLink) {
+        // Create new link if it doesn't exist
+        styleLink = document.createElement('link');
+        styleLink.id = id;
+        styleLink.rel = 'stylesheet';
+        styleLink.href = href;
+        document.head.appendChild(styleLink);
+        
+        // Resolve when loaded
+        styleLink.onload = () => {
+          console.log(`🎨 [SIM] CSS file loaded: ${href}`);
+          resolve();
+        };
+        
+        // Also resolve after timeout in case onload doesn't fire
+        setTimeout(resolve, 50);
+      } else {
+        // Already exists, ensure it's in the head and has correct href
+        if (styleLink.href !== href) {
+          styleLink.href = href;
+        }
+        resolve();
+      }
+    });
+  }
+
+  private addStyles() {
+    console.log('🎨 [SIM] Applying simulation page styles');
+    
+    // 1. Add simulation-specific class to body immediately
+    document.body.className = 'simulation-mode no-scroll';
+    
+    // 2. Apply direct styling to critical elements for immediate effect
+    document.body.style.backgroundColor = '#1a1a1a';
+    document.body.style.color = '#ffffff';
+    
+    // 3. Ensure core CSS files are loaded in the right order
+    // Load these CSS files with our improved loader
+    Promise.all([
+      this.ensureCssFileLoaded('style-css', 'css/style.css'),
+      this.ensureCssFileLoaded('dat-gui-css', 'css/dat-gui.css'),
+      this.ensureCssFileLoaded('dark-theme-css', 'css/dark-theme.css')
+    ]).then(() => {
+      console.log('🎨 [SIM] All CSS files loaded');
+    });
+    
+    // 4. Apply panel-specific styles
+    const additionalStyles = document.createElement('style');
+    additionalStyles.textContent = `
+      .panel {
+        background-color: #2d2d2d !important;
+        border: 1px solid #404040 !important;
+        border-radius: 4px !important;
+        padding: 15px !important;
+        margin-bottom: 15px !important;
+      }
+      .btn-primary {
+        background-color: #375a7f !important;
+        border-color: #375a7f !important;
+        color: white !important;
+      }
+      .btn-info {
+        background-color: #3498db !important;
+        border-color: #3498db !important;
+        color: white !important;
+      }
+      .btn-success {
+        background-color: #00bc8c !important;
+        border-color: #00bc8c !important;
+        color: white !important;
+      }
+      .btn-warning {
+        background-color: #f39c12 !important;
+        border-color: #f39c12 !important;
+        color: white !important;
+      }
+      .btn-secondary {
+        background-color: #444444 !important;
+        border-color: #444444 !important;
+        color: white !important;
+      }
+    `;
+    document.head.appendChild(additionalStyles);
+    
+    // 5. Force a reflow to apply styles immediately
+    setTimeout(() => {
+      console.log('🎨 [SIM] Forcing style recalculation');
+      document.body.style.display = 'none';
+      document.body.offsetHeight; // Force reflow
+      document.body.style.display = '';
+      
+      // Apply class to sidebar panels
+      const panels = document.querySelectorAll('.panel');
+      panels.forEach(panel => {
+        panel.classList.add('styled-panel');
       });
       
-      cancelLoad?.addEventListener('click', closeDialog);
-      closeLoad?.addEventListener('click', closeDialog);
-      
-    } catch (error) {
-      console.error('Error showing load dialog:', error);
-      this.showNotification('Failed to show load dialog', 'error');
-    }
+      // Apply styles to buttons
+      const buttons = document.querySelectorAll('.btn');
+      buttons.forEach(button => {
+        if (!button.className.includes('styled-button')) {
+          button.classList.add('styled-button');
+        }
+      });
+    }, 10);
   }
   
-  /**
-   * Loads a layout by ID
-   */
-  private async loadLayoutById(layoutId: string): Promise<void> {
-    try {
-      console.log('🔄 [SIM DEBUG] Starting loadLayoutById for ID:', layoutId);
-      
-      // Show loading state
-      this.showNotification(`Loading layout...`, 'info');
-      
-      // Find layout from previously loaded layouts
-      const layout = this.layouts.find(l => l.id === layoutId);
-      console.log('🔄 [SIM DEBUG] Layout found:', layout ? layout.name : 'Not found');
-      
-      if (!layout) {
-        this.showNotification(`Layout not found (ID: ${layoutId})`, 'error');
-        return;
-      }
-      
-      console.log('🔄 [SIM DEBUG] Layout data:', layout.data);
-      
-      // Stop current simulation if running
-      const wasRunning = this.isRunning;
-      if (wasRunning) {
-        this.toggleSimulation(); // This will stop it
-      }
-      
-      // Reset the simulation
-      await this.resetSimulation();
-      
-      // Load the layout into world
-      if (this.world) {
-        // Stringify the layout data because World.load expects a string
-        this.world.load(JSON.stringify(layout.data));
-        
-        // Update analytics
-        this.updateAnalytics();
-        
-        // Show success message
-        this.showNotification(`Layout "${layout.name || 'Unnamed'}" loaded successfully`, 'success');
-        
-        // Restart if it was running
-        if (wasRunning) {
-          setTimeout(() => this.toggleSimulation(), 500); // This will start it again
-        }
-      }
-    } catch (error) {
-      console.error('Error loading layout:', error);
-      this.showNotification('Failed to load layout', 'error');
+  // Helper method to ensure CSS files are loaded
+  private ensureCssFile(id: string, href: string): void {
+    let linkElement = document.getElementById(id) as HTMLLinkElement;
+    if (!linkElement) {
+      linkElement = document.createElement('link');
+      linkElement.id = id;
+      linkElement.rel = 'stylesheet';
+      linkElement.href = href;
+      document.head.appendChild(linkElement);
+      console.log(`🎨 [SIM] Added CSS: ${href}`);
+    } else {
+      // Ensure it's the last one (highest precedence)
+      document.head.appendChild(linkElement);
+      console.log(`🎨 [SIM] Reordered CSS: ${href}`);
     }
   }
 
   /**
-   * Clean up resources when component is destroyed
+   * Cleanup method when navigating away from this page
    */
-  public destroy() {
-    console.log('🧹 Simulation: Destroying page and cleaning up canvas...');
-    
-    if (this.visualizer) {
-      if (this.visualizer.destroy) {
-        this.visualizer.destroy();
-      } else {
-        this.visualizer.stop();
-      }
-      this.visualizer = null;
-    }
+  public destroy(): void {
+    // Stop analytics update
     if (this.analyticsInterval) {
       clearInterval(this.analyticsInterval);
       this.analyticsInterval = null;
     }
-    if (this.world) {
-      this.world = null;
+    
+    // Clean up visualizer resources if available
+    if (this.visualizer && typeof this.visualizer.destroy === 'function') {
+      this.visualizer.destroy();
+      this.visualizer = null;
     }
     
-    // Remove the canvas element to prevent duplicates
-    const canvas = document.getElementById('canvas');
-    if (canvas) {
-      console.log('🗑️ Simulation: Removing canvas element');
-      canvas.remove();
-    }
-    
-    // Clear the container
-    if (this.container) {
-      this.container.innerHTML = '';
-    }
-    
-    console.log('✅ Simulation: Page destroyed and cleaned up');
-  }
-
-  // Public interface methods for app integration
-  public getContainer() {
-    return this.container;
-  }
-
-  public show() {
-    if (this.container) {
-      this.container.style.display = 'block';
-    }
-  }
-
-  public hide() {
-    if (this.container) {
-      this.container.style.display = 'none';
+    // Remove any event listeners
+    try {
+      const controls = [
+        'toggle-simulation',
+        'reset-simulation',
+        'cars-range',
+        'time-factor-range',
+        'lights-flip-interval',
+        'toggle-analytics',
+        'load-layout'
+      ];
+      
+      controls.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          // Use cloneNode to remove all event listeners at once
+          const newElement = element.cloneNode(true);
+          if (element.parentNode) {
+            element.parentNode.replaceChild(newElement, element);
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error removing event listeners:', error);
     }
   }
 }

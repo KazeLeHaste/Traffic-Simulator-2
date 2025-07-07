@@ -9,9 +9,9 @@ export interface IStorage {
   saveLayout(layout: any, layoutName?: string): Promise<void>;
 
   /**
-   * Load the most recent layout
+   * Load a layout by ID, or the most recent layout if no ID provided
    */
-  loadLayout(): Promise<any | null>;
+  loadLayout(id?: string): Promise<any | null>;
 
   /**
    * Load all saved layouts for selection

@@ -115,6 +115,48 @@ button, .btn {
     z-index: 20;
 }
 
+/* Checkbox styling */
+.checkbox-container {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox {
+    margin-right: 8px;
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.checkbox-container label {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Use a custom checkbox style that fits dark theme */
+input[type="checkbox"] {
+    appearance: none;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 3px;
+    position: relative;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #4a90e2;
+    border-color: #4a90e2;
+}
+
+input[type="checkbox"]:checked:after {
+    content: '✓';
+    font-size: 12px;
+    position: absolute;
+    top: 0;
+    left: 3px;
+    color: white;
+}
+
 /* Debug helper - can be removed later */
 /* * { background-color: rgba(255, 0, 0, 0.1); } */
 /* * * { background-color: rgba(0, 255, 0, 0.2); } */

@@ -3,6 +3,7 @@ export interface Car {
   id: string;
   length: number;
   speed: number;
+  alive: boolean;
   nextLane?: any;
   popNextLane?(): any;
   pickNextLane?(): any;

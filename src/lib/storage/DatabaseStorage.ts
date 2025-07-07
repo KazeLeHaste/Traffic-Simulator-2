@@ -16,7 +16,7 @@ export class DatabaseStorage implements IStorage {
     throw new Error('DatabaseStorage not implemented yet. Please use LocalStorage.');
   }
 
-  async loadLayout(): Promise<any | null> {
+  async loadLayout(id?: string): Promise<any | null> {
     throw new Error('DatabaseStorage not implemented yet. Please use LocalStorage.');
   }
 
