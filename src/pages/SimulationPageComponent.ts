@@ -3,6 +3,7 @@ import World = require('../model/world');
 import Visualizer = require('../visualizer/visualizer');
 import _ = require('underscore');
 import { kpiCollector } from '../model/kpi-collector';
+import { trafficControlStrategyManager } from '../model/traffic-control/TrafficControlStrategyManager';
 
 /**
  * Simulation page for running traffic simulations
@@ -21,6 +22,7 @@ export class SimulationPageComponent {
     simulationTime: 0
   };
   private analyticsInterval: number | null = null;
+  private selectedTrafficControlModel: string = 'fixed-timing'; // Default model
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -102,6 +104,19 @@ export class SimulationPageComponent {
               </div>
               
               <div class="control-group">
+                <label for="traffic-control-model">Traffic Control Model:</label>
+                <div class="model-status">
+                  <span class="active-model-indicator" id="active-model-indicator">Fixed Timing</span>
+                </div>
+                <select id="traffic-control-model" class="form-control">
+                  <option value="fixed-timing">Fixed Timing</option>
+                  <option value="adaptive-timing">Adaptive Timing</option>
+                  <option value="traffic-enforcer">Traffic Enforcer</option>
+                  <option value="all-red-flashing">All Red Flashing</option>
+                </select>
+              </div>
+              
+              <div class="control-group">
                 <label for="cars-range">Number of Cars: <span id="cars-value">100</span></label>
                 <input type="range" id="cars-range" min="0" max="200" value="100" class="slider">
               </div>
@@ -110,6 +125,16 @@ export class SimulationPageComponent {
                 <label for="time-factor-range">Time Factor: <span id="time-factor-value">1.0</span>x</label>
                 <input type="range" id="time-factor-range" min="0.1" max="5" step="0.1" value="1" class="slider">
               </div>
+            </div>
+            
+            <!-- Traffic Control Model Selector -->
+            <div class="panel">
+              <h3>Traffic Control Model</h3>
+              <select id="traffic-control-model" class="form-select">
+                <option value="fixed-timing">Fixed Timing</option>
+                <option value="demand-responsive">Demand Responsive</option>
+                <option value="adaptive-signal">Adaptive Signal Control</option>
+              </select>
             </div>
             
             <!-- Analytics Panel -->
@@ -330,6 +355,24 @@ export class SimulationPageComponent {
       document.getElementById('cars-value')!.textContent = value;
     });
     
+    // Traffic control model selector
+    document.getElementById('traffic-control-model')?.addEventListener('change', (e) => {
+      const selectedModel = (e.target as HTMLSelectElement).value;
+      this.selectedTrafficControlModel = selectedModel;
+      
+      // Update the indicator
+      const indicator = document.getElementById('active-model-indicator');
+      if (indicator) {
+        indicator.textContent = this.getReadableModelName(selectedModel);
+      }
+      
+      // Apply to all intersections in the world
+      this.applyTrafficControlModelToAllIntersections();
+      
+      // Show notification
+      this.showNotification(`Traffic control model changed to ${this.getReadableModelName(selectedModel)}`, 'info');
+    });
+    
     // Time factor slider
     document.getElementById('time-factor-range')?.addEventListener('input', (e) => {
       const value = (e.target as HTMLInputElement).value;
@@ -339,6 +382,19 @@ export class SimulationPageComponent {
       if (this.visualizer) {
         this.visualizer.timeFactor = parseFloat(value);
       }
+    });
+    
+    // Traffic control model selector
+    document.getElementById('traffic-control-model')?.addEventListener('change', (e) => {
+      const selectedModel = (e.target as HTMLSelectElement).value;
+      this.selectedTrafficControlModel = selectedModel;
+      
+      // Update the traffic control strategy in the world
+      if (this.world) {
+
+      }
+      
+      console.log('🚦 Traffic control model changed to:', selectedModel);
     });
     
     // Export metrics as CSV
@@ -427,6 +483,9 @@ export class SimulationPageComponent {
         cars: this.world.carsNumber,
         actualCars: this.world.cars?.length || 0
       });
+      
+      // Set up the initial traffic control model UI
+      this.setupTrafficControlModelUI();
       
       // Initialize visualizer only when DOM is fully ready
       // Use requestAnimationFrame for better timing with DOM rendering
@@ -795,6 +854,10 @@ export class SimulationPageComponent {
       // 7. Now that visualizer is ready, spawn cars
       console.log('🔄 [SIM DEBUG] Spawning cars');
       this.world.refreshCars();
+      
+      // 7b. Apply the selected traffic control model to all intersections
+      console.log('🔄 [SIM DEBUG] Applying traffic control model:', this.selectedTrafficControlModel);
+      this.applyTrafficControlModelToAllIntersections();
   
       // 8. Update analytics and notify user
       this.updateAnalytics();
@@ -1293,6 +1356,31 @@ export class SimulationPageComponent {
         color: #8f8;
         font-weight: bold;
       }
+      
+      .active-model-indicator {
+        display: inline-block;
+        font-weight: bold;
+        padding: 3px 8px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+        background-color: #333;
+        border: 1px solid #555;
+        color: #33ee33;
+      }
+      
+      .model-status {
+        margin-bottom: 5px;
+        text-align: center;
+      }
+      
+      #traffic-control-model {
+        width: 100%;
+        padding: 6px;
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #555;
+        border-radius: 4px;
+      }
     `;
     document.head.appendChild(styleElement);
   }
@@ -1576,6 +1664,9 @@ export class SimulationPageComponent {
         // Stringify the layout data because World.load expects a string
         this.world.load(JSON.stringify(layout.data));
         
+        // Apply selected traffic control model
+        this.applyTrafficControlModelToAllIntersections();
+        
         // Update analytics
         this.updateAnalytics();
         
@@ -1736,6 +1827,64 @@ export class SimulationPageComponent {
   public hide() {
     if (this.container) {
       this.container.style.display = 'none';
+    }
+  }
+
+  /**
+   * Applies the selected traffic control model to all intersections
+   */
+  private applyTrafficControlModelToAllIntersections(): void {
+    if (!this.world || !this.world.intersections) {
+      console.warn('Cannot apply traffic control model: World or intersections not initialized');
+      return;
+    }
+    
+    // Set the global strategy in the manager
+    trafficControlStrategyManager.selectStrategy(this.selectedTrafficControlModel);
+    
+    // Apply to all intersections
+    const intersections = this.world.intersections.all();
+    let appliedCount = 0;
+    
+    for (const id in intersections) {
+      const intersection = intersections[id];
+      if (intersection && intersection.trafficLightController) {
+        if (intersection.setTrafficControlStrategy(this.selectedTrafficControlModel)) {
+          appliedCount++;
+        }
+      }
+    }
+    
+    console.log(`Applied ${this.getReadableModelName(this.selectedTrafficControlModel)} traffic control model to ${appliedCount} intersections`);
+  }
+  
+  /**
+   * Get a human-readable name for the traffic control model
+   */
+  private getReadableModelName(modelId: string): string {
+    switch (modelId) {
+      case 'fixed-timing': return 'Fixed Timing';
+      case 'adaptive-timing': return 'Adaptive Timing';
+      case 'traffic-enforcer': return 'Traffic Enforcer';
+      case 'all-red-flashing': return 'All Red Flashing';
+      default: return modelId;
+    }
+  }
+  
+  /**
+   * Set up the traffic control model UI to match the current selected model
+   */
+  private setupTrafficControlModelUI(): void {
+    // Set the select element to match the current model
+    const selectElement = document.getElementById('traffic-control-model') as HTMLSelectElement;
+    if (selectElement) {
+      selectElement.value = this.selectedTrafficControlModel;
+    }
+    
+    // Update the indicator to show the current model
+    const indicator = document.getElementById('active-model-indicator');
+    if (indicator) {
+      indicator.textContent = this.getReadableModelName(this.selectedTrafficControlModel);
     }
   }
 }
