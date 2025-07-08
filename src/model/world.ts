@@ -6,6 +6,7 @@ import Road = require('./road');
 import Pool = require('./pool');
 import Rect = require('../geom/rect');
 import settings = require('../settings');
+import { kpiCollector } from './kpi-collector';
 
 const { random } = Math;
 
@@ -112,6 +113,9 @@ class World {
     // Update simulation time
     this.time += delta;
     
+    // Update static world time in Car class for KPI reporting
+    Car.updateWorldTime(this.time);
+    
     // Refresh cars to match the target count (exactly one addition/removal per tick)
     this.refreshCars();
     
@@ -134,6 +138,9 @@ class World {
         }
       }
     }
+    
+    // Sample car speeds for KPI collection
+    kpiCollector.sampleSpeeds(this.cars.all(), this.time);
   }
 
   // Add or remove ONE car per tick to match target count (exactly from reference)

@@ -3,6 +3,8 @@ import LanePosition = require('./lane-position');
 import Curve = require('../geom/curve');
 import _ = require('underscore');
 import { Car, NextCarDistance } from '../interfaces';
+import { kpiCollector } from './kpi-collector';
+import Car_Class = require('./car'); // Import the actual Car class to access worldTime
 
 const { min, max } = Math;
 
@@ -154,9 +156,30 @@ class Trajectory {
       // If at intersection and can enter it, make turn if we have a next lane
       if (this.timeToMakeTurn() && this.canEnterIntersection() && this.isValidTurn()) {
         try {
+          // Check if we're entering an intersection, and record it
+          if (this.nextIntersection) {
+            kpiCollector.recordIntersectionEnter(
+              this.car as unknown as Car_Class, 
+              this.nextIntersection, 
+              Car_Class.worldTime
+            );
+          }
+          
+          // Get previous intersection before changing lanes
+          const previousIntersection = this.nextIntersection;
+          
           const nextLane = this.car.popNextLane();
           if (nextLane) {
             this._startChangingLanes(nextLane, 0);
+            
+            // Record exit from intersection if we moved to a new lane
+            if (previousIntersection && previousIntersection !== this.nextIntersection) {
+              kpiCollector.recordIntersectionExit(
+                this.car as unknown as Car_Class, 
+                previousIntersection,
+                Car_Class.worldTime
+              );
+            }
           }
         } catch (error) {
           // If turn fails, car will be removed in the car's move method

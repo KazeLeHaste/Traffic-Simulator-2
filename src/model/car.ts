@@ -1,6 +1,7 @@
 import '../helpers';
 import _ = require('underscore');
 import Trajectory = require('./trajectory');
+import { kpiCollector } from './kpi-collector';
 
 const { max, min, random, sqrt } = Math;
 
@@ -43,6 +44,18 @@ class Car {
   public alive: boolean;
   public preferedLane: Lane | null;
   public nextLane: Lane | null;
+  // Track world time for KPI reporting
+  public static worldTime: number = 0;
+
+  // Static method to update world time from World class
+  static updateWorldTime(time: number): void {
+    Car.worldTime = time;
+  }
+
+  // Get current world time
+  static getWorldTime(): number {
+    return Car.worldTime;
+  }
 
   constructor(lane: any, position: number) {
     this.id = _.uniqueId('car');
@@ -62,6 +75,9 @@ class Car {
     this.alive = true;
     this.preferedLane = null;
     this.nextLane = null;
+    
+    // Notify KPI collector when a new car enters the simulation
+    kpiCollector.recordVehicleEnter(this, Car.worldTime);
   }
 
   static copy(car: any): Car {
@@ -81,6 +97,13 @@ class Car {
   set speed(speed: number) {
     if (speed < 0) speed = 0;
     if (speed > this.maxSpeed) speed = this.maxSpeed;
+    
+    // Track significant speed changes for KPI collection
+    // We only record changes greater than 20% of max speed to avoid flooding with minor changes
+    if (Math.abs(speed - this._speed) > (this.maxSpeed * 0.2)) {
+      kpiCollector.recordSpeedChange(this, Car.worldTime, this._speed, speed);
+    }
+    
     this._speed = speed;
   }
 
@@ -89,6 +112,8 @@ class Car {
   }
 
   release(): void {
+    // Notify KPI collector that a car is exiting the simulation
+    kpiCollector.recordVehicleExit(this, Car.worldTime);
     this.trajectory.release();
   }
 
@@ -134,8 +159,20 @@ class Car {
     // Calculate acceleration using the Intelligent Driver Model
     const acceleration = this.getAcceleration();
     
+    // Get previous speed for change detection
+    const previousSpeed = this._speed;
+    
     // Update speed based on acceleration
     this.speed += acceleration * delta;
+
+    // Check for stop/start events for KPI collection
+    if (previousSpeed > 0.1 && this._speed <= 0.1) {
+      // Vehicle has stopped
+      kpiCollector.recordVehicleStop(this, Car.worldTime);
+    } else if (previousSpeed <= 0.1 && this._speed > 0.1) {
+      // Vehicle has started moving
+      kpiCollector.recordVehicleStart(this, Car.worldTime);
+    }
 
     // === LANE CHANGING LOGIC (exactly from reference) ===
     if (!this.trajectory.isChangingLanes && this.nextLane) {
@@ -157,8 +194,13 @@ class Car {
       
       // Attempt lane change if not in preferred lane
       if (preferedLane !== currentLane) {
+        const previousLane = this.trajectory.current.lane;
         try {
           this.trajectory.changeLane(preferedLane);
+          // Notify KPI collector about lane change if successful
+          if (this.trajectory.current.lane !== previousLane) {
+            kpiCollector.recordLaneChange(this, Car.worldTime);
+          }
         } catch (error) {
           // Lane change failed, continue in current lane
         }
@@ -276,6 +318,13 @@ Car.property('speed', {
   set: function(this: Car, speed: number) {
     if (speed < 0) speed = 0;
     if (speed > this.maxSpeed) speed = this.maxSpeed;
+    
+    // Track significant speed changes for KPI collection
+    // We only record changes greater than 20% of max speed to avoid flooding with minor changes
+    if (Math.abs(speed - this._speed) > (this.maxSpeed * 0.2)) {
+      kpiCollector.recordSpeedChange(this, Car.worldTime, this._speed, speed);
+    }
+    
     this._speed = speed;
   }
 });
@@ -300,6 +349,13 @@ Car.property('speed', {
   set: function(this: Car, speed: number) {
     if (speed < 0) speed = 0;
     if (speed > this.maxSpeed) speed = this.maxSpeed;
+    
+    // Track significant speed changes for KPI collection
+    // We only record changes greater than 20% of max speed to avoid flooding with minor changes
+    if (Math.abs(speed - this._speed) > (this.maxSpeed * 0.2)) {
+      kpiCollector.recordSpeedChange(this, Car.worldTime, this._speed, speed);
+    }
+    
     this._speed = speed;
   }
 });
