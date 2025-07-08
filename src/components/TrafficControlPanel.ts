@@ -69,6 +69,13 @@ export class TrafficControlPanel {
           <div class="strategy-config" id="strategy-config">
             <!-- Configuration options will be dynamically added here -->
           </div>
+          
+          <div class="strategy-analytics" id="strategy-analytics">
+            <h4>Performance Analytics</h4>
+            <div id="analytics-content">
+              <p>No analytics available</p>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -228,9 +235,15 @@ export class TrafficControlPanel {
     // Create form for options
     const form = document.createElement('form');
     form.className = 'strategy-config-form';
+    form.id = 'strategy-config-form';
     
     // Create header
     const header = document.createElement('h4');
+    
+    // Generate specific UI for adaptive strategy
+    if (strategy.strategyType === 'adaptive-timing') {
+      return this.createAdaptiveStrategyUI(strategy, configDiv, options);
+    }
     header.textContent = 'Configuration Options';
     form.appendChild(header);
     
@@ -268,6 +281,289 @@ export class TrafficControlPanel {
     
     form.appendChild(updateBtn);
     configDiv.appendChild(form);
+  }
+  
+  /**
+   * Create specialized UI for adaptive strategy configuration
+   */
+  private createAdaptiveStrategyUI(strategy: ITrafficControlStrategy, container: HTMLElement, options: Record<string, any>): void {
+    // Create a more user-friendly form for adaptive strategy
+    container.innerHTML = `
+      <h4>Adaptive Timing Configuration</h4>
+      <form id="adaptive-config-form" class="strategy-config-form">
+        <div class="config-section">
+          <h5>Timing Parameters</h5>
+          <div class="form-group">
+            <label for="minPhaseDuration">Minimum Phase Duration (seconds):</label>
+            <input type="range" id="minPhaseDuration" name="minPhaseDuration" 
+                  min="5" max="30" step="1" value="${options.minPhaseDuration || 10}">
+            <span class="range-value">${options.minPhaseDuration || 10}</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="maxPhaseDuration">Maximum Phase Duration (seconds):</label>
+            <input type="range" id="maxPhaseDuration" name="maxPhaseDuration" 
+                  min="30" max="120" step="5" value="${options.maxPhaseDuration || 60}">
+            <span class="range-value">${options.maxPhaseDuration || 60}</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="baseDuration">Base Duration (seconds):</label>
+            <input type="range" id="baseDuration" name="baseDuration" 
+                  min="10" max="60" step="5" value="${options.baseDuration || 30}">
+            <span class="range-value">${options.baseDuration || 30}</span>
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h5>Adaptation Parameters</h5>
+          <div class="form-group">
+            <label for="trafficSensitivity">Traffic Sensitivity:</label>
+            <input type="range" id="trafficSensitivity" name="trafficSensitivity" 
+                  min="0" max="1" step="0.1" value="${options.trafficSensitivity || 0.5}">
+            <span class="range-value">${options.trafficSensitivity || 0.5}</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="queueWeight">Queue Length Weight:</label>
+            <input type="range" id="queueWeight" name="queueWeight" 
+                  min="0.1" max="2" step="0.1" value="${options.queueWeight || 1.0}">
+            <span class="range-value">${options.queueWeight || 1.0}</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="waitTimeWeight">Wait Time Weight:</label>
+            <input type="range" id="waitTimeWeight" name="waitTimeWeight" 
+                  min="0.1" max="2" step="0.1" value="${options.waitTimeWeight || 1.0}">
+            <span class="range-value">${options.waitTimeWeight || 1.0}</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="flowRateWeight">Flow Rate Weight:</label>
+            <input type="range" id="flowRateWeight" name="flowRateWeight" 
+                  min="0.1" max="2" step="0.1" value="${options.flowRateWeight || 0.5}">
+            <span class="range-value">${options.flowRateWeight || 0.5}</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="trendWeight">Trend Analysis Weight:</label>
+            <input type="range" id="trendWeight" name="trendWeight" 
+                  min="0" max="1" step="0.1" value="${options.trendWeight || 0.3}">
+            <span class="range-value">${options.trendWeight || 0.3}</span>
+          </div>
+          
+          <div class="form-group checkbox">
+            <label for="prioritizeLeftTurns">
+              <input type="checkbox" id="prioritizeLeftTurns" name="prioritizeLeftTurns" 
+                    ${options.prioritizeLeftTurns ? 'checked' : ''}>
+              Prioritize Left Turns When Congested
+            </label>
+          </div>
+          
+          <div class="form-group checkbox">
+            <label for="enableLogging">
+              <input type="checkbox" id="enableLogging" name="enableLogging" 
+                    ${options.enableLogging ? 'checked' : ''}>
+              Enable Detailed Logging (Console)
+            </label>
+          </div>
+          
+          <div class="form-group">
+            <label for="fairnessWeight">Fairness Weight:</label>
+            <input type="range" id="fairnessWeight" name="fairnessWeight" 
+                  min="0" max="1" step="0.1" value="${options.fairnessWeight !== undefined ? options.fairnessWeight : 0.5}">
+            <span class="range-value">${options.fairnessWeight !== undefined ? options.fairnessWeight : 0.5}</span>
+          </div>
+          
+          <div class="form-group checkbox">
+            <label for="emergencyMode">
+              <input type="checkbox" id="emergencyMode" name="emergencyMode" 
+                    ${options.emergencyMode ? 'checked' : ''}>
+              Enable Emergency Mode for Critical Congestion
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" id="apply-config-btn" class="btn">Apply Configuration</button>
+          <button type="button" id="reset-config-btn" class="btn secondary">Reset to Defaults</button>
+        </div>
+      </form>
+    `;
+    
+    // Add analytics display if available
+    this.updateAnalytics(strategy);
+    
+    // Set up event listeners for the sliders
+    document.querySelectorAll('#adaptive-config-form input[type="range"]').forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const valueDisplay = target.nextElementSibling as HTMLElement;
+        if (valueDisplay) {
+          valueDisplay.textContent = target.value;
+        }
+      });
+    });
+    
+    // Set up apply button
+    const applyBtn = document.getElementById('apply-config-btn');
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        this.applyAdaptiveConfig(strategy);
+      });
+    }
+    
+    // Set up reset button
+    const resetBtn = document.getElementById('reset-config-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.resetAdaptiveConfig(strategy);
+      });
+    }
+  }
+  
+  /**
+   * Apply adaptive strategy configuration
+   */
+  private applyAdaptiveConfig(strategy: ITrafficControlStrategy): void {
+    const form = document.getElementById('adaptive-config-form') as HTMLFormElement;
+    if (!form) return;
+    
+    const config: Record<string, any> = {};
+    
+    // Get all numeric inputs
+    const numericInputs = ['minPhaseDuration', 'maxPhaseDuration', 'baseDuration', 
+      'trafficSensitivity', 'queueWeight', 'waitTimeWeight', 'flowRateWeight', 'trendWeight',
+      'fairnessWeight'];
+    
+    numericInputs.forEach(name => {
+      const input = form.elements.namedItem(name) as HTMLInputElement;
+      if (input) {
+        config[name] = parseFloat(input.value);
+      }
+    });
+    
+    // Get boolean inputs
+    const booleanInputs = ['prioritizeLeftTurns', 'enableLogging', 'emergencyMode'];
+    booleanInputs.forEach(name => {
+      const input = form.elements.namedItem(name) as HTMLInputElement;
+      if (input) {
+        config[name] = input.checked;
+      }
+    });
+    
+    // Apply configuration
+    strategy.updateConfig(config);
+    
+    // Show confirmation
+    alert('Adaptive strategy configuration updated');
+    
+    // Update analytics
+    this.updateAnalytics(strategy);
+  }
+  
+  /**
+   * Reset adaptive strategy configuration to defaults
+   */
+  private resetAdaptiveConfig(strategy: ITrafficControlStrategy): void {
+    const defaultConfig = {
+      minPhaseDuration: 10,
+      maxPhaseDuration: 60,
+      baseDuration: 30,
+      trafficSensitivity: 0.5,
+      queueWeight: 1.0,
+      waitTimeWeight: 1.0,
+      flowRateWeight: 0.5,
+      trendWeight: 0.3,
+      fairnessWeight: 0.5,
+      prioritizeLeftTurns: true,
+      enableLogging: false,
+      emergencyMode: false
+    };
+    
+    // Apply defaults
+    strategy.updateConfig(defaultConfig);
+    
+    // Update UI
+    this.updateConfigOptions(strategy);
+    
+    // Show confirmation
+    alert('Adaptive strategy configuration reset to defaults');
+  }
+  
+  /**
+   * Update analytics display
+   */
+  private updateAnalytics(strategy: ITrafficControlStrategy): void {
+    const analyticsDiv = document.getElementById('analytics-content');
+    if (!analyticsDiv) return;
+    
+    if (strategy.strategyType === 'adaptive-timing' && (strategy as any).getPerformanceAnalytics) {
+      try {
+        const analytics = (strategy as any).getPerformanceAnalytics();
+        
+        analyticsDiv.innerHTML = `
+          <table class="analytics-table">
+            <tr>
+              <td>Average Phase Duration:</td>
+              <td>${analytics.phaseDurationAvg.toFixed(2)}s</td>
+            </tr>
+            <tr>
+              <td>Min/Max Duration:</td>
+              <td>${analytics.phaseDurationMin.toFixed(1)}s / ${analytics.phaseDurationMax.toFixed(1)}s</td>
+            </tr>
+            <tr>
+              <td>Phase Changes:</td>
+              <td>${analytics.phaseChanges}</td>
+            </tr>
+            <tr>
+              <td>Avg Traffic Score:</td>
+              <td>${analytics.trafficScoreAvg.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td>Adaptation Rate:</td>
+              <td>${(analytics.adaptationRate * 100).toFixed(1)}%</td>
+            </tr>
+            <tr>
+              <td>Fairness Metric:</td>
+              <td>${(analytics.fairnessMetric * 100).toFixed(1)}%</td>
+            </tr>
+            <tr>
+              <td>Current Congestion:</td>
+              <td>N: ${analytics.congestionScores[0].toFixed(1)}, 
+                  E: ${analytics.congestionScores[1].toFixed(1)}, 
+                  S: ${analytics.congestionScores[2].toFixed(1)}, 
+                  W: ${analytics.congestionScores[3].toFixed(1)}</td>
+            </tr>
+            <tr>
+              <td>Saturation Rates:</td>
+              <td>N: ${analytics.saturationRates ? analytics.saturationRates[0].toFixed(2) : '0.00'}, 
+                  E: ${analytics.saturationRates ? analytics.saturationRates[1].toFixed(2) : '0.00'}, 
+                  S: ${analytics.saturationRates ? analytics.saturationRates[2].toFixed(2) : '0.00'}, 
+                  W: ${analytics.saturationRates ? analytics.saturationRates[3].toFixed(2) : '0.00'}</td>
+            </tr>
+            <tr>
+              <td>Emergency Activations:</td>
+              <td>${analytics.emergencyActivations || 0}</td>
+            </tr>
+          </table>
+          
+          <button type="button" id="update-analytics-btn" class="btn small">Refresh Analytics</button>
+        `;
+        
+        // Set up refresh button
+        const refreshBtn = document.getElementById('update-analytics-btn');
+        if (refreshBtn) {
+          refreshBtn.addEventListener('click', () => {
+            this.updateAnalytics(strategy);
+          });
+        }
+      } catch (e) {
+        analyticsDiv.innerHTML = `<p>Analytics not available: ${e.message}</p>`;
+      }
+    } else {
+      analyticsDiv.innerHTML = '<p>No analytics available for this strategy</p>';
+    }
   }
   
   /**

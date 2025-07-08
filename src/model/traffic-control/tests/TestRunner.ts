@@ -5,6 +5,7 @@
  */
 
 import { runFixedTimingStrategyTests } from './FixedTimingStrategyTest';
+import AdaptiveTimingStrategyTest from './AdaptiveTimingStrategyTest';
 
 /**
  * Test runner for traffic control strategies
@@ -16,6 +17,7 @@ export class TrafficControlTestRunner {
   runAllTests(): void {
     console.log('=== Running Traffic Control Tests ===');
     this.runFixedTimingTests();
+    this.runAdaptiveTimingTests();
     console.log('=== All Tests Completed ===');
   }
   
@@ -23,7 +25,17 @@ export class TrafficControlTestRunner {
    * Run fixed timing strategy tests
    */
   runFixedTimingTests(): void {
+    console.log('\n=== Fixed Timing Strategy Tests ===');
     runFixedTimingStrategyTests();
+  }
+  
+  /**
+   * Run adaptive timing strategy tests
+   */
+  runAdaptiveTimingTests(): void {
+    console.log('\n=== Adaptive Timing Strategy Tests ===');
+    const tester = new AdaptiveTimingStrategyTest();
+    tester.runTests();
   }
 }
 

@@ -108,31 +108,87 @@ class TrafficLightController {
    * - value is 0 (RED) or 1 (GREEN)
    */
   get state(): number[][] {
-    return this.strategy.update(0, this.trafficStates);
+    // Return the current state without updating the strategy again
+    // The strategy is already updated in onTick
+    return this.strategy.getCurrentSignalStates ? 
+      this.strategy.getCurrentSignalStates() : 
+      this.strategy.update(0, this.trafficStates);
   }
   
   /**
    * Update traffic states based on KPI metrics
-   * This would be called before the update to provide traffic data to strategies
+   * This fetches real-time data from the KPI collector to inform adaptive strategies
    */
   private updateTrafficStates(): void {
     // Get intersection ID for KPI lookups
     const intersectionId = this.intersection.id;
     
-    // In a real implementation, we would get this data from KPI collector
-    // For example:
+    // Get data from KPI collector
+    const metrics = kpiCollector.getMetrics();
+    const intersectionMetric = metrics.intersectionMetrics[intersectionId];
+    
+    // Get lane metrics for all connected roads
+    const connectedLanes: { [direction: number]: any[] } = {
+      0: [], // North
+      1: [], // East
+      2: [], // South
+      3: []  // West
+    };
+    
+    // Get road directions from intersection
+    // Map lanes to their cardinal directions
+    if (this.intersection.roads) {
+      this.intersection.roads.forEach((road, index) => {
+        // Use index % 4 to map to N, E, S, W (0, 1, 2, 3)
+        const direction = index % 4;
+        
+        if (road.lanes) {
+          road.lanes.forEach(lane => {
+            if (lane.id && metrics.laneMetrics[lane.id]) {
+              connectedLanes[direction].push(metrics.laneMetrics[lane.id]);
+            }
+          });
+        }
+      });
+    }
+    
+    // Update traffic states with real data
     for (let i = 0; i < this.trafficStates.length; i++) {
-      // Get queue metrics for this approach
-      // These could be sourced from the KPI collector in a production implementation
-      // For now, we'll provide defaults with minimal simulation impact
-      this.trafficStates[i].queueLength = 0;
-      this.trafficStates[i].averageWaitTime = 0;
-      this.trafficStates[i].maxWaitTime = 0;
-      this.trafficStates[i].flowRate = 0;
+      // Get combined metrics for this approach
+      const lanesToCheck = connectedLanes[i] || [];
+      
+      // Aggregate metrics from all lanes for this approach
+      let queueLength = 0;
+      let totalWaitTime = 0;
+      let maxWaitTime = 0;
+      let flowRate = 0;
+      let count = 0;
+      
+      lanesToCheck.forEach(laneMetric => {
+        queueLength += laneMetric.queueLength || 0;
+        totalWaitTime += laneMetric.averageWaitTime || 0;
+        maxWaitTime = Math.max(maxWaitTime, laneMetric.averageWaitTime || 0);
+        flowRate += laneMetric.throughput || 0;
+        count++;
+      });
+      
+      // Update traffic state with real data
+      this.trafficStates[i].queueLength = queueLength;
+      this.trafficStates[i].averageWaitTime = count > 0 ? totalWaitTime / count : 0;
+      this.trafficStates[i].maxWaitTime = maxWaitTime;
+      this.trafficStates[i].flowRate = flowRate;
       
       // Copy current signal state
       if (this.state && this.state[i]) {
         this.trafficStates[i].signalState = [...this.state[i]];
+      }
+      
+      // If intersection metrics exist, use them to enhance our data
+      if (intersectionMetric) {
+        this.trafficStates[i].queueLength = Math.max(
+          this.trafficStates[i].queueLength, 
+          intersectionMetric.averageQueueLength / 4
+        );
       }
     }
   }
@@ -145,11 +201,12 @@ class TrafficLightController {
     // Update time
     this.time += delta;
     
-    // Update traffic states before updating strategy
+    // Update traffic states with real data from KPI collector
     this.updateTrafficStates();
     
-    // Let the strategy update and determine the new signal state
-    // The state is calculated on-demand via the state getter
+    // Explicitly update the strategy with the latest traffic states
+    // This ensures the strategy has the latest data even if state isn't accessed
+    this.strategy.update(delta, this.trafficStates);
   }
 }
 

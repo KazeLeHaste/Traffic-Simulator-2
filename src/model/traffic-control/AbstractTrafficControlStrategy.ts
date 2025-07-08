@@ -97,6 +97,14 @@ export abstract class AbstractTrafficControlStrategy implements ITrafficControlS
   }
   
   /**
+   * Get the current signal states without updating
+   * This method exposes the protected method to satisfy the interface
+   */
+  getCurrentSignalStates(): number[][] {
+    return this.getSignalStates();
+  }
+  
+  /**
    * Update configuration options
    */
   updateConfig(options: Record<string, any>): void {
@@ -153,5 +161,5 @@ export abstract class AbstractTrafficControlStrategy implements ITrafficControlS
    * Get the current signal states for all approaches
    * Must be implemented by concrete subclasses
    */
-  protected abstract getCurrentSignalStates(): number[][];
+  protected abstract getSignalStates(): number[][];
 }

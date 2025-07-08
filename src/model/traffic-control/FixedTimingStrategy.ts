@@ -113,7 +113,7 @@ export class FixedTimingStrategy extends AbstractTrafficControlStrategy {
   /**
    * Get the current signal states
    */
-  protected getCurrentSignalStates(): number[][] {
+  protected getSignalStates(): number[][] {
     const stringState = this.states[this.currentPhase % this.states.length];
     
     // For 2-way or T-intersections, always allow all movements

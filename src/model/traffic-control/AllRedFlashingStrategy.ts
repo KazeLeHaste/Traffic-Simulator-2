@@ -46,7 +46,7 @@ export class AllRedFlashingStrategy extends AbstractTrafficControlStrategy {
     }
     
     // Return the signal state
-    return this.getCurrentSignalStates();
+    return this.getSignalStates();
   }
   
   /**
@@ -63,7 +63,7 @@ export class AllRedFlashingStrategy extends AbstractTrafficControlStrategy {
   /**
    * Get the current signal states - all red or all off depending on flash state
    */
-  protected getCurrentSignalStates(): number[][] {
+  protected getSignalStates(): number[][] {
     // If not visible in current flash state, return all off
     if (!this.signalsVisible) {
       return [

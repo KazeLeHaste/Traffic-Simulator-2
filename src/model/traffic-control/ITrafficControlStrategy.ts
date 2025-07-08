@@ -84,6 +84,12 @@ export interface ITrafficControlStrategy {
   updateConfig(options: Record<string, any>): void;
   
   /**
+   * Get the current signal states without updating
+   * This is useful when the state needs to be accessed but we don't want to trigger an update
+   */
+  getCurrentSignalStates(): number[][];
+  
+  /**
    * Convert the strategy to a JSON-serializable object for saving
    */
   toJSON(): any;
