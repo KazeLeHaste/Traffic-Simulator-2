@@ -21204,6 +21204,139 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/app.ts":
+/*!********************!*\
+  !*** ./src/app.ts ***!
+  \********************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+// New modernized Road Traffic Simulator with separation of concerns
+__webpack_require__(/*! ./helpers */ "./src/helpers.ts");
+// Import theme CSS files in the correct order for precedence
+__webpack_require__(/*! ../css/style.css */ "./css/style.css");
+__webpack_require__(/*! ../css/dat-gui.css */ "./css/dat-gui.css");
+__webpack_require__(/*! ../css/dark-theme.css */ "./css/dark-theme.css"); // This theme will override other styles
+const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+__webpack_require__(/*! jquery-mousewheel */ "./node_modules/jquery-mousewheel/jquery.mousewheel.js");
+// Import the new architecture components
+const AppState_1 = __webpack_require__(/*! ./core/AppState */ "./src/core/AppState.ts");
+const Router_1 = __webpack_require__(/*! ./core/Router */ "./src/core/Router.ts");
+const NavigationComponent_1 = __webpack_require__(/*! ./components/NavigationComponent */ "./src/components/NavigationComponent.ts");
+const HomePage_1 = __webpack_require__(/*! ./pages/HomePage */ "./src/pages/HomePage.ts");
+const BuilderPageComponent_1 = __webpack_require__(/*! ./pages/BuilderPageComponent */ "./src/pages/BuilderPageComponent.ts");
+const SimulationPageComponent_1 = __webpack_require__(/*! ./pages/SimulationPageComponent */ "./src/pages/SimulationPageComponent.ts");
+// Import tests in development mode
+__webpack_require__(/*! ./model/traffic-control/tests */ "./src/model/traffic-control/tests/index.ts");
+// Initialize the modernized application
+$(() => {
+    console.log('🚀 Road Traffic Simulator starting with new architecture...');
+    // Wait for DOM to be ready
+    setTimeout(() => {
+        // Clear any existing content
+        document.body.innerHTML = '';
+        // Create main application container
+        const appContainer = $('<div id="app-container"></div>');
+        $(document.body).append(appContainer);
+        // Create navigation container
+        const navContainer = $('<div id="nav-container"></div>')[0];
+        appContainer.append(navContainer);
+        // Create main content area
+        const mainContent = $('<div id="main-content"></div>')[0];
+        appContainer.append(mainContent);
+        // Initialize router
+        const router = new Router_1.Router();
+        // Initialize navigation component
+        const navigation = new NavigationComponent_1.NavigationComponent(navContainer, router);
+        // Initialize page components (lazy loading)
+        let homePage = null;
+        let builderPage = null;
+        let simulationPage = null;
+        // Add routes
+        router.addRoute('/', () => {
+            console.log('🏠 Navigating to Home page');
+            // Properly destroy any existing pages
+            if (builderPage) {
+                builderPage.destroy();
+                builderPage = null;
+            }
+            if (simulationPage) {
+                simulationPage.destroy();
+                simulationPage = null;
+            }
+            // Allow scrolling on home page
+            document.body.classList.remove('no-scroll');
+            document.body.classList.add('allow-scroll');
+            // Clear content and create fresh home page
+            mainContent.innerHTML = '';
+            homePage = new HomePage_1.HomePage(mainContent, router);
+        });
+        router.addRoute('/builder', () => {
+            console.log('📐 Navigating to Builder page');
+            // Properly destroy any existing pages
+            if (homePage) {
+                homePage = null;
+            }
+            if (simulationPage) {
+                simulationPage.destroy();
+                simulationPage = null;
+            }
+            if (builderPage) {
+                builderPage.destroy();
+                builderPage = null;
+            }
+            // Prevent scrolling on builder page
+            document.body.classList.remove('allow-scroll');
+            document.body.classList.add('no-scroll');
+            // Clear content and create fresh builder page
+            mainContent.innerHTML = '';
+            builderPage = new BuilderPageComponent_1.BuilderPageComponent(mainContent);
+        });
+        router.addRoute('/simulation', () => {
+            console.log('🏃 Navigating to Simulation page');
+            // Properly destroy any existing pages
+            if (homePage) {
+                homePage = null;
+            }
+            if (builderPage) {
+                builderPage.destroy();
+                builderPage = null;
+            }
+            if (simulationPage) {
+                simulationPage.destroy();
+                simulationPage = null;
+            }
+            // Prevent scrolling on simulation page
+            document.body.classList.remove('allow-scroll');
+            document.body.classList.add('no-scroll');
+            // Clear content and create fresh simulation page
+            mainContent.innerHTML = '';
+            simulationPage = new SimulationPageComponent_1.SimulationPageComponent(mainContent);
+        });
+        // Start the router (which will trigger the initial route)
+        router.start();
+        console.log('🚀 Modern application ready');
+        console.log('🏠 Home page: Welcome and navigation');
+        console.log('📐 Builder mode: Create and edit road layouts');
+        console.log('🏃 Simulation mode: Run traffic simulations on saved layouts');
+        // Expose useful debugging functions
+        window.appState = AppState_1.appState;
+        window.router = router;
+        window.getBuilderPage = () => builderPage;
+        window.getSimulationPage = () => simulationPage;
+        // Navigation helper functions for debugging
+        window.goToHome = () => router.navigate('/');
+        window.goToBuilder = () => router.navigate('/builder');
+        window.goToSimulation = () => router.navigate('/simulation');
+        console.log('🛠️ Debug functions available: appState, router, getBuilderPage(), getSimulationPage(), goToHome(), goToBuilder(), goToSimulation()');
+    }, 10);
+});
+
+
+/***/ }),
+
 /***/ "./src/components/NavigationComponent.ts":
 /*!***********************************************!*\
   !*** ./src/components/NavigationComponent.ts ***!
@@ -23745,6 +23878,776 @@ Road.property('rightmostLane', {
     }
 });
 module.exports = Road;
+
+
+/***/ }),
+
+/***/ "./src/model/traffic-control/AbstractTrafficControlStrategy.ts":
+/*!*********************************************************************!*\
+  !*** ./src/model/traffic-control/AbstractTrafficControlStrategy.ts ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/**
+ * AbstractTrafficControlStrategy
+ *
+ * Base class for implementing traffic control strategies.
+ * Provides common functionality and default implementations.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractTrafficControlStrategy = void 0;
+/**
+ * Abstract base class for traffic control strategies
+ */
+class AbstractTrafficControlStrategy {
+    constructor() {
+        /** Reference to the intersection being controlled */
+        this.intersection = null;
+        /** Current phase number */
+        this.currentPhase = 0;
+        /** Total phases in cycle */
+        this.totalPhases = 4;
+        /** Time elapsed in current phase */
+        this.timeInPhase = 0;
+        /** Time when current phase should end */
+        this.nextPhaseChangeTime = 0;
+        /** Base duration for each phase (can be overridden by concrete implementations) */
+        this.phaseDuration = 30; // seconds
+        /** Configuration options specific to this strategy */
+        this.configOptions = {};
+    }
+    /**
+     * Initialize the traffic control strategy for a specific intersection
+     */
+    initialize(intersection) {
+        this.intersection = intersection;
+        this.reset();
+    }
+    /**
+     * Update the traffic signals based on current traffic conditions
+     */
+    update(delta, trafficStates) {
+        // Increment time in current phase
+        this.timeInPhase += delta;
+        // Check if it's time to change phases
+        if (this.shouldSwitchPhase(trafficStates)) {
+            this.advanceToNextPhase();
+        }
+        // Return current signal states
+        return this.getCurrentSignalStates();
+    }
+    /**
+     * Reset the strategy to its initial state
+     */
+    reset() {
+        this.currentPhase = 0;
+        this.timeInPhase = 0;
+        this.nextPhaseChangeTime = this.getPhaseDuration();
+    }
+    /**
+     * Get the current phase number
+     */
+    getCurrentPhase() {
+        return this.currentPhase;
+    }
+    /**
+     * Get the total number of phases
+     */
+    getTotalPhases() {
+        return this.totalPhases;
+    }
+    /**
+     * Get configuration options
+     */
+    getConfigOptions() {
+        return { ...this.configOptions };
+    }
+    /**
+     * Update configuration options
+     */
+    updateConfig(options) {
+        this.configOptions = { ...this.configOptions, ...options };
+    }
+    /**
+     * Convert to JSON
+     */
+    toJSON() {
+        return {
+            strategyType: this.strategyType,
+            currentPhase: this.currentPhase,
+            timeInPhase: this.timeInPhase,
+            totalPhases: this.totalPhases,
+            phaseDuration: this.phaseDuration,
+            configOptions: this.configOptions
+        };
+    }
+    /**
+     * Create from JSON
+     */
+    fromJSON(data, intersection) {
+        throw new Error('Method must be implemented by concrete strategy class');
+    }
+    /**
+     * Check if the signal phase should be changed
+     * Can be overridden by concrete implementations for more sophisticated logic
+     */
+    shouldSwitchPhase(trafficStates) {
+        return this.timeInPhase >= this.nextPhaseChangeTime;
+    }
+    /**
+     * Advance to the next phase
+     */
+    advanceToNextPhase() {
+        this.currentPhase = (this.currentPhase + 1) % this.totalPhases;
+        this.timeInPhase = 0;
+        this.nextPhaseChangeTime = this.getPhaseDuration();
+    }
+    /**
+     * Get the duration for the current phase
+     * Can be overridden by concrete implementations for variable phase durations
+     */
+    getPhaseDuration() {
+        return this.phaseDuration;
+    }
+}
+exports.AbstractTrafficControlStrategy = AbstractTrafficControlStrategy;
+
+
+/***/ }),
+
+/***/ "./src/model/traffic-control/FixedTimingStrategy.ts":
+/*!**********************************************************!*\
+  !*** ./src/model/traffic-control/FixedTimingStrategy.ts ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * FixedTimingStrategy
+ *
+ * A simple fixed-timing traffic control strategy that follows a predefined cycle.
+ * This is equivalent to the original behavior in the simulation.
+ *
+ * Features:
+ * - Fixed duration cycles for predictable traffic signal timing
+ * - Configurable phase durations and variations
+ * - Automatic adaptation to intersection type (4-way, 3-way, etc.)
+ * - Detailed logging for timing verification and debugging
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FixedTimingStrategy = void 0;
+const AbstractTrafficControlStrategy_1 = __webpack_require__(/*! ./AbstractTrafficControlStrategy */ "./src/model/traffic-control/AbstractTrafficControlStrategy.ts");
+const settings = __webpack_require__(/*! ../../settings */ "./src/settings.ts");
+/**
+ * Fixed timing traffic control strategy
+ * Cycles through predefined phases with fixed durations
+ */
+class FixedTimingStrategy extends AbstractTrafficControlStrategy_1.AbstractTrafficControlStrategy {
+    constructor() {
+        super();
+        this.strategyType = 'fixed-timing';
+        this.displayName = 'Fixed Timing';
+        this.description = 'Cycles through traffic signal phases with fixed durations';
+        // Traffic signal patterns for intersections
+        // 'L' = Left turn, 'F' = Forward, 'R' = Right turn
+        // Each array represents a phase of the traffic light cycle
+        // Each element in the array represents a direction (N, E, S, W)
+        this.states = [
+            ['L', '', 'L', ''],
+            ['FR', '', 'FR', ''],
+            ['', 'L', '', 'L'],
+            ['', 'FR', '', 'FR'] // Phase 4: East & West forward and right
+        ];
+        // Additional properties for timing verification
+        this.phaseStartTimes = [];
+        this.phaseDurations = [];
+        this.phaseTargetDurations = [];
+        this.enableLogging = false;
+        this.flipMultiplier = Math.random();
+        this.totalPhases = this.states.length;
+        this.configOptions = {
+            baseDuration: settings.lightsFlipInterval / 30,
+            variationPercentage: 5,
+            enableLogging: false,
+            logToConsole: true // Output logs to console
+        };
+        // Initialize timing arrays
+        this.resetTimingStats();
+    }
+    /**
+     * Reset timing statistics
+     */
+    resetTimingStats() {
+        this.phaseStartTimes = new Array(this.totalPhases).fill(0);
+        this.phaseDurations = new Array(this.totalPhases).fill(0);
+        this.phaseTargetDurations = new Array(this.totalPhases).fill(0);
+    }
+    /**
+     * Initialize the strategy with an intersection
+     */
+    initialize(intersection) {
+        super.initialize(intersection);
+        // If it's a 2-way or T-intersection, use a simplified state cycle
+        if (intersection.roads && intersection.roads.length <= 2) {
+            this.states = [
+                ['LFR', 'LFR', 'LFR', 'LFR'] // Single phase allowing all movements
+            ];
+            this.totalPhases = 1;
+        }
+        // Reset timing stats with the correct number of phases
+        this.resetTimingStats();
+        // Apply configuration
+        this.enableLogging = this.configOptions.enableLogging || false;
+        if (this.enableLogging) {
+            this.log(`Initialized FixedTimingStrategy for intersection ${intersection.id}`);
+            this.log(`Number of phases: ${this.totalPhases}`);
+            this.log(`Base duration: ${this.configOptions.baseDuration} seconds`);
+            this.log(`Variation: ${this.configOptions.variationPercentage}%`);
+        }
+    }
+    /**
+     * Get the duration for the current phase
+     */
+    getPhaseDuration() {
+        // Apply random variation to create offsets between intersections
+        const baseDuration = this.configOptions.baseDuration || 5; // seconds
+        const variation = this.configOptions.variationPercentage || 5; // percentage
+        // Calculate duration with variation
+        return baseDuration * (1 + (this.flipMultiplier * variation / 100));
+    }
+    /**
+     * Get the current signal states
+     */
+    getCurrentSignalStates() {
+        const stringState = this.states[this.currentPhase % this.states.length];
+        // For 2-way or T-intersections, always allow all movements
+        if (this.intersection && this.intersection.roads && this.intersection.roads.length <= 2) {
+            return [
+                this._decode('LFR'),
+                this._decode('LFR'),
+                this._decode('LFR'),
+                this._decode('LFR')
+            ];
+        }
+        // Convert string patterns to numeric state arrays
+        return stringState.map(x => this._decode(x));
+    }
+    /**
+     * Convert string representation to numeric state array
+     * e.g., "LFR" -> [1,1,1] (left, forward, right allowed)
+     */
+    _decode(str) {
+        const state = [0, 0, 0];
+        if (str.includes('L'))
+            state[0] = 1;
+        if (str.includes('F'))
+            state[1] = 1;
+        if (str.includes('R'))
+            state[2] = 1;
+        return state;
+    }
+    /**
+     * Create from JSON
+     */
+    static fromJSON(data, intersection) {
+        const strategy = new FixedTimingStrategy();
+        // Restore state from saved data
+        strategy.currentPhase = data.currentPhase || 0;
+        strategy.timeInPhase = data.timeInPhase || 0;
+        strategy.totalPhases = data.totalPhases || 4;
+        strategy.phaseDuration = data.phaseDuration || 5;
+        strategy.configOptions = data.configOptions || {};
+        strategy.flipMultiplier = data.flipMultiplier || Math.random();
+        strategy.enableLogging = data.enableLogging || false;
+        // If states array was saved, restore it
+        if (data.states) {
+            strategy.states = data.states;
+        }
+        strategy.initialize(intersection);
+        return strategy;
+    }
+    /**
+     * Convert to JSON
+     */
+    toJSON() {
+        return {
+            ...super.toJSON(),
+            flipMultiplier: this.flipMultiplier,
+            states: this.states,
+            enableLogging: this.enableLogging,
+            timingStats: this.getTimingStatistics()
+        };
+    }
+    /**
+     * Log message if logging is enabled
+     */
+    log(message) {
+        var _a;
+        if (this.enableLogging && this.configOptions.logToConsole) {
+            const intersectionId = ((_a = this.intersection) === null || _a === void 0 ? void 0 : _a.id) || 'unknown';
+            console.log(`[FixedTimingStrategy:${intersectionId}] ${message}`);
+        }
+    }
+    /**
+     * Update the traffic signals based on elapsed time
+     * Overrides the base implementation to add timing tracking
+     */
+    update(delta, trafficStates) {
+        // Record start time for new phase
+        if (this.timeInPhase === 0) {
+            const now = new Date().getTime() / 1000; // Current time in seconds
+            this.phaseStartTimes[this.currentPhase] = now;
+            this.phaseTargetDurations[this.currentPhase] = this.getPhaseDuration();
+            if (this.enableLogging) {
+                this.log(`Starting phase ${this.currentPhase + 1}/${this.totalPhases} with target duration: ${this.phaseTargetDurations[this.currentPhase].toFixed(2)}s`);
+            }
+        }
+        // Let the parent class handle the standard update logic
+        const result = super.update(delta, trafficStates);
+        // If a phase change just occurred (timeInPhase was reset to 0)
+        if (this.timeInPhase < delta) {
+            const previousPhase = (this.currentPhase + this.totalPhases - 1) % this.totalPhases;
+            const now = new Date().getTime() / 1000;
+            const actualDuration = now - this.phaseStartTimes[previousPhase];
+            this.phaseDurations[previousPhase] = actualDuration;
+            const targetDuration = this.phaseTargetDurations[previousPhase];
+            const deviation = Math.abs(actualDuration - targetDuration);
+            const deviationPercent = (deviation / targetDuration) * 100;
+            if (this.enableLogging) {
+                this.log(`Phase ${previousPhase + 1} completed: actual=${actualDuration.toFixed(2)}s, target=${targetDuration.toFixed(2)}s, deviation=${deviationPercent.toFixed(1)}%`);
+            }
+        }
+        return result;
+    }
+    /**
+     * Check if it's time to switch to the next phase
+     * This implementation uses the fixed timing approach
+     */
+    shouldSwitchPhase(trafficStates) {
+        const shouldSwitch = this.timeInPhase >= this.nextPhaseChangeTime;
+        // Log when we're about to switch
+        if (shouldSwitch && this.enableLogging) {
+            this.log(`Time to switch phase: ${this.timeInPhase.toFixed(2)}s elapsed, threshold: ${this.nextPhaseChangeTime.toFixed(2)}s`);
+        }
+        return shouldSwitch;
+    }
+    /**
+     * Advance to the next phase and reset timing
+     */
+    advanceToNextPhase() {
+        const oldPhase = this.currentPhase;
+        // Call the parent implementation
+        super.advanceToNextPhase();
+        if (this.enableLogging) {
+            this.log(`Advanced from phase ${oldPhase + 1} to phase ${this.currentPhase + 1}`);
+        }
+    }
+    /**
+     * Get timing statistics for verification
+     * @returns Timing statistics for all phases
+     */
+    getTimingStatistics() {
+        // Calculate average and max deviation
+        let totalDeviation = 0;
+        let maxDeviation = 0;
+        let validPhaseCount = 0;
+        for (let i = 0; i < this.totalPhases; i++) {
+            if (this.phaseDurations[i] > 0) {
+                const deviation = Math.abs(this.phaseDurations[i] - this.phaseTargetDurations[i]);
+                totalDeviation += deviation;
+                maxDeviation = Math.max(maxDeviation, deviation);
+                validPhaseCount++;
+            }
+        }
+        const averageDeviation = validPhaseCount > 0 ? totalDeviation / validPhaseCount : 0;
+        return {
+            phaseStartTimes: [...this.phaseStartTimes],
+            phaseDurations: [...this.phaseDurations],
+            phaseTargetDurations: [...this.phaseTargetDurations],
+            averageDeviation,
+            maxDeviation
+        };
+    }
+    /**
+     * Reset all timing statistics
+     */
+    resetTimingStatistics() {
+        this.resetTimingStats();
+        if (this.enableLogging) {
+            this.log('Timing statistics reset');
+        }
+    }
+    /**
+     * Set logging enabled/disabled
+     * @param enabled Whether to enable detailed logging
+     */
+    setLogging(enabled) {
+        this.enableLogging = enabled;
+        this.configOptions.enableLogging = enabled;
+        this.log(`Logging ${enabled ? 'enabled' : 'disabled'}`);
+    }
+}
+exports.FixedTimingStrategy = FixedTimingStrategy;
+
+
+/***/ }),
+
+/***/ "./src/model/traffic-control/tests/FixedTimingStrategyTest.ts":
+/*!********************************************************************!*\
+  !*** ./src/model/traffic-control/tests/FixedTimingStrategyTest.ts ***!
+  \********************************************************************/
+/***/ ((module, exports, __webpack_require__) => {
+
+"use strict";
+/* module decorator */ module = __webpack_require__.nmd(module);
+
+/**
+ * FixedTimingStrategy Tests
+ *
+ * This file contains tests for the FixedTimingStrategy to verify its behavior
+ * and timing accuracy.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.runFixedTimingStrategyTests = exports.FixedTimingStrategyTest = void 0;
+const Intersection = __webpack_require__(/*! ../../intersection */ "./src/model/intersection.ts");
+const Rect = __webpack_require__(/*! ../../../geom/rect */ "./src/geom/rect.ts");
+const FixedTimingStrategy_1 = __webpack_require__(/*! ../FixedTimingStrategy */ "./src/model/traffic-control/FixedTimingStrategy.ts");
+/**
+ * Simple test utility to verify FixedTimingStrategy behavior
+ */
+class FixedTimingStrategyTest {
+    constructor() {
+        this.testResults = [];
+        // Create a test intersection
+        this.intersection = new Intersection(new Rect(0, 0, 100, 100));
+        // Create the strategy
+        this.strategy = new FixedTimingStrategy_1.FixedTimingStrategy();
+        this.strategy.initialize(this.intersection);
+        // Enable logging for the strategy
+        this.strategy.setLogging(true);
+    }
+    /**
+     * Run all tests
+     */
+    runAllTests() {
+        console.log('=== Running FixedTimingStrategy Tests ===');
+        this.testInitialization();
+        this.testPhaseTransitions();
+        this.testTimingAccuracy();
+        this.testConfigChanges();
+        this.testSerializationDeserialization();
+        // Report results
+        this.reportResults();
+    }
+    /**
+     * Test basic initialization
+     */
+    testInitialization() {
+        try {
+            // Check strategy has correct number of phases
+            const totalPhases = this.strategy.getTotalPhases();
+            this.assert(totalPhases > 0, 'Initialization', `Strategy should have phases defined (found ${totalPhases})`);
+            // Check current phase is 0
+            const currentPhase = this.strategy.getCurrentPhase();
+            this.assert(currentPhase === 0, 'Initialization', `Initial phase should be 0 (found ${currentPhase})`);
+            // Check config options
+            const config = this.strategy.getConfigOptions();
+            this.assert(config.baseDuration > 0, 'Initialization', `Base duration should be positive (found ${config.baseDuration})`);
+        }
+        catch (error) {
+            this.fail('Initialization', `Unexpected error: ${error}`);
+        }
+    }
+    /**
+     * Test phase transitions
+     */
+    testPhaseTransitions() {
+        try {
+            // Reset the strategy
+            this.strategy.reset();
+            // Check initial phase
+            const initialPhase = this.strategy.getCurrentPhase();
+            this.assert(initialPhase === 0, 'PhaseTransitions', `Initial phase should be 0 (found ${initialPhase})`);
+            // Get config and set base duration to 1 second for quicker tests
+            const config = this.strategy.getConfigOptions();
+            config.baseDuration = 1;
+            config.variationPercentage = 0; // No variation for predictable tests
+            this.strategy.updateConfig(config);
+            // Get initial signal states
+            const initialStates = this.strategy.update(0);
+            // Advance time by just under 1 second
+            this.strategy.update(0.9);
+            const samePhaseStates = this.strategy.update(0);
+            // Check we're still in the same phase
+            this.assert(this.strategy.getCurrentPhase() === initialPhase, 'PhaseTransitions', `Should remain in phase ${initialPhase} after 0.9s`);
+            // Signal states should be the same
+            this.assert(JSON.stringify(initialStates) === JSON.stringify(samePhaseStates), 'PhaseTransitions', 'Signal states should be unchanged within the same phase');
+            // Advance time beyond the phase duration
+            this.strategy.update(0.2);
+            // Check we've moved to the next phase
+            const totalPhases = this.strategy.getTotalPhases();
+            const expectedPhase = totalPhases > 1 ? 1 : 0;
+            this.assert(this.strategy.getCurrentPhase() === expectedPhase, 'PhaseTransitions', `Should advance to phase ${expectedPhase} after exceeding duration`);
+            // Signal states should be different if we have multiple phases
+            if (totalPhases > 1) {
+                const newStates = this.strategy.update(0);
+                this.assert(JSON.stringify(initialStates) !== JSON.stringify(newStates), 'PhaseTransitions', 'Signal states should change between phases');
+            }
+        }
+        catch (error) {
+            this.fail('PhaseTransitions', `Unexpected error: ${error}`);
+        }
+    }
+    /**
+     * Test timing accuracy
+     */
+    testTimingAccuracy() {
+        try {
+            // Reset the strategy
+            this.strategy.reset();
+            this.strategy.resetTimingStatistics();
+            // Get config and set base duration to 1 second for quicker tests
+            const config = this.strategy.getConfigOptions();
+            config.baseDuration = 1;
+            config.variationPercentage = 0; // No variation for predictable tests
+            this.strategy.updateConfig(config);
+            // Run for multiple phases
+            const phasesToTest = 3;
+            const totalPhases = this.strategy.getTotalPhases();
+            const actualPhases = Math.min(phasesToTest, totalPhases);
+            console.log(`Testing timing accuracy over ${actualPhases} phases...`);
+            for (let i = 0; i < actualPhases; i++) {
+                // Small increments to simulate real-time updates
+                for (let time = 0; time < 1.1; time += 0.1) {
+                    this.strategy.update(0.1);
+                }
+            }
+            // Get timing statistics
+            const stats = this.strategy.getTimingStatistics();
+            // Check average deviation is within 10%
+            this.assert(stats.averageDeviation < 0.1, 'TimingAccuracy', `Average timing deviation should be less than 0.1s (found ${stats.averageDeviation.toFixed(3)}s)`);
+            // Check max deviation is within 20%
+            this.assert(stats.maxDeviation < 0.2, 'TimingAccuracy', `Max timing deviation should be less than 0.2s (found ${stats.maxDeviation.toFixed(3)}s)`);
+        }
+        catch (error) {
+            this.fail('TimingAccuracy', `Unexpected error: ${error}`);
+        }
+    }
+    /**
+     * Test configuration changes
+     */
+    testConfigChanges() {
+        try {
+            // Reset the strategy
+            this.strategy.reset();
+            // Get initial config
+            const initialConfig = this.strategy.getConfigOptions();
+            // Update config
+            const newConfig = {
+                ...initialConfig,
+                baseDuration: 2,
+                variationPercentage: 0
+            };
+            this.strategy.updateConfig(newConfig);
+            // Check config was updated
+            const updatedConfig = this.strategy.getConfigOptions();
+            this.assert(updatedConfig.baseDuration === 2, 'ConfigChanges', `Base duration should be updated to 2 (found ${updatedConfig.baseDuration})`);
+            // Check timing is affected by config change
+            // Run for one phase
+            let phaseChanged = false;
+            let initialPhase = this.strategy.getCurrentPhase();
+            // Should NOT change phase after 1 second (new duration is 2 seconds)
+            for (let time = 0; time < 1.1; time += 0.1) {
+                this.strategy.update(0.1);
+                if (this.strategy.getCurrentPhase() !== initialPhase) {
+                    phaseChanged = true;
+                }
+            }
+            this.assert(!phaseChanged, 'ConfigChanges', 'Phase should not change before the new duration');
+            // Should change phase after another second
+            phaseChanged = false;
+            for (let time = 0; time < 1.1; time += 0.1) {
+                this.strategy.update(0.1);
+                if (this.strategy.getCurrentPhase() !== initialPhase) {
+                    phaseChanged = true;
+                }
+            }
+            // Only assert if we have more than one phase
+            if (this.strategy.getTotalPhases() > 1) {
+                this.assert(phaseChanged, 'ConfigChanges', 'Phase should change after the new duration');
+            }
+        }
+        catch (error) {
+            this.fail('ConfigChanges', `Unexpected error: ${error}`);
+        }
+    }
+    /**
+     * Test serialization and deserialization
+     */
+    testSerializationDeserialization() {
+        try {
+            // Reset the strategy
+            this.strategy.reset();
+            // Update config for a unique test value
+            const testConfig = {
+                baseDuration: 3.5,
+                variationPercentage: 2.5,
+                testValue: 'test123'
+            };
+            this.strategy.updateConfig(testConfig);
+            // Set a specific phase
+            while (this.strategy.getCurrentPhase() !== 1 % this.strategy.getTotalPhases()) {
+                this.strategy.update(10); // Force phase change
+            }
+            // Serialize
+            const serialized = this.strategy.toJSON();
+            // Create a new strategy from the serialized data
+            const newStrategy = FixedTimingStrategy_1.FixedTimingStrategy.fromJSON(serialized, this.intersection);
+            // Check deserialized properties
+            this.assert(newStrategy.getCurrentPhase() === this.strategy.getCurrentPhase(), 'Serialization', `Current phase should be preserved (expected ${this.strategy.getCurrentPhase()}, got ${newStrategy.getCurrentPhase()})`);
+            // Check config was preserved
+            const deserializedConfig = newStrategy.getConfigOptions();
+            this.assert(deserializedConfig.baseDuration === testConfig.baseDuration, 'Serialization', `Base duration should be preserved (expected ${testConfig.baseDuration}, got ${deserializedConfig.baseDuration})`);
+            this.assert(deserializedConfig.testValue === testConfig.testValue, 'Serialization', `Custom config values should be preserved (expected ${testConfig.testValue}, got ${deserializedConfig.testValue})`);
+        }
+        catch (error) {
+            this.fail('Serialization', `Unexpected error: ${error}`);
+        }
+    }
+    /**
+     * Assert a condition and record the result
+     */
+    assert(condition, testName, message) {
+        this.testResults.push({
+            name: testName,
+            passed: condition,
+            message: message
+        });
+        if (!condition) {
+            console.error(`❌ FAILED: ${testName} - ${message}`);
+        }
+    }
+    /**
+     * Record a failed test
+     */
+    fail(testName, message) {
+        this.testResults.push({
+            name: testName,
+            passed: false,
+            message: message
+        });
+        console.error(`❌ FAILED: ${testName} - ${message}`);
+    }
+    /**
+     * Report test results
+     */
+    reportResults() {
+        const total = this.testResults.length;
+        const passed = this.testResults.filter(r => r.passed).length;
+        console.log('=== FixedTimingStrategy Test Results ===');
+        console.log(`Total Tests: ${total}`);
+        console.log(`Passed: ${passed}`);
+        console.log(`Failed: ${total - passed}`);
+        const uniqueTests = [...new Set(this.testResults.map(r => r.name))];
+        uniqueTests.forEach(testName => {
+            const testsForName = this.testResults.filter(r => r.name === testName);
+            const passedForName = testsForName.filter(r => r.passed).length;
+            console.log(`\n${testName}: ${passedForName}/${testsForName.length} passed`);
+            testsForName.filter(r => !r.passed).forEach(failed => {
+                console.error(`  ❌ ${failed.message}`);
+            });
+        });
+        console.log('\n=== End of Test Results ===');
+    }
+}
+exports.FixedTimingStrategyTest = FixedTimingStrategyTest;
+/**
+ * Run the tests if this file is executed directly
+ */
+function runFixedTimingStrategyTests() {
+    const tester = new FixedTimingStrategyTest();
+    tester.runAllTests();
+}
+exports.runFixedTimingStrategyTests = runFixedTimingStrategyTests;
+// If running directly from Node.js
+if (typeof window === 'undefined' && __webpack_require__.c[__webpack_require__.s] === module) {
+    runFixedTimingStrategyTests();
+}
+
+
+/***/ }),
+
+/***/ "./src/model/traffic-control/tests/TestRunner.ts":
+/*!*******************************************************!*\
+  !*** ./src/model/traffic-control/tests/TestRunner.ts ***!
+  \*******************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * Test Runner
+ *
+ * This file exports a test runner that can be used to run tests from the browser console.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.testRunner = exports.TrafficControlTestRunner = void 0;
+const FixedTimingStrategyTest_1 = __webpack_require__(/*! ./FixedTimingStrategyTest */ "./src/model/traffic-control/tests/FixedTimingStrategyTest.ts");
+/**
+ * Test runner for traffic control strategies
+ */
+class TrafficControlTestRunner {
+    /**
+     * Run all tests
+     */
+    runAllTests() {
+        console.log('=== Running Traffic Control Tests ===');
+        this.runFixedTimingTests();
+        console.log('=== All Tests Completed ===');
+    }
+    /**
+     * Run fixed timing strategy tests
+     */
+    runFixedTimingTests() {
+        (0, FixedTimingStrategyTest_1.runFixedTimingStrategyTests)();
+    }
+}
+exports.TrafficControlTestRunner = TrafficControlTestRunner;
+// Export a singleton instance
+exports.testRunner = new TrafficControlTestRunner();
+
+
+/***/ }),
+
+/***/ "./src/model/traffic-control/tests/index.ts":
+/*!**************************************************!*\
+  !*** ./src/model/traffic-control/tests/index.ts ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * Traffic Control Tests Integration
+ *
+ * This file registers the test runner with the global window object
+ * so it can be called from the browser console.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const TestRunner_1 = __webpack_require__(/*! ./TestRunner */ "./src/model/traffic-control/tests/TestRunner.ts");
+// Register the test runner with the global window object
+window.trafficControlTests = TestRunner_1.testRunner;
+// Log a message to the console indicating how to run tests
+console.log(`
+To run traffic control tests, open the browser console and type:
+  trafficControlTests.runAllTests()
+  
+Or run specific test categories:
+  trafficControlTests.runFixedTimingTests()
+`);
 
 
 /***/ }),
@@ -29143,16 +30046,22 @@ module.exports = Zoomer;
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
 /******/ 			id: moduleId,
-/******/ 			// no module.loaded needed
+/******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/ 	
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
+/******/ 	
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = __webpack_module_cache__;
 /******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat get default export */
@@ -29195,143 +30104,27 @@ module.exports = Zoomer;
 /******/ 		};
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/node module decorator */
+/******/ 	(() => {
+/******/ 		__webpack_require__.nmd = (module) => {
+/******/ 			module.paths = [];
+/******/ 			if (!module.children) module.children = [];
+/******/ 			return module;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/nonce */
 /******/ 	(() => {
 /******/ 		__webpack_require__.nc = undefined;
 /******/ 	})();
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
-(() => {
-"use strict";
-var exports = __webpack_exports__;
-/*!********************!*\
-  !*** ./src/app.ts ***!
-  \********************/
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-// New modernized Road Traffic Simulator with separation of concerns
-__webpack_require__(/*! ./helpers */ "./src/helpers.ts");
-// Import theme CSS files in the correct order for precedence
-__webpack_require__(/*! ../css/style.css */ "./css/style.css");
-__webpack_require__(/*! ../css/dat-gui.css */ "./css/dat-gui.css");
-__webpack_require__(/*! ../css/dark-theme.css */ "./css/dark-theme.css"); // This theme will override other styles
-const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-__webpack_require__(/*! jquery-mousewheel */ "./node_modules/jquery-mousewheel/jquery.mousewheel.js");
-// Import the new architecture components
-const AppState_1 = __webpack_require__(/*! ./core/AppState */ "./src/core/AppState.ts");
-const Router_1 = __webpack_require__(/*! ./core/Router */ "./src/core/Router.ts");
-const NavigationComponent_1 = __webpack_require__(/*! ./components/NavigationComponent */ "./src/components/NavigationComponent.ts");
-const HomePage_1 = __webpack_require__(/*! ./pages/HomePage */ "./src/pages/HomePage.ts");
-const BuilderPageComponent_1 = __webpack_require__(/*! ./pages/BuilderPageComponent */ "./src/pages/BuilderPageComponent.ts");
-const SimulationPageComponent_1 = __webpack_require__(/*! ./pages/SimulationPageComponent */ "./src/pages/SimulationPageComponent.ts");
-// Initialize the modernized application
-$(() => {
-    console.log('🚀 Road Traffic Simulator starting with new architecture...');
-    // Wait for DOM to be ready
-    setTimeout(() => {
-        // Clear any existing content
-        document.body.innerHTML = '';
-        // Create main application container
-        const appContainer = $('<div id="app-container"></div>');
-        $(document.body).append(appContainer);
-        // Create navigation container
-        const navContainer = $('<div id="nav-container"></div>')[0];
-        appContainer.append(navContainer);
-        // Create main content area
-        const mainContent = $('<div id="main-content"></div>')[0];
-        appContainer.append(mainContent);
-        // Initialize router
-        const router = new Router_1.Router();
-        // Initialize navigation component
-        const navigation = new NavigationComponent_1.NavigationComponent(navContainer, router);
-        // Initialize page components (lazy loading)
-        let homePage = null;
-        let builderPage = null;
-        let simulationPage = null;
-        // Add routes
-        router.addRoute('/', () => {
-            console.log('🏠 Navigating to Home page');
-            // Properly destroy any existing pages
-            if (builderPage) {
-                builderPage.destroy();
-                builderPage = null;
-            }
-            if (simulationPage) {
-                simulationPage.destroy();
-                simulationPage = null;
-            }
-            // Allow scrolling on home page
-            document.body.classList.remove('no-scroll');
-            document.body.classList.add('allow-scroll');
-            // Clear content and create fresh home page
-            mainContent.innerHTML = '';
-            homePage = new HomePage_1.HomePage(mainContent, router);
-        });
-        router.addRoute('/builder', () => {
-            console.log('📐 Navigating to Builder page');
-            // Properly destroy any existing pages
-            if (homePage) {
-                homePage = null;
-            }
-            if (simulationPage) {
-                simulationPage.destroy();
-                simulationPage = null;
-            }
-            if (builderPage) {
-                builderPage.destroy();
-                builderPage = null;
-            }
-            // Prevent scrolling on builder page
-            document.body.classList.remove('allow-scroll');
-            document.body.classList.add('no-scroll');
-            // Clear content and create fresh builder page
-            mainContent.innerHTML = '';
-            builderPage = new BuilderPageComponent_1.BuilderPageComponent(mainContent);
-        });
-        router.addRoute('/simulation', () => {
-            console.log('🏃 Navigating to Simulation page');
-            // Properly destroy any existing pages
-            if (homePage) {
-                homePage = null;
-            }
-            if (builderPage) {
-                builderPage.destroy();
-                builderPage = null;
-            }
-            if (simulationPage) {
-                simulationPage.destroy();
-                simulationPage = null;
-            }
-            // Prevent scrolling on simulation page
-            document.body.classList.remove('allow-scroll');
-            document.body.classList.add('no-scroll');
-            // Clear content and create fresh simulation page
-            mainContent.innerHTML = '';
-            simulationPage = new SimulationPageComponent_1.SimulationPageComponent(mainContent);
-        });
-        // Start the router (which will trigger the initial route)
-        router.start();
-        console.log('🚀 Modern application ready');
-        console.log('🏠 Home page: Welcome and navigation');
-        console.log('📐 Builder mode: Create and edit road layouts');
-        console.log('🏃 Simulation mode: Run traffic simulations on saved layouts');
-        // Expose useful debugging functions
-        window.appState = AppState_1.appState;
-        window.router = router;
-        window.getBuilderPage = () => builderPage;
-        window.getSimulationPage = () => simulationPage;
-        // Navigation helper functions for debugging
-        window.goToHome = () => router.navigate('/');
-        window.goToBuilder = () => router.navigate('/builder');
-        window.goToSimulation = () => router.navigate('/simulation');
-        console.log('🛠️ Debug functions available: appState, router, getBuilderPage(), getSimulationPage(), goToHome(), goToBuilder(), goToSimulation()');
-    }, 10);
-});
-
-})();
-
+/******/ 	
+/******/ 	// module cache are used so entry inlining is disabled
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	var __webpack_exports__ = __webpack_require__(__webpack_require__.s = "./src/app.ts");
+/******/ 	
 /******/ })()
 ;
 //# sourceMappingURL=main.js.map

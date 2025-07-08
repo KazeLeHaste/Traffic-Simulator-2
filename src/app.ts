@@ -15,6 +15,9 @@ import { HomePage } from './pages/HomePage';
 import { BuilderPageComponent } from './pages/BuilderPageComponent';
 import { SimulationPageComponent } from './pages/SimulationPageComponent';
 
+// Import tests in development mode
+import './model/traffic-control/tests';
+
 // Initialize the modernized application
 $(() => {
   console.log('🚀 Road Traffic Simulator starting with new architecture...');
