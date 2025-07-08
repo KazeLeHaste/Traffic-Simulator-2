@@ -7,6 +7,7 @@
 import { runFixedTimingStrategyTests } from './FixedTimingStrategyTest';
 import AdaptiveTimingStrategyTest from './AdaptiveTimingStrategyTest';
 import TrafficEnforcerStrategyTest from './TrafficEnforcerStrategyTest';
+import TrafficLightControllerTest from './TrafficLightControllerTest';
 
 /**
  * Test runner for traffic control strategies
@@ -17,10 +18,20 @@ export class TrafficControlTestRunner {
    */
   runAllTests(): void {
     console.log('=== Running Traffic Control Tests ===');
+    this.runTrafficLightControllerTests(); // Run controller tests first
     this.runFixedTimingTests();
     this.runAdaptiveTimingTests();
     this.runTrafficEnforcerTests();
     console.log('=== All Tests Completed ===');
+  }
+  
+  /**
+   * Run traffic light controller tests
+   */
+  runTrafficLightControllerTests(): void {
+    console.log('\n=== Traffic Light Controller Tests ===');
+    const tester = new TrafficLightControllerTest();
+    tester.runTests();
   }
   
   /**

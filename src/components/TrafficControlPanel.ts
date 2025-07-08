@@ -147,17 +147,16 @@ export class TrafficControlPanel {
     
     const selectedStrategy = strategySelect.value;
     
-    // Apply the strategy if the intersection has the required method
-    if ((this.selectedIntersection as any).setTrafficControlStrategy) {
+    // Get the controller through our helper
+    const controller = this.getTrafficController();
+    
+    // Apply the strategy if controller is available
+    if (controller && controller.setStrategy) {
+      controller.setStrategy(selectedStrategy);
+    }
+    // Or use the direct intersection method if available
+    else if ((this.selectedIntersection as any).setTrafficControlStrategy) {
       (this.selectedIntersection as any).setTrafficControlStrategy(selectedStrategy);
-    } 
-    // Or use the adapter approach for backward compatibility
-    else if (this.selectedIntersection.controlSignals && 
-             (this.selectedIntersection.controlSignals as any).getController) {
-      const controller = (this.selectedIntersection.controlSignals as any).getController();
-      if (controller && controller.setStrategy) {
-        controller.setStrategy(selectedStrategy);
-      }
     }
     
     this.updateStrategyInfo();
@@ -189,29 +188,29 @@ export class TrafficControlPanel {
       intersectionIdSpan.textContent = this.selectedIntersection.id;
     }
     
-    // Update strategy info if we can get the controller
-    if (this.selectedIntersection.controlSignals && 
-        (this.selectedIntersection.controlSignals as any).getController) {
-      
-      const controller = (this.selectedIntersection.controlSignals as any).getController();
-      if (controller && controller.getStrategy) {
-        const strategy = controller.getStrategy();
-        
-        if (currentStrategySpan) {
-          currentStrategySpan.textContent = strategy.displayName;
-        }
-        
-        if (strategyDescSpan) {
-          strategyDescSpan.textContent = strategy.description;
-        }
-        
-        if (strategySelect) {
-          strategySelect.value = strategy.strategyType;
-        }
-        
-        // Update configuration options display
-        this.updateConfigOptions(strategy);
+    // Get controller and strategy
+    const controller = this.getTrafficController();
+    let strategy: any = null;
+    
+    if (controller && controller.getStrategy) {
+      strategy = controller.getStrategy();
+    }
+    
+    if (strategy) {
+      if (currentStrategySpan) {
+        currentStrategySpan.textContent = strategy.displayName;
       }
+      
+      if (strategyDescSpan) {
+        strategyDescSpan.textContent = strategy.description;
+      }
+      
+      if (strategySelect) {
+        strategySelect.value = strategy.strategyType;
+      }
+      
+      // Update configuration options display
+      this.updateConfigOptions(strategy);
     }
   }
   
@@ -871,5 +870,28 @@ export class TrafficControlPanel {
     const withSpaces = name.replace(/([A-Z])/g, ' $1');
     // Capitalize first letter and trim
     return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1).trim();
+  }
+  
+  /**
+   * Get the traffic light controller for an intersection
+   * This handles both the new direct approach and the legacy adapter approach
+   */
+  private getTrafficController(): any {
+    if (!this.selectedIntersection) {
+      return null;
+    }
+    
+    // Try the direct approach first (new implementation)
+    if ((this.selectedIntersection as any).trafficLightController) {
+      return (this.selectedIntersection as any).trafficLightController;
+    }
+    
+    // Fallback to adapter approach
+    if (this.selectedIntersection.controlSignals && 
+        (this.selectedIntersection.controlSignals as any).getController) {
+      return (this.selectedIntersection.controlSignals as any).getController();
+    }
+    
+    return null;
   }
 }

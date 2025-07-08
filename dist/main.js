@@ -22511,15 +22511,28 @@ module.exports = ControlSignals;
 
 __webpack_require__(/*! ../helpers */ "./src/helpers.ts");
 const _ = __webpack_require__(/*! underscore */ "./node_modules/underscore/modules/index-all.js");
-const ControlSignals = __webpack_require__(/*! ./control-signals */ "./src/model/control-signals.ts");
 const Rect = __webpack_require__(/*! ../geom/rect */ "./src/geom/rect.ts");
+const TrafficLightController = __webpack_require__(/*! ./traffic-control/TrafficLightController */ "./src/model/traffic-control/TrafficLightController.ts");
+const ControlSignals = __webpack_require__(/*! ./control-signals */ "./src/model/control-signals.ts"); // Keep for backward compatibility
 class Intersection {
+    // For backward compatibility
+    get controlSignals() {
+        console.warn('Deprecated: controlSignals is deprecated. Use trafficLightController instead.');
+        return this._legacyControlSignals;
+    }
+    set controlSignals(value) {
+        console.warn('Deprecated: Setting controlSignals is deprecated. Use trafficLightController instead.');
+        this._legacyControlSignals = value;
+    }
     constructor(rect) {
         this.rect = rect;
         this.id = _.uniqueId('intersection');
         this.roads = [];
         this.inRoads = [];
-        this.controlSignals = new ControlSignals(this);
+        // Initialize the traffic light controller
+        this.trafficLightController = new TrafficLightController(this);
+        // Initialize legacy control signals for backward compatibility
+        this._legacyControlSignals = new ControlSignals(this);
     }
     static copy(intersection) {
         intersection.rect = Rect.copy(intersection.rect);
@@ -22527,12 +22540,19 @@ class Intersection {
         _.extend(result, intersection);
         result.roads = [];
         result.inRoads = [];
-        // Ensure controlSignals is properly initialized
-        if (intersection.controlSignals) {
-            result.controlSignals = ControlSignals.copy(intersection.controlSignals, result);
+        // Initialize the traffic light controller with the intersection
+        if (intersection.trafficLightController) {
+            result.trafficLightController = TrafficLightController.copy(intersection.trafficLightController, result);
         }
         else {
-            result.controlSignals = new ControlSignals(result);
+            result.trafficLightController = new TrafficLightController(result);
+        }
+        // For backward compatibility
+        if (intersection.controlSignals) {
+            result._legacyControlSignals = ControlSignals.copy(intersection.controlSignals, result);
+        }
+        else {
+            result._legacyControlSignals = new ControlSignals(result);
         }
         return result;
     }
@@ -22540,16 +22560,61 @@ class Intersection {
         return {
             id: this.id,
             rect: this.rect,
-            controlSignals: this.controlSignals
+            trafficLightController: this.trafficLightController,
+            // Include controlSignals for backward compatibility
+            controlSignals: this._legacyControlSignals
         };
     }
     update() {
+        // Update connected roads
         for (const road of this.roads) {
             road.update();
         }
         for (const road of this.inRoads) {
             road.update();
         }
+    }
+    /**
+     * Process a simulation tick
+     * @param delta Time elapsed since last tick in seconds
+     */
+    onTick(delta) {
+        // Delegate to the traffic light controller
+        if (this.trafficLightController) {
+            this.trafficLightController.onTick(delta);
+        }
+        // For backward compatibility
+        if (this._legacyControlSignals && this._legacyControlSignals.onTick) {
+            this._legacyControlSignals.onTick(delta);
+        }
+    }
+    /**
+     * Get the current traffic signal state
+     * @returns A 2D array where [approach][movement] represents the signal state
+     *          (0 = RED, 1 = GREEN) for each approach (N,E,S,W) and movement (L,F,R)
+     */
+    getSignalState() {
+        // Get state from the traffic light controller
+        if (this.trafficLightController) {
+            return this.trafficLightController.state;
+        }
+        // Fallback to legacy control signals for backward compatibility
+        if (this._legacyControlSignals) {
+            return this._legacyControlSignals.state;
+        }
+        // Default to all red if no controller is available
+        return [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    }
+    /**
+     * Set the traffic control strategy
+     * @param strategyType The type of strategy to use
+     * @returns True if the strategy was successfully applied, false otherwise
+     */
+    setTrafficControlStrategy(strategyType) {
+        if (this.trafficLightController) {
+            return this.trafficLightController.setStrategy(strategyType);
+        }
+        return false;
     }
 }
 module.exports = Intersection;
@@ -24789,6 +24854,119 @@ exports.AdaptiveTimingStrategy = AdaptiveTimingStrategy;
 
 /***/ }),
 
+/***/ "./src/model/traffic-control/AllRedFlashingStrategy.ts":
+/*!*************************************************************!*\
+  !*** ./src/model/traffic-control/AllRedFlashingStrategy.ts ***!
+  \*************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * AllRedFlashingStrategy
+ *
+ * A special traffic control strategy that simulates an emergency mode where all
+ * signals flash red, requiring vehicles to treat the intersection as an all-way stop.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AllRedFlashingStrategy = void 0;
+const AbstractTrafficControlStrategy_1 = __webpack_require__(/*! ./AbstractTrafficControlStrategy */ "./src/model/traffic-control/AbstractTrafficControlStrategy.ts");
+/**
+ * All-Red Flashing Strategy
+ * Simulates emergency conditions or power outage at intersection
+ */
+class AllRedFlashingStrategy extends AbstractTrafficControlStrategy_1.AbstractTrafficControlStrategy {
+    constructor() {
+        super();
+        this.strategyType = 'all-red-flashing';
+        this.displayName = 'All-Red Flashing';
+        this.description = 'All approaches flash red - simulates emergency conditions';
+        // Track whether signals are currently visible or not (for flashing effect)
+        this.signalsVisible = true;
+        // Flashing interval in seconds
+        this.flashInterval = 1.0; // 1 second on, 1 second off
+        this.timeInFlashState = 0;
+        this.totalPhases = 1; // Only one phase (all red)
+        this.configOptions = {
+            flashInterval: this.flashInterval
+        };
+    }
+    /**
+     * Update the traffic signals with flashing behavior
+     */
+    update(delta, trafficStates) {
+        // Update flash timing
+        this.timeInFlashState += delta;
+        if (this.timeInFlashState >= this.flashInterval) {
+            this.timeInFlashState = 0;
+            this.signalsVisible = !this.signalsVisible;
+        }
+        // Return the signal state
+        return this.getSignalStates();
+    }
+    /**
+     * Update configuration options
+     */
+    updateConfig(options) {
+        super.updateConfig(options);
+        if (options.flashInterval !== undefined) {
+            this.flashInterval = options.flashInterval;
+        }
+    }
+    /**
+     * Get the current signal states - all red or all off depending on flash state
+     */
+    getSignalStates() {
+        // If not visible in current flash state, return all off
+        if (!this.signalsVisible) {
+            return [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0]
+            ];
+        }
+        // Otherwise, all approaches are red (no movements allowed)
+        return [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+        ];
+    }
+    /**
+     * Create from JSON
+     */
+    static fromJSON(data, intersection) {
+        const strategy = new AllRedFlashingStrategy();
+        // Restore state from saved data
+        strategy.flashInterval = data.flashInterval || strategy.flashInterval;
+        strategy.signalsVisible = data.signalsVisible !== undefined ? data.signalsVisible : true;
+        strategy.timeInFlashState = data.timeInFlashState || 0;
+        // Apply configuration options
+        if (data.configOptions) {
+            strategy.updateConfig(data.configOptions);
+        }
+        strategy.initialize(intersection);
+        return strategy;
+    }
+    /**
+     * Convert to JSON
+     */
+    toJSON() {
+        return {
+            ...super.toJSON(),
+            flashInterval: this.flashInterval,
+            signalsVisible: this.signalsVisible,
+            timeInFlashState: this.timeInFlashState
+        };
+    }
+}
+exports.AllRedFlashingStrategy = AllRedFlashingStrategy;
+
+
+/***/ }),
+
 /***/ "./src/model/traffic-control/FixedTimingStrategy.ts":
 /*!**********************************************************!*\
   !*** ./src/model/traffic-control/FixedTimingStrategy.ts ***!
@@ -25063,6 +25241,122 @@ class FixedTimingStrategy extends AbstractTrafficControlStrategy_1.AbstractTraff
     }
 }
 exports.FixedTimingStrategy = FixedTimingStrategy;
+
+
+/***/ }),
+
+/***/ "./src/model/traffic-control/TrafficControlStrategyManager.ts":
+/*!********************************************************************!*\
+  !*** ./src/model/traffic-control/TrafficControlStrategyManager.ts ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * TrafficControlStrategyManager
+ *
+ * Manages traffic control strategies, allowing for registration, selection,
+ * and applying strategies to intersections.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.trafficControlStrategyManager = exports.TrafficControlStrategyManager = void 0;
+const FixedTimingStrategy_1 = __webpack_require__(/*! ./FixedTimingStrategy */ "./src/model/traffic-control/FixedTimingStrategy.ts");
+const AdaptiveTimingStrategy_1 = __webpack_require__(/*! ./AdaptiveTimingStrategy */ "./src/model/traffic-control/AdaptiveTimingStrategy.ts");
+const AllRedFlashingStrategy_1 = __webpack_require__(/*! ./AllRedFlashingStrategy */ "./src/model/traffic-control/AllRedFlashingStrategy.ts");
+const TrafficEnforcerStrategy_1 = __webpack_require__(/*! ./TrafficEnforcerStrategy */ "./src/model/traffic-control/TrafficEnforcerStrategy.ts");
+/**
+ * Manages traffic control strategies in the simulation
+ */
+class TrafficControlStrategyManager {
+    /**
+     * Initialize the strategy manager with default strategies
+     */
+    constructor() {
+        /** Available strategies indexed by type */
+        this.strategies = new Map();
+        /** Currently selected strategy type */
+        this.selectedStrategyType = 'fixed-timing';
+        // Register all available strategies
+        this.registerStrategy('fixed-timing', FixedTimingStrategy_1.FixedTimingStrategy);
+        this.registerStrategy('adaptive-timing', AdaptiveTimingStrategy_1.AdaptiveTimingStrategy);
+        this.registerStrategy('all-red-flashing', AllRedFlashingStrategy_1.AllRedFlashingStrategy);
+        this.registerStrategy('traffic-enforcer', TrafficEnforcerStrategy_1.TrafficEnforcerStrategy);
+    }
+    /**
+     * Register a new traffic control strategy
+     * @param type Unique identifier for the strategy
+     * @param strategyClass Constructor for the strategy class
+     */
+    registerStrategy(type, strategyClass) {
+        this.strategies.set(type, strategyClass);
+    }
+    /**
+     * Get a list of available strategy types
+     */
+    getAvailableStrategyTypes() {
+        return Array.from(this.strategies.keys());
+    }
+    /**
+     * Set the currently selected strategy
+     * @param strategyType The type of strategy to select
+     * @returns true if successful, false if the strategy type doesn't exist
+     */
+    selectStrategy(strategyType) {
+        if (this.strategies.has(strategyType)) {
+            this.selectedStrategyType = strategyType;
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Get the currently selected strategy type
+     */
+    getSelectedStrategyType() {
+        return this.selectedStrategyType;
+    }
+    /**
+     * Create a new instance of the currently selected strategy
+     */
+    createStrategy() {
+        const StrategyClass = this.strategies.get(this.selectedStrategyType);
+        if (!StrategyClass) {
+            throw new Error(`Strategy type '${this.selectedStrategyType}' not registered`);
+        }
+        return new StrategyClass();
+    }
+    /**
+     * Apply the currently selected strategy to an intersection
+     * @param intersection The intersection to apply the strategy to
+     */
+    applyToIntersection(intersection) {
+        const strategy = this.createStrategy();
+        strategy.initialize(intersection);
+        return strategy;
+    }
+    /**
+     * Create a strategy from saved data
+     * @param data Serialized strategy data from toJSON
+     * @param intersection The intersection to control
+     */
+    createFromJSON(data, intersection) {
+        if (!data || !data.strategyType) {
+            // Default to fixed timing if no valid data
+            return this.applyToIntersection(intersection);
+        }
+        const StrategyClass = this.strategies.get(data.strategyType);
+        if (!StrategyClass) {
+            console.warn(`Strategy type '${data.strategyType}' not found, using default`);
+            return this.applyToIntersection(intersection);
+        }
+        // Create an instance and initialize from data
+        const strategy = new StrategyClass();
+        return strategy.fromJSON ? strategy.fromJSON(data, intersection) : strategy;
+    }
+}
+exports.TrafficControlStrategyManager = TrafficControlStrategyManager;
+// Create a singleton instance
+exports.trafficControlStrategyManager = new TrafficControlStrategyManager();
 
 
 /***/ }),
@@ -25561,6 +25855,188 @@ class TrafficEnforcerStrategy extends AbstractTrafficControlStrategy_1.AbstractT
     }
 }
 exports.TrafficEnforcerStrategy = TrafficEnforcerStrategy;
+
+
+/***/ }),
+
+/***/ "./src/model/traffic-control/TrafficLightController.ts":
+/*!*************************************************************!*\
+  !*** ./src/model/traffic-control/TrafficLightController.ts ***!
+  \*************************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * TrafficLightController
+ *
+ * Manages traffic light control for intersections using pluggable strategies.
+ * This class replaces the old ControlSignals class with a more modular approach.
+ */
+const TrafficControlStrategyManager_1 = __webpack_require__(/*! ./TrafficControlStrategyManager */ "./src/model/traffic-control/TrafficControlStrategyManager.ts");
+const kpi_collector_1 = __webpack_require__(/*! ../kpi-collector */ "./src/model/kpi-collector.ts");
+class TrafficLightController {
+    /**
+     * Create a new traffic light controller for an intersection
+     */
+    constructor(intersection) {
+        /** Current simulation time */
+        this.time = 0;
+        /** Traffic state metrics for each approach */
+        this.trafficStates = [];
+        /**
+         * Update the traffic signals based on elapsed time
+         * This is called every tick of the simulation
+         */
+        this.onTick = (delta) => {
+            // Update time
+            this.time += delta;
+            // Update traffic states with real data from KPI collector
+            this.updateTrafficStates();
+            // Explicitly update the strategy with the latest traffic states
+            // This ensures the strategy has the latest data even if state isn't accessed
+            this.strategy.update(delta, this.trafficStates);
+        };
+        this.intersection = intersection;
+        this.strategy = TrafficControlStrategyManager_1.trafficControlStrategyManager.applyToIntersection(intersection);
+        this.initializeTrafficStates();
+    }
+    /**
+     * Initialize traffic state tracking for each approach
+     */
+    initializeTrafficStates() {
+        // Create a traffic state for each approach (N, E, S, W)
+        this.trafficStates = [0, 1, 2, 3].map(() => ({
+            queueLength: 0,
+            averageWaitTime: 0,
+            maxWaitTime: 0,
+            flowRate: 0,
+            signalState: [0, 0, 0] // [left, forward, right]
+        }));
+    }
+    /**
+     * Create a copy of a traffic light controller
+     * Used when deserializing world state
+     */
+    static copy(controller, intersection) {
+        if (!controller) {
+            return new TrafficLightController(intersection);
+        }
+        // Create a proper instance with the correct prototype
+        const result = new TrafficLightController(intersection);
+        // Copy over basic properties
+        result.time = controller.time || 0;
+        // Load the strategy from saved data if available
+        if (controller.strategy) {
+            result.strategy = TrafficControlStrategyManager_1.trafficControlStrategyManager.createFromJSON(controller.strategy, intersection);
+        }
+        return result;
+    }
+    /**
+     * Convert to a serializable object for storage
+     */
+    toJSON() {
+        return {
+            time: this.time,
+            strategy: this.strategy.toJSON()
+        };
+    }
+    /**
+     * Change the active traffic control strategy
+     */
+    setStrategy(strategyType) {
+        if (TrafficControlStrategyManager_1.trafficControlStrategyManager.selectStrategy(strategyType)) {
+            this.strategy = TrafficControlStrategyManager_1.trafficControlStrategyManager.applyToIntersection(this.intersection);
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Get the current active strategy
+     */
+    getStrategy() {
+        return this.strategy;
+    }
+    /**
+     * Get the current traffic light state for all approaches
+     * Returns a 2D array: [approach][movement] where:
+     * - approach is 0-3 (N, E, S, W)
+     * - movement is 0-2 (left, forward, right)
+     * - value is 0 (RED) or 1 (GREEN)
+     */
+    get state() {
+        // Return the current state without updating the strategy again
+        // The strategy is already updated in onTick
+        return this.strategy.getCurrentSignalStates ?
+            this.strategy.getCurrentSignalStates() :
+            this.strategy.update(0, this.trafficStates);
+    }
+    /**
+     * Update traffic states based on KPI metrics
+     * This fetches real-time data from the KPI collector to inform adaptive strategies
+     */
+    updateTrafficStates() {
+        // Get intersection ID for KPI lookups
+        const intersectionId = this.intersection.id;
+        // Get data from KPI collector
+        const metrics = kpi_collector_1.kpiCollector.getMetrics();
+        const intersectionMetric = metrics.intersectionMetrics[intersectionId];
+        // Get lane metrics for all connected roads
+        const connectedLanes = {
+            0: [],
+            1: [],
+            2: [],
+            3: [] // West
+        };
+        // Get road directions from intersection
+        // Map lanes to their cardinal directions
+        if (this.intersection.roads) {
+            this.intersection.roads.forEach((road, index) => {
+                // Use index % 4 to map to N, E, S, W (0, 1, 2, 3)
+                const direction = index % 4;
+                if (road.lanes) {
+                    road.lanes.forEach(lane => {
+                        if (lane.id && metrics.laneMetrics[lane.id]) {
+                            connectedLanes[direction].push(metrics.laneMetrics[lane.id]);
+                        }
+                    });
+                }
+            });
+        }
+        // Update traffic states with real data
+        for (let i = 0; i < this.trafficStates.length; i++) {
+            // Get combined metrics for this approach
+            const lanesToCheck = connectedLanes[i] || [];
+            // Aggregate metrics from all lanes for this approach
+            let queueLength = 0;
+            let totalWaitTime = 0;
+            let maxWaitTime = 0;
+            let flowRate = 0;
+            let count = 0;
+            lanesToCheck.forEach(laneMetric => {
+                queueLength += laneMetric.queueLength || 0;
+                totalWaitTime += laneMetric.averageWaitTime || 0;
+                maxWaitTime = Math.max(maxWaitTime, laneMetric.averageWaitTime || 0);
+                flowRate += laneMetric.throughput || 0;
+                count++;
+            });
+            // Update traffic state with real data
+            this.trafficStates[i].queueLength = queueLength;
+            this.trafficStates[i].averageWaitTime = count > 0 ? totalWaitTime / count : 0;
+            this.trafficStates[i].maxWaitTime = maxWaitTime;
+            this.trafficStates[i].flowRate = flowRate;
+            // Copy current signal state
+            if (this.state && this.state[i]) {
+                this.trafficStates[i].signalState = [...this.state[i]];
+            }
+            // If intersection metrics exist, use them to enhance our data
+            if (intersectionMetric) {
+                this.trafficStates[i].queueLength = Math.max(this.trafficStates[i].queueLength, intersectionMetric.averageQueueLength / 4);
+            }
+        }
+    }
+}
+module.exports = TrafficLightController;
 
 
 /***/ }),
@@ -26185,6 +26661,7 @@ exports.testRunner = exports.TrafficControlTestRunner = void 0;
 const FixedTimingStrategyTest_1 = __webpack_require__(/*! ./FixedTimingStrategyTest */ "./src/model/traffic-control/tests/FixedTimingStrategyTest.ts");
 const AdaptiveTimingStrategyTest_1 = __importDefault(__webpack_require__(/*! ./AdaptiveTimingStrategyTest */ "./src/model/traffic-control/tests/AdaptiveTimingStrategyTest.ts"));
 const TrafficEnforcerStrategyTest_1 = __importDefault(__webpack_require__(/*! ./TrafficEnforcerStrategyTest */ "./src/model/traffic-control/tests/TrafficEnforcerStrategyTest.ts"));
+const TrafficLightControllerTest_1 = __importDefault(__webpack_require__(/*! ./TrafficLightControllerTest */ "./src/model/traffic-control/tests/TrafficLightControllerTest.ts"));
 /**
  * Test runner for traffic control strategies
  */
@@ -26194,10 +26671,19 @@ class TrafficControlTestRunner {
      */
     runAllTests() {
         console.log('=== Running Traffic Control Tests ===');
+        this.runTrafficLightControllerTests(); // Run controller tests first
         this.runFixedTimingTests();
         this.runAdaptiveTimingTests();
         this.runTrafficEnforcerTests();
         console.log('=== All Tests Completed ===');
+    }
+    /**
+     * Run traffic light controller tests
+     */
+    runTrafficLightControllerTests() {
+        console.log('\n=== Traffic Light Controller Tests ===');
+        const tester = new TrafficLightControllerTest_1.default();
+        tester.runTests();
     }
     /**
      * Run fixed timing strategy tests
@@ -26507,6 +26993,267 @@ class TrafficEnforcerStrategyTest {
 exports.TrafficEnforcerStrategyTest = TrafficEnforcerStrategyTest;
 // Export the test class
 exports["default"] = TrafficEnforcerStrategyTest;
+
+
+/***/ }),
+
+/***/ "./src/model/traffic-control/tests/TrafficLightControllerTest.ts":
+/*!***********************************************************************!*\
+  !*** ./src/model/traffic-control/tests/TrafficLightControllerTest.ts ***!
+  \***********************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * TrafficLightControllerTest
+ *
+ * Test suite for the TrafficLightController class and its integration with strategies.
+ * Tests that switching strategies changes control behavior and that the system
+ * remains stable and efficient.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TrafficLightControllerTest = void 0;
+const Intersection = __webpack_require__(/*! ../../intersection */ "./src/model/intersection.ts");
+const Rect = __webpack_require__(/*! ../../../geom/rect */ "./src/geom/rect.ts");
+const TrafficLightController = __webpack_require__(/*! ../TrafficLightController */ "./src/model/traffic-control/TrafficLightController.ts");
+const TrafficControlStrategyManager_1 = __webpack_require__(/*! ../TrafficControlStrategyManager */ "./src/model/traffic-control/TrafficControlStrategyManager.ts");
+class TrafficLightControllerTest {
+    constructor() {
+        // Create a mock intersection
+        this.intersection = new Intersection(new Rect(0, 0, 100, 100));
+        this.intersection.id = 'test-intersection';
+        // Create the controller
+        this.controller = new TrafficLightController(this.intersection);
+    }
+    /**
+     * Run all tests
+     */
+    runTests() {
+        console.log('=== Running TrafficLightController Tests ===');
+        let allPassed = true;
+        const tests = [
+            this.testInitialization,
+            this.testStrategySwitch,
+            this.testDefaultStrategy,
+            this.testStateAccess,
+            this.testStrategyIntegration,
+            this.testSerialization,
+            this.testDifferentBehaviors
+        ];
+        for (const test of tests) {
+            try {
+                console.log(`\nRunning: ${test.name}`);
+                const passed = test.call(this);
+                console.log(`${test.name}: ${passed ? 'PASSED' : 'FAILED'}`);
+                allPassed = allPassed && passed;
+            }
+            catch (e) {
+                console.error(`Test ${test.name} FAILED with error:`, e);
+                allPassed = false;
+            }
+        }
+        console.log(`\nFinal result: ${allPassed ? 'ALL TESTS PASSED' : 'SOME TESTS FAILED'}`);
+        return allPassed;
+    }
+    /**
+     * Test basic initialization
+     */
+    testInitialization() {
+        // Check that controller initializes properly with default strategy
+        const initialState = this.controller.state;
+        // State should be a 4x3 array (4 approaches, 3 movements per approach)
+        const isValidState = initialState.length === 4 &&
+            initialState.every(approach => approach.length === 3);
+        // Check that traffic states were initialized
+        const hasTrafficStates = Array.isArray(this.controller['trafficStates']) &&
+            this.controller['trafficStates'].length === 4;
+        return isValidState && hasTrafficStates;
+    }
+    /**
+     * Test strategy switching
+     */
+    testStrategySwitch() {
+        // Get current strategy type
+        const initialStrategyType = this.controller.getStrategy().strategyType;
+        // Find a different strategy to switch to
+        const availableTypes = TrafficControlStrategyManager_1.trafficControlStrategyManager.getAvailableStrategyTypes();
+        const differentType = availableTypes.find(type => type !== initialStrategyType);
+        if (!differentType) {
+            console.error("Couldn't find a different strategy to switch to");
+            return false;
+        }
+        // Switch to different strategy
+        const switchSuccess = this.controller.setStrategy(differentType);
+        if (!switchSuccess) {
+            console.error(`Failed to switch to strategy ${differentType}`);
+            return false;
+        }
+        // Verify that strategy changed
+        const newStrategyType = this.controller.getStrategy().strategyType;
+        return newStrategyType === differentType && newStrategyType !== initialStrategyType;
+    }
+    /**
+     * Test that a default strategy is always active
+     */
+    testDefaultStrategy() {
+        // Create a new controller
+        const controller = new TrafficLightController(this.intersection);
+        // Strategy should exist and have a valid type
+        const strategy = controller.getStrategy();
+        return !!strategy &&
+            typeof strategy.strategyType === 'string' &&
+            strategy.strategyType.length > 0;
+    }
+    /**
+     * Test state access
+     */
+    testStateAccess() {
+        // Get state
+        const state = this.controller.state;
+        // State should be a 4x3 array with valid values (0 or 1)
+        const isValidState = state.length === 4 &&
+            state.every(approach => approach.length === 3 &&
+                approach.every(signal => signal === 0 || signal === 1));
+        return isValidState;
+    }
+    /**
+     * Test that controller correctly integrates with strategies
+     */
+    testStrategyIntegration() {
+        // Set fixed timing strategy
+        this.controller.setStrategy('fixed-timing');
+        // Update a few times
+        for (let i = 0; i < 5; i++) {
+            this.controller.onTick(1.0);
+        }
+        // Get state after updates
+        const state1 = this.controller.state;
+        // Save phase info
+        const phase1 = this.controller.getStrategy().getCurrentPhase();
+        // Update a lot more to trigger phase change
+        for (let i = 0; i < 30; i++) {
+            this.controller.onTick(1.0);
+        }
+        // Get state after more updates
+        const state2 = this.controller.state;
+        // Phase should have changed
+        const phase2 = this.controller.getStrategy().getCurrentPhase();
+        // Either phase or state should be different
+        const phaseDifferent = phase1 !== phase2;
+        const stateDifferent = JSON.stringify(state1) !== JSON.stringify(state2);
+        return phaseDifferent || stateDifferent;
+    }
+    /**
+     * Test serialization and deserialization
+     */
+    testSerialization() {
+        // Configure with non-default strategy
+        this.controller.setStrategy('adaptive-timing');
+        // Update a bit to establish state
+        for (let i = 0; i < 5; i++) {
+            this.controller.onTick(1.0);
+        }
+        // Serialize
+        const json = this.controller.toJSON();
+        // Deserialize
+        const newController = TrafficLightController.copy(json, this.intersection);
+        // Check that the strategy type matches
+        const originalType = this.controller.getStrategy().strategyType;
+        const newType = newController.getStrategy().strategyType;
+        return originalType === newType;
+    }
+    /**
+     * Test that different strategies produce different behaviors
+     */
+    testDifferentBehaviors() {
+        const trafficStates = this.createHighTrafficStates();
+        // Test with fixed timing strategy
+        this.controller.setStrategy('fixed-timing');
+        const fixedStates = [];
+        for (let i = 0; i < 50; i++) {
+            this.controller.onTick(1.0);
+            // Only record every 10th state to reduce noise
+            if (i % 10 === 0) {
+                fixedStates.push(JSON.parse(JSON.stringify(this.controller.state)));
+            }
+        }
+        // Test with adaptive timing strategy
+        this.controller.setStrategy('adaptive-timing');
+        const adaptiveStates = [];
+        for (let i = 0; i < 50; i++) {
+            // Update traffic states
+            this.updateControllerTrafficStates(trafficStates);
+            this.controller.onTick(1.0);
+            // Only record every 10th state to reduce noise
+            if (i % 10 === 0) {
+                adaptiveStates.push(JSON.parse(JSON.stringify(this.controller.state)));
+            }
+        }
+        // Test with enforcer strategy
+        this.controller.setStrategy('traffic-enforcer');
+        const enforcerStates = [];
+        for (let i = 0; i < 50; i++) {
+            // Update traffic states
+            this.updateControllerTrafficStates(trafficStates);
+            this.controller.onTick(1.0);
+            // Only record every 10th state to reduce noise
+            if (i % 10 === 0) {
+                enforcerStates.push(JSON.parse(JSON.stringify(this.controller.state)));
+            }
+        }
+        // Compare states between strategies
+        // We expect at least some differences between the strategies
+        let fixedVsAdaptiveDifferent = false;
+        let fixedVsEnforcerDifferent = false;
+        let adaptiveVsEnforcerDifferent = false;
+        for (let i = 0; i < Math.min(fixedStates.length, adaptiveStates.length, enforcerStates.length); i++) {
+            if (JSON.stringify(fixedStates[i]) !== JSON.stringify(adaptiveStates[i])) {
+                fixedVsAdaptiveDifferent = true;
+            }
+            if (JSON.stringify(fixedStates[i]) !== JSON.stringify(enforcerStates[i])) {
+                fixedVsEnforcerDifferent = true;
+            }
+            if (JSON.stringify(adaptiveStates[i]) !== JSON.stringify(enforcerStates[i])) {
+                adaptiveVsEnforcerDifferent = true;
+            }
+        }
+        // All strategy pairs should have at least one difference
+        return fixedVsAdaptiveDifferent && fixedVsEnforcerDifferent && adaptiveVsEnforcerDifferent;
+    }
+    /**
+     * Helper method to create traffic states with high traffic volume
+     */
+    createHighTrafficStates() {
+        // Create traffic states with high volume in North direction
+        return [
+            { queueLength: 10, averageWaitTime: 30, maxWaitTime: 50, flowRate: 5, signalState: [0, 0, 0] },
+            { queueLength: 2, averageWaitTime: 5, maxWaitTime: 10, flowRate: 8, signalState: [0, 0, 0] },
+            { queueLength: 3, averageWaitTime: 10, maxWaitTime: 15, flowRate: 7, signalState: [0, 0, 0] },
+            { queueLength: 1, averageWaitTime: 3, maxWaitTime: 5, flowRate: 10, signalState: [0, 0, 0] }
+        ];
+    }
+    /**
+     * Helper method to update controller traffic states
+     */
+    updateControllerTrafficStates(states) {
+        // Update controller's traffic states directly
+        // This is a bit of a hack, but it's the easiest way to test strategies
+        if (this.controller['trafficStates']) {
+            for (let i = 0; i < states.length; i++) {
+                if (i < this.controller['trafficStates'].length) {
+                    this.controller['trafficStates'][i].queueLength = states[i].queueLength;
+                    this.controller['trafficStates'][i].averageWaitTime = states[i].averageWaitTime;
+                    this.controller['trafficStates'][i].maxWaitTime = states[i].maxWaitTime;
+                    this.controller['trafficStates'][i].flowRate = states[i].flowRate;
+                }
+            }
+        }
+    }
+}
+exports.TrafficLightControllerTest = TrafficLightControllerTest;
+// Export the test class
+exports["default"] = TrafficLightControllerTest;
 
 
 /***/ }),
@@ -26965,8 +27712,9 @@ class World {
             // Update all intersection traffic signals
             for (const id in this.intersections.all()) {
                 const intersection = this.intersections.all()[id];
-                if (intersection && intersection.controlSignals) {
-                    intersection.controlSignals.onTick(delta);
+                if (intersection) {
+                    // Use the new method to handle both new and legacy traffic control
+                    intersection.onTick(delta);
                 }
             }
             // Update all cars (movement, decision making) and remove dead cars
@@ -31267,8 +32015,19 @@ class Visualizer {
                     this.ctx.fillText(intersection.id.slice(-3), center.x, center.y - 1);
                 }
                 // Show traffic light timing info if debug.showIntersections is true
-                if (this.debug.showIntersections && intersection.controlSignals) {
-                    if (intersection.controlSignals.flipInterval && intersection.controlSignals.phaseOffset) {
+                if (this.debug.showIntersections) {
+                    if (intersection.trafficLightController) {
+                        // Show strategy type and phase for new controllers
+                        const strategy = intersection.trafficLightController.getStrategy();
+                        const strategyType = strategy.strategyType;
+                        const phase = strategy.getCurrentPhase();
+                        const totalPhases = strategy.getTotalPhases();
+                        this.ctx.fillText(`${strategyType}|${phase + 1}/${totalPhases}`, center.x, center.y + 1);
+                    }
+                    else if (intersection.controlSignals &&
+                        intersection.controlSignals.flipInterval &&
+                        intersection.controlSignals.phaseOffset) {
+                        // Fallback for legacy control signals
                         const flipInterval = Math.round(intersection.controlSignals.flipInterval * 10) / 10;
                         const phaseOffset = Math.round(intersection.controlSignals.phaseOffset * 10) / 10;
                         this.ctx.fillText(`${flipInterval}|${phaseOffset}`, center.x, center.y + 1);
@@ -31289,7 +32048,7 @@ class Visualizer {
                 return;
             }
             const intersection = road.target;
-            if (!intersection || !intersection.controlSignals || !intersection.controlSignals.state) {
+            if (!intersection) {
                 return;
             }
             const segment = road.targetSide;
@@ -31297,7 +32056,17 @@ class Visualizer {
             if (!segment || !segment.center || !segment.length) {
                 return;
             }
-            const lights = intersection.controlSignals.state[sideId];
+            // Get signals from the new traffic light controller if available, otherwise fall back to legacy
+            let lights;
+            if (intersection.trafficLightController) {
+                lights = intersection.getSignalState()[sideId];
+            }
+            else if (intersection.controlSignals && intersection.controlSignals.state) {
+                lights = intersection.controlSignals.state[sideId];
+            }
+            else {
+                return;
+            }
             if (!lights || !Array.isArray(lights)) {
                 return;
             }

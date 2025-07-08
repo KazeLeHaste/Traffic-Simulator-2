@@ -122,8 +122,9 @@ class World {
     // Update all intersection traffic signals
     for (const id in this.intersections.all()) {
       const intersection = this.intersections.all()[id];
-      if (intersection && intersection.controlSignals) {
-        intersection.controlSignals.onTick(delta);
+      if (intersection) {
+        // Use the new method to handle both new and legacy traffic control
+        intersection.onTick(delta);
       }
     }
     

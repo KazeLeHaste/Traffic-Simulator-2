@@ -133,8 +133,20 @@ class Visualizer {
         }
         
         // Show traffic light timing info if debug.showIntersections is true
-        if (this.debug.showIntersections && intersection.controlSignals) {
-          if (intersection.controlSignals.flipInterval && intersection.controlSignals.phaseOffset) {
+        if (this.debug.showIntersections) {
+          if (intersection.trafficLightController) {
+            // Show strategy type and phase for new controllers
+            const strategy = intersection.trafficLightController.getStrategy();
+            const strategyType = strategy.strategyType;
+            const phase = strategy.getCurrentPhase();
+            const totalPhases = strategy.getTotalPhases();
+            
+            this.ctx.fillText(`${strategyType}|${phase+1}/${totalPhases}`, center.x, center.y + 1);
+          } 
+          else if (intersection.controlSignals && 
+                  intersection.controlSignals.flipInterval && 
+                  intersection.controlSignals.phaseOffset) {
+            // Fallback for legacy control signals
             const flipInterval = Math.round(intersection.controlSignals.flipInterval * 10) / 10;
             const phaseOffset = Math.round(intersection.controlSignals.phaseOffset * 10) / 10;
             this.ctx.fillText(`${flipInterval}|${phaseOffset}`, center.x, center.y + 1);
@@ -156,7 +168,7 @@ class Visualizer {
       }
       
       const intersection = road.target;
-      if (!intersection || !intersection.controlSignals || !intersection.controlSignals.state) {
+      if (!intersection) {
         return;
       }
       
@@ -167,7 +179,15 @@ class Visualizer {
         return;
       }
       
-      const lights = intersection.controlSignals.state[sideId];
+      // Get signals from the new traffic light controller if available, otherwise fall back to legacy
+      let lights;
+      if (intersection.trafficLightController) {
+        lights = intersection.getSignalState()[sideId];
+      } else if (intersection.controlSignals && intersection.controlSignals.state) {
+        lights = intersection.controlSignals.state[sideId];
+      } else {
+        return;
+      }
       if (!lights || !Array.isArray(lights)) {
         return;
       }

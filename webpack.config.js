@@ -5,9 +5,12 @@ module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
   
   return {
-    entry: './src/app.ts',
+    entry: {
+      main: './src/app.ts',
+      tests: './src/test-runner.ts',
+    },
     output: {
-      filename: 'main.js',
+      filename: '[name].js',
       path: path.resolve(__dirname, 'dist'),
       clean: true,
     },

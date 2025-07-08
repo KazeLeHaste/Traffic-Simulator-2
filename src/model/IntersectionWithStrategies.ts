@@ -39,15 +39,19 @@ class IntersectionWithStrategies extends Intersection {
   // public id: string;
   // public roads: any[];
   // public inRoads: any[];
-  // The controlSignals property is overridden with the specific adapter type
-  public controlSignals: IntersectionTrafficControlAdapter;
+  
+  // We'll use the adapter directly through the trafficLightController
+  private trafficControlAdapter: IntersectionTrafficControlAdapter;
 
   constructor(rect: Rect) {
     // Call the parent constructor first
     super(rect);
     
-    // Override the controlSignals with our adapter
-    this.controlSignals = new IntersectionTrafficControlAdapter(this);
+    // Create our adapter and connect it to the traffic light controller
+    this.trafficControlAdapter = new IntersectionTrafficControlAdapter(this);
+    
+    // Use the setter instead of directly accessing the private field
+    this.controlSignals = this.trafficControlAdapter;
   }
 
   static copy(intersection: any): IntersectionWithStrategies {
@@ -62,21 +66,24 @@ class IntersectionWithStrategies extends Intersection {
     result.roads = baseIntersection.roads;
     result.inRoads = baseIntersection.inRoads;
     
-    // Ensure controlSignals is properly initialized with our adapter
-    if (intersection.controlSignals) {
-      result.controlSignals = IntersectionTrafficControlAdapter.create(intersection.controlSignals, result);
-    } else {
-      result.controlSignals = new IntersectionTrafficControlAdapter(result);
+    // Ensure our adapter is properly initialized
+    if (intersection.trafficControlAdapter) {
+      result.trafficControlAdapter = IntersectionTrafficControlAdapter.create(
+        intersection.trafficControlAdapter, result
+      );
     }
     
     return result;
   }
 
   toJSON(): any {
+    // Use parent's toJSON to ensure we include all required properties
+    const baseJson = super.toJSON();
+    
+    // Add our adapter to the serialized data
     return {
-      id: this.id,
-      rect: this.rect,
-      controlSignals: this.controlSignals
+      ...baseJson,
+      trafficControlAdapter: this.trafficControlAdapter
     };
   }
 
@@ -89,14 +96,22 @@ class IntersectionWithStrategies extends Intersection {
    * Get the traffic light controller with access to strategies
    */
   getTrafficController(): TrafficLightController {
-    return this.controlSignals.getController();
+    // First try to use the parent's trafficLightController
+    if (this.trafficLightController) {
+      return this.trafficLightController;
+    }
+    
+    // Fall back to our adapter if needed
+    return this.trafficControlAdapter.getController();
   }
   
   /**
    * Change the traffic control strategy for this intersection
+   * Override parent implementation for backward compatibility
    */
   setTrafficControlStrategy(strategyType: string): boolean {
-    return this.controlSignals.getController().setStrategy(strategyType);
+    // Use the parent implementation which now uses trafficLightController
+    return super.setTrafficControlStrategy(strategyType);
   }
   
   /**
