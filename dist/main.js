@@ -25067,6 +25067,504 @@ exports.FixedTimingStrategy = FixedTimingStrategy;
 
 /***/ }),
 
+/***/ "./src/model/traffic-control/TrafficEnforcerStrategy.ts":
+/*!**************************************************************!*\
+  !*** ./src/model/traffic-control/TrafficEnforcerStrategy.ts ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * TrafficEnforcerStrategy
+ *
+ * Simulates a manual or AI-based traffic enforcer making decisions based on live conditions.
+ * This strategy uses heuristics to prioritize lanes with high congestion or emergency situations.
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TrafficEnforcerStrategy = void 0;
+const AbstractTrafficControlStrategy_1 = __webpack_require__(/*! ./AbstractTrafficControlStrategy */ "./src/model/traffic-control/AbstractTrafficControlStrategy.ts");
+/**
+ * Traffic enforcer control strategy
+ * Simulates a human or AI traffic enforcer making real-time decisions
+ */
+class TrafficEnforcerStrategy extends AbstractTrafficControlStrategy_1.AbstractTrafficControlStrategy {
+    constructor() {
+        super();
+        this.strategyType = 'traffic-enforcer';
+        this.displayName = 'Traffic Enforcer';
+        this.description = 'Simulates a traffic enforcer (human or AI) making real-time decisions based on traffic conditions';
+        // Track traffic metrics for each approach
+        this.queueLengths = [0, 0, 0, 0]; // N, E, S, W
+        this.waitTimes = [0, 0, 0, 0]; // N, E, S, W
+        this.flowRates = [0, 0, 0, 0]; // N, E, S, W
+        this.congestionScores = [0, 0, 0, 0]; // N, E, S, W
+        // Current active signals (1 = green, 0 = red) for each approach and movement
+        this.currentSignals = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0] // West
+        ];
+        // Decision-making parameters
+        this.decisionInterval = 5; // seconds between major decisions
+        this.timeSinceLastDecision = 0;
+        this.minimumGreenTime = 10; // minimum green time for any movement
+        this.greenTimers = {}; // track time for each green signal
+        this.activeMovements = []; // currently active movements
+        // Safety constraint: conflicting movements can't be green simultaneously
+        this.conflictMatrix = {
+            'N-L': ['E-L', 'E-F', 'S-F', 'S-R', 'W-L', 'W-F'],
+            'N-F': ['E-L', 'E-F', 'E-R', 'S-L', 'W-L', 'W-F', 'W-R'],
+            'N-R': ['E-F', 'E-R', 'S-L', 'W-L'],
+            'E-L': ['N-L', 'N-F', 'S-L', 'S-F', 'W-F', 'W-R'],
+            'E-F': ['N-L', 'N-F', 'N-R', 'S-L', 'S-F', 'S-R', 'W-L'],
+            'E-R': ['N-F', 'N-R', 'S-L', 'W-L'],
+            'S-L': ['N-F', 'N-R', 'E-L', 'E-F', 'W-L', 'W-F'],
+            'S-F': ['N-L', 'E-L', 'E-F', 'E-R', 'W-L', 'W-F', 'W-R'],
+            'S-R': ['N-L', 'E-F', 'E-R', 'W-L'],
+            'W-L': ['N-L', 'N-F', 'N-R', 'E-L', 'E-R', 'S-L', 'S-R'],
+            'W-F': ['N-L', 'N-F', 'E-L', 'E-F', 'S-L', 'S-F'],
+            'W-R': ['N-F', 'N-R', 'E-L', 'S-F']
+        };
+        // Enforcer rules and priorities
+        this.priorityThreshold = 7; // congestion score above which a movement gets priority
+        this.emergencyThreshold = 9; // threshold for emergency intervention
+        this.fairnessWindow = 60; // time window (seconds) to ensure fairness
+        this.directionHistory = {}; // track time given to each direction
+        // Extra priorities that can be set via configuration
+        this.prioritizedDirections = []; // directions that get priority (0=N, 1=E, 2=S, 3=W)
+        this.prioritizedMovements = []; // specific movements with priority
+        this.configOptions = {
+            decisionInterval: this.decisionInterval,
+            minimumGreenTime: this.minimumGreenTime,
+            priorityThreshold: this.priorityThreshold,
+            emergencyThreshold: this.emergencyThreshold,
+            fairnessWindow: this.fairnessWindow,
+            prioritizedDirections: [],
+            prioritizedMovements: []
+        };
+        // Initialize green timers and direction history
+        for (let d = 0; d < 4; d++) {
+            for (let m = 0; m < 3; m++) {
+                this.greenTimers[`${d}-${m}`] = 0;
+            }
+            this.directionHistory[d.toString()] = 0;
+        }
+    }
+    /**
+     * Initialize the strategy with an intersection
+     */
+    initialize(intersection) {
+        super.initialize(intersection);
+        // Reset state
+        this.resetSignals();
+        this.activeMovements = [];
+        this.timeSinceLastDecision = 0;
+        // Apply configuration
+        this.decisionInterval = this.configOptions.decisionInterval || 5;
+        this.minimumGreenTime = this.configOptions.minimumGreenTime || 10;
+        this.priorityThreshold = this.configOptions.priorityThreshold || 7;
+        this.emergencyThreshold = this.configOptions.emergencyThreshold || 9;
+        this.fairnessWindow = this.configOptions.fairnessWindow || 60;
+        // Set priorities from config
+        this.prioritizedDirections = this.configOptions.prioritizedDirections || [];
+        this.prioritizedMovements = this.configOptions.prioritizedMovements || [];
+        // For non-standard intersections (e.g., T-intersections), adjust the conflict matrix
+        if (intersection.roads && intersection.roads.length < 4) {
+            this.adjustConflictMatrixForNonStandardIntersection();
+        }
+    }
+    /**
+     * Update strategy based on elapsed time and traffic states
+     */
+    update(delta, trafficStates) {
+        // Update internal time tracking
+        this.timeSinceLastDecision += delta;
+        // Update green timers
+        this.updateGreenTimers(delta);
+        // Update direction history for fairness tracking
+        for (const movement of this.activeMovements) {
+            this.directionHistory[movement.direction.toString()] += delta;
+        }
+        // Process traffic states
+        if (trafficStates && trafficStates.length > 0) {
+            this.updateTrafficMetrics(trafficStates);
+            // Check for emergency conditions that require immediate response
+            if (this.checkForEmergencyConditions()) {
+                console.log("[Enforcer] Emergency conditions detected, making immediate decision");
+                this.makeTrafficDecision();
+                this.timeSinceLastDecision = 0;
+            }
+            // Make normal decisions at regular intervals
+            else if (this.timeSinceLastDecision >= this.decisionInterval) {
+                this.makeTrafficDecision();
+                this.timeSinceLastDecision = 0;
+            }
+        }
+        return this.getCurrentSignalStates();
+    }
+    /**
+     * Get current signal states
+     */
+    getCurrentSignalStates() {
+        return this.currentSignals.map(signals => [...signals]);
+    }
+    /**
+     * Implementation of abstract method
+     */
+    getSignalStates() {
+        return this.getCurrentSignalStates();
+    }
+    /**
+     * Reset the strategy to initial state
+     */
+    reset() {
+        super.reset();
+        this.resetSignals();
+        this.timeSinceLastDecision = 0;
+        this.activeMovements = [];
+        // Reset timers and history
+        for (let d = 0; d < 4; d++) {
+            for (let m = 0; m < 3; m++) {
+                this.greenTimers[`${d}-${m}`] = 0;
+            }
+            this.directionHistory[d.toString()] = 0;
+        }
+    }
+    /**
+     * Reset all signals to red
+     */
+    resetSignals() {
+        this.currentSignals = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0] // West
+        ];
+    }
+    /**
+     * Update traffic metrics based on current states
+     */
+    updateTrafficMetrics(trafficStates) {
+        // Update current metrics
+        for (let i = 0; i < trafficStates.length; i++) {
+            if (i < this.queueLengths.length) {
+                this.queueLengths[i] = trafficStates[i].queueLength;
+                this.waitTimes[i] = trafficStates[i].averageWaitTime;
+                this.flowRates[i] = trafficStates[i].flowRate;
+            }
+        }
+        // Calculate congestion scores
+        this.calculateCongestionScores();
+    }
+    /**
+     * Calculate congestion scores for each approach and movement
+     */
+    calculateCongestionScores() {
+        const directionNames = ['North', 'East', 'South', 'West'];
+        for (let d = 0; d < 4; d++) {
+            // Calculate based on queue length and wait time
+            const queueScore = Math.min(10, this.queueLengths[d] / 2);
+            const waitScore = Math.min(10, this.waitTimes[d] / 30);
+            const flowScore = this.flowRates[d] > 0 ? 10 / Math.max(1, this.flowRates[d]) : 10;
+            // Combined score (0-10)
+            this.congestionScores[d] = (queueScore * 0.5 + waitScore * 0.3 + flowScore * 0.2);
+            // Add priority bonus if this direction is prioritized
+            if (this.prioritizedDirections.includes(d)) {
+                this.congestionScores[d] += 2;
+            }
+            // Debug log
+            if (this.congestionScores[d] > this.priorityThreshold) {
+                console.log(`[Enforcer] ${directionNames[d]} approach has high congestion: ${this.congestionScores[d].toFixed(1)}`);
+            }
+        }
+    }
+    /**
+     * Check if any green timer has exceeded minimum time
+     */
+    canSwitchSignals() {
+        for (const movement of this.activeMovements) {
+            const key = `${movement.direction}-${movement.movement}`;
+            if (this.greenTimers[key] < this.minimumGreenTime) {
+                return false; // Can't switch yet, minimum green time not met
+            }
+        }
+        return true;
+    }
+    /**
+     * Update timers for green signals
+     */
+    updateGreenTimers(delta) {
+        // Increment timer for each active movement
+        for (const movement of this.activeMovements) {
+            const key = `${movement.direction}-${movement.movement}`;
+            this.greenTimers[key] += delta;
+        }
+    }
+    /**
+     * Reset timer for a movement that just turned green
+     */
+    resetGreenTimer(direction, movement) {
+        const key = `${direction}-${movement}`;
+        this.greenTimers[key] = 0;
+    }
+    /**
+     * Check if a movement has a priority configuration
+     */
+    hasConfiguredPriority(direction, movement) {
+        return this.prioritizedMovements.some(m => m.direction === direction && m.movement === movement);
+    }
+    /**
+     * Check if activating a movement would create conflicts with current active movements
+     */
+    wouldCreateConflict(direction, movement) {
+        var _a, _b;
+        // Get movement key (e.g., "N-L" for North Left)
+        const directionCodes = ['N', 'E', 'S', 'W'];
+        const movementCodes = ['L', 'F', 'R'];
+        const movementKey = `${directionCodes[direction]}-${movementCodes[movement]}`;
+        // Check against each active movement
+        for (const active of this.activeMovements) {
+            const activeKey = `${directionCodes[active.direction]}-${movementCodes[active.movement]}`;
+            // If the active movement conflicts with proposed movement, it would create a conflict
+            if (((_a = this.conflictMatrix[activeKey]) === null || _a === void 0 ? void 0 : _a.includes(movementKey)) ||
+                ((_b = this.conflictMatrix[movementKey]) === null || _b === void 0 ? void 0 : _b.includes(activeKey))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Calculate fairness score based on historical allocation
+     * Returns 0-1 value where 0 is completely unfair and 1 is perfectly fair
+     */
+    calculateFairnessScore() {
+        const times = Object.values(this.directionHistory);
+        const maxTime = Math.max(...times);
+        const minTime = Math.min(...times);
+        if (maxTime === 0)
+            return 1; // No history yet
+        return minTime / maxTime; // Closer to 1 is more fair
+    }
+    /**
+     * Check for emergency conditions that require immediate attention
+     */
+    checkForEmergencyConditions() {
+        // Check for extremely high congestion in any direction
+        for (let d = 0; d < 4; d++) {
+            if (this.congestionScores[d] >= this.emergencyThreshold) {
+                console.log(`[Enforcer] Emergency: Direction ${d} has critical congestion (${this.congestionScores[d].toFixed(1)})`);
+                return true;
+            }
+        }
+        // Check for extremely unfair allocation
+        const fairnessScore = this.calculateFairnessScore();
+        if (fairnessScore < 0.3 && Object.values(this.directionHistory).some(t => t > this.fairnessWindow)) {
+            console.log(`[Enforcer] Emergency: Fairness is critically low (${fairnessScore.toFixed(2)})`);
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Make traffic control decision based on current conditions
+     * This is where the "enforcer intelligence" logic lives
+     */
+    makeTrafficDecision() {
+        console.log("[Enforcer] Making traffic decision");
+        // If we can't switch signals yet due to minimum green time, do nothing
+        if (this.activeMovements.length > 0 && !this.canSwitchSignals()) {
+            console.log("[Enforcer] Can't switch yet - minimum green time not met");
+            return;
+        }
+        // Step 1: Score each possible movement
+        const scores = [];
+        const directionNames = ['North', 'East', 'South', 'West'];
+        const movementNames = ['Left', 'Forward', 'Right'];
+        for (let d = 0; d < 4; d++) {
+            // Skip directions that don't exist in this intersection
+            if (this.intersection && this.intersection.roads &&
+                d >= this.intersection.roads.length) {
+                continue;
+            }
+            for (let m = 0; m < 3; m++) {
+                // Base score is the congestion score for this direction
+                let score = this.congestionScores[d];
+                // Adjust based on wait time for fairness
+                const fairnessAdjustment = (1 - (this.directionHistory[d.toString()] /
+                    Math.max(...Object.values(this.directionHistory)))) * 3;
+                score += fairnessAdjustment;
+                // Preference for letting traffic flow forward over turns
+                if (m === 1)
+                    score += 1; // Small bonus for forward movement
+                // Add bonus for configured priorities
+                if (this.hasConfiguredPriority(d, m)) {
+                    score += 3;
+                }
+                scores.push({ direction: d, movement: m, score });
+            }
+        }
+        // Sort by score (highest first)
+        scores.sort((a, b) => b.score - a.score);
+        // Step 2: Select movements to enable based on scores and conflicts
+        const newActiveMovements = [];
+        const activatedMovements = [];
+        for (const candidate of scores) {
+            // Skip low-priority movements
+            if (candidate.score < this.priorityThreshold / 2)
+                continue;
+            // Check if this would conflict with any already selected movement
+            let hasConflict = false;
+            for (const active of newActiveMovements) {
+                if (this.wouldCreateConflict(candidate.direction, candidate.movement)) {
+                    hasConflict = true;
+                    break;
+                }
+            }
+            if (!hasConflict) {
+                newActiveMovements.push({
+                    direction: candidate.direction,
+                    movement: candidate.movement
+                });
+                activatedMovements.push(candidate);
+                console.log(`[Enforcer] Activating ${directionNames[candidate.direction]} ${movementNames[candidate.movement]} (score: ${candidate.score.toFixed(1)})`);
+            }
+        }
+        // If nothing was selected, enable the highest scoring movement regardless
+        if (newActiveMovements.length === 0 && scores.length > 0) {
+            const best = scores[0];
+            newActiveMovements.push({
+                direction: best.direction,
+                movement: best.movement
+            });
+            activatedMovements.push(best);
+            console.log(`[Enforcer] Forced activation of ${directionNames[best.direction]} ${movementNames[best.movement]} (score: ${best.score.toFixed(1)})`);
+        }
+        // Step 3: Apply the new signal configuration
+        this.resetSignals(); // All red first
+        for (const movement of newActiveMovements) {
+            // Set signal to green
+            this.currentSignals[movement.direction][movement.movement] = 1;
+            // Reset the green timer for this movement
+            this.resetGreenTimer(movement.direction, movement.movement);
+        }
+        // Update active movements list
+        this.activeMovements = [...newActiveMovements];
+        // Log the decision
+        console.log(`[Enforcer] New signal state: ${this.activeMovements.length} green signals`);
+    }
+    /**
+     * Adjust conflict matrix for non-standard intersections (e.g., T-junctions)
+     */
+    adjustConflictMatrixForNonStandardIntersection() {
+        // For simplicity, we'll implement a T-intersection case (3 roads)
+        // Assuming road 3 (West) is missing
+        if (this.intersection && this.intersection.roads && this.intersection.roads.length === 3) {
+            // Remove all conflicts related to the missing road
+            Object.keys(this.conflictMatrix).forEach(key => {
+                if (key.startsWith('W-')) {
+                    delete this.conflictMatrix[key];
+                }
+                else {
+                    // Remove the missing road from conflict lists
+                    this.conflictMatrix[key] = this.conflictMatrix[key].filter(conflict => !conflict.startsWith('W-'));
+                }
+            });
+            console.log("[Enforcer] Adjusted conflict matrix for T-intersection");
+        }
+    }
+    /**
+     * Override updateConfig to handle complex configuration options
+     */
+    updateConfig(options) {
+        super.updateConfig(options);
+        // Update specific options
+        if (options.decisionInterval !== undefined)
+            this.decisionInterval = options.decisionInterval;
+        if (options.minimumGreenTime !== undefined)
+            this.minimumGreenTime = options.minimumGreenTime;
+        if (options.priorityThreshold !== undefined)
+            this.priorityThreshold = options.priorityThreshold;
+        if (options.emergencyThreshold !== undefined)
+            this.emergencyThreshold = options.emergencyThreshold;
+        if (options.fairnessWindow !== undefined)
+            this.fairnessWindow = options.fairnessWindow;
+        // Handle direction priorities (array of numbers)
+        if (options.prioritizedDirections !== undefined) {
+            this.prioritizedDirections = Array.isArray(options.prioritizedDirections) ?
+                options.prioritizedDirections : [];
+        }
+        // Handle movement priorities (array of objects)
+        if (options.prioritizedMovements !== undefined) {
+            this.prioritizedMovements = Array.isArray(options.prioritizedMovements) ?
+                options.prioritizedMovements : [];
+        }
+    }
+    /**
+     * Create this strategy from JSON data
+     */
+    static fromJSON(data, intersection) {
+        const strategy = new TrafficEnforcerStrategy();
+        // Restore state from saved data
+        strategy.configOptions = data.configOptions || {};
+        // Restore enforcer-specific properties
+        strategy.decisionInterval = data.decisionInterval || strategy.configOptions.decisionInterval || 5;
+        strategy.minimumGreenTime = data.minimumGreenTime || strategy.configOptions.minimumGreenTime || 10;
+        strategy.priorityThreshold = data.priorityThreshold || strategy.configOptions.priorityThreshold || 7;
+        strategy.emergencyThreshold = data.emergencyThreshold || strategy.configOptions.emergencyThreshold || 9;
+        strategy.fairnessWindow = data.fairnessWindow || strategy.configOptions.fairnessWindow || 60;
+        strategy.prioritizedDirections = data.prioritizedDirections || strategy.configOptions.prioritizedDirections || [];
+        strategy.prioritizedMovements = data.prioritizedMovements || strategy.configOptions.prioritizedMovements || [];
+        // Restore signal state if available
+        if (data.currentSignals) {
+            strategy.currentSignals = data.currentSignals;
+        }
+        // Restore active movements
+        if (data.activeMovements) {
+            strategy.activeMovements = data.activeMovements;
+        }
+        // Restore timers and history
+        if (data.greenTimers)
+            strategy.greenTimers = data.greenTimers;
+        if (data.directionHistory)
+            strategy.directionHistory = data.directionHistory;
+        if (data.timeSinceLastDecision !== undefined)
+            strategy.timeSinceLastDecision = data.timeSinceLastDecision;
+        strategy.initialize(intersection);
+        return strategy;
+    }
+    /**
+     * Convert to JSON for serialization
+     */
+    toJSON() {
+        return {
+            ...super.toJSON(),
+            strategyType: this.strategyType,
+            decisionInterval: this.decisionInterval,
+            minimumGreenTime: this.minimumGreenTime,
+            priorityThreshold: this.priorityThreshold,
+            emergencyThreshold: this.emergencyThreshold,
+            fairnessWindow: this.fairnessWindow,
+            prioritizedDirections: this.prioritizedDirections,
+            prioritizedMovements: this.prioritizedMovements,
+            currentSignals: this.currentSignals,
+            activeMovements: this.activeMovements,
+            greenTimers: this.greenTimers,
+            directionHistory: this.directionHistory,
+            timeSinceLastDecision: this.timeSinceLastDecision,
+            // Current traffic metrics
+            queueLengths: this.queueLengths,
+            waitTimes: this.waitTimes,
+            flowRates: this.flowRates,
+            congestionScores: this.congestionScores
+        };
+    }
+}
+exports.TrafficEnforcerStrategy = TrafficEnforcerStrategy;
+
+
+/***/ }),
+
 /***/ "./src/model/traffic-control/tests/AdaptiveTimingStrategyTest.ts":
 /*!***********************************************************************!*\
   !*** ./src/model/traffic-control/tests/AdaptiveTimingStrategyTest.ts ***!
@@ -25686,6 +26184,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.testRunner = exports.TrafficControlTestRunner = void 0;
 const FixedTimingStrategyTest_1 = __webpack_require__(/*! ./FixedTimingStrategyTest */ "./src/model/traffic-control/tests/FixedTimingStrategyTest.ts");
 const AdaptiveTimingStrategyTest_1 = __importDefault(__webpack_require__(/*! ./AdaptiveTimingStrategyTest */ "./src/model/traffic-control/tests/AdaptiveTimingStrategyTest.ts"));
+const TrafficEnforcerStrategyTest_1 = __importDefault(__webpack_require__(/*! ./TrafficEnforcerStrategyTest */ "./src/model/traffic-control/tests/TrafficEnforcerStrategyTest.ts"));
 /**
  * Test runner for traffic control strategies
  */
@@ -25697,6 +26196,7 @@ class TrafficControlTestRunner {
         console.log('=== Running Traffic Control Tests ===');
         this.runFixedTimingTests();
         this.runAdaptiveTimingTests();
+        this.runTrafficEnforcerTests();
         console.log('=== All Tests Completed ===');
     }
     /**
@@ -25714,10 +26214,299 @@ class TrafficControlTestRunner {
         const tester = new AdaptiveTimingStrategyTest_1.default();
         tester.runTests();
     }
+    /**
+     * Run traffic enforcer strategy tests
+     */
+    runTrafficEnforcerTests() {
+        console.log('\n=== Traffic Enforcer Strategy Tests ===');
+        const tester = new TrafficEnforcerStrategyTest_1.default();
+        tester.runTests();
+    }
 }
 exports.TrafficControlTestRunner = TrafficControlTestRunner;
 // Export a singleton instance
 exports.testRunner = new TrafficControlTestRunner();
+
+
+/***/ }),
+
+/***/ "./src/model/traffic-control/tests/TrafficEnforcerStrategyTest.ts":
+/*!************************************************************************!*\
+  !*** ./src/model/traffic-control/tests/TrafficEnforcerStrategyTest.ts ***!
+  \************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * TrafficEnforcerStrategyTest
+ *
+ * Test suite for the TrafficEnforcerStrategy implementation
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TrafficEnforcerStrategyTest = void 0;
+const Intersection = __webpack_require__(/*! ../../intersection */ "./src/model/intersection.ts");
+const Rect = __webpack_require__(/*! ../../../geom/rect */ "./src/geom/rect.ts");
+const TrafficEnforcerStrategy_1 = __webpack_require__(/*! ../TrafficEnforcerStrategy */ "./src/model/traffic-control/TrafficEnforcerStrategy.ts");
+class TrafficEnforcerStrategyTest {
+    constructor() {
+        // Create a mock intersection
+        this.intersection = new Intersection(new Rect(0, 0, 100, 100));
+        this.intersection.id = 'test-intersection';
+        // Create the strategy
+        this.strategy = new TrafficEnforcerStrategy_1.TrafficEnforcerStrategy();
+        // Configure for testing
+        this.strategy.updateConfig({
+            decisionInterval: 2,
+            minimumGreenTime: 3 // Shorter minimum green time for testing
+        });
+        this.strategy.initialize(this.intersection);
+    }
+    /**
+     * Run all tests
+     */
+    runTests() {
+        console.log('=== Running TrafficEnforcerStrategy Tests ===');
+        let allPassed = true;
+        const tests = [
+            this.testInitialization,
+            this.testBasicDecisionMaking,
+            this.testConflictAvoidance,
+            this.testPriorityHandling,
+            this.testEmergencyConditions,
+            this.testFairnessHandling,
+            this.testSerialization
+        ];
+        for (const test of tests) {
+            try {
+                console.log(`\nRunning: ${test.name}`);
+                const passed = test.call(this);
+                console.log(`${test.name}: ${passed ? 'PASSED' : 'FAILED'}`);
+                allPassed = allPassed && passed;
+            }
+            catch (e) {
+                console.error(`Test ${test.name} FAILED with error:`, e);
+                allPassed = false;
+            }
+        }
+        console.log(`\nFinal result: ${allPassed ? 'ALL TESTS PASSED' : 'SOME TESTS FAILED'}`);
+        return allPassed;
+    }
+    /**
+     * Test basic initialization
+     */
+    testInitialization() {
+        this.setup();
+        // Check that strategy initialized properly
+        const initialState = this.strategy.getCurrentSignalStates();
+        // All signals should start as red
+        const allRed = initialState.every(direction => direction.every(signal => signal === 0));
+        return this.strategy.strategyType === 'traffic-enforcer' && allRed;
+    }
+    /**
+     * Test basic decision-making
+     */
+    testBasicDecisionMaking() {
+        this.setup();
+        // Simulate traffic in North direction
+        const states = this.createTrafficStates([5, 0, 0, 0], [20, 0, 0, 0]);
+        // Run for a few seconds to trigger decision making
+        for (let i = 0; i < 10; i++) {
+            this.strategy.update(1.0, states);
+        }
+        // Check that at least one signal in the North direction is green
+        const currentState = this.strategy.getCurrentSignalStates();
+        const northSignal = currentState[0]; // North direction
+        const northHasGreen = northSignal.some(signal => signal === 1);
+        if (!northHasGreen) {
+            console.log("Expected North direction to have at least one green signal");
+            console.log("Current state:", currentState);
+            return false;
+        }
+        return true;
+    }
+    /**
+     * Test that conflicting movements aren't allowed simultaneously
+     */
+    testConflictAvoidance() {
+        this.setup();
+        // Heavy congestion in all directions
+        const states = this.createTrafficStates([10, 10, 10, 10], [30, 30, 30, 30]);
+        // Run for enough time to make several decisions
+        for (let i = 0; i < 20; i++) {
+            this.strategy.update(1.0, states);
+        }
+        // Check current state
+        const currentState = this.strategy.getCurrentSignalStates();
+        // Define conflicting pairs to check
+        // We'll check a few key conflicts: 
+        // 1. North-South vs East-West through movements
+        // 2. Left turns vs opposing through movements
+        const conflicts = [
+            { dir1: 0, mov1: 1, dir2: 1, mov2: 1 },
+            { dir1: 0, mov1: 0, dir2: 2, mov2: 1 },
+            { dir1: 1, mov1: 0, dir2: 3, mov2: 1 }, // E-left vs W-straight
+        ];
+        // Check each conflict pair
+        for (const conflict of conflicts) {
+            const signal1 = currentState[conflict.dir1][conflict.mov1];
+            const signal2 = currentState[conflict.dir2][conflict.mov2];
+            if (signal1 === 1 && signal2 === 1) {
+                console.log(`Conflict detected: Direction ${conflict.dir1} movement ${conflict.mov1} and Direction ${conflict.dir2} movement ${conflict.mov2} are both green`);
+                console.log("Current state:", currentState);
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * Test priority handling
+     */
+    testPriorityHandling() {
+        this.setup();
+        // Configure priorities
+        this.strategy.updateConfig({
+            prioritizedDirections: [1],
+            prioritizedMovements: [{ direction: 1, movement: 1 }] // East straight movement
+        });
+        // Equal congestion in all directions
+        const states = this.createTrafficStates([5, 5, 5, 5], [15, 15, 15, 15]);
+        // Run for enough time to make a decision
+        for (let i = 0; i < 10; i++) {
+            this.strategy.update(1.0, states);
+        }
+        // Check that East direction has been prioritized
+        const currentState = this.strategy.getCurrentSignalStates();
+        const eastSignal = currentState[1]; // East direction
+        const eastStraightIsGreen = eastSignal[1] === 1; // Check if straight movement is green
+        if (!eastStraightIsGreen) {
+            console.log("Expected East straight movement to be prioritized");
+            console.log("Current state:", currentState);
+            return false;
+        }
+        return true;
+    }
+    /**
+     * Test emergency conditions
+     */
+    testEmergencyConditions() {
+        this.setup();
+        // Configure emergency threshold
+        this.strategy.updateConfig({
+            emergencyThreshold: 8 // Lower threshold for testing
+        });
+        // First, establish some baseline with moderate congestion
+        let states = this.createTrafficStates([3, 3, 3, 3], [10, 10, 10, 10]);
+        for (let i = 0; i < 5; i++) {
+            this.strategy.update(1.0, states);
+        }
+        // Record initial state
+        const initialState = this.strategy.getCurrentSignalStates();
+        // Now create emergency in North direction
+        states = this.createTrafficStates([15, 3, 3, 3], [45, 10, 10, 10]);
+        // Should trigger immediate decision
+        this.strategy.update(1.0, states);
+        // Check that North direction has green signal after emergency
+        const currentState = this.strategy.getCurrentSignalStates();
+        const northSignal = currentState[0]; // North direction
+        const northHasGreen = northSignal.some(signal => signal === 1);
+        if (!northHasGreen) {
+            console.log("Expected North direction to have green signal after emergency");
+            console.log("Current state:", currentState);
+            return false;
+        }
+        return true;
+    }
+    /**
+     * Test fairness handling
+     */
+    testFairnessHandling() {
+        this.setup();
+        // First give a lot of green time to North direction
+        let states = this.createTrafficStates([10, 1, 1, 1], [30, 5, 5, 5]);
+        for (let i = 0; i < 30; i++) {
+            this.strategy.update(1.0, states);
+        }
+        // Now equalize congestion but South has been neglected
+        states = this.createTrafficStates([5, 5, 5, 5], [15, 15, 15, 15]);
+        // Run for enough time to make several decisions
+        for (let i = 0; i < 20; i++) {
+            this.strategy.update(1.0, states);
+        }
+        // Check that South direction gets green time due to fairness
+        const currentState = this.strategy.getCurrentSignalStates();
+        let southGreenObserved = false;
+        // We'd need to run the simulation longer to guarantee South gets green,
+        // but for test purposes, we'll just check if South has green now
+        if (currentState[2].some(signal => signal === 1)) {
+            southGreenObserved = true;
+        }
+        return southGreenObserved;
+    }
+    /**
+     * Test serialization and deserialization
+     */
+    testSerialization() {
+        this.setup();
+        // Configure with non-default values
+        this.strategy.updateConfig({
+            decisionInterval: 7,
+            prioritizedDirections: [2],
+            priorityThreshold: 6
+        });
+        // Establish some state
+        const states = this.createTrafficStates([5, 3, 8, 2], [15, 10, 25, 8]);
+        for (let i = 0; i < 10; i++) {
+            this.strategy.update(1.0, states);
+        }
+        // Serialize
+        const json = this.strategy.toJSON();
+        // Deserialize
+        const newStrategy = TrafficEnforcerStrategy_1.TrafficEnforcerStrategy.fromJSON(json, this.intersection);
+        // Check that key properties match
+        const matchesType = newStrategy.strategyType === 'traffic-enforcer';
+        const matchesInterval = newStrategy.getConfigOptions().decisionInterval === 7;
+        const matchesPriorities = Array.isArray(newStrategy.getConfigOptions().prioritizedDirections) &&
+            newStrategy.getConfigOptions().prioritizedDirections.includes(2);
+        const matchesThreshold = newStrategy.getConfigOptions().priorityThreshold === 6;
+        // Also check that signal states were preserved
+        const originalState = this.strategy.getCurrentSignalStates();
+        const newState = newStrategy.getCurrentSignalStates();
+        const signalsMatch = JSON.stringify(originalState) === JSON.stringify(newState);
+        return matchesType && matchesInterval && matchesPriorities &&
+            matchesThreshold && signalsMatch;
+    }
+    /**
+     * Helper to create traffic states for testing
+     */
+    createTrafficStates(queueLengths, waitTimes) {
+        const states = [];
+        for (let i = 0; i < 4; i++) {
+            states.push({
+                queueLength: queueLengths[i] || 0,
+                averageWaitTime: waitTimes[i] || 0,
+                maxWaitTime: waitTimes[i] * 1.5 || 0,
+                flowRate: queueLengths[i] > 0 ? queueLengths[i] / 2 : 0,
+                signalState: [0, 0, 0] // Placeholder, updated by strategy
+            });
+        }
+        return states;
+    }
+    /**
+     * Reset for a new test
+     */
+    setup() {
+        this.strategy = new TrafficEnforcerStrategy_1.TrafficEnforcerStrategy();
+        this.strategy.updateConfig({
+            decisionInterval: 2,
+            minimumGreenTime: 3 // Shorter minimum green time for testing
+        });
+        this.strategy.initialize(this.intersection);
+    }
+}
+exports.TrafficEnforcerStrategyTest = TrafficEnforcerStrategyTest;
+// Export the test class
+exports["default"] = TrafficEnforcerStrategyTest;
 
 
 /***/ }),

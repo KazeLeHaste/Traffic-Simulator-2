@@ -10,6 +10,7 @@ import { ITrafficControlStrategy } from './ITrafficControlStrategy';
 import { FixedTimingStrategy } from './FixedTimingStrategy';
 import { AdaptiveTimingStrategy } from './AdaptiveTimingStrategy';
 import { AllRedFlashingStrategy } from './AllRedFlashingStrategy';
+import { TrafficEnforcerStrategy } from './TrafficEnforcerStrategy';
 
 /**
  * Manages traffic control strategies in the simulation
@@ -29,6 +30,7 @@ export class TrafficControlStrategyManager {
     this.registerStrategy('fixed-timing', FixedTimingStrategy);
     this.registerStrategy('adaptive-timing', AdaptiveTimingStrategy);
     this.registerStrategy('all-red-flashing', AllRedFlashingStrategy);
+    this.registerStrategy('traffic-enforcer', TrafficEnforcerStrategy);
   }
 
   /**

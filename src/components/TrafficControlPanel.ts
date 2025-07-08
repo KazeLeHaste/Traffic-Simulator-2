@@ -240,9 +240,12 @@ export class TrafficControlPanel {
     // Create header
     const header = document.createElement('h4');
     
-    // Generate specific UI for adaptive strategy
+    // Generate specific UI based on strategy type
     if (strategy.strategyType === 'adaptive-timing') {
       return this.createAdaptiveStrategyUI(strategy, configDiv, options);
+    }
+    else if (strategy.strategyType === 'traffic-enforcer') {
+      return this.createTrafficEnforcerUI(strategy, configDiv, options);
     }
     header.textContent = 'Configuration Options';
     form.appendChild(header);
@@ -423,6 +426,185 @@ export class TrafficControlPanel {
   }
   
   /**
+   * Create specialized UI for traffic enforcer configuration
+   */
+  private createTrafficEnforcerUI(strategy: ITrafficControlStrategy, container: HTMLElement, options: Record<string, any>): void {
+    // Create a user-friendly form for the traffic enforcer strategy
+    container.innerHTML = `
+      <h4>Traffic Enforcer Configuration</h4>
+      <form id="traffic-enforcer-form" class="strategy-config-form">
+        <div class="config-section">
+          <h5>Timing Parameters</h5>
+          <div class="form-group">
+            <label for="decisionInterval">Decision Interval (seconds):</label>
+            <input type="range" id="decisionInterval" name="decisionInterval" 
+                  min="1" max="15" step="1" value="${options.decisionInterval || 5}">
+            <span class="range-value">${options.decisionInterval || 5}</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="minimumGreenTime">Minimum Green Time (seconds):</label>
+            <input type="range" id="minimumGreenTime" name="minimumGreenTime" 
+                  min="3" max="30" step="1" value="${options.minimumGreenTime || 10}">
+            <span class="range-value">${options.minimumGreenTime || 10}</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="fairnessWindow">Fairness Window (seconds):</label>
+            <input type="range" id="fairnessWindow" name="fairnessWindow" 
+                  min="30" max="180" step="10" value="${options.fairnessWindow || 60}">
+            <span class="range-value">${options.fairnessWindow || 60}</span>
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h5>Decision Thresholds</h5>
+          <div class="form-group">
+            <label for="priorityThreshold">Priority Threshold:</label>
+            <input type="range" id="priorityThreshold" name="priorityThreshold" 
+                  min="3" max="10" step="0.5" value="${options.priorityThreshold || 7}">
+            <span class="range-value">${options.priorityThreshold || 7}</span>
+            <small>Traffic above this congestion score gets priority</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="emergencyThreshold">Emergency Threshold:</label>
+            <input type="range" id="emergencyThreshold" name="emergencyThreshold" 
+                  min="5" max="10" step="0.5" value="${options.emergencyThreshold || 9}">
+            <span class="range-value">${options.emergencyThreshold || 9}</span>
+            <small>Traffic above this congestion score triggers emergency response</small>
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h5>Direction Priorities</h5>
+          <div class="form-group checkbox-group">
+            <label>Prioritized Directions:</label><br>
+            <label>
+              <input type="checkbox" name="priorityNorth" value="0" ${(options.prioritizedDirections || []).includes(0) ? 'checked' : ''}>
+              North
+            </label>
+            <label>
+              <input type="checkbox" name="priorityEast" value="1" ${(options.prioritizedDirections || []).includes(1) ? 'checked' : ''}>
+              East
+            </label>
+            <label>
+              <input type="checkbox" name="prioritySouth" value="2" ${(options.prioritizedDirections || []).includes(2) ? 'checked' : ''}>
+              South
+            </label>
+            <label>
+              <input type="checkbox" name="priorityWest" value="3" ${(options.prioritizedDirections || []).includes(3) ? 'checked' : ''}>
+              West
+            </label>
+          </div>
+        </div>
+        
+        <div class="config-section">
+          <h5>Movement Priorities</h5>
+          <div class="form-group checkbox-group">
+            <label>Prioritized Movements:</label><br>
+            <div class="movement-grid">
+              <div>
+                <label>
+                  <input type="checkbox" name="priorityNorthLeft" ${this.hasMovementPriority(options.prioritizedMovements, 0, 0) ? 'checked' : ''}>
+                  North Left
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" name="priorityNorthStraight" ${this.hasMovementPriority(options.prioritizedMovements, 0, 1) ? 'checked' : ''}>
+                  North Straight
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" name="priorityEastLeft" ${this.hasMovementPriority(options.prioritizedMovements, 1, 0) ? 'checked' : ''}>
+                  East Left
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" name="priorityEastStraight" ${this.hasMovementPriority(options.prioritizedMovements, 1, 1) ? 'checked' : ''}>
+                  East Straight
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" name="prioritySouthLeft" ${this.hasMovementPriority(options.prioritizedMovements, 2, 0) ? 'checked' : ''}>
+                  South Left
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" name="prioritySouthStraight" ${this.hasMovementPriority(options.prioritizedMovements, 2, 1) ? 'checked' : ''}>
+                  South Straight
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" name="priorityWestLeft" ${this.hasMovementPriority(options.prioritizedMovements, 3, 0) ? 'checked' : ''}>
+                  West Left
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" name="priorityWestStraight" ${this.hasMovementPriority(options.prioritizedMovements, 3, 1) ? 'checked' : ''}>
+                  West Straight
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" id="apply-traffic-enforcer-config-btn" class="btn">Apply Configuration</button>
+          <button type="button" id="reset-traffic-enforcer-config-btn" class="btn secondary">Reset to Defaults</button>
+        </div>
+      </form>
+    `;
+    
+    // Set up event listeners for the sliders
+    document.querySelectorAll('#traffic-enforcer-form input[type="range"]').forEach(slider => {
+      slider.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        const valueDisplay = target.nextElementSibling as HTMLElement;
+        if (valueDisplay) {
+          valueDisplay.textContent = target.value;
+        }
+      });
+    });
+    
+    // Set up apply button
+    const applyBtn = document.getElementById('apply-traffic-enforcer-config-btn');
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        this.applyTrafficEnforcerConfig(strategy);
+      });
+    }
+    
+    // Set up reset button
+    const resetBtn = document.getElementById('reset-traffic-enforcer-config-btn');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.resetTrafficEnforcerConfig(strategy);
+      });
+    }
+  }
+  
+  /**
+   * Check if a movement has priority in the config
+   */
+  private hasMovementPriority(prioritizedMovements: any[] | undefined, direction: number, movement: number): boolean {
+    if (!prioritizedMovements || !Array.isArray(prioritizedMovements)) {
+      return false;
+    }
+    
+    return prioritizedMovements.some(m => 
+      m.direction === direction && m.movement === movement
+    );
+  }
+  
+  /**
    * Apply adaptive strategy configuration
    */
   private applyAdaptiveConfig(strategy: ITrafficControlStrategy): void {
@@ -489,6 +671,93 @@ export class TrafficControlPanel {
     
     // Show confirmation
     alert('Adaptive strategy configuration reset to defaults');
+  }
+  
+  /**
+   * Apply traffic enforcer configuration
+   */
+  private applyTrafficEnforcerConfig(strategy: ITrafficControlStrategy): void {
+    const form = document.getElementById('traffic-enforcer-form') as HTMLFormElement;
+    if (!form) return;
+    
+    const config: Record<string, any> = {};
+    
+    // Get all numeric inputs
+    const numericInputs = ['decisionInterval', 'minimumGreenTime', 'fairnessWindow',
+                          'priorityThreshold', 'emergencyThreshold'];
+    
+    numericInputs.forEach(name => {
+      const input = form.elements.namedItem(name) as HTMLInputElement;
+      if (input) {
+        config[name] = parseFloat(input.value);
+      }
+    });
+    
+    // Get prioritized directions
+    const priorityDirections = ['priorityNorth', 'priorityEast', 'prioritySouth', 'priorityWest'];
+    const prioritizedDirections: number[] = [];
+    
+    priorityDirections.forEach((name, index) => {
+      const input = form.elements.namedItem(name) as HTMLInputElement;
+      if (input && input.checked) {
+        prioritizedDirections.push(index);
+      }
+    });
+    
+    config.prioritizedDirections = prioritizedDirections;
+    
+    // Get prioritized movements
+    const priorityMovements = [
+      { name: 'priorityNorthLeft', direction: 0, movement: 0 },
+      { name: 'priorityNorthStraight', direction: 0, movement: 1 },
+      { name: 'priorityEastLeft', direction: 1, movement: 0 },
+      { name: 'priorityEastStraight', direction: 1, movement: 1 },
+      { name: 'prioritySouthLeft', direction: 2, movement: 0 },
+      { name: 'prioritySouthStraight', direction: 2, movement: 1 },
+      { name: 'priorityWestLeft', direction: 3, movement: 0 },
+      { name: 'priorityWestStraight', direction: 3, movement: 1 }
+    ];
+    
+    const prioritizedMovements: { direction: number, movement: number }[] = [];
+    
+    priorityMovements.forEach(pm => {
+      const input = form.elements.namedItem(pm.name) as HTMLInputElement;
+      if (input && input.checked) {
+        prioritizedMovements.push({ direction: pm.direction, movement: pm.movement });
+      }
+    });
+    
+    config.prioritizedMovements = prioritizedMovements;
+    
+    // Apply configuration
+    strategy.updateConfig(config);
+    
+    // Show confirmation
+    alert('Traffic Enforcer configuration updated');
+  }
+  
+  /**
+   * Reset traffic enforcer config to defaults
+   */
+  private resetTrafficEnforcerConfig(strategy: ITrafficControlStrategy): void {
+    const defaultConfig = {
+      decisionInterval: 5,
+      minimumGreenTime: 10,
+      fairnessWindow: 60,
+      priorityThreshold: 7,
+      emergencyThreshold: 9,
+      prioritizedDirections: [],
+      prioritizedMovements: []
+    };
+    
+    // Apply defaults
+    strategy.updateConfig(defaultConfig);
+    
+    // Update UI
+    this.updateConfigOptions(strategy);
+    
+    // Show confirmation
+    alert('Traffic Enforcer configuration reset to defaults');
   }
   
   /**
