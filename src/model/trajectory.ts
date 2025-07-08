@@ -200,7 +200,6 @@ class Trajectory {
     }
   }
 
-  // Change to an adjacent lane on the same road
   changeLane(nextLane: any): void {
     if (this.isChangingLanes) {
       throw new Error('already changing lane');

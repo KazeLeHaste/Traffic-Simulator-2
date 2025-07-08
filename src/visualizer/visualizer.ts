@@ -274,31 +274,61 @@ class Visualizer {
   }
 
   drawCar(car: any): void {
-    const angle = car.direction;
-    const center = car.coords;
-    const rect = new Rect(0, 0, 1.1 * car.length, 1.7 * car.width);
-    rect.center(new Point(0, 0));
-    const boundRect = new Rect(0, 0, car.length, car.width);
-    boundRect.center(new Point(0, 0));
-
-    this.graphics.save();
-    this.ctx.translate(center.x, center.y);
-    this.ctx.rotate(angle);
-    const l = 0.90 - 0.30 * car.speed / car.maxSpeed;
-    const style = chroma(car.color, 0.8, l, 'hsl').hex();
-    this.graphics.fillRect(boundRect, style);
-    this.graphics.restore();
-    
-    if (this.debug && this.debug.enabled) {
-      this.ctx.save();
-      this.ctx.fillStyle = "black";
-      this.ctx.font = "1px Arial";
-      this.ctx.fillText(car.id, center.x, center.y);
-
-      if (car.trajectory.temp && car.trajectory.temp.lane) {
-        this.graphics.drawCurve(car.trajectory.temp.lane, 0.1, 'red');
+    try {
+      // Safety checks to avoid errors
+      if (!car || !car.coords || car.direction === undefined) {
+        console.warn('🎨 [VIZ WARN] Invalid car data in drawCar');
+        return;
       }
-      this.ctx.restore();
+    
+      const angle = car.direction;
+      const center = car.coords;
+      const rect = new Rect(0, 0, 1.1 * car.length, 1.7 * car.width);
+      rect.center(new Point(0, 0));
+      const boundRect = new Rect(0, 0, car.length, car.width);
+      boundRect.center(new Point(0, 0));
+  
+      this.graphics.save();
+      this.ctx.translate(center.x, center.y);
+      this.ctx.rotate(angle);
+      
+      // Calculate color - ensure we have valid values to prevent black cars
+      let style = '#FF0000'; // Default to red if there's an issue
+      try {
+        // Make sure speed and maxSpeed are numbers to prevent NaN issues
+        const speed = typeof car.speed === 'number' ? car.speed : 0;
+        const maxSpeed = typeof car.maxSpeed === 'number' && car.maxSpeed > 0 ? car.maxSpeed : 1;
+        
+        // Calculate a luminance value that can't go too dark
+        const l = Math.max(0.4, 0.90 - 0.30 * speed / maxSpeed);
+        
+        // Use the car's color or a default if not present
+        const carColor = car.color || '#3388FF';
+        style = chroma(carColor, 0.8, l, 'hsl').hex();
+      } catch (colorError) {
+        // Fallback to a visible color if there's an issue with chroma
+        style = '#FF4433';
+      }
+      
+      // Draw the car with the calculated or fallback style
+      this.graphics.fillRect(boundRect, style);
+      this.graphics.restore();
+      
+      if (this.debug) {
+        this.ctx.save();
+        this.ctx.fillStyle = "black";
+        this.ctx.font = "1px Arial";
+        this.ctx.fillText(car.id.toString(), center.x, center.y);
+  
+        const curve = car.trajectory?.temp?.lane;
+        if (curve) {
+          this.graphics.drawCurve(curve, 0.1, 'red');
+        }
+        this.ctx.restore();
+      }
+    } catch (error) {
+      console.error('🎨 [VIZ ERROR] Error in drawCar:', error);
+      // Continue execution - don't let one car crash the whole render
     }
   }
 
@@ -366,150 +396,160 @@ class Visualizer {
   }
 
   draw = (time: number): void => {
-    // Calculate time delta - directly from reference
+    // Calculate time delta - capped for stability
     const delta = (time - this.previousTime) || 0;
     
-    if (delta > 30) {
-      const adjustedDelta = delta > 100 ? 100 : delta;
+    // Process draw cycle at stable frame rate
+    if (delta > 16) { // ~60fps target rate
+      const adjustedDelta = Math.min(delta, 100); // Cap at 100ms for stability
       this.previousTime = time;
       
-      // Step the world simulation if running
-      if (!this.isBuilderMode && this.running && this.world && this.world.onTick) {
-        const delta_seconds = this.timeFactor * adjustedDelta / 1000;
-        this.world.onTick(delta_seconds);
-      }
-      
-      this.updateCanvasSize();
-      this.graphics.clear(settings.colors.background);
-      this.graphics.save();
-      this.zoomer.transform();
-      this.drawGrid();
-      
-      // Draw intersections
-      for (const id in this.world.intersections.all()) {
-        const intersection = this.world.intersections.all()[id];
-        this.drawIntersection(intersection, 0.9);
-      }
-      
-      // Draw roads
-      for (const id in this.world.roads.all()) {
-        const road = this.world.roads.all()[id];
-        this.drawRoad(road, 0.9);
-      }
-      
-      // Draw traffic signals
-      for (const id in this.world.roads.all()) {
-        const road = this.world.roads.all()[id];
-        this.drawSignals(road);
-      }
-      
-      // Draw cars
-      for (const id in this.world.cars.all()) {
-        const car = this.world.cars.all()[id];
-        this.drawCar(car);
-      }
-      
-      // Draw tools
-      this.toolIntersectionBuilder.draw();
-      this.toolRoadbuilder.draw();
-      this.toolHighlighter.draw();
-      this.graphics.restore();
-    }
-    
-    if (this.running) {
-      window.requestAnimationFrame(this.draw);
-    }
-  }
-
-  // Setup the canvas context with proper transformations
-  setupContext(): void {
-    if (!this.canvas || !this.ctx || !this.zoomer) {
-      return;
-    }
-    
-    // Apply zoomer transformations (scale, pan)
-    if (this.zoomer) {
-      this.zoomer.transform();
-    }
-  }
-
-  // Draw a single frame without advancing simulation time
-  // Useful for updating the UI after changes without ticking the simulation
-  drawSingleFrame(): void {
-    if (!this.canvas || !this.ctx || !this.zoomer || !this.world) {
-      console.warn('🎨 [VIZ WARN] Cannot draw frame - missing required components');
-      return;
-    }
-    
-    try {
-      // Clear the canvas with a dark background
-      this.ctx.fillStyle = '#1a1a1a';
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      
-      // Setup camera transform
-      this.setupContext();
-      
-      // ALWAYS DRAW GRID FIRST (especially important for builder mode)
-      this.drawGrid();
-      
-      // ALWAYS DRAW ALL WORLD OBJECTS
-      
-      // Draw intersections
-      const intersections = this.world?.intersections?.all() || {};
-      for (const id in intersections) {
-        const intersection = intersections[id];
-        if (intersection && typeof intersection === 'object') {
-          this.drawIntersection(intersection, 0.9);
+      try {
+        // FORCE complete transformation reset with fallback
+        if (this.ctx.resetTransform) {
+          this.ctx.resetTransform();
+        } else {
+          this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         }
-      }
-      
-      // Draw roads
-      const roads = this.world?.roads?.all() || {};
-      for (const id in roads) {
-        const road = roads[id];
-        if (road && typeof road === 'object') {
-          this.drawRoad(road, 0.9);
+        
+        // Clear canvas with proper background color - ensure it's always clearing with the right color
+        this.graphics.clear(settings.colors.background);
+        
+        this.ctx.save(); // Save the clean state
+        
+        // Apply zoom transformation
+        if (this.zoomer) {
+          this.zoomer.transform();
         }
-      }
-
-      // Draw traffic signals
-      for (const id in roads) {
-        const road = roads[id];
-        if (road) {
-          this.drawSignals(road);
-        }
-      }
-      
-      // Draw cars
-      const cars = this.world?.cars?.all() || {};
-      for (const id in cars) {
-        const car = cars[id];
-        if (car && car.alive && typeof car === 'object') {
-          this.drawCar(car);
-        }
-      }
-      
-      // Draw debug information if enabled
-      if (this.debug.enabled) {
-        // Draw intersection IDs if enabled
-        if (this.debug.showIds) {
-          const intersections = this.world?.intersections?.all() || {};
-          for (const id in intersections) {
-            const intersection = intersections[id];
-            if (intersection && intersection.rect) {
-              const center = intersection.rect.center();
-              this.ctx.save();
-              this.ctx.font = '0.8px Arial';
-              this.ctx.fillStyle = 'white';
-              this.ctx.fillText(id, center.x, center.y);
-              this.ctx.restore();
-            }
+        
+        // ALWAYS draw these elements regardless of simulation state
+        this.drawGrid();
+        
+        // Step the world simulation if running in simulation mode
+        if (!this.isBuilderMode && this.running && this.world && this.world.onTick) {
+          try {
+            console.log('🎨 [SIM DEBUG] Calling world.onTick() with delta:', this.timeFactor * adjustedDelta / 1000);
+            console.log('🎨 [SIM DEBUG] Current carsNumber:', this.world.carsNumber);
+            console.log('🎨 [SIM DEBUG] Current cars count:', Object.keys(this.world?.cars?.all() || {}).length);
+            
+            this.world.onTick(this.timeFactor * adjustedDelta / 1000);
+            
+            console.log('🎨 [SIM DEBUG] After onTick, cars count:', Object.keys(this.world?.cars?.all() || {}).length);
+          } catch (simError) {
+            console.error('🎨 [SIM ERROR] Error in simulation tick:', simError);
+            console.error('🎨 [SIM ERROR] Stack trace:', simError.stack);
+            // Continue rendering even if simulation step fails
           }
         }
+        
+        // ALWAYS DRAW ALL WORLD OBJECTS, regardless of simulation state or errors
+        // This ensures we never get a black canvas during simulation
+        
+        // Draw intersections
+        const intersections = this.world?.intersections?.all() || {};
+        for (const id in intersections) {
+          const intersection = intersections[id];
+          try {
+            if (intersection && typeof intersection === 'object') {
+              this.drawIntersection(intersection, 0.9);
+            }
+          } catch (error) {
+            // Log but continue with other elements
+            console.error('🎨 [VIZ ERROR] Failed to draw intersection:', id, error);
+          }
+        }
+        
+        // Draw roads
+        const roads = this.world?.roads?.all() || {};
+        for (const id in roads) {
+          const road = roads[id];
+          try {
+            if (road && typeof road === 'object') {
+              this.drawRoad(road, 0.9);
+            }
+          } catch (error) {
+            // Log but continue with other elements
+            console.error('🎨 [VIZ ERROR] Failed to draw road:', id, error);
+          }
+        }
+
+        // Draw traffic signals for roads
+        for (const id in roads) {
+          const road = roads[id];
+          try {
+            if (road) {
+              this.drawSignals(road);
+            }
+          } catch (error) {
+            // Log but continue with other elements
+            console.error('🎨 [VIZ ERROR] Failed to draw signals:', id, error);
+          }
+        }
+        
+        // Draw cars - CRITICAL for simulation visibility
+        // Specifically handle cars in a way that avoids skipping them during simulation
+        try {
+          // Double check that cars collection exists and has vehicles
+          const cars = this.world?.cars?.all() || {};
+          const carCount = Object.keys(cars).length;
+          
+          // Always try to draw cars, regardless of builder/simulation mode
+          // This ensures vehicles are visible during simulation
+          for (const id in cars) {
+            try {
+              if (cars[id]) {
+                this.drawCar(cars[id]);
+              }
+            } catch (carError) {
+              // Log but continue with other cars - don't let one bad car ruin everything
+              console.error('🎨 [VIZ ERROR] Failed to draw car:', id, carError);
+            }
+          }
+          
+          // If in simulation mode but no cars were found, try to refresh them
+          if (!this.isBuilderMode && this.running && carCount === 0 && this.world?.refreshCars) {
+            console.log('🎨 [VIZ DEBUG] No cars found in simulation mode, trying to refresh');
+            try {
+              this.world.refreshCars();
+            } catch (refreshError) {
+              console.error('🎨 [VIZ ERROR] Failed to refresh cars:', refreshError);
+            }
+          }
+        } catch (carsError) {
+          console.error('🎨 [VIZ ERROR] Error processing cars:', carsError);
+        }
+        
+        // Draw builder tools last (only relevant in builder mode)
+        if (this.isBuilderMode) {
+          if (this.toolIntersectionBuilder && this.toolIntersectionBuilder.draw) {
+            this.toolIntersectionBuilder.draw();
+          }
+          if (this.toolRoadbuilder && this.toolRoadbuilder.draw) {
+            this.toolRoadbuilder.draw();
+          }
+          if (this.toolHighlighter && this.toolHighlighter.draw) {
+            this.toolHighlighter.draw();
+          }
+        }
+        
+        this.ctx.restore(); // Restore to clean state
+        
+      } catch (error) {
+        console.error('🎨 [VIZ ERROR] ERROR in draw cycle:', error);
+        
+        // Recovery: try to clear the canvas with the right color
+        try {
+          this.ctx.resetTransform();
+          this.graphics.clear(settings.colors.background);
+        } catch (clearError) {
+          console.error('🎨 [VIZ ERROR] ERROR clearing canvas during recovery:', clearError);
+        }
       }
-      
-    } catch (error) {
-      console.error('🎨 [VIZ ERROR] Error drawing single frame:', error);
+    }
+    
+    // ALWAYS request the next frame when running - this is critical for simulation
+    if (this.running) {
+      window.requestAnimationFrame(this.draw);
     }
   }
 
@@ -583,89 +623,48 @@ class Visualizer {
     console.log('🔧 [TOOLS DEBUG] resetToolStates() completed');
   }
 
-  // Configure tools for either builder or simulation mode
-  setMode(isBuilderMode: boolean): void {
-    this.isBuilderMode = isBuilderMode;
-    
-    // First unbind all tools to avoid conflicts
-    this.toolRoadbuilder.unbind();
-    this.toolIntersectionBuilder.unbind();
-    this.toolIntersectionMover.unbind();
-    this.toolHighlighter.unbind();
-    this.toolMover.unbind();
-    
-    // Short delay to ensure clean slate before binding
-    setTimeout(() => {
-      // Set tool availability based on mode
-      if (isBuilderMode) {
-        // Builder mode: Enable all tools
-        this.toolRoadbuilder.bind();
-        this.toolIntersectionBuilder.bind();
-        this.toolIntersectionMover.bind();
-        this.toolHighlighter.bind();
-        this.toolMover.bind();
-      } else {
-        // Simulation mode: Only enable mover (panning) and highlighter tools
-        // Explicitly prioritize the mover tool in simulation mode
-        this.toolMover.bind();
-        this.toolHighlighter.bind();
-      }
-      
-      console.log(`🎨 [VIZ INFO] Mode set to: ${isBuilderMode ? 'Builder' : 'Simulation'}, toolMover bound: ${this.toolMover.isBound}`);
-    }, 50);
-  }
-
   ensureToolsAreBound(): void {
     console.log('🔧 [TOOLS DEBUG] ensureToolsAreBound() called');
     
-    // Clear any existing interval to prevent duplicates
-    if (this.toolCheckInterval) {
+    // Clear any existing tool check intervals first
+    if (this.toolCheckInterval !== null) {
       clearInterval(this.toolCheckInterval);
+      this.toolCheckInterval = null;
     }
     
-    // Set initial tool state based on mode
-    this.setMode(this.isBuilderMode);
+    const tools = [
+      this.toolRoadbuilder,
+      this.toolIntersectionBuilder,
+      this.toolHighlighter,
+      this.toolIntersectionMover,
+      this.toolMover
+    ];
     
-    // Periodically check tool binding to ensure they stay properly bound
-    this.toolCheckInterval = setInterval(() => {
-      // This is a safety measure to ensure tools don't lose binding
-      if (this.isBuilderMode) {
-        if (!this.toolRoadbuilder.isBound) this.toolRoadbuilder.bind();
-        if (!this.toolIntersectionBuilder.isBound) this.toolIntersectionBuilder.bind();
-        if (!this.toolIntersectionMover.isBound) this.toolIntersectionMover.bind();
+    // Properly unbind all tools first to ensure clean state
+    tools.forEach((tool) => {
+      if (tool && tool.isBound) {
+        try {
+          console.log('🔧 [TOOLS DEBUG] Unbinding tool to rebind:', tool.constructor.name);
+          tool.unbind();
+        } catch (error) {
+          console.error('🔧 [TOOLS ERROR] Failed to unbind tool:', error);
+        }
       }
-      
-      // These should always be bound
-      if (!this.toolHighlighter.isBound) this.toolHighlighter.bind();
-      if (!this.toolMover.isBound) this.toolMover.bind();
-    }, 5000) as any; // Check every 5 seconds
-  }
-
-  bindTools(): void {
-    // Use a more efficient binding approach that won't cause unnecessary redraws
-    const currentMode = this.isBuilderMode ? 'builder' : 'simulation';
+    });
     
-    // Only use tools in builder mode - simulation mode should have minimal events
-    if (this.isBuilderMode) {
-      // Bind the appropriate tools for builder mode
-      this.toolRoadbuilder.bind();
-      this.toolIntersectionBuilder.bind();
-      this.toolHighlighter.bind();
-      this.toolIntersectionMover.bind();
-      this.toolMover.bind();
-    } else {
-      // In simulation mode, we only need basic movement controls
-      // Unbind all tools that might be causing extra redraws
-      if (this.toolRoadbuilder) this.toolRoadbuilder.unbind();
-      if (this.toolIntersectionBuilder) this.toolIntersectionBuilder.unbind();
-      if (this.toolHighlighter) this.toolHighlighter.unbind();
-      if (this.toolIntersectionMover) this.toolIntersectionMover.unbind();
-      
-      // Only keep the mover tool for panning
-      if (this.toolMover) this.toolMover.bind();
-    }
+    // Now bind all tools
+    tools.forEach((tool) => {
+      if (tool) {
+        try {
+          console.log('🔧 [TOOLS DEBUG] Binding tool:', tool.constructor.name);
+          tool.bind();
+        } catch (error) {
+          console.error('🔧 [TOOLS ERROR] Failed to bind tool:', error);
+        }
+      }
+    });
     
-    console.log(`🔧 Tools bound for ${currentMode} mode`);
+    console.log('🔧 [TOOLS DEBUG] ensureToolsAreBound() completed');
   }
 
   get running(): boolean {
@@ -691,68 +690,75 @@ class Visualizer {
     this._running = false;
   }
   
-  // Force a redraw without animation
-  forceRedraw(): void {
-    // Get current time for frame timing
-    const now = performance.now();
-    
-    // Use 16ms as default delta (60fps equivalent) for single frame
-    const delta = 16; 
+  // Method to force a single frame draw without starting animation loop
+  drawSingleFrame(): void {
+    console.log('🎨 [VIZ DEBUG] drawSingleFrame() called');
     
     try {
-      // Clear canvas with proper background color
+      // Force a complete redraw by calling draw with current time
+      const currentTime = performance.now();
+      this.previousTime = currentTime - 33; // ~30fps timing for smooth single frame
+      
+      // Store current running state
+      const wasRunning = this.running;
+      
+      // Temporarily disable running flag to prevent animation loop
+      this._running = false;
+      
+      // Ensure transformation is reset
+      if (this.ctx.resetTransform) {
+        this.ctx.resetTransform();
+      } else {
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      }
+      
+      // Clear with proper background to ensure no black canvas
       this.graphics.clear(settings.colors.background);
       
-      // Save clean state
-      this.ctx.save(); 
+      // Draw the frame with a larger delta to ensure all elements are drawn
+      this.draw(currentTime);
       
-      // Apply zoom transformation
-      if (this.zoomer) {
-        this.zoomer.transform();
-      }
-      
-      // Draw grid (always)
-      this.drawGrid();
-      
-      // Draw intersections
-      const intersections = this.world?.intersections?.all() || {};
-      for (const id in intersections) {
-        const intersection = intersections[id];
-        if (intersection) {
-          this.drawIntersection(intersection, 0.9);
+      // If the canvas is still black or appears incorrect, force another full redraw
+      setTimeout(() => {
+        if (this.ctx && this.canvas) {
+          // Check a pixel to see if it's black (this is a heuristic)
+          const pixelData = this.ctx.getImageData(this.canvas.width/2, this.canvas.height/2, 1, 1).data;
+          const isBlack = pixelData[0] < 20 && pixelData[1] < 20 && pixelData[2] < 20;
+          
+          if (isBlack) {
+            console.log('🎨 [VIZ DEBUG] Canvas appears black, forcing another redraw');
+            // Force a complete redraw cycle
+            if (this.ctx.resetTransform) {
+              this.ctx.resetTransform();
+            } else {
+              this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            }
+            this.graphics.clear(settings.colors.background);
+            this.draw(performance.now());
+          }
         }
-      }
-      
-      // Draw roads
-      const roads = this.world?.roads?.all() || {};
-      for (const id in roads) {
-        const road = roads[id];
-        if (road) {
-          this.drawRoad(road, 0.9);
+        
+        // Restore original running state
+        this._running = wasRunning;
+        
+        // If it was running, ensure animation loop continues
+        if (wasRunning) {
+          window.requestAnimationFrame(this.draw);
         }
-      }
-
-      // Draw traffic signals
-      for (const id in roads) {
-        const road = roads[id];
-        if (road) {
-          this.drawSignals(road);
-        }
-      }
-      
-      // Draw cars
-      const cars = this.world?.cars?.all() || {};
-      for (const id in cars) {
-        const car = cars[id];
-        if (car) {
-          this.drawCar(car);
-        }
-      }
-      
-      // Restore clean state
-      this.ctx.restore();
+      }, 50);
     } catch (error) {
-      console.error('🎨 [VIZ ERROR] Error in drawSingleFrame:', error);
+      console.error('🎨 [VIZ ERROR] drawSingleFrame failed:', error);
+      
+      // Recovery attempt - reset running state
+      this._running = false;
+      
+      // Try a simple redraw to recover
+      try {
+        this.ctx.resetTransform();
+        this.graphics.clear(settings.colors.background);
+      } catch (e) {
+        console.error('🎨 [VIZ ERROR] Recovery failed:', e);
+      }
     }
   }
 
@@ -881,29 +887,61 @@ class Visualizer {
     }
   }
 
-  // Cleanup method to properly clean up resources when navigating away
+  // Cleanup method to prevent memory leaks
   destroy(): void {
-    // Stop the animation frame
+    // Stop any running animation
     this.stop();
     
-    // Clear any intervals to prevent memory leaks
+    // Clear tool check interval
     if (this.toolCheckInterval) {
       clearInterval(this.toolCheckInterval);
       this.toolCheckInterval = null;
     }
     
-    // Unbind all tools to remove event listeners
-    if (this.toolRoadbuilder) this.toolRoadbuilder.unbind();
-    if (this.toolIntersectionBuilder) this.toolIntersectionBuilder.unbind();
-    if (this.toolHighlighter) this.toolHighlighter.unbind();
-    if (this.toolIntersectionMover) this.toolIntersectionMover.unbind();
-    if (this.toolMover) this.toolMover.unbind();
+    // Unbind tools
+    const tools = [
+      this.toolRoadbuilder,
+      this.toolIntersectionBuilder,
+      this.toolHighlighter,
+      this.toolIntersectionMover,
+      this.toolMover
+    ];
     
-    // Remove window resize listener
-    $(window).off('resize');
-    
-    console.log('🎨 [VIZ INFO] Visualizer resources cleaned up');
+    tools.forEach(tool => {
+      if (tool && tool.unbind) {
+        tool.unbind();
+      }
+    });
   }
+
+  // DEBUG: Simple canvas test method (removed to prevent red background flash)
+  // testCanvasRendering(): void {
+  //   console.log('🧪 Testing basic canvas rendering...');
+  //   
+  //   // Clear any existing transforms
+  //   this.ctx.resetTransform();
+  //   
+  //   // Clear canvas with solid color
+  //   this.ctx.fillStyle = '#ff0000';
+  //   this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  //   
+  //   // Draw test shapes at screen coordinates
+  //   this.ctx.fillStyle = '#00ff00';
+  //   this.ctx.fillRect(50, 50, 200, 100);
+  //   
+  //   this.ctx.fillStyle = '#0000ff';
+  //   this.ctx.fillRect(300, 200, 150, 100);
+  //   
+  //   // Draw large visible text
+  //   this.ctx.fillStyle = '#ffffff';
+  //   this.ctx.font = 'bold 30px Arial';
+  //   this.ctx.fillText('CANVAS TEST OK!', 50, 150);
+  //   
+  //   this.ctx.font = 'bold 20px Arial';
+  //   this.ctx.fillText('Canvas size: ' + this.canvas.width + 'x' + this.canvas.height, 50, 180);
+  //   
+  //   console.log('🧪 Basic canvas test completed - should be RED with GREEN/BLUE boxes');
+  // }
 }
 
 export = Visualizer;

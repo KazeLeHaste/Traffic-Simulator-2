@@ -262,4 +262,52 @@ class Car {
   }
 }
 
+// Set up properties using the CoffeeScript-style property decorator
+Car.property('coords', {
+  get: function(this: Car) {
+    return this.trajectory.coords;
+  }
+});
+
+Car.property('speed', {
+  get: function(this: Car) {
+    return this._speed;
+  },
+  set: function(this: Car, speed: number) {
+    if (speed < 0) speed = 0;
+    if (speed > this.maxSpeed) speed = this.maxSpeed;
+    this._speed = speed;
+  }
+});
+
+Car.property('direction', {
+  get: function(this: Car) {
+    return this.trajectory.direction;
+  }
+});
+
+// Set up properties using the CoffeeScript-style property decorator
+Car.property('coords', {
+  get: function(this: Car) {
+    return this.trajectory.coords;
+  }
+});
+
+Car.property('speed', {
+  get: function(this: Car) {
+    return this._speed;
+  },
+  set: function(this: Car, speed: number) {
+    if (speed < 0) speed = 0;
+    if (speed > this.maxSpeed) speed = this.maxSpeed;
+    this._speed = speed;
+  }
+});
+
+Car.property('direction', {
+  get: function(this: Car) {
+    return this.trajectory.direction;
+  }
+});
+
 export = Car;

@@ -24,14 +24,13 @@ class LanePosition {
   set lane(lane: any) {
     this.release();
     this._lane = lane;
-    // Don't automatically acquire - this is done explicitly by the trajectory
+    // this.acquire();
   }
 
   get relativePosition(): number {
     return this.position / this.lane.length;
   }
 
-  // Mark this position as occupied on the lane
   acquire(): void {
     if (this.lane && this.lane.addCarPosition) {
       this.free = false;
@@ -39,7 +38,6 @@ class LanePosition {
     }
   }
 
-  // Release this position on the lane
   release(): void {
     if (!this.free && this.lane && this.lane.removeCar) {
       this.free = true;
@@ -47,7 +45,6 @@ class LanePosition {
     }
   }
 
-  // Find the next car ahead on this lane
   getNext(): LanePosition | null {
     if (this.lane && !this.free) {
       return this.lane.getNext(this);
@@ -55,7 +52,6 @@ class LanePosition {
     return null;
   }
 
-  // Calculate the distance to the next car ahead
   get nextCarDistance(): NextCarDistance {
     const next = this.getNext();
     if (next) {
@@ -81,7 +77,7 @@ LanePosition.property('lane', {
   set: function(this: LanePosition, lane: any) {
     this.release();
     this._lane = lane;
-    // Don't automatically acquire - this is done explicitly by the trajectory
+    // this.acquire();
   }
 });
 

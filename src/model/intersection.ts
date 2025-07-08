@@ -43,7 +43,6 @@ class Intersection {
     };
   }
 
-  // Update all connected roads when intersection properties change
   update(): void {
     for (const road of this.roads) {
       road.update();
@@ -52,29 +51,6 @@ class Intersection {
       road.update();
     }
   }
-  
-  // Get outgoing roads (used for route planning)
-  getOutgoingRoads(): any[] {
-    return this.roads.slice();
-  }
-  
-  // Get incoming roads (used for signal control)
-  getIncomingRoads(): any[] {
-    return this.inRoads.slice();
-  }
 }
-
-// Set up properties using the CoffeeScript-style property decorator
-Intersection.property('getOutgoingRoads', {
-  get: function(this: Intersection) {
-    return this.roads.slice();
-  }
-});
-
-Intersection.property('getIncomingRoads', {
-  get: function(this: Intersection) {
-    return this.inRoads.slice();
-  }
-});
 
 export = Intersection;

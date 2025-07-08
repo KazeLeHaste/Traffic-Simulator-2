@@ -27,9 +27,6 @@ export class SimulationPageComponent {
   }
 
   private async init() {
-    // Apply styles first to prevent theme flicker
-    this.addStyles();
-    
     await this.loadLayouts();
     this.render();
     
@@ -37,15 +34,6 @@ export class SimulationPageComponent {
     setTimeout(() => this.addEventListeners(), 100);
     
     await this.initializeSimulation();
-    
-    // Check if there's a selected layout to load (from home page)
-    if (appState.selectedLayoutId) {
-      const layoutId = appState.selectedLayoutId;
-      // Clear the selected layout so it doesn't reload on next navigation
-      appState.selectedLayoutId = null;
-      // Load the selected layout
-      await this.loadLayoutById(layoutId);
-    }
   }
 
   private async loadLayouts() {
@@ -164,11 +152,13 @@ export class SimulationPageComponent {
           </div>
           
           <div class="visualizer-area">
-            <canvas id="simulation-canvas"></canvas>
+            <canvas id="canvas"></canvas>
           </div>
         </div>
       </div>
     `;
+
+    this.addStyles();
   }
 
   private addEventListeners() {
@@ -231,17 +221,8 @@ export class SimulationPageComponent {
         actualCars: this.world.cars?.length || 0
       });
       
-      // Initialize visualizer only when DOM is fully ready
-      // Use requestAnimationFrame for better timing with DOM rendering
-      requestAnimationFrame(() => {
-        if (document.getElementById('simulation-canvas')) {
-          this.initializeVisualizer();
-        } else {
-          console.error('❌ Canvas element not ready, trying again in 100ms');
-          // Fallback to setTimeout if element isn't ready yet
-          setTimeout(() => this.initializeVisualizer(), 100);
-        }
-      });
+      // Initialize visualizer with delay to ensure DOM is ready
+      setTimeout(() => this.initializeVisualizer(), 300);
       
     } catch (error) {
       console.error('🚨 Failed to initialize simulation world:', error);
@@ -275,19 +256,13 @@ export class SimulationPageComponent {
   }
 
   private initializeVisualizer() {
-    const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
+    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     if (!canvas) {
       console.error('❌ Canvas not found in DOM during simulation initialization');
       return;
     }
 
     console.log('🎨 Initializing simulation visualizer...');
-
-    // Destroy existing visualizer to prevent conflicts
-    if (this.visualizer) {
-      console.log('🎨 Destroying existing visualizer before creating new one');
-      this.destroyVisualizer();
-    }
 
     // Set canvas size based on container
     const visualizerArea = canvas.parentElement;
@@ -310,17 +285,8 @@ export class SimulationPageComponent {
     }
 
     try {
-      // Verify canvas exists one more time and that it has a valid parent element
-      const canvas = document.getElementById('simulation-canvas');
-      const parent = canvas?.parentElement;
-      
-      if (!canvas || !parent) {
-        console.error('❌ Canvas or parent container not found before visualizer creation');
-        return;
-      }
-      
       // Create visualizer in SIMULATION MODE
-      this.visualizer = new Visualizer(this.world, 'simulation-canvas');
+      this.visualizer = new Visualizer(this.world);
       
       // SIMULATION MODE: Start with no cars and no simulation running
       this.world.carsNumber = 0;
@@ -359,34 +325,27 @@ export class SimulationPageComponent {
 
   private addResizeHandler() {
     const resizeCanvas = () => {
-      const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
-      if (!canvas) {
-        console.warn('⚠️ Canvas not found during resize operation');
-        return;
-      }
+      const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+      const visualizerArea = canvas?.parentElement;
       
-      const visualizerArea = canvas.parentElement;
-      if (!visualizerArea) {
-        console.warn('⚠️ Canvas parent element not found during resize');
-        return;
-      }
-      
-      // Get the current dimensions of the container
-      const rect = visualizerArea.getBoundingClientRect();
-      const targetWidth = Math.max(rect.width || 800, 400);
-      const targetHeight = Math.max(rect.height || 600, 300);
-      
-      // Update canvas dimensions
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-      
-      console.log('🎨 Simulation: Canvas resized to:', targetWidth, 'x', targetHeight);
-      
-      // Redraw after resize using requestAnimationFrame for better timing
-      if (this.visualizer && this.visualizer.drawSingleFrame) {
-        requestAnimationFrame(() => {
-          this.visualizer.drawSingleFrame();
-        });
+      if (canvas && visualizerArea) {
+        const rect = visualizerArea.getBoundingClientRect();
+        const targetWidth = Math.max(rect.width || 800, 400);
+        const targetHeight = Math.max(rect.height || 600, 300);
+        
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        
+        console.log('🎨 Simulation: Canvas resized to:', targetWidth, 'x', targetHeight);
+        
+        // Redraw after resize
+        if (this.visualizer) {
+          setTimeout(() => {
+            if (this.visualizer.drawSingleFrame) {
+              this.visualizer.drawSingleFrame();
+            }
+          }, 100);
+        }
       }
     };
     
@@ -707,9 +666,6 @@ export class SimulationPageComponent {
       return;
     }
     
-    // Force dark theme styles to be applied
-    document.body.classList.add('dark-theme');
-    
     const styleElement = document.createElement('style');
     styleElement.id = 'simulation-page-styles';
     styleElement.innerHTML = `
@@ -721,13 +677,13 @@ export class SimulationPageComponent {
       
       .page-header {
         padding: 15px;
-        background-color: #2d2d2d;
-        border-bottom: 1px solid #404040;
+        background-color: #f5f5f5;
+        border-bottom: 1px solid #ddd;
       }
       
       .page-header h2 {
         margin: 0;
-        color: #ffffff;
+        color: #333;
         font-size: 24px;
       }
       
@@ -740,14 +696,14 @@ export class SimulationPageComponent {
       .sidebar {
         width: 280px;
         overflow-y: auto;
-        background-color: #2d2d2d;
-        border-right: 1px solid #404040;
+        background-color: #fafafa;
+        border-right: 1px solid #ddd;
         padding: 10px;
       }
       
       .panel {
-        background-color: #333333;
-        border: 1px solid #404040;
+        background-color: #fff;
+        border: 1px solid #ddd;
         border-radius: 4px;
         margin-bottom: 15px;
         padding: 10px;
@@ -757,22 +713,19 @@ export class SimulationPageComponent {
         margin-top: 0;
         margin-bottom: 10px;
         font-size: 16px;
-        border-bottom: 1px solid #404040;
+        border-bottom: 1px solid #eee;
         padding-bottom: 5px;
-        color: #ffffff;
       }
       
       .visualizer-area {
         flex: 1;
         overflow: hidden;
         position: relative;
-        background: #1a1a1a;
       }
       
       .visualizer-area canvas {
         width: 100%;
         height: 100%;
-        background: #1a1a1a;
       }
       
       .control-group {
@@ -798,16 +751,11 @@ export class SimulationPageComponent {
         width: 100%;
       }
       
-      .btn-primary { background-color: #375a7f; color: white; border: 1px solid #375a7f; }
-      .btn-primary:hover { background-color: #2e4c6d; }
-      .btn-success { background-color: #00bc8c; color: white; border: 1px solid #00bc8c; }
-      .btn-success:hover { background-color: #00a085; }
-      .btn-info { background-color: #3498db; color: white; border: 1px solid #3498db; }
-      .btn-info:hover { background-color: #2980b9; }
-      .btn-warning { background-color: #f39c12; color: #212529; border: 1px solid #f39c12; }
-      .btn-warning:hover { background-color: #e67e22; }
-      .btn-secondary { background-color: #444444; color: white; border: 1px solid #666666; }
-      .btn-secondary:hover { background-color: #555555; }
+      .btn-primary { background-color: #007bff; color: white; }
+      .btn-success { background-color: #28a745; color: white; }
+      .btn-info { background-color: #17a2b8; color: white; }
+      .btn-warning { background-color: #ffc107; color: #212529; }
+      .btn-secondary { background-color: #6c757d; color: white; }
       
       .slider {
         width: 100%;
@@ -887,181 +835,96 @@ export class SimulationPageComponent {
   private async showLoadDialog(): Promise<void> {
     try {
       if (this.layouts.length === 0) {
-        this.showNotification('No saved layouts found. Create one in the Builder first!', 'warning');
+        this.showNotification('No saved layouts found', 'warning');
         return;
       }
       
-      // Create load dialog
-      const dialog = document.createElement('div');
-      dialog.className = 'modal-overlay';
-      dialog.innerHTML = `
-        <div class="modal-dialog modal-large">
-          <div class="modal-header">
-            <h3>Load Layout</h3>
-            <button class="close-btn" id="close-load-dialog">×</button>
-          </div>
-          <div class="modal-body">
-            <p>Select a layout to load for simulation:</p>
-            <div class="layout-grid">
-              ${this.layouts.map(layout => `
-                <div class="layout-card" data-layout-id="${layout.id}">
-                  <div class="layout-info">
-                    <h4>${layout.name || 'Unnamed Layout'}</h4>
-                    <small>Created: ${new Date(layout.createdAt).toLocaleString()}</small>
-                  </div>
-                  <div class="layout-actions">
-                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load</button>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
-          </div>
-        </div>
-      `;
+      // Create modal dialog
+      const modal = document.createElement('div');
+      modal.style.position = 'fixed';
+      modal.style.top = '0';
+      modal.style.left = '0';
+      modal.style.width = '100%';
+      modal.style.height = '100%';
+      modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+      modal.style.display = 'flex';
+      modal.style.justifyContent = 'center';
+      modal.style.alignItems = 'center';
+      modal.style.zIndex = '1000';
       
-      // Add CSS for the dialog
-      const styleElement = document.createElement('style');
-      if (!document.getElementById('modal-dialog-styles')) {
-        styleElement.id = 'modal-dialog-styles';
-        styleElement.textContent = `
-          .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-          
-          .modal-dialog {
-            background-color: #2d2d2d;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #404040;
-          }
-          
-          .modal-large {
-            max-width: 800px;
-          }
-          
-          .modal-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #404040;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          
-          .modal-header h3 {
-            margin: 0;
-            color: #ffffff;
-          }
-          
-          .close-btn {
-            background: transparent;
-            border: none;
-            color: #b0b0b0;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0;
-          }
-          
-          .close-btn:hover {
-            color: #ffffff;
-          }
-          
-          .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            max-height: calc(90vh - 140px);
-          }
-          
-          .modal-footer {
-            padding: 15px 20px;
-            border-top: 1px solid #404040;
-            text-align: right;
-          }
-          
-          .layout-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-          }
-          
-          .layout-card {
-            border: 1px solid #404040;
-            background-color: #333333;
-            border-radius: 5px;
-            padding: 15px;
-            transition: all 0.2s ease;
-          }
-          
-          .layout-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border-color: #007bff;
-          }
-          
-          .layout-info h4 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            color: #ffffff;
-          }
-          
-          .layout-info small {
-            color: #b0b0b0;
-            display: block;
-            margin-bottom: 15px;
-          }
-          
-          .layout-actions {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-          }
-        `;
-        document.head.appendChild(styleElement);
-      }
+      // Create modal content
+      const content = document.createElement('div');
+      content.style.backgroundColor = '#fff';
+      content.style.borderRadius = '8px';
+      content.style.padding = '20px';
+      content.style.width = '500px';
+      content.style.maxWidth = '90%';
+      content.style.maxHeight = '80vh';
+      content.style.overflowY = 'auto';
       
-      document.body.appendChild(dialog);
+      // Create header
+      const header = document.createElement('h3');
+      header.textContent = 'Load Layout';
+      header.style.marginTop = '0';
       
-      // Event listeners
-      const cancelLoad = document.getElementById('cancel-load');
-      const closeLoad = document.getElementById('close-load-dialog');
+      // Create layout list
+      const list = document.createElement('div');
+      list.style.marginBottom = '20px';
       
-      const closeDialog = () => {
-        if (dialog && dialog.parentNode) {
-          document.body.removeChild(dialog);
-        }
-      };
-      
-      // Load layout buttons
-      dialog.querySelectorAll('.load-layout-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const layoutId = (e.target as HTMLElement).getAttribute('data-layout-id');
-          if (layoutId) {
-            closeDialog();
-            await this.loadLayoutById(layoutId);
-          }
-        });
+      // Add each layout
+      this.layouts.forEach(layout => {
+        const item = document.createElement('div');
+        item.style.padding = '10px';
+        item.style.borderBottom = '1px solid #eee';
+        item.style.cursor = 'pointer';
+        item.style.display = 'flex';
+        item.style.justifyContent = 'space-between';
+        item.style.alignItems = 'center';
+        
+        const name = document.createElement('span');
+        name.textContent = layout.name || `Layout ${layout.id}`;
+        
+        const date = document.createElement('small');
+        date.style.color = '#777';
+        date.textContent = new Date(layout.updatedAt || layout.createdAt).toLocaleString();
+        
+        const loadBtn = document.createElement('button');
+        loadBtn.className = 'btn btn-primary';
+        loadBtn.textContent = 'Load';
+        loadBtn.onclick = async () => {
+          document.body.removeChild(modal);
+          await this.loadLayoutById(layout.id);
+        };
+        
+        item.appendChild(name);
+        item.appendChild(date);
+        item.appendChild(loadBtn);
+        list.appendChild(item);
       });
       
-      cancelLoad?.addEventListener('click', closeDialog);
-      closeLoad?.addEventListener('click', closeDialog);
+      // Create close button
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'btn btn-secondary';
+      closeBtn.textContent = 'Cancel';
+      closeBtn.style.marginRight = '10px';
+      closeBtn.onclick = () => {
+        document.body.removeChild(modal);
+      };
       
+      // Create footer
+      const footer = document.createElement('div');
+      footer.style.marginTop = '20px';
+      footer.style.textAlign = 'right';
+      footer.appendChild(closeBtn);
+      
+      // Assemble modal
+      content.appendChild(header);
+      content.appendChild(list);
+      content.appendChild(footer);
+      modal.appendChild(content);
+      
+      // Show modal
+      document.body.appendChild(modal);
     } catch (error) {
       console.error('Error showing load dialog:', error);
       this.showNotification('Failed to show load dialog', 'error');
@@ -1073,21 +936,15 @@ export class SimulationPageComponent {
    */
   private async loadLayoutById(layoutId: string): Promise<void> {
     try {
-      console.log('🔄 [SIM DEBUG] Starting loadLayoutById for ID:', layoutId);
-      
       // Show loading state
       this.showNotification(`Loading layout...`, 'info');
       
       // Find layout from previously loaded layouts
       const layout = this.layouts.find(l => l.id === layoutId);
-      console.log('🔄 [SIM DEBUG] Layout found:', layout ? layout.name : 'Not found');
-      
       if (!layout) {
         this.showNotification(`Layout not found (ID: ${layoutId})`, 'error');
         return;
       }
-      
-      console.log('🔄 [SIM DEBUG] Layout data:', layout.data);
       
       // Stop current simulation if running
       const wasRunning = this.isRunning;
@@ -1100,8 +957,7 @@ export class SimulationPageComponent {
       
       // Load the layout into world
       if (this.world) {
-        // Stringify the layout data because World.load expects a string
-        this.world.load(JSON.stringify(layout.data));
+        this.world.load(layout.data);
         
         // Update analytics
         this.updateAnalytics();
@@ -1143,7 +999,7 @@ export class SimulationPageComponent {
     }
     
     // Remove the canvas element to prevent duplicates
-    const canvas = document.getElementById('simulation-canvas');
+    const canvas = document.getElementById('canvas');
     if (canvas) {
       console.log('🗑️ Simulation: Removing canvas element');
       canvas.remove();

@@ -4,16 +4,15 @@ import Segment = require('../geom/segment');
 
 interface LanePosition {
   id: string;
-  free: boolean;
-  car: any;
   lane: Lane;
   position: number;
+  free: boolean;
 }
 
 interface Road {
   sourceSideId: number;
   targetSideId: number;
-  getTurnDirection(other: Road): number;
+  getTurnDirection(other: any): number;
 }
 
 class Lane {

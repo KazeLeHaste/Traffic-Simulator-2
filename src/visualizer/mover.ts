@@ -23,18 +23,7 @@ class ToolMover extends Tool {
     this.startPosition = null;
   }
 
-  // Debounce mouse move to reduce excessive redraws
-  private lastMoveTime: number = 0;
-  private readonly MOVE_THROTTLE_MS: number = 30; // Limit to ~30fps for moves
-
   mousemove(e: any): void {
-    // Throttle mouse move events to reduce canvas redraws
-    const now = Date.now();
-    if (now - this.lastMoveTime < this.MOVE_THROTTLE_MS) {
-      return;
-    }
-    this.lastMoveTime = now;
-
     if (this.startPosition) {
       const currentPosition = this.getPoint(e);
       const offset = currentPosition.subtract(this.startPosition);

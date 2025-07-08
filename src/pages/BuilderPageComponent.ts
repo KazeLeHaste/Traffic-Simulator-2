@@ -180,59 +180,30 @@ export class BuilderPageComponent {
     
     console.log('🎨 [DEBUG] Initializing new visualizer...');
     
-    // Wait for DOM to be fully rendered before initializing visualizer
-    setTimeout(() => {
-      try {
-        // Ensure canvas exists and is properly sized
-        const canvas = document.getElementById('builder-canvas') as HTMLCanvasElement;
-        if (!canvas) {
-          console.error('🎨 [ERROR] Builder canvas element not found in DOM');
-          return;
-        }
-        
-        // Make sure canvas has proper dimensions before creating visualizer
-        const container = canvas.parentElement;
-        if (container) {
-          const rect = container.getBoundingClientRect();
-          canvas.width = Math.max(rect.width, 800);
-          canvas.height = Math.max(rect.height, 600);
-          canvas.style.width = '100%';
-          canvas.style.height = '100%';
-        }
-        
-        // Create new visualizer with the world
-        this.visualizer = new Visualizer(this.world, 'builder-canvas');
-        
-        // Set builder mode FIRST
-        this.visualizer.isBuilderMode = true;
-        
-        // Ensure zooming is at a reasonable level
-        if (this.visualizer.zoomer) {
-          this.visualizer.zoomer.defaultZoom = 4;
-          this.visualizer.zoomer.scale = 1;
-        }
-        
-        console.log('🎨 [DEBUG] Visualizer initialized successfully');
-        
-        // Force initial draw with grid - use multiple attempts to ensure rendering
-        setTimeout(() => {
-          if (this.visualizer) {
-            // Ensure we start the animation loop so the grid is drawn continuously
-            this.visualizer.start();
-            // Also force a single frame draw immediately
-            this.visualizer.drawSingleFrame();
-          }
-        }, 100);
-        
-      } catch (error) {
-        console.error('🎨 [ERROR] Failed to initialize visualizer:', error);
+    try {
+      // Create new visualizer with the world
+      this.visualizer = new Visualizer(this.world, 'builder-canvas');
+      
+      // Set builder mode
+      this.visualizer.isBuilderMode = true;
+      
+      // Ensure zooming is at a reasonable level
+      if (this.visualizer.zoomer) {
+        this.visualizer.zoomer.defaultZoom = 4;
       }
-    }, 50);
+      
+      console.log('🎨 [DEBUG] Visualizer initialized successfully');
+      
+      // Do a single draw to show the initial state
+      this.visualizer.forceRefresh();
+    } catch (error) {
+      console.error('🎨 [ERROR] Failed to initialize visualizer:', error);
+    }
   }
 
   private addResizeHandler() {
     const resizeCanvas = () => {
-      const canvas = document.getElementById('builder-canvas') as HTMLCanvasElement;
+      const canvas = document.getElementById('canvas') as HTMLCanvasElement;
       const visualizerArea = canvas?.parentElement;
       
       if (canvas && visualizerArea) {
@@ -1036,9 +1007,9 @@ export class BuilderPageComponent {
     }
     
     // Remove the canvas element to prevent duplicates
-    const canvas = document.getElementById('builder-canvas');
+    const canvas = document.getElementById('canvas');
     if (canvas) {
-      console.log('🗑️ Builder: Removing builder canvas element');
+      console.log('🗑️ Builder: Removing canvas element');
       canvas.remove();
     }
     

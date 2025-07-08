@@ -3729,7 +3729,7 @@ h1, h2, h3, h4, h5, h6, p, span, div, label {
 .text-muted {
   color: var(--text-secondary) !important;
 }
-`, "",{"version":3,"sources":["webpack://./css/dark-theme.css"],"names":[],"mappings":"AAAA,4CAA4C;AAC5C;EACE,qBAAqB;EACrB,uBAAuB;EACvB,mBAAmB;EACnB,uBAAuB;EACvB,uBAAuB;EACvB,yBAAyB;EACzB,yBAAyB;EACzB,4BAA4B;EAC5B,yBAAyB;EACzB,4BAA4B;EAC5B,sBAAsB;EACtB,yBAAyB;EACzB,yBAAyB;EACzB,4BAA4B;EAC5B,2BAA2B;EAC3B,8BAA8B;EAC9B,wBAAwB;EACxB,2BAA2B;AAC7B;;AAEA,+CAA+C;AAC/C;EACE,8CAA8C;EAC9C,qCAAqC;AACvC;;AAEA;EACE,8CAA8C;AAChD;;AAEA;;EAEE,8CAA8C;AAChD;;AAEA;EACE,gDAAgD;EAChD,uDAAuD;AACzD;;AAEA;EACE,qCAAqC;AACvC;;AAEA;EACE,gDAAgD;EAChD,sDAAsD;AACxD;;AAEA;EACE,4CAA4C;EAC5C,gDAAgD;EAChD,qCAAqC;AACvC;;AAEA;EACE,qCAAqC;EACrC,uDAAuD;AACzD;;AAEA;EACE,8CAA8C;AAChD;;AAEA;EACE,8CAA8C;EAC9C,gDAAgD;AAClD;;AAEA,kBAAkB;AAClB;EACE,kDAAkD;EAClD,qCAAqC;EACrC,kDAAkD;AACpD;AACA;EACE,qDAAqD;AACvD;;AAEA;EACE,kDAAkD;EAClD,qCAAqC;EACrC,kDAAkD;AACpD;AACA;EACE,qDAAqD;AACvD;;AAEA;EACE,+CAA+C;EAC/C,qCAAqC;EACrC,+CAA+C;AACjD;AACA;EACE,kDAAkD;AACpD;;AAEA;EACE,kDAAkD;EAClD,yBAAyB;EACzB,kDAAkD;AACpD;AACA;EACE,qDAAqD;AACvD;;AAEA;EACE,oDAAoD;EACpD,qCAAqC;EACrC,gDAAgD;AAClD;AACA;EACE,uDAAuD;AACzD;;AAEA;EACE,iDAAiD;EACjD,qCAAqC;EACrC,iDAAiD;AACnD;AACA;EACE,oDAAoD;AACtD;;AAEA,0CAA0C;AAC1C;EACE,oCAAoC;EACpC,qCAAqC;EACrC,gDAAgD;AAClD;;AAEA;EACE,8CAA8C;EAC9C,wDAAwD;AAC1D;;AAEA,sCAAsC;AACtC;EACE,gDAAgD;EAChD,qCAAqC;EACrC,gDAAgD;AAClD;;AAEA,uBAAuB;AACvB;EACE,qCAAqC;AACvC;;AAEA;EACE,uCAAuC;AACzC","sourcesContent":["/* Dark Theme CSS for RoadTrafficSimulator */\r\n:root {\r\n  --bg-primary: #1a1a1a;\r\n  --bg-secondary: #2d2d2d;\r\n  --bg-panel: #333333;\r\n  --border-color: #404040;\r\n  --text-primary: #ffffff;\r\n  --text-secondary: #b0b0b0;\r\n  --btn-primary-bg: #375a7f;\r\n  --btn-primary-hover: #2e4c6d;\r\n  --btn-success-bg: #00bc8c;\r\n  --btn-success-hover: #00a085;\r\n  --btn-info-bg: #3498db;\r\n  --btn-info-hover: #2980b9;\r\n  --btn-warning-bg: #f39c12;\r\n  --btn-warning-hover: #e67e22;\r\n  --btn-secondary-bg: #444444;\r\n  --btn-secondary-hover: #555555;\r\n  --btn-danger-bg: #e74c3c;\r\n  --btn-danger-hover: #c0392b;\r\n}\r\n\r\n/* Make sure the dark theme is always applied */\r\nbody, html {\r\n  background-color: var(--bg-primary) !important;\r\n  color: var(--text-primary) !important;\r\n}\r\n\r\n#app-container {\r\n  background-color: var(--bg-primary) !important;\r\n}\r\n\r\n.simulation-page,\r\n.builder-page {\r\n  background-color: var(--bg-primary) !important;\r\n}\r\n\r\n.page-header {\r\n  background-color: var(--bg-secondary) !important;\r\n  border-bottom: 1px solid var(--border-color) !important;\r\n}\r\n\r\n.page-header h2 {\r\n  color: var(--text-primary) !important;\r\n}\r\n\r\n.sidebar {\r\n  background-color: var(--bg-secondary) !important;\r\n  border-right: 1px solid var(--border-color) !important;\r\n}\r\n\r\n.panel {\r\n  background-color: var(--bg-panel) !important;\r\n  border: 1px solid var(--border-color) !important;\r\n  color: var(--text-primary) !important;\r\n}\r\n\r\n.panel h3 {\r\n  color: var(--text-primary) !important;\r\n  border-bottom: 1px solid var(--border-color) !important;\r\n}\r\n\r\n.visualizer-area {\r\n  background-color: var(--bg-primary) !important;\r\n}\r\n\r\n.visualizer-area canvas {\r\n  background-color: var(--bg-primary) !important;\r\n  border: 1px solid var(--border-color) !important;\r\n}\r\n\r\n/* Button styles */\r\n.btn-primary { \r\n  background-color: var(--btn-primary-bg) !important; \r\n  color: var(--text-primary) !important; \r\n  border: 1px solid var(--btn-primary-bg) !important;\r\n}\r\n.btn-primary:hover { \r\n  background-color: var(--btn-primary-hover) !important; \r\n}\r\n\r\n.btn-success { \r\n  background-color: var(--btn-success-bg) !important; \r\n  color: var(--text-primary) !important; \r\n  border: 1px solid var(--btn-success-bg) !important;\r\n}\r\n.btn-success:hover { \r\n  background-color: var(--btn-success-hover) !important; \r\n}\r\n\r\n.btn-info { \r\n  background-color: var(--btn-info-bg) !important; \r\n  color: var(--text-primary) !important; \r\n  border: 1px solid var(--btn-info-bg) !important;\r\n}\r\n.btn-info:hover { \r\n  background-color: var(--btn-info-hover) !important; \r\n}\r\n\r\n.btn-warning { \r\n  background-color: var(--btn-warning-bg) !important; \r\n  color: #212529 !important; \r\n  border: 1px solid var(--btn-warning-bg) !important;\r\n}\r\n.btn-warning:hover { \r\n  background-color: var(--btn-warning-hover) !important; \r\n}\r\n\r\n.btn-secondary { \r\n  background-color: var(--btn-secondary-bg) !important; \r\n  color: var(--text-primary) !important; \r\n  border: 1px solid var(--border-color) !important;\r\n}\r\n.btn-secondary:hover { \r\n  background-color: var(--btn-secondary-hover) !important; \r\n}\r\n\r\n.btn-danger { \r\n  background-color: var(--btn-danger-bg) !important; \r\n  color: var(--text-primary) !important; \r\n  border: 1px solid var(--btn-danger-bg) !important;\r\n}\r\n.btn-danger:hover { \r\n  background-color: var(--btn-danger-hover) !important; \r\n}\r\n\r\n/* Make all form inputs match dark theme */\r\ninput, select, textarea, .form-control {\r\n  background-color: #404040 !important;\r\n  color: var(--text-primary) !important;\r\n  border: 1px solid var(--border-color) !important;\r\n}\r\n\r\ninput:focus, select:focus, textarea:focus, .form-control:focus {\r\n  border-color: var(--btn-primary-bg) !important;\r\n  box-shadow: 0 0 0 2px rgba(55, 90, 127, 0.25) !important;\r\n}\r\n\r\n/* Ensure dark theme for all dialogs */\r\n.modal, .modal-content, .dialog {\r\n  background-color: var(--bg-secondary) !important;\r\n  color: var(--text-primary) !important;\r\n  border: 1px solid var(--border-color) !important;\r\n}\r\n\r\n/* Handle text colors */\r\nh1, h2, h3, h4, h5, h6, p, span, div, label {\r\n  color: var(--text-primary) !important;\r\n}\r\n\r\n.text-muted {\r\n  color: var(--text-secondary) !important;\r\n}\r\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./css/dark-theme.css"],"names":[],"mappings":"AAAA,4CAA4C;AAC5C;EACE,qBAAqB;EACrB,uBAAuB;EACvB,mBAAmB;EACnB,uBAAuB;EACvB,uBAAuB;EACvB,yBAAyB;EACzB,yBAAyB;EACzB,4BAA4B;EAC5B,yBAAyB;EACzB,4BAA4B;EAC5B,sBAAsB;EACtB,yBAAyB;EACzB,yBAAyB;EACzB,4BAA4B;EAC5B,2BAA2B;EAC3B,8BAA8B;EAC9B,wBAAwB;EACxB,2BAA2B;AAC7B;;AAEA,+CAA+C;AAC/C;EACE,8CAA8C;EAC9C,qCAAqC;AACvC;;AAEA;EACE,8CAA8C;AAChD;;AAEA;;EAEE,8CAA8C;AAChD;;AAEA;EACE,gDAAgD;EAChD,uDAAuD;AACzD;;AAEA;EACE,qCAAqC;AACvC;;AAEA;EACE,gDAAgD;EAChD,sDAAsD;AACxD;;AAEA;EACE,4CAA4C;EAC5C,gDAAgD;EAChD,qCAAqC;AACvC;;AAEA;EACE,qCAAqC;EACrC,uDAAuD;AACzD;;AAEA;EACE,8CAA8C;AAChD;;AAEA;EACE,8CAA8C;EAC9C,gDAAgD;AAClD;;AAEA,kBAAkB;AAClB;EACE,kDAAkD;EAClD,qCAAqC;EACrC,kDAAkD;AACpD;AACA;EACE,qDAAqD;AACvD;;AAEA;EACE,kDAAkD;EAClD,qCAAqC;EACrC,kDAAkD;AACpD;AACA;EACE,qDAAqD;AACvD;;AAEA;EACE,+CAA+C;EAC/C,qCAAqC;EACrC,+CAA+C;AACjD;AACA;EACE,kDAAkD;AACpD;;AAEA;EACE,kDAAkD;EAClD,yBAAyB;EACzB,kDAAkD;AACpD;AACA;EACE,qDAAqD;AACvD;;AAEA;EACE,oDAAoD;EACpD,qCAAqC;EACrC,gDAAgD;AAClD;AACA;EACE,uDAAuD;AACzD;;AAEA;EACE,iDAAiD;EACjD,qCAAqC;EACrC,iDAAiD;AACnD;AACA;EACE,oDAAoD;AACtD;;AAEA,0CAA0C;AAC1C;EACE,oCAAoC;EACpC,qCAAqC;EACrC,gDAAgD;AAClD;;AAEA;EACE,8CAA8C;EAC9C,wDAAwD;AAC1D;;AAEA,sCAAsC;AACtC;EACE,gDAAgD;EAChD,qCAAqC;EACrC,gDAAgD;AAClD;;AAEA,uBAAuB;AACvB;EACE,qCAAqC;AACvC;;AAEA;EACE,uCAAuC;AACzC","sourcesContent":["/* Dark Theme CSS for RoadTrafficSimulator */\n:root {\n  --bg-primary: #1a1a1a;\n  --bg-secondary: #2d2d2d;\n  --bg-panel: #333333;\n  --border-color: #404040;\n  --text-primary: #ffffff;\n  --text-secondary: #b0b0b0;\n  --btn-primary-bg: #375a7f;\n  --btn-primary-hover: #2e4c6d;\n  --btn-success-bg: #00bc8c;\n  --btn-success-hover: #00a085;\n  --btn-info-bg: #3498db;\n  --btn-info-hover: #2980b9;\n  --btn-warning-bg: #f39c12;\n  --btn-warning-hover: #e67e22;\n  --btn-secondary-bg: #444444;\n  --btn-secondary-hover: #555555;\n  --btn-danger-bg: #e74c3c;\n  --btn-danger-hover: #c0392b;\n}\n\n/* Make sure the dark theme is always applied */\nbody, html {\n  background-color: var(--bg-primary) !important;\n  color: var(--text-primary) !important;\n}\n\n#app-container {\n  background-color: var(--bg-primary) !important;\n}\n\n.simulation-page,\n.builder-page {\n  background-color: var(--bg-primary) !important;\n}\n\n.page-header {\n  background-color: var(--bg-secondary) !important;\n  border-bottom: 1px solid var(--border-color) !important;\n}\n\n.page-header h2 {\n  color: var(--text-primary) !important;\n}\n\n.sidebar {\n  background-color: var(--bg-secondary) !important;\n  border-right: 1px solid var(--border-color) !important;\n}\n\n.panel {\n  background-color: var(--bg-panel) !important;\n  border: 1px solid var(--border-color) !important;\n  color: var(--text-primary) !important;\n}\n\n.panel h3 {\n  color: var(--text-primary) !important;\n  border-bottom: 1px solid var(--border-color) !important;\n}\n\n.visualizer-area {\n  background-color: var(--bg-primary) !important;\n}\n\n.visualizer-area canvas {\n  background-color: var(--bg-primary) !important;\n  border: 1px solid var(--border-color) !important;\n}\n\n/* Button styles */\n.btn-primary { \n  background-color: var(--btn-primary-bg) !important; \n  color: var(--text-primary) !important; \n  border: 1px solid var(--btn-primary-bg) !important;\n}\n.btn-primary:hover { \n  background-color: var(--btn-primary-hover) !important; \n}\n\n.btn-success { \n  background-color: var(--btn-success-bg) !important; \n  color: var(--text-primary) !important; \n  border: 1px solid var(--btn-success-bg) !important;\n}\n.btn-success:hover { \n  background-color: var(--btn-success-hover) !important; \n}\n\n.btn-info { \n  background-color: var(--btn-info-bg) !important; \n  color: var(--text-primary) !important; \n  border: 1px solid var(--btn-info-bg) !important;\n}\n.btn-info:hover { \n  background-color: var(--btn-info-hover) !important; \n}\n\n.btn-warning { \n  background-color: var(--btn-warning-bg) !important; \n  color: #212529 !important; \n  border: 1px solid var(--btn-warning-bg) !important;\n}\n.btn-warning:hover { \n  background-color: var(--btn-warning-hover) !important; \n}\n\n.btn-secondary { \n  background-color: var(--btn-secondary-bg) !important; \n  color: var(--text-primary) !important; \n  border: 1px solid var(--border-color) !important;\n}\n.btn-secondary:hover { \n  background-color: var(--btn-secondary-hover) !important; \n}\n\n.btn-danger { \n  background-color: var(--btn-danger-bg) !important; \n  color: var(--text-primary) !important; \n  border: 1px solid var(--btn-danger-bg) !important;\n}\n.btn-danger:hover { \n  background-color: var(--btn-danger-hover) !important; \n}\n\n/* Make all form inputs match dark theme */\ninput, select, textarea, .form-control {\n  background-color: #404040 !important;\n  color: var(--text-primary) !important;\n  border: 1px solid var(--border-color) !important;\n}\n\ninput:focus, select:focus, textarea:focus, .form-control:focus {\n  border-color: var(--btn-primary-bg) !important;\n  box-shadow: 0 0 0 2px rgba(55, 90, 127, 0.25) !important;\n}\n\n/* Ensure dark theme for all dialogs */\n.modal, .modal-content, .dialog {\n  background-color: var(--bg-secondary) !important;\n  color: var(--text-primary) !important;\n  border: 1px solid var(--border-color) !important;\n}\n\n/* Handle text colors */\nh1, h2, h3, h4, h5, h6, p, span, div, label {\n  color: var(--text-primary) !important;\n}\n\n.text-muted {\n  color: var(--text-secondary) !important;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -3900,7 +3900,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* dat-gui overrides for single panel 
 .dg .c .slider:hover {
     background: #586e75 !important;
 }
-`, "",{"version":3,"sources":["webpack://./css/dat-gui.css"],"names":[],"mappings":"AAAA,8CAA8C;;AAE9C;IACI,yBAAyB;IACzB,4BAA4B;IAC5B,wBAAwB;IACxB,0BAA0B;IAC1B,oBAAoB;IACpB,sBAAsB;IACtB,2BAA2B;IAC3B,uBAAuB;IACvB,4CAA4C;IAC5C,oCAAoC;IACpC,6BAA6B;IAC7B,oDAAoD;AACxD;;AAEA,kCAAkC;AAClC;IACI,4BAA4B;IAC5B,uBAAuB;IACvB,2BAA2B;IAC3B,2BAA2B;AAC/B;;AAEA,wCAAwC;AACxC;IACI,2BAA2B;IAC3B,oBAAoB;IACpB,uBAAuB;IACvB,sBAAsB;IACtB,6BAA6B;AACjC;;AAEA,6BAA6B;AAC7B;IACI,sBAAsB;IACtB,6BAA6B;IAC7B,4BAA4B;IAC5B,uBAAuB;IACvB,2BAA2B;IAC3B,8BAA8B;IAC9B,2CAA2C;IAC3C,6BAA6B;IAC7B,6BAA6B;IAC7B,2BAA2B;AAC/B;;AAEA;IACI,8BAA8B;IAC9B,2BAA2B;AAC/B;;AAEA,wDAAwD;AACxD;IACI,uBAAuB;IACvB,oBAAoB;IACpB,qBAAqB;IACrB,kCAAkC;AACtC;AACA,yBAAyB;AACzB;IACI,oCAAoC;IACpC,6BAA6B;AACjC;;AAEA;;;IAGI,8BAA8B;AAClC;;AAEA,wBAAwB;AACxB;IACI,8BAA8B;IAC9B,yBAAyB;IACzB,oCAAoC;IACpC,6BAA6B;IAC7B,2BAA2B;AAC/B;;AAEA;IACI,8BAA8B;IAC9B,gCAAgC;AACpC;;AAEA;IACI,8BAA8B;IAC9B,gCAAgC;IAChC,wBAAwB;AAC5B;;AAEA,mBAAmB;AACnB;IACI,8BAA8B;IAC9B,6BAA6B;AACjC;;AAEA;IACI,8BAA8B;AAClC;;AAEA,iCAAiC;AACjC;IACI,6BAA6B;IAC7B,8BAA8B;AAClC;;AAEA;IACI,8BAA8B;AAClC;;AAEA,0BAA0B;AAC1B;IACI,yBAAyB;IACzB,8BAA8B;AAClC;;AAEA,wBAAwB;AACxB;IACI,2BAA2B;AAC/B;;AAEA,yBAAyB;AACzB;IACI,8BAA8B;IAC9B,yBAAyB;IACzB,oCAAoC;IACpC,6BAA6B;AACjC;;AAEA,qBAAqB;AACrB;IACI,4BAA4B;AAChC;;AAEA,mBAAmB;AACnB;IACI,8BAA8B;AAClC;;AAEA;IACI,8BAA8B;AAClC","sourcesContent":["/* dat-gui overrides for single panel layout */\r\n\r\n.dg {\r\n    color: #93a1a1 !important;\r\n    text-shadow: none !important;\r\n    z-index: 1000 !important;\r\n    position: fixed !important;\r\n    top: 10px !important;\r\n    right: 10px !important;\r\n    max-width: 280px !important;\r\n    width: 280px !important;\r\n    background: rgba(0, 43, 54, 0.95) !important;\r\n    border: 2px solid #073642 !important;\r\n    border-radius: 6px !important;\r\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;\r\n}\r\n\r\n/* Main container - single panel */\r\n.dg.main {\r\n    overflow: visible !important;\r\n    height: auto !important;\r\n    max-height: 85vh !important;\r\n    overflow-y: auto !important;\r\n}\r\n\r\n/* List styling for clean single panel */\r\n.dg ul {\r\n    list-style: none !important;\r\n    margin: 0 !important;\r\n    padding: 8px !important;\r\n    clear: both !important;\r\n    position: relative !important;\r\n}\r\n\r\n/* Individual control items */\r\n.dg li {\r\n    clear: both !important;\r\n    position: relative !important;\r\n    line-height: 32px !important;\r\n    height: auto !important;\r\n    min-height: 32px !important;\r\n    background: #002b36 !important;\r\n    border-bottom: 1px solid #073642 !important;\r\n    margin-bottom: 3px !important;\r\n    border-radius: 4px !important;\r\n    padding: 2px 4px !important;\r\n}\r\n\r\n.dg li:last-child {\r\n    border-bottom: none !important;\r\n    margin-bottom: 0 !important;\r\n}\r\n\r\n/* Remove folder styling since we're not using folders */\r\n.dg .folder {\r\n    border: none !important;\r\n    margin: 0 !important;\r\n    padding: 0 !important;\r\n    background: transparent !important;\r\n}\r\n/* Close button styling */\r\n.dg.main .close-button {\r\n    background-color: #002b36 !important;\r\n    border-radius: 4px !important;\r\n}\r\n\r\n.dg.main .close-button:hover,\r\n.dg .cr.function:hover,\r\n.dg .cr.boolean:hover {\r\n    background: #073642 !important;\r\n}\r\n\r\n/* Input field styling */\r\n.dg .c input[type=text] {\r\n    background: #073642 !important;\r\n    color: #93a1a1 !important;\r\n    border: 1px solid #586e75 !important;\r\n    border-radius: 3px !important;\r\n    padding: 2px 4px !important;\r\n}\r\n\r\n.dg .c input[type=text]:hover {\r\n    background: #586e75 !important;\r\n    border-color: #93a1a1 !important;\r\n}\r\n\r\n.dg .c input[type=text]:focus {\r\n    background: #073642 !important;\r\n    border-color: #268bd2 !important;\r\n    outline: none !important;\r\n}\r\n\r\n/* Slider styling */\r\n.dg .c .slider {\r\n    background: #073642 !important;\r\n    border-radius: 3px !important;\r\n}\r\n\r\n.dg .c .slider:hover {\r\n    background: #586e75 !important;\r\n}\r\n\r\n/* Button styling for functions */\r\n.dg .cr.function {\r\n    border-radius: 3px !important;\r\n    background: #002b36 !important;\r\n}\r\n\r\n.dg .cr.function:hover {\r\n    background: #073642 !important;\r\n}\r\n\r\n/* Property name styling */\r\n.dg .property-name {\r\n    color: #93a1a1 !important;\r\n    font-weight: normal !important;\r\n}\r\n\r\n/* Control row padding */\r\n.dg .cr {\r\n    padding: 4px 8px !important;\r\n}\r\n\r\n/* Number input styling */\r\n.dg .c input[type=number] {\r\n    background: #073642 !important;\r\n    color: #93a1a1 !important;\r\n    border: 1px solid #586e75 !important;\r\n    border-radius: 3px !important;\r\n}\r\n\r\n/* Checkbox styling */\r\n.dg .c input[type=checkbox] {\r\n    margin-right: 8px !important;\r\n}\r\n\r\n/* Slider styling */\r\n.dg .c .slider {\r\n    background: #073642 !important;\r\n}\r\n\r\n.dg .c .slider:hover {\r\n    background: #586e75 !important;\r\n}\r\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./css/dat-gui.css"],"names":[],"mappings":"AAAA,8CAA8C;;AAE9C;IACI,yBAAyB;IACzB,4BAA4B;IAC5B,wBAAwB;IACxB,0BAA0B;IAC1B,oBAAoB;IACpB,sBAAsB;IACtB,2BAA2B;IAC3B,uBAAuB;IACvB,4CAA4C;IAC5C,oCAAoC;IACpC,6BAA6B;IAC7B,oDAAoD;AACxD;;AAEA,kCAAkC;AAClC;IACI,4BAA4B;IAC5B,uBAAuB;IACvB,2BAA2B;IAC3B,2BAA2B;AAC/B;;AAEA,wCAAwC;AACxC;IACI,2BAA2B;IAC3B,oBAAoB;IACpB,uBAAuB;IACvB,sBAAsB;IACtB,6BAA6B;AACjC;;AAEA,6BAA6B;AAC7B;IACI,sBAAsB;IACtB,6BAA6B;IAC7B,4BAA4B;IAC5B,uBAAuB;IACvB,2BAA2B;IAC3B,8BAA8B;IAC9B,2CAA2C;IAC3C,6BAA6B;IAC7B,6BAA6B;IAC7B,2BAA2B;AAC/B;;AAEA;IACI,8BAA8B;IAC9B,2BAA2B;AAC/B;;AAEA,wDAAwD;AACxD;IACI,uBAAuB;IACvB,oBAAoB;IACpB,qBAAqB;IACrB,kCAAkC;AACtC;AACA,yBAAyB;AACzB;IACI,oCAAoC;IACpC,6BAA6B;AACjC;;AAEA;;;IAGI,8BAA8B;AAClC;;AAEA,wBAAwB;AACxB;IACI,8BAA8B;IAC9B,yBAAyB;IACzB,oCAAoC;IACpC,6BAA6B;IAC7B,2BAA2B;AAC/B;;AAEA;IACI,8BAA8B;IAC9B,gCAAgC;AACpC;;AAEA;IACI,8BAA8B;IAC9B,gCAAgC;IAChC,wBAAwB;AAC5B;;AAEA,mBAAmB;AACnB;IACI,8BAA8B;IAC9B,6BAA6B;AACjC;;AAEA;IACI,8BAA8B;AAClC;;AAEA,iCAAiC;AACjC;IACI,6BAA6B;IAC7B,8BAA8B;AAClC;;AAEA;IACI,8BAA8B;AAClC;;AAEA,0BAA0B;AAC1B;IACI,yBAAyB;IACzB,8BAA8B;AAClC;;AAEA,wBAAwB;AACxB;IACI,2BAA2B;AAC/B;;AAEA,yBAAyB;AACzB;IACI,8BAA8B;IAC9B,yBAAyB;IACzB,oCAAoC;IACpC,6BAA6B;AACjC;;AAEA,qBAAqB;AACrB;IACI,4BAA4B;AAChC;;AAEA,mBAAmB;AACnB;IACI,8BAA8B;AAClC;;AAEA;IACI,8BAA8B;AAClC","sourcesContent":["/* dat-gui overrides for single panel layout */\n\n.dg {\n    color: #93a1a1 !important;\n    text-shadow: none !important;\n    z-index: 1000 !important;\n    position: fixed !important;\n    top: 10px !important;\n    right: 10px !important;\n    max-width: 280px !important;\n    width: 280px !important;\n    background: rgba(0, 43, 54, 0.95) !important;\n    border: 2px solid #073642 !important;\n    border-radius: 6px !important;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;\n}\n\n/* Main container - single panel */\n.dg.main {\n    overflow: visible !important;\n    height: auto !important;\n    max-height: 85vh !important;\n    overflow-y: auto !important;\n}\n\n/* List styling for clean single panel */\n.dg ul {\n    list-style: none !important;\n    margin: 0 !important;\n    padding: 8px !important;\n    clear: both !important;\n    position: relative !important;\n}\n\n/* Individual control items */\n.dg li {\n    clear: both !important;\n    position: relative !important;\n    line-height: 32px !important;\n    height: auto !important;\n    min-height: 32px !important;\n    background: #002b36 !important;\n    border-bottom: 1px solid #073642 !important;\n    margin-bottom: 3px !important;\n    border-radius: 4px !important;\n    padding: 2px 4px !important;\n}\n\n.dg li:last-child {\n    border-bottom: none !important;\n    margin-bottom: 0 !important;\n}\n\n/* Remove folder styling since we're not using folders */\n.dg .folder {\n    border: none !important;\n    margin: 0 !important;\n    padding: 0 !important;\n    background: transparent !important;\n}\n/* Close button styling */\n.dg.main .close-button {\n    background-color: #002b36 !important;\n    border-radius: 4px !important;\n}\n\n.dg.main .close-button:hover,\n.dg .cr.function:hover,\n.dg .cr.boolean:hover {\n    background: #073642 !important;\n}\n\n/* Input field styling */\n.dg .c input[type=text] {\n    background: #073642 !important;\n    color: #93a1a1 !important;\n    border: 1px solid #586e75 !important;\n    border-radius: 3px !important;\n    padding: 2px 4px !important;\n}\n\n.dg .c input[type=text]:hover {\n    background: #586e75 !important;\n    border-color: #93a1a1 !important;\n}\n\n.dg .c input[type=text]:focus {\n    background: #073642 !important;\n    border-color: #268bd2 !important;\n    outline: none !important;\n}\n\n/* Slider styling */\n.dg .c .slider {\n    background: #073642 !important;\n    border-radius: 3px !important;\n}\n\n.dg .c .slider:hover {\n    background: #586e75 !important;\n}\n\n/* Button styling for functions */\n.dg .cr.function {\n    border-radius: 3px !important;\n    background: #002b36 !important;\n}\n\n.dg .cr.function:hover {\n    background: #073642 !important;\n}\n\n/* Property name styling */\n.dg .property-name {\n    color: #93a1a1 !important;\n    font-weight: normal !important;\n}\n\n/* Control row padding */\n.dg .cr {\n    padding: 4px 8px !important;\n}\n\n/* Number input styling */\n.dg .c input[type=number] {\n    background: #073642 !important;\n    color: #93a1a1 !important;\n    border: 1px solid #586e75 !important;\n    border-radius: 3px !important;\n}\n\n/* Checkbox styling */\n.dg .c input[type=checkbox] {\n    margin-right: 8px !important;\n}\n\n/* Slider styling */\n.dg .c .slider {\n    background: #073642 !important;\n}\n\n.dg .c .slider:hover {\n    background: #586e75 !important;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -3988,9 +3988,7 @@ body.allow-scroll {
     background: #1a1a1a;
 }
 
-#canvas,
-#builder-canvas,
-#simulation-canvas {
+#canvas {
     padding: 0;
     margin: 0;
     position: relative;
@@ -4046,53 +4044,11 @@ button, .btn {
     z-index: 20;
 }
 
-/* Checkbox styling */
-.checkbox-container {
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-}
-
-.checkbox {
-    margin-right: 8px;
-    cursor: pointer;
-    width: 16px;
-    height: 16px;
-}
-
-.checkbox-container label {
-    cursor: pointer;
-    user-select: none;
-}
-
-/* Use a custom checkbox style that fits dark theme */
-input[type="checkbox"] {
-    appearance: none;
-    background-color: #333;
-    border: 1px solid #555;
-    border-radius: 3px;
-    position: relative;
-}
-
-input[type="checkbox"]:checked {
-    background-color: #4a90e2;
-    border-color: #4a90e2;
-}
-
-input[type="checkbox"]:checked:after {
-    content: '✓';
-    font-size: 12px;
-    position: absolute;
-    top: 0;
-    left: 3px;
-    color: white;
-}
-
 /* Debug helper - can be removed later */
 /* * { background-color: rgba(255, 0, 0, 0.1); } */
 /* * * { background-color: rgba(0, 255, 0, 0.2); } */
 /* * * * { background-color: rgba(0, 0, 255, 0.3); } */
-`, "",{"version":3,"sources":["webpack://./css/style.css"],"names":[],"mappings":"AAAA;IACI,UAAU;IACV,SAAS;IACT,mBAAmB,EAAE,oBAAoB;IACzC,cAAc,EAAE,eAAe;IAC/B,yGAAyG;IACzG,YAAY;IACZ,WAAW;IACX,gBAAgB,EAAE,sBAAsB;AAC5C;;AAEA,qDAAqD;AACrD;IACI,cAAc;AAClB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,aAAa;IACb,YAAY;IACZ,gBAAgB,EAAE,gCAAgC;IAClD,mBAAmB,EAAE,oBAAoB;AAC7C;;AAEA,iCAAiC;AACjC;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;IACd,kBAAkB;IAClB,YAAY;IACZ,mBAAmB,EAAE,oBAAoB;IACzC,gCAAgC;AACpC;;AAEA;IACI,OAAO;IACP,gBAAgB,EAAE,6BAA6B;IAC/C,kBAAkB;IAClB,0BAA0B,EAAE,iCAAiC;IAC7D,mBAAmB;AACvB;;AAEA,kCAAkC;AAClC;IACI,cAAc;AAClB;;AAEA,iDAAiD;AACjD;;IAEI,YAAY;IACZ,WAAW;IACX,gBAAgB;IAChB,kBAAkB;IAClB,mBAAmB;AACvB;;AAEA;;;IAGI,UAAU;IACV,SAAS;IACT,kBAAkB;IAClB,UAAU;IACV,oBAAoB;IACpB,cAAc;IACd,mBAAmB;IACnB,yBAAyB;IACzB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,OAAO;IACP,kBAAkB;IAClB,iBAAiB;IACjB,mBAAmB;IACnB,aAAa;IACb,mBAAmB;IACnB,uBAAuB;AAC3B;;AAEA;IACI,sBAAsB;IACtB,uBAAuB;IACvB,0BAA0B;IAC1B,2BAA2B;IAC3B,8BAA8B;IAC9B,yBAAyB;IACzB,yBAAyB;AAC7B;;AAEA;;IAEI,aAAa;IACb,YAAY;AAChB;;AAEA;IACI,YAAY;IACZ,mBAAmB;IACnB,+BAA+B;IAC/B,gBAAgB;IAChB,oBAAoB;IACpB,WAAW;AACf;;AAEA,wCAAwC;AACxC;IACI,oBAAoB;IACpB,eAAe;IACf,kBAAkB;IAClB,WAAW;AACf;;AAEA,qBAAqB;AACrB;IACI,cAAc;IACd,aAAa;IACb,mBAAmB;AACvB;;AAEA;IACI,iBAAiB;IACjB,eAAe;IACf,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,eAAe;IACf,iBAAiB;AACrB;;AAEA,qDAAqD;AACrD;IACI,gBAAgB;IAChB,sBAAsB;IACtB,sBAAsB;IACtB,kBAAkB;IAClB,kBAAkB;AACtB;;AAEA;IACI,yBAAyB;IACzB,qBAAqB;AACzB;;AAEA;IACI,YAAY;IACZ,eAAe;IACf,kBAAkB;IAClB,MAAM;IACN,SAAS;IACT,YAAY;AAChB;;AAEA,wCAAwC;AACxC,kDAAkD;AAClD,oDAAoD;AACpD,sDAAsD","sourcesContent":["body, html {\r\n    padding: 0;\r\n    margin: 0;\r\n    background: #1a1a1a; /* Dark background */\r\n    color: #ffffff; /* White text */\r\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\r\n    height: 100%;\r\n    width: 100%;\r\n    overflow: hidden; /* Default to hidden */\r\n}\r\n\r\n/* Style for pages where we want to allow scrolling */\r\nbody.allow-scroll {\r\n    overflow: auto;\r\n}\r\n\r\n#app-container {\r\n    display: flex;\r\n    flex-direction: column;\r\n    height: 100vh;\r\n    width: 100vw;\r\n    overflow: hidden; /* Prevent overflow by default */\r\n    background: #1a1a1a; /* Dark background */\r\n}\r\n\r\n/* Allow scrolling on home page */\r\n.allow-scroll #app-container {\r\n    overflow: auto;\r\n}\r\n\r\n#nav-container {\r\n    flex-shrink: 0;\r\n    position: relative;\r\n    z-index: 100;\r\n    background: #2d2d2d; /* Dark navigation */\r\n    border-bottom: 1px solid #404040;\r\n}\r\n\r\n#main-content {\r\n    flex: 1;\r\n    overflow: hidden; /* Hide overflow by default */\r\n    position: relative;\r\n    height: calc(100vh - 60px); /* Reserve space for navigation */\r\n    background: #1a1a1a;\r\n}\r\n\r\n/* Allow scrolling for home page */\r\n.allow-scroll #main-content {\r\n    overflow: auto;\r\n}\r\n\r\n/* Ensure pages fill their container completely */\r\n.builder-page,\r\n.simulation-page {\r\n    height: 100%;\r\n    width: 100%;\r\n    overflow: hidden;\r\n    position: relative;\r\n    background: #1a1a1a;\r\n}\r\n\r\n#canvas,\r\n#builder-canvas,\r\n#simulation-canvas {\r\n    padding: 0;\r\n    margin: 0;\r\n    position: relative;\r\n    z-index: 1;\r\n    pointer-events: auto;\r\n    display: block;\r\n    background: #2d2d2d;\r\n    border: 1px solid #404040;\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.visualizer-area {\r\n    flex: 1;\r\n    position: relative;\r\n    min-height: 600px;\r\n    background: #2d2d2d;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n}\r\n\r\n.visualizer-area canvas {\r\n    width: 100% !important;\r\n    height: 100% !important;\r\n    max-width: 100% !important;\r\n    max-height: 100% !important;\r\n    background: #2d2d2d !important;\r\n    border: 1px solid #404040;\r\n    display: block !important;\r\n}\r\n\r\n.builder-content,\r\n.simulation-content {\r\n    display: flex;\r\n    height: 100%;\r\n}\r\n\r\n.sidebar {\r\n    width: 280px;\r\n    background: #2d2d2d;\r\n    border-right: 1px solid #404040;\r\n    overflow-y: auto;\r\n    pointer-events: auto;\r\n    z-index: 10;\r\n}\r\n\r\n/* Ensure buttons are always clickable */\r\nbutton, .btn {\r\n    pointer-events: auto;\r\n    cursor: pointer;\r\n    position: relative;\r\n    z-index: 20;\r\n}\r\n\r\n/* Checkbox styling */\r\n.checkbox-container {\r\n    margin: 10px 0;\r\n    display: flex;\r\n    align-items: center;\r\n}\r\n\r\n.checkbox {\r\n    margin-right: 8px;\r\n    cursor: pointer;\r\n    width: 16px;\r\n    height: 16px;\r\n}\r\n\r\n.checkbox-container label {\r\n    cursor: pointer;\r\n    user-select: none;\r\n}\r\n\r\n/* Use a custom checkbox style that fits dark theme */\r\ninput[type=\"checkbox\"] {\r\n    appearance: none;\r\n    background-color: #333;\r\n    border: 1px solid #555;\r\n    border-radius: 3px;\r\n    position: relative;\r\n}\r\n\r\ninput[type=\"checkbox\"]:checked {\r\n    background-color: #4a90e2;\r\n    border-color: #4a90e2;\r\n}\r\n\r\ninput[type=\"checkbox\"]:checked:after {\r\n    content: '✓';\r\n    font-size: 12px;\r\n    position: absolute;\r\n    top: 0;\r\n    left: 3px;\r\n    color: white;\r\n}\r\n\r\n/* Debug helper - can be removed later */\r\n/* * { background-color: rgba(255, 0, 0, 0.1); } */\r\n/* * * { background-color: rgba(0, 255, 0, 0.2); } */\r\n/* * * * { background-color: rgba(0, 0, 255, 0.3); } */\r\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./css/style.css"],"names":[],"mappings":"AAAA;IACI,UAAU;IACV,SAAS;IACT,mBAAmB,EAAE,oBAAoB;IACzC,cAAc,EAAE,eAAe;IAC/B,yGAAyG;IACzG,YAAY;IACZ,WAAW;IACX,gBAAgB,EAAE,sBAAsB;AAC5C;;AAEA,qDAAqD;AACrD;IACI,cAAc;AAClB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,aAAa;IACb,YAAY;IACZ,gBAAgB,EAAE,gCAAgC;IAClD,mBAAmB,EAAE,oBAAoB;AAC7C;;AAEA,iCAAiC;AACjC;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;IACd,kBAAkB;IAClB,YAAY;IACZ,mBAAmB,EAAE,oBAAoB;IACzC,gCAAgC;AACpC;;AAEA;IACI,OAAO;IACP,gBAAgB,EAAE,6BAA6B;IAC/C,kBAAkB;IAClB,0BAA0B,EAAE,iCAAiC;IAC7D,mBAAmB;AACvB;;AAEA,kCAAkC;AAClC;IACI,cAAc;AAClB;;AAEA,iDAAiD;AACjD;;IAEI,YAAY;IACZ,WAAW;IACX,gBAAgB;IAChB,kBAAkB;IAClB,mBAAmB;AACvB;;AAEA;IACI,UAAU;IACV,SAAS;IACT,kBAAkB;IAClB,UAAU;IACV,oBAAoB;IACpB,cAAc;IACd,mBAAmB;IACnB,yBAAyB;IACzB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,OAAO;IACP,kBAAkB;IAClB,iBAAiB;IACjB,mBAAmB;IACnB,aAAa;IACb,mBAAmB;IACnB,uBAAuB;AAC3B;;AAEA;IACI,sBAAsB;IACtB,uBAAuB;IACvB,0BAA0B;IAC1B,2BAA2B;IAC3B,8BAA8B;IAC9B,yBAAyB;IACzB,yBAAyB;AAC7B;;AAEA;;IAEI,aAAa;IACb,YAAY;AAChB;;AAEA;IACI,YAAY;IACZ,mBAAmB;IACnB,+BAA+B;IAC/B,gBAAgB;IAChB,oBAAoB;IACpB,WAAW;AACf;;AAEA,wCAAwC;AACxC;IACI,oBAAoB;IACpB,eAAe;IACf,kBAAkB;IAClB,WAAW;AACf;;AAEA,wCAAwC;AACxC,kDAAkD;AAClD,oDAAoD;AACpD,sDAAsD","sourcesContent":["body, html {\n    padding: 0;\n    margin: 0;\n    background: #1a1a1a; /* Dark background */\n    color: #ffffff; /* White text */\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n    height: 100%;\n    width: 100%;\n    overflow: hidden; /* Default to hidden */\n}\n\n/* Style for pages where we want to allow scrolling */\nbody.allow-scroll {\n    overflow: auto;\n}\n\n#app-container {\n    display: flex;\n    flex-direction: column;\n    height: 100vh;\n    width: 100vw;\n    overflow: hidden; /* Prevent overflow by default */\n    background: #1a1a1a; /* Dark background */\n}\n\n/* Allow scrolling on home page */\n.allow-scroll #app-container {\n    overflow: auto;\n}\n\n#nav-container {\n    flex-shrink: 0;\n    position: relative;\n    z-index: 100;\n    background: #2d2d2d; /* Dark navigation */\n    border-bottom: 1px solid #404040;\n}\n\n#main-content {\n    flex: 1;\n    overflow: hidden; /* Hide overflow by default */\n    position: relative;\n    height: calc(100vh - 60px); /* Reserve space for navigation */\n    background: #1a1a1a;\n}\n\n/* Allow scrolling for home page */\n.allow-scroll #main-content {\n    overflow: auto;\n}\n\n/* Ensure pages fill their container completely */\n.builder-page,\n.simulation-page {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n    position: relative;\n    background: #1a1a1a;\n}\n\n#canvas {\n    padding: 0;\n    margin: 0;\n    position: relative;\n    z-index: 1;\n    pointer-events: auto;\n    display: block;\n    background: #2d2d2d;\n    border: 1px solid #404040;\n    width: 100%;\n    height: 100%;\n}\n\n.visualizer-area {\n    flex: 1;\n    position: relative;\n    min-height: 600px;\n    background: #2d2d2d;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.visualizer-area canvas {\n    width: 100% !important;\n    height: 100% !important;\n    max-width: 100% !important;\n    max-height: 100% !important;\n    background: #2d2d2d !important;\n    border: 1px solid #404040;\n    display: block !important;\n}\n\n.builder-content,\n.simulation-content {\n    display: flex;\n    height: 100%;\n}\n\n.sidebar {\n    width: 280px;\n    background: #2d2d2d;\n    border-right: 1px solid #404040;\n    overflow-y: auto;\n    pointer-events: auto;\n    z-index: 10;\n}\n\n/* Ensure buttons are always clickable */\nbutton, .btn {\n    pointer-events: auto;\n    cursor: pointer;\n    position: relative;\n    z-index: 20;\n}\n\n/* Debug helper - can be removed later */\n/* * { background-color: rgba(255, 0, 0, 0.1); } */\n/* * * { background-color: rgba(0, 255, 0, 0.2); } */\n/* * * * { background-color: rgba(0, 0, 255, 0.3); } */\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -21680,21 +21636,10 @@ class LocalStorage {
             throw new Error('Failed to save layout to local storage');
         }
     }
-    /**
-     * Load a specific layout by its ID
-     * @param id The ID of the layout to load
-     */
-    async loadLayout(id) {
+    async loadLayout() {
         try {
-            // If no ID provided, return the current layout (backward compatibility)
-            if (!id) {
-                const data = localStorage.getItem(this.CURRENT_LAYOUT_KEY);
-                return data ? JSON.parse(data) : null;
-            }
-            // Otherwise, find layout by ID from all layouts
-            const layouts = await this.loadAllLayouts();
-            const layout = layouts.find((l) => l.id === id);
-            return layout || null;
+            const data = localStorage.getItem(this.CURRENT_LAYOUT_KEY);
+            return data ? JSON.parse(data) : null;
         }
         catch (error) {
             console.error('Failed to load layout:', error);
@@ -21946,6 +21891,52 @@ class Car {
         return nextLane;
     }
 }
+// Set up properties using the CoffeeScript-style property decorator
+Car.property('coords', {
+    get: function () {
+        return this.trajectory.coords;
+    }
+});
+Car.property('speed', {
+    get: function () {
+        return this._speed;
+    },
+    set: function (speed) {
+        if (speed < 0)
+            speed = 0;
+        if (speed > this.maxSpeed)
+            speed = this.maxSpeed;
+        this._speed = speed;
+    }
+});
+Car.property('direction', {
+    get: function () {
+        return this.trajectory.direction;
+    }
+});
+// Set up properties using the CoffeeScript-style property decorator
+Car.property('coords', {
+    get: function () {
+        return this.trajectory.coords;
+    }
+});
+Car.property('speed', {
+    get: function () {
+        return this._speed;
+    },
+    set: function (speed) {
+        if (speed < 0)
+            speed = 0;
+        if (speed > this.maxSpeed)
+            speed = this.maxSpeed;
+        this._speed = speed;
+    }
+});
+Car.property('direction', {
+    get: function () {
+        return this.trajectory.direction;
+    }
+});
 module.exports = Car;
 
 
@@ -22118,7 +22109,6 @@ class Intersection {
             controlSignals: this.controlSignals
         };
     }
-    // Update all connected roads when intersection properties change
     update() {
         for (const road of this.roads) {
             road.update();
@@ -22127,26 +22117,7 @@ class Intersection {
             road.update();
         }
     }
-    // Get outgoing roads (used for route planning)
-    getOutgoingRoads() {
-        return this.roads.slice();
-    }
-    // Get incoming roads (used for signal control)
-    getIncomingRoads() {
-        return this.inRoads.slice();
-    }
 }
-// Set up properties using the CoffeeScript-style property decorator
-Intersection.property('getOutgoingRoads', {
-    get: function () {
-        return this.roads.slice();
-    }
-});
-Intersection.property('getIncomingRoads', {
-    get: function () {
-        return this.inRoads.slice();
-    }
-});
 module.exports = Intersection;
 
 
@@ -22176,33 +22147,29 @@ class LanePosition {
     set lane(lane) {
         this.release();
         this._lane = lane;
-        // Don't automatically acquire - this is done explicitly by the trajectory
+        // this.acquire();
     }
     get relativePosition() {
         return this.position / this.lane.length;
     }
-    // Mark this position as occupied on the lane
     acquire() {
         if (this.lane && this.lane.addCarPosition) {
             this.free = false;
             this.lane.addCarPosition(this);
         }
     }
-    // Release this position on the lane
     release() {
         if (!this.free && this.lane && this.lane.removeCar) {
             this.free = true;
             this.lane.removeCar(this);
         }
     }
-    // Find the next car ahead on this lane
     getNext() {
         if (this.lane && !this.free) {
             return this.lane.getNext(this);
         }
         return null;
     }
-    // Calculate the distance to the next car ahead
     get nextCarDistance() {
         const next = this.getNext();
         if (next) {
@@ -22227,7 +22194,7 @@ LanePosition.property('lane', {
     set: function (lane) {
         this.release();
         this._lane = lane;
-        // Don't automatically acquire - this is done explicitly by the trajectory
+        // this.acquire();
     }
 });
 LanePosition.property('relativePosition', {
@@ -22720,7 +22687,6 @@ class Trajectory {
             console.error('🚗 [TRAJ ERROR] Error in moveForward:', error);
         }
     }
-    // Change to an adjacent lane on the same road
     changeLane(nextLane) {
         if (this.isChangingLanes) {
             throw new Error('already changing lane');
@@ -23319,52 +23285,26 @@ class BuilderPageComponent {
             return;
         }
         console.log('🎨 [DEBUG] Initializing new visualizer...');
-        // Wait for DOM to be fully rendered before initializing visualizer
-        setTimeout(() => {
-            try {
-                // Ensure canvas exists and is properly sized
-                const canvas = document.getElementById('builder-canvas');
-                if (!canvas) {
-                    console.error('🎨 [ERROR] Builder canvas element not found in DOM');
-                    return;
-                }
-                // Make sure canvas has proper dimensions before creating visualizer
-                const container = canvas.parentElement;
-                if (container) {
-                    const rect = container.getBoundingClientRect();
-                    canvas.width = Math.max(rect.width, 800);
-                    canvas.height = Math.max(rect.height, 600);
-                    canvas.style.width = '100%';
-                    canvas.style.height = '100%';
-                }
-                // Create new visualizer with the world
-                this.visualizer = new Visualizer(this.world, 'builder-canvas');
-                // Set builder mode FIRST
-                this.visualizer.isBuilderMode = true;
-                // Ensure zooming is at a reasonable level
-                if (this.visualizer.zoomer) {
-                    this.visualizer.zoomer.defaultZoom = 4;
-                    this.visualizer.zoomer.scale = 1;
-                }
-                console.log('🎨 [DEBUG] Visualizer initialized successfully');
-                // Force initial draw with grid - use multiple attempts to ensure rendering
-                setTimeout(() => {
-                    if (this.visualizer) {
-                        // Ensure we start the animation loop so the grid is drawn continuously
-                        this.visualizer.start();
-                        // Also force a single frame draw immediately
-                        this.visualizer.drawSingleFrame();
-                    }
-                }, 100);
+        try {
+            // Create new visualizer with the world
+            this.visualizer = new Visualizer(this.world, 'builder-canvas');
+            // Set builder mode
+            this.visualizer.isBuilderMode = true;
+            // Ensure zooming is at a reasonable level
+            if (this.visualizer.zoomer) {
+                this.visualizer.zoomer.defaultZoom = 4;
             }
-            catch (error) {
-                console.error('🎨 [ERROR] Failed to initialize visualizer:', error);
-            }
-        }, 50);
+            console.log('🎨 [DEBUG] Visualizer initialized successfully');
+            // Do a single draw to show the initial state
+            this.visualizer.forceRefresh();
+        }
+        catch (error) {
+            console.error('🎨 [ERROR] Failed to initialize visualizer:', error);
+        }
     }
     addResizeHandler() {
         const resizeCanvas = () => {
-            const canvas = document.getElementById('builder-canvas');
+            const canvas = document.getElementById('canvas');
             const visualizerArea = canvas === null || canvas === void 0 ? void 0 : canvas.parentElement;
             if (canvas && visualizerArea) {
                 const rect = visualizerArea.getBoundingClientRect();
@@ -24118,9 +24058,9 @@ class BuilderPageComponent {
             this.world = null;
         }
         // Remove the canvas element to prevent duplicates
-        const canvas = document.getElementById('builder-canvas');
+        const canvas = document.getElementById('canvas');
         if (canvas) {
-            console.log('🗑️ Builder: Removing builder canvas element');
+            console.log('🗑️ Builder: Removing canvas element');
             canvas.remove();
         }
         // Clear the container
@@ -24760,7 +24700,6 @@ const AppState_1 = __webpack_require__(/*! ../core/AppState */ "./src/core/AppSt
 const World = __webpack_require__(/*! ../model/world */ "./src/model/world.ts");
 const Visualizer = __webpack_require__(/*! ../visualizer/visualizer */ "./src/visualizer/visualizer.ts");
 const _ = __webpack_require__(/*! underscore */ "./node_modules/underscore/modules/index-all.js");
-const settings = __webpack_require__(/*! ../settings */ "./src/settings.ts");
 /**
  * Simulation page for running traffic simulations
  */
@@ -24856,18 +24795,6 @@ class SimulationPageComponent {
                 <label for="time-factor-range">Time Factor: <span id="time-factor-value">1.0</span>x</label>
                 <input type="range" id="time-factor-range" min="0.1" max="5" step="0.1" value="1" class="slider">
               </div>
-              
-              <div class="control-group">
-                <label for="lights-flip-interval">Lights Flip Interval: <span id="lights-flip-value">160</span></label>
-                <input type="range" id="lights-flip-interval" min="20" max="400" step="10" value="160" class="slider">
-              </div>
-              
-              <div class="control-group">
-                <div class="checkbox-container">
-                  <input type="checkbox" id="debug-toggle" class="checkbox">
-                  <label for="debug-toggle">Show Debug Information</label>
-                </div>
-              </div>
             </div>
             
             <!-- Analytics Panel -->
@@ -24909,30 +24836,12 @@ class SimulationPageComponent {
               </div>
             </div>
             
-            <!-- Traffic Pattern Controls -->
-            <div class="panel">
-              <h3>Traffic Pattern</h3>
-              <div class="control-group">
-                <label for="traffic-pattern">Select Pattern:</label>
-                <select id="traffic-pattern" class="form-control">
-                  <option value="random">Random</option>
-                  <option value="heavy">Heavy Traffic</option>
-                  <option value="light">Light Traffic</option>
-                  <option value="rush-hour">Rush Hour</option>
-                </select>
-              </div>
-              <button id="apply-pattern" class="btn btn-secondary btn-block">
-                Apply Pattern
-              </button>
-            </div>
-            
             <!-- Instructions -->
             <div class="panel">
               <h3>Instructions</h3>
               <ul class="instructions">
                 <li>Select a saved layout or use the current one</li>
                 <li>Adjust the number of cars and simulation speed</li>
-                <li>Modify the traffic light timing as needed</li>
                 <li>Click Start to begin the simulation</li>
                 <li>Monitor real-time analytics</li>
                 <li>Save analytics for later analysis</li>
@@ -24948,7 +24857,7 @@ class SimulationPageComponent {
     `;
     }
     addEventListeners() {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e;
         // Toggle panels
         (_a = document.getElementById('toggle-analytics')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
             const panel = document.getElementById('analytics-panel');
@@ -24962,8 +24871,7 @@ class SimulationPageComponent {
         (_c = document.getElementById('reset-simulation')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.resetSimulation());
         (_d = document.getElementById('load-layout')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.showLoadDialog());
         (_e = document.getElementById('save-analytics')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => this.saveAnalytics());
-        (_f = document.getElementById('apply-pattern')) === null || _f === void 0 ? void 0 : _f.addEventListener('click', () => this.applyTrafficPattern());
-        // Cars slider
+        // Sliders
         const carsRange = document.getElementById('cars-range');
         const carsValue = document.getElementById('cars-value');
         carsRange === null || carsRange === void 0 ? void 0 : carsRange.addEventListener('input', (e) => {
@@ -24973,7 +24881,6 @@ class SimulationPageComponent {
                 this.world.carsNumber = parseInt(value);
             }
         });
-        // Time factor slider
         const timeFactorRange = document.getElementById('time-factor-range');
         const timeFactorValue = document.getElementById('time-factor-value');
         timeFactorRange === null || timeFactorRange === void 0 ? void 0 : timeFactorRange.addEventListener('input', (e) => {
@@ -24983,87 +24890,40 @@ class SimulationPageComponent {
                 this.visualizer.timeFactor = value;
             }
         });
-        // Lights flip interval slider
-        const lightsFlipRange = document.getElementById('lights-flip-interval');
-        const lightsFlipValue = document.getElementById('lights-flip-value');
-        lightsFlipRange === null || lightsFlipRange === void 0 ? void 0 : lightsFlipRange.addEventListener('input', (e) => {
-            const value = parseInt(e.target.value);
-            lightsFlipValue.textContent = value.toString();
-            // Update the global setting for traffic light timing
-            settings.lightsFlipInterval = value;
-            // Visual feedback
-            lightsFlipValue.style.fontWeight = 'bold';
-            setTimeout(() => {
-                lightsFlipValue.style.fontWeight = 'normal';
-            }, 500);
-        });
-        // Debug information toggle
-        const debugToggle = document.getElementById('debug-toggle');
-        debugToggle === null || debugToggle === void 0 ? void 0 : debugToggle.addEventListener('change', () => {
-            if (this.visualizer) {
-                this.visualizer.debug.enabled = debugToggle.checked;
-                this.visualizer.debug.showIds = debugToggle.checked;
-                console.log(`Debug mode ${debugToggle.checked ? 'enabled' : 'disabled'}`);
-            }
-        });
     }
     async initializeSimulation() {
+        var _a, _b, _c;
+        console.log('🌍 Initializing world for simulation...');
         try {
-            // Create new world instance
             this.world = new World();
-            // Create a default road network if none exists
-            if (!localStorage.world) {
-                this.world.generateMap();
-                this.world.carsNumber = 100;
+            // Start with completely empty world for simulation - user loads layouts manually
+            this.world.clear();
+            this.world.carsNumber = 0;
+            // Ensure no cars are spawned initially
+            if (this.world.cars && this.world.cars.clear) {
+                this.world.cars.clear();
             }
-            else {
-                // Load existing world
-                this.world.load();
-            }
-            // Initialize visualizer
-            this.visualizer = new Visualizer(this.world, 'simulation-canvas');
-            // Important: Configure visualizer for simulation mode (not builder mode)
-            this.visualizer.setMode(false); // false = simulation mode
-            // Set initial values for controls
-            this.updateControlValues();
-            // Start the simulation
-            this.visualizer.start();
-            this.isRunning = true;
-            // Start analytics update
-            this.startAnalyticsUpdates();
-            // Update UI to reflect the simulation is running
-            const toggleButton = document.getElementById('toggle-simulation');
-            if (toggleButton) {
-                toggleButton.innerHTML = '⏸️ Pause Simulation';
-                toggleButton.classList.remove('btn-success');
-                toggleButton.classList.add('btn-warning');
-            }
+            console.log('🌍 World initialized with:', {
+                intersections: Object.keys(((_a = this.world.intersections) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
+                roads: Object.keys(((_b = this.world.roads) === null || _b === void 0 ? void 0 : _b.all()) || {}).length,
+                cars: this.world.carsNumber,
+                actualCars: ((_c = this.world.cars) === null || _c === void 0 ? void 0 : _c.length) || 0
+            });
+            // Initialize visualizer only when DOM is fully ready
+            // Use requestAnimationFrame for better timing with DOM rendering
+            requestAnimationFrame(() => {
+                if (document.getElementById('simulation-canvas')) {
+                    this.initializeVisualizer();
+                }
+                else {
+                    console.error('❌ Canvas element not ready, trying again in 100ms');
+                    // Fallback to setTimeout if element isn't ready yet
+                    setTimeout(() => this.initializeVisualizer(), 100);
+                }
+            });
         }
         catch (error) {
-            console.error('Failed to initialize simulation:', error);
-        }
-    }
-    updateControlValues() {
-        // Update car count slider
-        const carsRange = document.getElementById('cars-range');
-        const carsValue = document.getElementById('cars-value');
-        if (carsRange && carsValue) {
-            carsRange.value = String(this.world.carsNumber);
-            carsValue.textContent = String(this.world.carsNumber);
-        }
-        // Update time factor slider
-        const timeFactorRange = document.getElementById('time-factor-range');
-        const timeFactorValue = document.getElementById('time-factor-value');
-        if (timeFactorRange && timeFactorValue && this.visualizer) {
-            timeFactorRange.value = String(this.visualizer.timeFactor);
-            timeFactorValue.textContent = String(this.visualizer.timeFactor);
-        }
-        // Update lights flip interval slider
-        const lightsFlipRange = document.getElementById('lights-flip-interval');
-        const lightsFlipValue = document.getElementById('lights-flip-value');
-        if (lightsFlipRange && lightsFlipValue) {
-            lightsFlipRange.value = String(settings.lightsFlipInterval);
-            lightsFlipValue.textContent = String(settings.lightsFlipInterval);
+            console.error('🚨 Failed to initialize simulation world:', error);
         }
     }
     destroyVisualizer() {
@@ -25093,10 +24953,15 @@ class SimulationPageComponent {
     initializeVisualizer() {
         const canvas = document.getElementById('simulation-canvas');
         if (!canvas) {
-            console.error('❌ Simulation canvas not found in DOM during simulation initialization');
+            console.error('❌ Canvas not found in DOM during simulation initialization');
             return;
         }
         console.log('🎨 Initializing simulation visualizer...');
+        // Destroy existing visualizer to prevent conflicts
+        if (this.visualizer) {
+            console.log('🎨 Destroying existing visualizer before creating new one');
+            this.destroyVisualizer();
+        }
         // Set canvas size based on container
         const visualizerArea = canvas.parentElement;
         if (visualizerArea) {
@@ -25115,6 +24980,13 @@ class SimulationPageComponent {
       `;
         }
         try {
+            // Verify canvas exists one more time and that it has a valid parent element
+            const canvas = document.getElementById('simulation-canvas');
+            const parent = canvas === null || canvas === void 0 ? void 0 : canvas.parentElement;
+            if (!canvas || !parent) {
+                console.error('❌ Canvas or parent container not found before visualizer creation');
+                return;
+            }
             // Create visualizer in SIMULATION MODE
             this.visualizer = new Visualizer(this.world, 'simulation-canvas');
             // SIMULATION MODE: Start with no cars and no simulation running
@@ -25122,29 +24994,19 @@ class SimulationPageComponent {
             if (this.world.cars && this.world.cars.clear) {
                 this.world.cars.clear();
             }
-            // Set to simulation mode first before binding tools
+            // Set to simulation mode but don't start simulation automatically
             this.visualizer.isBuilderMode = false;
-            // Explicitly rebind tools with simulation mode settings to prevent flickering
-            if (typeof this.visualizer.bindTools === 'function') {
-                this.visualizer.bindTools();
-            }
-            // Don't start the animation loop automatically - let user control it
+            // Start the visualizer for rendering but not simulation
+            this.visualizer.start();
+            // Ensure simulation is NOT running initially
             this.visualizer.running = false;
-            this.isRunning = false;
-            // Draw a single frame to show the current state
-            setTimeout(() => {
-                if (this.visualizer) {
-                    this.visualizer.drawSingleFrame();
-                }
-            }, 100);
             this.isRunning = false;
             // Start analytics updates
             this.startAnalyticsUpdates();
             // Force initial draw after a short delay
             setTimeout(() => {
-                if (this.visualizer) {
-                    // Use proper method to force a redraw without animation
-                    this.visualizer.forceRedraw();
+                if (this.visualizer && this.visualizer.drawSingleFrame) {
+                    this.visualizer.drawSingleFrame();
                 }
             }, 200);
             console.log('✅ Simulation visualizer initialized successfully (not running)');
@@ -25158,23 +25020,28 @@ class SimulationPageComponent {
     addResizeHandler() {
         const resizeCanvas = () => {
             const canvas = document.getElementById('simulation-canvas');
-            const visualizerArea = canvas === null || canvas === void 0 ? void 0 : canvas.parentElement;
-            if (canvas && visualizerArea) {
-                const rect = visualizerArea.getBoundingClientRect();
-                const targetWidth = Math.max(rect.width || 800, 400);
-                const targetHeight = Math.max(rect.height || 600, 300);
-                canvas.width = targetWidth;
-                canvas.height = targetHeight;
-                console.log('🎨 Simulation: Canvas resized to:', targetWidth, 'x', targetHeight);
-                // Redraw after resize
-                if (this.visualizer) {
-                    setTimeout(() => {
-                        if (this.visualizer) {
-                            // Use proper method to force a redraw without animation
-                            this.visualizer.forceRedraw();
-                        }
-                    }, 100);
-                }
+            if (!canvas) {
+                console.warn('⚠️ Canvas not found during resize operation');
+                return;
+            }
+            const visualizerArea = canvas.parentElement;
+            if (!visualizerArea) {
+                console.warn('⚠️ Canvas parent element not found during resize');
+                return;
+            }
+            // Get the current dimensions of the container
+            const rect = visualizerArea.getBoundingClientRect();
+            const targetWidth = Math.max(rect.width || 800, 400);
+            const targetHeight = Math.max(rect.height || 600, 300);
+            // Update canvas dimensions
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            console.log('🎨 Simulation: Canvas resized to:', targetWidth, 'x', targetHeight);
+            // Redraw after resize using requestAnimationFrame for better timing
+            if (this.visualizer && this.visualizer.drawSingleFrame) {
+                requestAnimationFrame(() => {
+                    this.visualizer.drawSingleFrame();
+                });
             }
         };
         // Debounced resize handler
@@ -25184,108 +25051,31 @@ class SimulationPageComponent {
             resizeTimeout = setTimeout(resizeCanvas, 150);
         });
     }
-    async loadLayoutById(layoutId) {
-        try {
-            console.log('🔄 [SIM DEBUG] Loading layout:', layoutId);
-            // Stop any running simulation first
-            if (this.isRunning && this.visualizer) {
-                this.visualizer.stop();
-                this.isRunning = false;
-            }
-            const layout = await AppState_1.appState.storage.loadLayout(layoutId);
-            if (layout && this.world) {
-                console.log('🔄 [SIM DEBUG] Layout data loaded, applying to world...');
-                // Clear the world first
-                this.world.clear();
-                // Load the layout data
+    async loadSelectedLayout() {
+        var _a, _b, _c;
+        const select = document.getElementById('layout-select');
+        const layoutId = select === null || select === void 0 ? void 0 : select.value;
+        if (!layoutId)
+            return;
+        const layout = this.layouts.find(l => l.id === layoutId);
+        if (layout && this.world) {
+            try {
                 this.world.load(JSON.stringify(layout.data));
-                // Set car count from slider but don't spawn cars yet
-                const carsRange = document.getElementById('cars-range');
-                this.world.carsNumber = parseInt((carsRange === null || carsRange === void 0 ? void 0 : carsRange.value) || '100');
-                console.log('🔄 [SIM DEBUG] Layout loaded, reinitializing visualizer...');
-                // Destroy and recreate visualizer to ensure clean state
-                if (this.visualizer) {
-                    this.destroyVisualizer();
+                this.world.carsNumber = parseInt(((_a = document.getElementById('cars-range')) === null || _a === void 0 ? void 0 : _a.value) || '100');
+                this.updateAnalytics();
+                this.showNotification('Layout loaded successfully!');
+                // Always re-initialize the visualizer after loading a layout
+                this.initializeVisualizer();
+                // Restart visualizer if running
+                if (this.isRunning) {
+                    (_b = this.visualizer) === null || _b === void 0 ? void 0 : _b.stop();
+                    (_c = this.visualizer) === null || _c === void 0 ? void 0 : _c.start();
                 }
-                // Wait a bit for cleanup then reinitialize
-                setTimeout(() => {
-                    this.initializeVisualizer();
-                    this.updateAnalytics();
-                    this.showNotification('Layout loaded successfully!');
-                }, 100);
             }
-        }
-        catch (error) {
-            console.error('Failed to load layout:', error);
-            this.showNotification('Failed to load layout!', 'error');
-        }
-    }
-    async showLoadDialog() {
-        var _a, _b;
-        try {
-            // Refresh layouts list
-            await this.loadLayouts();
-            if (this.layouts.length === 0) {
-                this.showNotification('No layouts available to load. Create one in the Builder first!', 'warning');
-                return;
+            catch (error) {
+                console.error('Failed to load layout:', error);
+                this.showNotification('Failed to load layout!', 'error');
             }
-            // Remove any existing modal dialogs first
-            const existingDialogs = document.querySelectorAll('.modal-dialog, .modal-overlay');
-            existingDialogs.forEach(dialog => dialog.remove());
-            // Create modal dialog with consistent styling to match BuilderPage
-            const dialog = document.createElement('div');
-            dialog.className = 'modal-overlay';
-            dialog.innerHTML = `
-        <div class="modal-dialog modal-large">
-          <div class="modal-header">
-            <h3>Load Layout</h3>
-            <button class="close-btn" id="close-load-dialog">×</button>
-          </div>
-          <div class="modal-body">
-            <p>Select a layout to load:</p>
-            <div class="layout-grid">
-              ${this.layouts.map(layout => `
-                <div class="layout-card" data-layout-id="${layout.id}">
-                  <div class="layout-info">
-                    <h4>${layout.name || 'Unnamed Layout'}</h4>
-                    <small>Created: ${new Date(layout.timestamp || layout.createdAt).toLocaleString()}</small>
-                  </div>
-                  <div class="layout-actions">
-                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load</button>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
-          </div>
-        </div>
-      `;
-            // Add to document
-            document.body.appendChild(dialog);
-            // Set up event handlers
-            (_a = document.getElementById('close-load-dialog')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
-                dialog.remove();
-            });
-            (_b = document.getElementById('cancel-load')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
-                dialog.remove();
-            });
-            // Set up load buttons
-            const loadButtons = dialog.querySelectorAll('.load-layout-btn');
-            loadButtons.forEach(button => {
-                button.addEventListener('click', async (event) => {
-                    const layoutId = event.currentTarget.getAttribute('data-layout-id');
-                    if (layoutId) {
-                        await this.loadLayoutById(layoutId);
-                        dialog.remove();
-                    }
-                });
-            });
-        }
-        catch (error) {
-            console.error('Failed to show load dialog:', error);
-            this.showNotification('Error showing layout dialog!', 'error');
         }
     }
     toggleSimulation() {
@@ -25299,12 +25089,8 @@ class SimulationPageComponent {
         if (this.isRunning) {
             console.log('🎮 [SIM] Stopping simulation');
             // Stop simulation (pause)
-            this.visualizer.stop(); // Use proper stop method
+            this.visualizer.running = false;
             this.isRunning = false;
-            // Keep the canvas visible by doing a single frame draw
-            setTimeout(() => {
-                this.visualizer.drawSingleFrame();
-            }, 10);
             if (button) {
                 button.innerHTML = '▶️ Start Simulation';
                 button.className = 'btn btn-success btn-block';
@@ -25341,16 +25127,9 @@ class SimulationPageComponent {
                 console.log('🎮 [SIM] Setting time factor to', factor);
                 this.visualizer.timeFactor = factor;
             }
-            // Apply traffic light interval from slider
-            const lightsFlipSlider = document.getElementById('lights-flip-interval');
-            if (lightsFlipSlider) {
-                const interval = parseInt(lightsFlipSlider.value || '160');
-                console.log('🎮 [SIM] Setting lights flip interval to', interval);
-                settings.lightsFlipInterval = interval;
-            }
             // Start the animation loop
             console.log('🎮 [SIM] Setting visualizer.running = true');
-            this.visualizer.start(); // Use proper start method
+            this.visualizer.running = true;
             this.isRunning = true;
             if (button) {
                 button.innerHTML = '⏸️ Pause Simulation';
@@ -25387,12 +25166,7 @@ class SimulationPageComponent {
             }
             // 1. Stop the simulation and animation loop
             console.log('🔄 [SIM DEBUG] Stopping simulation and animation');
-            if (this.visualizer.stop) {
-                this.visualizer.stop();
-            }
-            else {
-                this.visualizer.running = false;
-            }
+            this.visualizer.running = false;
             this.isRunning = false;
             // 2. Properly clean up visualizer (stop all animation loops)
             console.log('🔄 [SIM DEBUG] Destroying visualizer');
@@ -25458,6 +25232,14 @@ class SimulationPageComponent {
             }, 2000);
         }
     }
+    startAnalyticsUpdates() {
+        if (this.analyticsInterval) {
+            clearInterval(this.analyticsInterval);
+        }
+        this.analyticsInterval = window.setInterval(() => {
+            this.updateAnalytics();
+        }, 1000);
+    }
     updateAnalytics() {
         var _a, _b, _c;
         if (!this.world)
@@ -25486,291 +25268,500 @@ class SimulationPageComponent {
         if (simulationTimeEl)
             simulationTimeEl.textContent = this.analytics.simulationTime.toFixed(1) + 's';
     }
-    startAnalyticsUpdates() {
-        // Clear any existing interval
-        if (this.analyticsInterval) {
-            clearInterval(this.analyticsInterval);
+    /**
+     * Shows a notification message to the user
+     * @param message Message to display
+     * @param type Optional type ('info', 'success', 'warning', 'error')
+     * @param duration Time in ms to show the notification
+     */
+    showNotification(message, type = 'info', duration = 3000) {
+        // Check if a notification container exists, if not create it
+        let notificationContainer = document.getElementById('notification-container');
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'notification-container';
+            notificationContainer.style.position = 'fixed';
+            notificationContainer.style.top = '20px';
+            notificationContainer.style.right = '20px';
+            notificationContainer.style.zIndex = '9999';
+            document.body.appendChild(notificationContainer);
         }
-        // Update analytics every second
-        this.analyticsInterval = setInterval(() => {
-            this.updateAnalytics();
-        }, 1000);
-    }
-    saveAnalytics() {
-        var _a, _b;
-        try {
-            if (!this.world) {
-                this.showNotification('No simulation data to save!', 'error');
-                return;
-            }
-            // Generate timestamp for the filename
-            const timestamp = new Date().toISOString().replace(/:/g, '-').substring(0, 19);
-            // Create analytics data object
-            const analyticsData = {
-                timestamp: new Date().toISOString(),
-                metrics: this.analytics,
-                worldState: {
-                    carCount: this.world.carsNumber,
-                    intersectionCount: Object.keys(((_a = this.world.intersections) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
-                    roadCount: Object.keys(((_b = this.world.roads) === null || _b === void 0 ? void 0 : _b.all()) || {}).length,
-                }
-            };
-            // Convert to JSON string
-            const jsonData = JSON.stringify(analyticsData, null, 2);
-            // Create a download link
-            const blob = new Blob([jsonData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `traffic-sim-analytics-${timestamp}.json`;
-            // Trigger the download
-            document.body.appendChild(link);
-            link.click();
-            // Clean up
-            setTimeout(() => {
-                URL.revokeObjectURL(url);
-                document.body.removeChild(link);
-            }, 100);
-            this.showNotification('Analytics saved successfully!', 'success');
-        }
-        catch (error) {
-            console.error('Failed to save analytics:', error);
-            this.showNotification('Failed to save analytics!', 'error');
-        }
-    }
-    applyTrafficPattern() {
-        const patternSelect = document.getElementById('traffic-pattern');
-        const pattern = patternSelect.value;
-        if (!this.world) {
-            this.showNotification('World not initialized!', 'error');
-            return;
-        }
-        // Get current car count slider
-        const carsSlider = document.getElementById('cars-range');
-        const timeFactorSlider = document.getElementById('time-factor-range');
-        const lightsFlipSlider = document.getElementById('lights-flip-interval');
-        let carCount = 100;
-        let timeFactor = 1.0;
-        let flipInterval = 160;
-        // Apply different patterns based on selection
-        switch (pattern) {
-            case 'heavy':
-                carCount = 180;
-                timeFactor = 1.2;
-                flipInterval = 220;
-                break;
-            case 'light':
-                carCount = 50;
-                timeFactor = 2.0;
-                flipInterval = 100;
-                break;
-            case 'rush-hour':
-                carCount = 200;
-                timeFactor = 0.8;
-                flipInterval = 300;
-                break;
-            default: // random
-                carCount = Math.floor(Math.random() * 150) + 50; // 50-200
-                timeFactor = Math.random() * 2 + 0.5; // 0.5-2.5
-                flipInterval = Math.floor(Math.random() * 300) + 50; // 50-350
-        }
-        // Update sliders and apply values
-        carsSlider.value = carCount.toString();
-        document.getElementById('cars-value').textContent = carCount.toString();
-        this.world.carsNumber = carCount;
-        timeFactorSlider.value = timeFactor.toString();
-        document.getElementById('time-factor-value').textContent = timeFactor.toFixed(1);
-        if (this.visualizer) {
-            this.visualizer.timeFactor = timeFactor;
-        }
-        lightsFlipSlider.value = flipInterval.toString();
-        document.getElementById('lights-flip-value').textContent = flipInterval.toString();
-        settings.lightsFlipInterval = flipInterval;
-        // Show notification
-        this.showNotification(`Applied ${pattern} traffic pattern!`, 'success');
-    }
-    // Utility function for showing notifications
-    showNotification(message, type = 'success') {
+        // Create notification element
         const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
+        notification.className = 'notification ' + type;
+        notification.style.backgroundColor = this.getNotificationColor(type);
+        notification.style.color = '#fff';
+        notification.style.padding = '10px 15px';
+        notification.style.margin = '5px 0';
+        notification.style.borderRadius = '4px';
+        notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+        notification.style.transition = 'all 0.3s ease';
+        notification.style.opacity = '0';
         notification.textContent = message;
-        document.body.appendChild(notification);
-        // Animate in
+        // Add to container
+        notificationContainer.appendChild(notification);
+        // Fade in
         setTimeout(() => {
             notification.style.opacity = '1';
-            notification.style.transform = 'translateY(0)';
         }, 10);
-        // Remove after timeout
+        // Remove after duration
         setTimeout(() => {
             notification.style.opacity = '0';
-            notification.style.transform = 'translateY(-20px)';
             setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 500);
-        }, 3000);
+                notification.remove();
+            }, 300);
+        }, duration);
     }
-    // Helper method to ensure a CSS file is loaded
-    ensureCssFileLoaded(id, href) {
-        return new Promise((resolve) => {
-            // Check if the CSS file is already loaded
-            let styleLink = document.getElementById(id);
-            if (!styleLink) {
-                // Create new link if it doesn't exist
-                styleLink = document.createElement('link');
-                styleLink.id = id;
-                styleLink.rel = 'stylesheet';
-                styleLink.href = href;
-                document.head.appendChild(styleLink);
-                // Resolve when loaded
-                styleLink.onload = () => {
-                    console.log(`🎨 [SIM] CSS file loaded: ${href}`);
-                    resolve();
-                };
-                // Also resolve after timeout in case onload doesn't fire
-                setTimeout(resolve, 50);
-            }
-            else {
-                // Already exists, ensure it's in the head and has correct href
-                if (styleLink.href !== href) {
-                    styleLink.href = href;
-                }
-                resolve();
-            }
-        });
-    }
-    addStyles() {
-        console.log('🎨 [SIM] Applying simulation page styles');
-        // 1. Add simulation-specific class to body immediately
-        document.body.className = 'simulation-mode no-scroll';
-        // 2. Apply direct styling to critical elements for immediate effect
-        document.body.style.backgroundColor = '#1a1a1a';
-        document.body.style.color = '#ffffff';
-        // 3. Ensure core CSS files are loaded in the right order
-        // Load these CSS files with our improved loader
-        Promise.all([
-            this.ensureCssFileLoaded('style-css', 'css/style.css'),
-            this.ensureCssFileLoaded('dat-gui-css', 'css/dat-gui.css'),
-            this.ensureCssFileLoaded('dark-theme-css', 'css/dark-theme.css')
-        ]).then(() => {
-            console.log('🎨 [SIM] All CSS files loaded');
-        });
-        // 4. Apply panel-specific styles
-        const additionalStyles = document.createElement('style');
-        additionalStyles.textContent = `
-      .panel {
-        background-color: #2d2d2d !important;
-        border: 1px solid #404040 !important;
-        border-radius: 4px !important;
-        padding: 15px !important;
-        margin-bottom: 15px !important;
-      }
-      .btn-primary {
-        background-color: #375a7f !important;
-        border-color: #375a7f !important;
-        color: white !important;
-      }
-      .btn-info {
-        background-color: #3498db !important;
-        border-color: #3498db !important;
-        color: white !important;
-      }
-      .btn-success {
-        background-color: #00bc8c !important;
-        border-color: #00bc8c !important;
-        color: white !important;
-      }
-      .btn-warning {
-        background-color: #f39c12 !important;
-        border-color: #f39c12 !important;
-        color: white !important;
-      }
-      .btn-secondary {
-        background-color: #444444 !important;
-        border-color: #444444 !important;
-        color: white !important;
-      }
-    `;
-        document.head.appendChild(additionalStyles);
-        // 5. Force a reflow to apply styles immediately - BUT DO IT GENTLY
-        setTimeout(() => {
-            console.log('🎨 [SIM] Applying consistent styling');
-            // Apply class to sidebar panels
-            const panels = document.querySelectorAll('.panel');
-            panels.forEach(panel => {
-                panel.classList.add('styled-panel');
-            });
-            // Apply styles to buttons
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                if (!button.className.includes('styled-button')) {
-                    button.classList.add('styled-button');
-                }
-            });
-        }, 100);
-    }
-    // Helper method to ensure CSS files are loaded
-    ensureCssFile(id, href) {
-        let linkElement = document.getElementById(id);
-        if (!linkElement) {
-            linkElement = document.createElement('link');
-            linkElement.id = id;
-            linkElement.rel = 'stylesheet';
-            linkElement.href = href;
-            document.head.appendChild(linkElement);
-            console.log(`🎨 [SIM] Added CSS: ${href}`);
-        }
-        else {
-            // Ensure it's the last one (highest precedence)
-            document.head.appendChild(linkElement);
-            console.log(`🎨 [SIM] Reordered CSS: ${href}`);
+    getNotificationColor(type) {
+        switch (type) {
+            case 'success': return '#4caf50';
+            case 'warning': return '#ff9800';
+            case 'error': return '#f44336';
+            default: return '#2196f3'; // info
         }
     }
     /**
-     * Cleanup method when navigating away from this page
+     * Adds CSS styles required for the simulation page
+     */
+    addStyles() {
+        // Avoid duplicate style elements
+        if (document.getElementById('simulation-page-styles')) {
+            return;
+        }
+        // Force dark theme styles to be applied
+        document.body.classList.add('dark-theme');
+        const styleElement = document.createElement('style');
+        styleElement.id = 'simulation-page-styles';
+        styleElement.innerHTML = `
+      .simulation-page {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      
+      .page-header {
+        padding: 15px;
+        background-color: #2d2d2d;
+        border-bottom: 1px solid #404040;
+      }
+      
+      .page-header h2 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 24px;
+      }
+      
+      .simulation-content {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+      
+      .sidebar {
+        width: 280px;
+        overflow-y: auto;
+        background-color: #2d2d2d;
+        border-right: 1px solid #404040;
+        padding: 10px;
+      }
+      
+      .panel {
+        background-color: #333333;
+        border: 1px solid #404040;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        padding: 10px;
+      }
+      
+      .panel h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 16px;
+        border-bottom: 1px solid #404040;
+        padding-bottom: 5px;
+        color: #ffffff;
+      }
+      
+      .visualizer-area {
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+        background: #1a1a1a;
+      }
+      
+      .visualizer-area canvas {
+        width: 100%;
+        height: 100%;
+        background: #1a1a1a;
+      }
+      
+      .control-group {
+        margin-bottom: 10px;
+      }
+      
+      .btn {
+        display: inline-block;
+        padding: 6px 12px;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.5;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        border: 1px solid transparent;
+        border-radius: 4px;
+      }
+      
+      .btn-block {
+        display: block;
+        width: 100%;
+      }
+      
+      .btn-primary { background-color: #375a7f; color: white; border: 1px solid #375a7f; }
+      .btn-primary:hover { background-color: #2e4c6d; }
+      .btn-success { background-color: #00bc8c; color: white; border: 1px solid #00bc8c; }
+      .btn-success:hover { background-color: #00a085; }
+      .btn-info { background-color: #3498db; color: white; border: 1px solid #3498db; }
+      .btn-info:hover { background-color: #2980b9; }
+      .btn-warning { background-color: #f39c12; color: #212529; border: 1px solid #f39c12; }
+      .btn-warning:hover { background-color: #e67e22; }
+      .btn-secondary { background-color: #444444; color: white; border: 1px solid #666666; }
+      .btn-secondary:hover { background-color: #555555; }
+      
+      .slider {
+        width: 100%;
+      }
+      
+      .analytics {
+        margin-top: 10px;
+      }
+      
+      .metric {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+      
+      .instructions {
+        padding-left: 20px;
+        margin-top: 0;
+      }
+      
+      .instructions li {
+        margin-bottom: 5px;
+      }
+    `;
+        document.head.appendChild(styleElement);
+    }
+    /**
+     * Saves current simulation analytics data
+     */
+    async saveAnalytics() {
+        var _a, _b, _c;
+        try {
+            if (!this.world) {
+                this.showNotification('No simulation data to save', 'warning');
+                return;
+            }
+            // Generate filename based on time
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `traffic-sim-analytics-${timestamp}.json`;
+            // Create and save analytics data
+            const analyticsData = {
+                timestamp: new Date().toISOString(),
+                metrics: this.analytics,
+                layout: {
+                    roads: Object.keys(((_a = this.world.roads) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
+                    intersections: Object.keys(((_b = this.world.intersections) === null || _b === void 0 ? void 0 : _b.all()) || {}).length
+                },
+                simulation: {
+                    time: this.world.time || 0,
+                    carCount: Object.keys(((_c = this.world.cars) === null || _c === void 0 ? void 0 : _c.all()) || {}).length
+                }
+            };
+            // Create a blob from the data
+            const blob = new Blob([JSON.stringify(analyticsData, null, 2)], { type: 'application/json' });
+            // Create download link and trigger it
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            this.showNotification('Analytics saved successfully', 'success');
+        }
+        catch (error) {
+            console.error('Failed to save analytics:', error);
+            this.showNotification('Failed to save analytics', 'error');
+        }
+    }
+    /**
+     * Shows a dialog to load a saved layout
+     */
+    async showLoadDialog() {
+        try {
+            if (this.layouts.length === 0) {
+                this.showNotification('No saved layouts found. Create one in the Builder first!', 'warning');
+                return;
+            }
+            // Create load dialog
+            const dialog = document.createElement('div');
+            dialog.className = 'modal-overlay';
+            dialog.innerHTML = `
+        <div class="modal-dialog modal-large">
+          <div class="modal-header">
+            <h3>Load Layout</h3>
+            <button class="close-btn" id="close-load-dialog">×</button>
+          </div>
+          <div class="modal-body">
+            <p>Select a layout to load for simulation:</p>
+            <div class="layout-grid">
+              ${this.layouts.map(layout => `
+                <div class="layout-card" data-layout-id="${layout.id}">
+                  <div class="layout-info">
+                    <h4>${layout.name || 'Unnamed Layout'}</h4>
+                    <small>Created: ${new Date(layout.createdAt).toLocaleString()}</small>
+                  </div>
+                  <div class="layout-actions">
+                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
+          </div>
+        </div>
+      `;
+            // Add CSS for the dialog
+            const styleElement = document.createElement('style');
+            if (!document.getElementById('modal-dialog-styles')) {
+                styleElement.id = 'modal-dialog-styles';
+                styleElement.textContent = `
+          .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          
+          .modal-dialog {
+            background-color: #2d2d2d;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #404040;
+          }
+          
+          .modal-large {
+            max-width: 800px;
+          }
+          
+          .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          
+          .modal-header h3 {
+            margin: 0;
+            color: #ffffff;
+          }
+          
+          .close-btn {
+            background: transparent;
+            border: none;
+            color: #b0b0b0;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+          }
+          
+          .close-btn:hover {
+            color: #ffffff;
+          }
+          
+          .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(90vh - 140px);
+          }
+          
+          .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #404040;
+            text-align: right;
+          }
+          
+          .layout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+          }
+          
+          .layout-card {
+            border: 1px solid #404040;
+            background-color: #333333;
+            border-radius: 5px;
+            padding: 15px;
+            transition: all 0.2s ease;
+          }
+          
+          .layout-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-color: #007bff;
+          }
+          
+          .layout-info h4 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #ffffff;
+          }
+          
+          .layout-info small {
+            color: #b0b0b0;
+            display: block;
+            margin-bottom: 15px;
+          }
+          
+          .layout-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+          }
+        `;
+                document.head.appendChild(styleElement);
+            }
+            document.body.appendChild(dialog);
+            // Event listeners
+            const cancelLoad = document.getElementById('cancel-load');
+            const closeLoad = document.getElementById('close-load-dialog');
+            const closeDialog = () => {
+                if (dialog && dialog.parentNode) {
+                    document.body.removeChild(dialog);
+                }
+            };
+            // Load layout buttons
+            dialog.querySelectorAll('.load-layout-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const layoutId = e.target.getAttribute('data-layout-id');
+                    if (layoutId) {
+                        closeDialog();
+                        await this.loadLayoutById(layoutId);
+                    }
+                });
+            });
+            cancelLoad === null || cancelLoad === void 0 ? void 0 : cancelLoad.addEventListener('click', closeDialog);
+            closeLoad === null || closeLoad === void 0 ? void 0 : closeLoad.addEventListener('click', closeDialog);
+        }
+        catch (error) {
+            console.error('Error showing load dialog:', error);
+            this.showNotification('Failed to show load dialog', 'error');
+        }
+    }
+    /**
+     * Loads a layout by ID
+     */
+    async loadLayoutById(layoutId) {
+        try {
+            console.log('🔄 [SIM DEBUG] Starting loadLayoutById for ID:', layoutId);
+            // Show loading state
+            this.showNotification(`Loading layout...`, 'info');
+            // Find layout from previously loaded layouts
+            const layout = this.layouts.find(l => l.id === layoutId);
+            console.log('🔄 [SIM DEBUG] Layout found:', layout ? layout.name : 'Not found');
+            if (!layout) {
+                this.showNotification(`Layout not found (ID: ${layoutId})`, 'error');
+                return;
+            }
+            console.log('🔄 [SIM DEBUG] Layout data:', layout.data);
+            // Stop current simulation if running
+            const wasRunning = this.isRunning;
+            if (wasRunning) {
+                this.toggleSimulation(); // This will stop it
+            }
+            // Reset the simulation
+            await this.resetSimulation();
+            // Load the layout into world
+            if (this.world) {
+                // Stringify the layout data because World.load expects a string
+                this.world.load(JSON.stringify(layout.data));
+                // Update analytics
+                this.updateAnalytics();
+                // Show success message
+                this.showNotification(`Layout "${layout.name || 'Unnamed'}" loaded successfully`, 'success');
+                // Restart if it was running
+                if (wasRunning) {
+                    setTimeout(() => this.toggleSimulation(), 500); // This will start it again
+                }
+            }
+        }
+        catch (error) {
+            console.error('Error loading layout:', error);
+            this.showNotification('Failed to load layout', 'error');
+        }
+    }
+    /**
+     * Clean up resources when component is destroyed
      */
     destroy() {
-        // Stop analytics update
+        console.log('🧹 Simulation: Destroying page and cleaning up canvas...');
+        if (this.visualizer) {
+            if (this.visualizer.destroy) {
+                this.visualizer.destroy();
+            }
+            else {
+                this.visualizer.stop();
+            }
+            this.visualizer = null;
+        }
         if (this.analyticsInterval) {
             clearInterval(this.analyticsInterval);
             this.analyticsInterval = null;
         }
-        // Clean up visualizer resources if available
-        if (this.visualizer && typeof this.visualizer.destroy === 'function') {
-            this.visualizer.destroy();
-            this.visualizer = null;
+        if (this.world) {
+            this.world = null;
         }
         // Remove the canvas element to prevent duplicates
         const canvas = document.getElementById('simulation-canvas');
         if (canvas) {
-            console.log('🗑️ Simulation: Removing simulation canvas element');
+            console.log('🗑️ Simulation: Removing canvas element');
             canvas.remove();
         }
-        // Remove any event listeners
-        try {
-            const controls = [
-                'toggle-simulation',
-                'reset-simulation',
-                'cars-range',
-                'time-factor-range',
-                'lights-flip-interval',
-                'toggle-analytics',
-                'load-layout'
-            ];
-            controls.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    // Use cloneNode to remove all event listeners at once
-                    const newElement = element.cloneNode(true);
-                    if (element.parentNode) {
-                        element.parentNode.replaceChild(newElement, element);
-                    }
-                }
-            });
+        // Clear the container
+        if (this.container) {
+            this.container.innerHTML = '';
         }
-        catch (error) {
-            console.error('Error removing event listeners:', error);
+        console.log('✅ Simulation: Page destroyed and cleaned up');
+    }
+    // Public interface methods for app integration
+    getContainer() {
+        return this.container;
+    }
+    show() {
+        if (this.container) {
+            this.container.style.display = 'block';
+        }
+    }
+    hide() {
+        if (this.container) {
+            this.container.style.display = 'none';
         }
     }
 }
@@ -26222,9 +26213,6 @@ const Tool = __webpack_require__(/*! ./tool */ "./src/visualizer/tool.ts");
 class ToolMover extends Tool {
     constructor(visualizer, autobind) {
         super(visualizer, autobind);
-        // Debounce mouse move to reduce excessive redraws
-        this.lastMoveTime = 0;
-        this.MOVE_THROTTLE_MS = 30; // Limit to ~30fps for moves
         this.startPosition = null;
     }
     contextmenu(e) {
@@ -26239,12 +26227,6 @@ class ToolMover extends Tool {
         this.startPosition = null;
     }
     mousemove(e) {
-        // Throttle mouse move events to reduce canvas redraws
-        const now = Date.now();
-        if (now - this.lastMoveTime < this.MOVE_THROTTLE_MS) {
-            return;
-        }
-        this.lastMoveTime = now;
         if (this.startPosition) {
             const currentPosition = this.getPoint(e);
             const offset = currentPosition.subtract(this.startPosition);
@@ -26475,47 +26457,148 @@ class Visualizer {
         this.toolCheckInterval = null; // Track interval to prevent duplicates
         this._errorCount = 0; // Track consecutive errors for error recovery
         this.draw = (time) => {
-            // Calculate time delta - directly from reference
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+            // Calculate time delta - capped for stability
             const delta = (time - this.previousTime) || 0;
-            if (delta > 30) {
-                const adjustedDelta = delta > 100 ? 100 : delta;
+            // Process draw cycle at stable frame rate
+            if (delta > 16) { // ~60fps target rate
+                const adjustedDelta = Math.min(delta, 100); // Cap at 100ms for stability
                 this.previousTime = time;
-                // Step the world simulation if running
-                if (!this.isBuilderMode && this.running && this.world && this.world.onTick) {
-                    const delta_seconds = this.timeFactor * adjustedDelta / 1000;
-                    this.world.onTick(delta_seconds);
+                try {
+                    // FORCE complete transformation reset with fallback
+                    if (this.ctx.resetTransform) {
+                        this.ctx.resetTransform();
+                    }
+                    else {
+                        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    }
+                    // Clear canvas with proper background color - ensure it's always clearing with the right color
+                    this.graphics.clear(settings.colors.background);
+                    this.ctx.save(); // Save the clean state
+                    // Apply zoom transformation
+                    if (this.zoomer) {
+                        this.zoomer.transform();
+                    }
+                    // ALWAYS draw these elements regardless of simulation state
+                    this.drawGrid();
+                    // Step the world simulation if running in simulation mode
+                    if (!this.isBuilderMode && this.running && this.world && this.world.onTick) {
+                        try {
+                            console.log('🎨 [SIM DEBUG] Calling world.onTick() with delta:', this.timeFactor * adjustedDelta / 1000);
+                            console.log('🎨 [SIM DEBUG] Current carsNumber:', this.world.carsNumber);
+                            console.log('🎨 [SIM DEBUG] Current cars count:', Object.keys(((_b = (_a = this.world) === null || _a === void 0 ? void 0 : _a.cars) === null || _b === void 0 ? void 0 : _b.all()) || {}).length);
+                            this.world.onTick(this.timeFactor * adjustedDelta / 1000);
+                            console.log('🎨 [SIM DEBUG] After onTick, cars count:', Object.keys(((_d = (_c = this.world) === null || _c === void 0 ? void 0 : _c.cars) === null || _d === void 0 ? void 0 : _d.all()) || {}).length);
+                        }
+                        catch (simError) {
+                            console.error('🎨 [SIM ERROR] Error in simulation tick:', simError);
+                            console.error('🎨 [SIM ERROR] Stack trace:', simError.stack);
+                            // Continue rendering even if simulation step fails
+                        }
+                    }
+                    // ALWAYS DRAW ALL WORLD OBJECTS, regardless of simulation state or errors
+                    // This ensures we never get a black canvas during simulation
+                    // Draw intersections
+                    const intersections = ((_f = (_e = this.world) === null || _e === void 0 ? void 0 : _e.intersections) === null || _f === void 0 ? void 0 : _f.all()) || {};
+                    for (const id in intersections) {
+                        const intersection = intersections[id];
+                        try {
+                            if (intersection && typeof intersection === 'object') {
+                                this.drawIntersection(intersection, 0.9);
+                            }
+                        }
+                        catch (error) {
+                            // Log but continue with other elements
+                            console.error('🎨 [VIZ ERROR] Failed to draw intersection:', id, error);
+                        }
+                    }
+                    // Draw roads
+                    const roads = ((_h = (_g = this.world) === null || _g === void 0 ? void 0 : _g.roads) === null || _h === void 0 ? void 0 : _h.all()) || {};
+                    for (const id in roads) {
+                        const road = roads[id];
+                        try {
+                            if (road && typeof road === 'object') {
+                                this.drawRoad(road, 0.9);
+                            }
+                        }
+                        catch (error) {
+                            // Log but continue with other elements
+                            console.error('🎨 [VIZ ERROR] Failed to draw road:', id, error);
+                        }
+                    }
+                    // Draw traffic signals for roads
+                    for (const id in roads) {
+                        const road = roads[id];
+                        try {
+                            if (road) {
+                                this.drawSignals(road);
+                            }
+                        }
+                        catch (error) {
+                            // Log but continue with other elements
+                            console.error('🎨 [VIZ ERROR] Failed to draw signals:', id, error);
+                        }
+                    }
+                    // Draw cars - CRITICAL for simulation visibility
+                    // Specifically handle cars in a way that avoids skipping them during simulation
+                    try {
+                        // Double check that cars collection exists and has vehicles
+                        const cars = ((_k = (_j = this.world) === null || _j === void 0 ? void 0 : _j.cars) === null || _k === void 0 ? void 0 : _k.all()) || {};
+                        const carCount = Object.keys(cars).length;
+                        // Always try to draw cars, regardless of builder/simulation mode
+                        // This ensures vehicles are visible during simulation
+                        for (const id in cars) {
+                            try {
+                                if (cars[id]) {
+                                    this.drawCar(cars[id]);
+                                }
+                            }
+                            catch (carError) {
+                                // Log but continue with other cars - don't let one bad car ruin everything
+                                console.error('🎨 [VIZ ERROR] Failed to draw car:', id, carError);
+                            }
+                        }
+                        // If in simulation mode but no cars were found, try to refresh them
+                        if (!this.isBuilderMode && this.running && carCount === 0 && ((_l = this.world) === null || _l === void 0 ? void 0 : _l.refreshCars)) {
+                            console.log('🎨 [VIZ DEBUG] No cars found in simulation mode, trying to refresh');
+                            try {
+                                this.world.refreshCars();
+                            }
+                            catch (refreshError) {
+                                console.error('🎨 [VIZ ERROR] Failed to refresh cars:', refreshError);
+                            }
+                        }
+                    }
+                    catch (carsError) {
+                        console.error('🎨 [VIZ ERROR] Error processing cars:', carsError);
+                    }
+                    // Draw builder tools last (only relevant in builder mode)
+                    if (this.isBuilderMode) {
+                        if (this.toolIntersectionBuilder && this.toolIntersectionBuilder.draw) {
+                            this.toolIntersectionBuilder.draw();
+                        }
+                        if (this.toolRoadbuilder && this.toolRoadbuilder.draw) {
+                            this.toolRoadbuilder.draw();
+                        }
+                        if (this.toolHighlighter && this.toolHighlighter.draw) {
+                            this.toolHighlighter.draw();
+                        }
+                    }
+                    this.ctx.restore(); // Restore to clean state
                 }
-                this.updateCanvasSize();
-                this.graphics.clear(settings.colors.background);
-                this.graphics.save();
-                this.zoomer.transform();
-                this.drawGrid();
-                // Draw intersections
-                for (const id in this.world.intersections.all()) {
-                    const intersection = this.world.intersections.all()[id];
-                    this.drawIntersection(intersection, 0.9);
+                catch (error) {
+                    console.error('🎨 [VIZ ERROR] ERROR in draw cycle:', error);
+                    // Recovery: try to clear the canvas with the right color
+                    try {
+                        this.ctx.resetTransform();
+                        this.graphics.clear(settings.colors.background);
+                    }
+                    catch (clearError) {
+                        console.error('🎨 [VIZ ERROR] ERROR clearing canvas during recovery:', clearError);
+                    }
                 }
-                // Draw roads
-                for (const id in this.world.roads.all()) {
-                    const road = this.world.roads.all()[id];
-                    this.drawRoad(road, 0.9);
-                }
-                // Draw traffic signals
-                for (const id in this.world.roads.all()) {
-                    const road = this.world.roads.all()[id];
-                    this.drawSignals(road);
-                }
-                // Draw cars
-                for (const id in this.world.cars.all()) {
-                    const car = this.world.cars.all()[id];
-                    this.drawCar(car);
-                }
-                // Draw tools
-                this.toolIntersectionBuilder.draw();
-                this.toolRoadbuilder.draw();
-                this.toolHighlighter.draw();
-                this.graphics.restore();
             }
+            // ALWAYS request the next frame when running - this is critical for simulation
             if (this.running) {
                 window.requestAnimationFrame(this.draw);
             }
@@ -26705,28 +26788,56 @@ class Visualizer {
         }
     }
     drawCar(car) {
-        const angle = car.direction;
-        const center = car.coords;
-        const rect = new Rect(0, 0, 1.1 * car.length, 1.7 * car.width);
-        rect.center(new Point(0, 0));
-        const boundRect = new Rect(0, 0, car.length, car.width);
-        boundRect.center(new Point(0, 0));
-        this.graphics.save();
-        this.ctx.translate(center.x, center.y);
-        this.ctx.rotate(angle);
-        const l = 0.90 - 0.30 * car.speed / car.maxSpeed;
-        const style = chroma(car.color, 0.8, l, 'hsl').hex();
-        this.graphics.fillRect(boundRect, style);
-        this.graphics.restore();
-        if (this.debug && this.debug.enabled) {
-            this.ctx.save();
-            this.ctx.fillStyle = "black";
-            this.ctx.font = "1px Arial";
-            this.ctx.fillText(car.id, center.x, center.y);
-            if (car.trajectory.temp && car.trajectory.temp.lane) {
-                this.graphics.drawCurve(car.trajectory.temp.lane, 0.1, 'red');
+        var _a, _b;
+        try {
+            // Safety checks to avoid errors
+            if (!car || !car.coords || car.direction === undefined) {
+                console.warn('🎨 [VIZ WARN] Invalid car data in drawCar');
+                return;
             }
-            this.ctx.restore();
+            const angle = car.direction;
+            const center = car.coords;
+            const rect = new Rect(0, 0, 1.1 * car.length, 1.7 * car.width);
+            rect.center(new Point(0, 0));
+            const boundRect = new Rect(0, 0, car.length, car.width);
+            boundRect.center(new Point(0, 0));
+            this.graphics.save();
+            this.ctx.translate(center.x, center.y);
+            this.ctx.rotate(angle);
+            // Calculate color - ensure we have valid values to prevent black cars
+            let style = '#FF0000'; // Default to red if there's an issue
+            try {
+                // Make sure speed and maxSpeed are numbers to prevent NaN issues
+                const speed = typeof car.speed === 'number' ? car.speed : 0;
+                const maxSpeed = typeof car.maxSpeed === 'number' && car.maxSpeed > 0 ? car.maxSpeed : 1;
+                // Calculate a luminance value that can't go too dark
+                const l = Math.max(0.4, 0.90 - 0.30 * speed / maxSpeed);
+                // Use the car's color or a default if not present
+                const carColor = car.color || '#3388FF';
+                style = chroma(carColor, 0.8, l, 'hsl').hex();
+            }
+            catch (colorError) {
+                // Fallback to a visible color if there's an issue with chroma
+                style = '#FF4433';
+            }
+            // Draw the car with the calculated or fallback style
+            this.graphics.fillRect(boundRect, style);
+            this.graphics.restore();
+            if (this.debug) {
+                this.ctx.save();
+                this.ctx.fillStyle = "black";
+                this.ctx.font = "1px Arial";
+                this.ctx.fillText(car.id.toString(), center.x, center.y);
+                const curve = (_b = (_a = car.trajectory) === null || _a === void 0 ? void 0 : _a.temp) === null || _b === void 0 ? void 0 : _b.lane;
+                if (curve) {
+                    this.graphics.drawCurve(curve, 0.1, 'red');
+                }
+                this.ctx.restore();
+            }
+        }
+        catch (error) {
+            console.error('🎨 [VIZ ERROR] Error in drawCar:', error);
+            // Continue execution - don't let one car crash the whole render
         }
     }
     drawGrid() {
@@ -26778,87 +26889,6 @@ class Visualizer {
             this.ctx.fillStyle = '#000000';
             this.ctx.fillRect(0, 0, 1, 1);
             this.ctx.clearRect(0, 0, 1, 1);
-        }
-    }
-    // Setup the canvas context with proper transformations
-    setupContext() {
-        if (!this.canvas || !this.ctx || !this.zoomer) {
-            return;
-        }
-        // Apply zoomer transformations (scale, pan)
-        if (this.zoomer) {
-            this.zoomer.transform();
-        }
-    }
-    // Draw a single frame without advancing simulation time
-    // Useful for updating the UI after changes without ticking the simulation
-    drawSingleFrame() {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
-        if (!this.canvas || !this.ctx || !this.zoomer || !this.world) {
-            console.warn('🎨 [VIZ WARN] Cannot draw frame - missing required components');
-            return;
-        }
-        try {
-            // Clear the canvas with a dark background
-            this.ctx.fillStyle = '#1a1a1a';
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            // Setup camera transform
-            this.setupContext();
-            // ALWAYS DRAW GRID FIRST (especially important for builder mode)
-            this.drawGrid();
-            // ALWAYS DRAW ALL WORLD OBJECTS
-            // Draw intersections
-            const intersections = ((_b = (_a = this.world) === null || _a === void 0 ? void 0 : _a.intersections) === null || _b === void 0 ? void 0 : _b.all()) || {};
-            for (const id in intersections) {
-                const intersection = intersections[id];
-                if (intersection && typeof intersection === 'object') {
-                    this.drawIntersection(intersection, 0.9);
-                }
-            }
-            // Draw roads
-            const roads = ((_d = (_c = this.world) === null || _c === void 0 ? void 0 : _c.roads) === null || _d === void 0 ? void 0 : _d.all()) || {};
-            for (const id in roads) {
-                const road = roads[id];
-                if (road && typeof road === 'object') {
-                    this.drawRoad(road, 0.9);
-                }
-            }
-            // Draw traffic signals
-            for (const id in roads) {
-                const road = roads[id];
-                if (road) {
-                    this.drawSignals(road);
-                }
-            }
-            // Draw cars
-            const cars = ((_f = (_e = this.world) === null || _e === void 0 ? void 0 : _e.cars) === null || _f === void 0 ? void 0 : _f.all()) || {};
-            for (const id in cars) {
-                const car = cars[id];
-                if (car && car.alive && typeof car === 'object') {
-                    this.drawCar(car);
-                }
-            }
-            // Draw debug information if enabled
-            if (this.debug.enabled) {
-                // Draw intersection IDs if enabled
-                if (this.debug.showIds) {
-                    const intersections = ((_h = (_g = this.world) === null || _g === void 0 ? void 0 : _g.intersections) === null || _h === void 0 ? void 0 : _h.all()) || {};
-                    for (const id in intersections) {
-                        const intersection = intersections[id];
-                        if (intersection && intersection.rect) {
-                            const center = intersection.rect.center();
-                            this.ctx.save();
-                            this.ctx.font = '0.8px Arial';
-                            this.ctx.fillStyle = 'white';
-                            this.ctx.fillText(id, center.x, center.y);
-                            this.ctx.restore();
-                        }
-                    }
-                }
-            }
-        }
-        catch (error) {
-            console.error('🎨 [VIZ ERROR] Error drawing single frame:', error);
         }
     }
     unbindAllTools() {
@@ -26922,89 +26952,45 @@ class Visualizer {
         }
         console.log('🔧 [TOOLS DEBUG] resetToolStates() completed');
     }
-    // Configure tools for either builder or simulation mode
-    setMode(isBuilderMode) {
-        this.isBuilderMode = isBuilderMode;
-        // First unbind all tools to avoid conflicts
-        this.toolRoadbuilder.unbind();
-        this.toolIntersectionBuilder.unbind();
-        this.toolIntersectionMover.unbind();
-        this.toolHighlighter.unbind();
-        this.toolMover.unbind();
-        // Short delay to ensure clean slate before binding
-        setTimeout(() => {
-            // Set tool availability based on mode
-            if (isBuilderMode) {
-                // Builder mode: Enable all tools
-                this.toolRoadbuilder.bind();
-                this.toolIntersectionBuilder.bind();
-                this.toolIntersectionMover.bind();
-                this.toolHighlighter.bind();
-                this.toolMover.bind();
-            }
-            else {
-                // Simulation mode: Only enable mover (panning) and highlighter tools
-                // Explicitly prioritize the mover tool in simulation mode
-                this.toolMover.bind();
-                this.toolHighlighter.bind();
-            }
-            console.log(`🎨 [VIZ INFO] Mode set to: ${isBuilderMode ? 'Builder' : 'Simulation'}, toolMover bound: ${this.toolMover.isBound}`);
-        }, 50);
-    }
     ensureToolsAreBound() {
         console.log('🔧 [TOOLS DEBUG] ensureToolsAreBound() called');
-        // Clear any existing interval to prevent duplicates
-        if (this.toolCheckInterval) {
+        // Clear any existing tool check intervals first
+        if (this.toolCheckInterval !== null) {
             clearInterval(this.toolCheckInterval);
+            this.toolCheckInterval = null;
         }
-        // Set initial tool state based on mode
-        this.setMode(this.isBuilderMode);
-        // Periodically check tool binding to ensure they stay properly bound
-        this.toolCheckInterval = setInterval(() => {
-            // This is a safety measure to ensure tools don't lose binding
-            if (this.isBuilderMode) {
-                if (!this.toolRoadbuilder.isBound)
-                    this.toolRoadbuilder.bind();
-                if (!this.toolIntersectionBuilder.isBound)
-                    this.toolIntersectionBuilder.bind();
-                if (!this.toolIntersectionMover.isBound)
-                    this.toolIntersectionMover.bind();
+        const tools = [
+            this.toolRoadbuilder,
+            this.toolIntersectionBuilder,
+            this.toolHighlighter,
+            this.toolIntersectionMover,
+            this.toolMover
+        ];
+        // Properly unbind all tools first to ensure clean state
+        tools.forEach((tool) => {
+            if (tool && tool.isBound) {
+                try {
+                    console.log('🔧 [TOOLS DEBUG] Unbinding tool to rebind:', tool.constructor.name);
+                    tool.unbind();
+                }
+                catch (error) {
+                    console.error('🔧 [TOOLS ERROR] Failed to unbind tool:', error);
+                }
             }
-            // These should always be bound
-            if (!this.toolHighlighter.isBound)
-                this.toolHighlighter.bind();
-            if (!this.toolMover.isBound)
-                this.toolMover.bind();
-        }, 5000); // Check every 5 seconds
-    }
-    bindTools() {
-        // Use a more efficient binding approach that won't cause unnecessary redraws
-        const currentMode = this.isBuilderMode ? 'builder' : 'simulation';
-        // Only use tools in builder mode - simulation mode should have minimal events
-        if (this.isBuilderMode) {
-            // Bind the appropriate tools for builder mode
-            this.toolRoadbuilder.bind();
-            this.toolIntersectionBuilder.bind();
-            this.toolHighlighter.bind();
-            this.toolIntersectionMover.bind();
-            this.toolMover.bind();
-        }
-        else {
-            // In simulation mode, we only need basic movement controls
-            // Unbind all tools that might be causing extra redraws
-            if (this.toolRoadbuilder)
-                this.toolRoadbuilder.unbind();
-            if (this.toolIntersectionBuilder)
-                this.toolIntersectionBuilder.unbind();
-            if (this.toolHighlighter)
-                this.toolHighlighter.unbind();
-            if (this.toolIntersectionMover)
-                this.toolIntersectionMover.unbind();
-            // Only keep the mover tool for panning
-            if (this.toolMover)
-                this.toolMover.bind();
-        }
-        console.log(`🔧 Tools bound for ${currentMode} mode`);
+        });
+        // Now bind all tools
+        tools.forEach((tool) => {
+            if (tool) {
+                try {
+                    console.log('🔧 [TOOLS DEBUG] Binding tool:', tool.constructor.name);
+                    tool.bind();
+                }
+                catch (error) {
+                    console.error('🔧 [TOOLS ERROR] Failed to bind tool:', error);
+                }
+            }
+        });
+        console.log('🔧 [TOOLS DEBUG] ensureToolsAreBound() completed');
     }
     get running() {
         return this._running;
@@ -27026,60 +27012,67 @@ class Visualizer {
     stop() {
         this._running = false;
     }
-    // Force a redraw without animation
-    forceRedraw() {
-        var _a, _b, _c, _d, _e, _f;
-        // Get current time for frame timing
-        const now = performance.now();
-        // Use 16ms as default delta (60fps equivalent) for single frame
-        const delta = 16;
+    // Method to force a single frame draw without starting animation loop
+    drawSingleFrame() {
+        console.log('🎨 [VIZ DEBUG] drawSingleFrame() called');
         try {
-            // Clear canvas with proper background color
+            // Force a complete redraw by calling draw with current time
+            const currentTime = performance.now();
+            this.previousTime = currentTime - 33; // ~30fps timing for smooth single frame
+            // Store current running state
+            const wasRunning = this.running;
+            // Temporarily disable running flag to prevent animation loop
+            this._running = false;
+            // Ensure transformation is reset
+            if (this.ctx.resetTransform) {
+                this.ctx.resetTransform();
+            }
+            else {
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+            }
+            // Clear with proper background to ensure no black canvas
             this.graphics.clear(settings.colors.background);
-            // Save clean state
-            this.ctx.save();
-            // Apply zoom transformation
-            if (this.zoomer) {
-                this.zoomer.transform();
-            }
-            // Draw grid (always)
-            this.drawGrid();
-            // Draw intersections
-            const intersections = ((_b = (_a = this.world) === null || _a === void 0 ? void 0 : _a.intersections) === null || _b === void 0 ? void 0 : _b.all()) || {};
-            for (const id in intersections) {
-                const intersection = intersections[id];
-                if (intersection) {
-                    this.drawIntersection(intersection, 0.9);
+            // Draw the frame with a larger delta to ensure all elements are drawn
+            this.draw(currentTime);
+            // If the canvas is still black or appears incorrect, force another full redraw
+            setTimeout(() => {
+                if (this.ctx && this.canvas) {
+                    // Check a pixel to see if it's black (this is a heuristic)
+                    const pixelData = this.ctx.getImageData(this.canvas.width / 2, this.canvas.height / 2, 1, 1).data;
+                    const isBlack = pixelData[0] < 20 && pixelData[1] < 20 && pixelData[2] < 20;
+                    if (isBlack) {
+                        console.log('🎨 [VIZ DEBUG] Canvas appears black, forcing another redraw');
+                        // Force a complete redraw cycle
+                        if (this.ctx.resetTransform) {
+                            this.ctx.resetTransform();
+                        }
+                        else {
+                            this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        }
+                        this.graphics.clear(settings.colors.background);
+                        this.draw(performance.now());
+                    }
                 }
-            }
-            // Draw roads
-            const roads = ((_d = (_c = this.world) === null || _c === void 0 ? void 0 : _c.roads) === null || _d === void 0 ? void 0 : _d.all()) || {};
-            for (const id in roads) {
-                const road = roads[id];
-                if (road) {
-                    this.drawRoad(road, 0.9);
+                // Restore original running state
+                this._running = wasRunning;
+                // If it was running, ensure animation loop continues
+                if (wasRunning) {
+                    window.requestAnimationFrame(this.draw);
                 }
-            }
-            // Draw traffic signals
-            for (const id in roads) {
-                const road = roads[id];
-                if (road) {
-                    this.drawSignals(road);
-                }
-            }
-            // Draw cars
-            const cars = ((_f = (_e = this.world) === null || _e === void 0 ? void 0 : _e.cars) === null || _f === void 0 ? void 0 : _f.all()) || {};
-            for (const id in cars) {
-                const car = cars[id];
-                if (car) {
-                    this.drawCar(car);
-                }
-            }
-            // Restore clean state
-            this.ctx.restore();
+            }, 50);
         }
         catch (error) {
-            console.error('🎨 [VIZ ERROR] Error in drawSingleFrame:', error);
+            console.error('🎨 [VIZ ERROR] drawSingleFrame failed:', error);
+            // Recovery attempt - reset running state
+            this._running = false;
+            // Try a simple redraw to recover
+            try {
+                this.ctx.resetTransform();
+                this.graphics.clear(settings.colors.background);
+            }
+            catch (e) {
+                console.error('🎨 [VIZ ERROR] Recovery failed:', e);
+            }
         }
     }
     // Method to force canvas refresh after state changes
@@ -27192,29 +27185,28 @@ class Visualizer {
             console.log('  - Cars count:', Object.keys(cars || {}).length);
         }
     }
-    // Cleanup method to properly clean up resources when navigating away
+    // Cleanup method to prevent memory leaks
     destroy() {
-        // Stop the animation frame
+        // Stop any running animation
         this.stop();
-        // Clear any intervals to prevent memory leaks
+        // Clear tool check interval
         if (this.toolCheckInterval) {
             clearInterval(this.toolCheckInterval);
             this.toolCheckInterval = null;
         }
-        // Unbind all tools to remove event listeners
-        if (this.toolRoadbuilder)
-            this.toolRoadbuilder.unbind();
-        if (this.toolIntersectionBuilder)
-            this.toolIntersectionBuilder.unbind();
-        if (this.toolHighlighter)
-            this.toolHighlighter.unbind();
-        if (this.toolIntersectionMover)
-            this.toolIntersectionMover.unbind();
-        if (this.toolMover)
-            this.toolMover.unbind();
-        // Remove window resize listener
-        $(window).off('resize');
-        console.log('🎨 [VIZ INFO] Visualizer resources cleaned up');
+        // Unbind tools
+        const tools = [
+            this.toolRoadbuilder,
+            this.toolIntersectionBuilder,
+            this.toolHighlighter,
+            this.toolIntersectionMover,
+            this.toolMover
+        ];
+        tools.forEach(tool => {
+            if (tool && tool.unbind) {
+                tool.unbind();
+            }
+        });
     }
 }
 module.exports = Visualizer;
@@ -27511,31 +27503,9 @@ $(() => {
                 simulationPage.destroy();
                 simulationPage = null;
             }
-            // Important: Pre-apply critical simulation styles for immediate effect
-            document.body.className = 'simulation-mode no-scroll';
-            document.body.style.backgroundColor = '#1a1a1a';
-            document.body.style.color = '#ffffff';
-            // Pre-load dark theme CSS before creating the simulation page
-            // This ensures the theme is ready before content renders
-            let darkThemeCss = document.getElementById('dark-theme-css');
-            if (!darkThemeCss) {
-                darkThemeCss = document.createElement('link');
-                darkThemeCss.id = 'dark-theme-css';
-                darkThemeCss.rel = 'stylesheet';
-                darkThemeCss.href = 'css/dark-theme.css';
-                document.head.appendChild(darkThemeCss);
-            }
-            if (!darkThemeCss) {
-                darkThemeCss = document.createElement('link');
-                darkThemeCss.id = 'dark-theme-css';
-                darkThemeCss.rel = 'stylesheet';
-                darkThemeCss.href = 'css/dark-theme.css';
-                document.head.appendChild(darkThemeCss);
-            }
-            // Apply critical styles directly
-            document.body.style.backgroundColor = '#1a1a1a';
-            document.body.style.color = '#ffffff';
-            mainContent.style.backgroundColor = '#1a1a1a';
+            // Prevent scrolling on simulation page
+            document.body.classList.remove('allow-scroll');
+            document.body.classList.add('no-scroll');
             // Clear content and create fresh simulation page
             mainContent.innerHTML = '';
             simulationPage = new SimulationPageComponent_1.SimulationPageComponent(mainContent);
