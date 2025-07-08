@@ -24,6 +24,8 @@ export interface VehicleMetric {
   duration?: number; // For stopped events
   oldSpeed?: number; // For speed change events
   intersectionId?: string; // For intersection entry/exit events
+  laneId?: string; // For lane-specific events
+  roadId?: string; // For road-specific events
 }
 
 export enum VehicleEvent {
@@ -34,7 +36,9 @@ export enum VehicleEvent {
   START_MOVING = 'start_moving',
   STOP_MOVING = 'stop_moving',
   CHANGE_LANE = 'change_lane',
-  SPEED_CHANGE = 'speed_change'
+  SPEED_CHANGE = 'speed_change',
+  ENTER_LANE = 'enter_lane',
+  EXIT_LANE = 'exit_lane'
 }
 
 export interface IntersectionMetric {
@@ -43,6 +47,16 @@ export interface IntersectionMetric {
   queueLength: number;
   waitTime?: number;
   signalPhase?: number;
+  throughput?: number; // Vehicles per minute passing through
+}
+
+export interface LaneMetric {
+  laneId: string;
+  timestamp: number;
+  vehicleCount: number;
+  averageSpeed: number; 
+  congestionRate: number; // 0-1 value representing congestion level
+  queueLength?: number;
 }
 
 export interface SimulationMetrics {
@@ -57,12 +71,45 @@ export interface SimulationMetrics {
   intersectionUtilization: { [intersectionId: string]: number };
   roadUtilization: { [roadId: string]: number };
   simulationTime: number;
+  
+  // New expanded metrics
+  laneMetrics: { [laneId: string]: LaneDetailedMetrics };
+  intersectionMetrics: { [intersectionId: string]: IntersectionDetailedMetrics };
+  globalThroughput: number; // Vehicles per minute for entire simulation
+  congestionIndex: number; // Overall congestion index (0-1)
+}
+
+// Detailed metrics for lanes
+export interface LaneDetailedMetrics {
+  laneId: string;
+  averageSpeed: number;
+  vehicleCount: number;
+  maxVehicleCount: number;
+  averageVehicleCount: number;
+  congestionRate: number; // 0-1 ratio of vehicle count to capacity
+  throughput: number; // Vehicles per minute
+  totalVehiclesPassed: number;
+  averageWaitTime: number;
+  queueLength: number; // Average queue length
+}
+
+// Detailed metrics for intersections
+export interface IntersectionDetailedMetrics {
+  intersectionId: string;
+  throughput: number; // Vehicles per minute
+  averageWaitTime: number;
+  maxWaitTime: number;
+  averageQueueLength: number;
+  maxQueueLength: number;
+  totalVehiclesPassed: number;
+  congestionRate: number; // Based on queue length and wait time
 }
 
 export class KPICollector {
   // Store metrics
   private vehicleMetrics: VehicleMetric[] = [];
   private intersectionMetrics: IntersectionMetric[] = [];
+  private laneMetrics: LaneMetric[] = [];
   private activeVehicles: Set<string> = new Set();
   private stoppedVehicles: Set<string> = new Set();
   private stoppedTimestamps: { [vehicleId: string]: number } = {};
@@ -73,6 +120,19 @@ export class KPICollector {
   private totalSpeed: number = 0;
   private speedMeasurements: number = 0;
   private waitTimes: number[] = [];
+  
+  // Lane tracking
+  private vehiclesInLane: { [laneId: string]: Set<string> } = {}; // laneId -> Set of vehicleIds
+  private laneEntryTimes: { [vehicleId: string]: { [laneId: string]: number } } = {}; // vehicleId -> {laneId -> entryTime}
+  private laneThroughput: { [laneId: string]: number } = {}; // laneId -> count
+  private laneWaitTimes: { [laneId: string]: number[] } = {}; // laneId -> waitTimes array
+  private laneTotalSpeeds: { [laneId: string]: { total: number, count: number } } = {}; // laneId -> {total, count}
+  
+  // Intersection tracking
+  private intersectionEntryTimes: { [vehicleId: string]: { [intersectionId: string]: number } } = {}; // vehicleId -> {intersectionId -> entryTime}
+  private intersectionThroughput: { [intersectionId: string]: number } = {}; // intersectionId -> count
+  private intersectionWaitTimes: { [intersectionId: string]: number[] } = {}; // intersectionId -> waitTimes array
+  private intersectionQueueHistory: { [intersectionId: string]: number[] } = {}; // intersectionId -> queueLengths array
   
   // Settings
   private readonly sampleInterval: number = 0.5; // How often to sample speed (in simulation seconds)
@@ -108,6 +168,7 @@ export class KPICollector {
   public reset(): void {
     this.vehicleMetrics = [];
     this.intersectionMetrics = [];
+    this.laneMetrics = [];
     this.activeVehicles = new Set();
     this.stoppedVehicles = new Set();
     this.stoppedTimestamps = {};
@@ -117,6 +178,19 @@ export class KPICollector {
     this.speedMeasurements = 0;
     this.waitTimes = [];
     this.isRecording = false;
+    
+    // Reset lane tracking
+    this.vehiclesInLane = {};
+    this.laneEntryTimes = {};
+    this.laneThroughput = {};
+    this.laneWaitTimes = {};
+    this.laneTotalSpeeds = {};
+    
+    // Reset intersection tracking
+    this.intersectionEntryTimes = {};
+    this.intersectionThroughput = {};
+    this.intersectionWaitTimes = {};
+    this.intersectionQueueHistory = {};
     
     if (this.cleanupTimeout !== null) {
       clearTimeout(this.cleanupTimeout);
@@ -231,17 +305,37 @@ export class KPICollector {
   public recordIntersectionEnter(vehicle: Car, intersection: Intersection, time: number): void {
     if (!this.isRecording) return;
     
+    const intersectionId = intersection.id;
+    
+    // Initialize intersection tracking structures if needed
+    if (!this.intersectionEntryTimes[vehicle.id]) {
+      this.intersectionEntryTimes[vehicle.id] = {};
+    }
+    if (!this.intersectionQueueHistory[intersectionId]) {
+      this.intersectionQueueHistory[intersectionId] = [];
+    }
+    
+    // Record entry time for calculating wait time later
+    this.intersectionEntryTimes[vehicle.id][intersectionId] = time;
+    
+    // Record the vehicle event
     this.vehicleMetrics.push({
       vehicleId: vehicle.id,
       timestamp: time,
       speed: vehicle.speed,
+      intersectionId: intersectionId,
       event: VehicleEvent.ENTER_INTERSECTION
     });
     
     // Update intersection metrics
-    const queueLength = this.getVehiclesAtIntersection(intersection.id).length;
+    const queueLength = this.getVehiclesAtIntersection(intersectionId).length;
+    
+    // Store queue length history
+    this.intersectionQueueHistory[intersectionId].push(queueLength);
+    
+    // Record updated intersection metrics
     this.intersectionMetrics.push({
-      intersectionId: intersection.id,
+      intersectionId: intersectionId,
       timestamp: time,
       queueLength: queueLength
     });
@@ -253,20 +347,258 @@ export class KPICollector {
   public recordIntersectionExit(vehicle: Car, intersection: Intersection, time: number): void {
     if (!this.isRecording) return;
     
+    const intersectionId = intersection.id;
+    
+    // Initialize tracking if needed
+    if (!this.intersectionEntryTimes[vehicle.id]) {
+      this.intersectionEntryTimes[vehicle.id] = {};
+    }
+    if (!this.intersectionThroughput[intersectionId]) {
+      this.intersectionThroughput[intersectionId] = 0;
+    }
+    if (!this.intersectionWaitTimes[intersectionId]) {
+      this.intersectionWaitTimes[intersectionId] = [];
+    }
+    
+    // Calculate wait time for the vehicle at this intersection
+    if (this.intersectionEntryTimes[vehicle.id][intersectionId]) {
+      const waitTime = time - this.intersectionEntryTimes[vehicle.id][intersectionId];
+      this.intersectionWaitTimes[intersectionId].push(waitTime);
+      delete this.intersectionEntryTimes[vehicle.id][intersectionId];
+    }
+    
+    // Increment throughput counter
+    this.intersectionThroughput[intersectionId]++;
+    
+    // Record the vehicle event
     this.vehicleMetrics.push({
       vehicleId: vehicle.id,
       timestamp: time,
       speed: vehicle.speed,
+      intersectionId: intersectionId,
       event: VehicleEvent.EXIT_INTERSECTION
     });
     
     // Update intersection metrics
-    const queueLength = this.getVehiclesAtIntersection(intersection.id).length;
+    const queueLength = this.getVehiclesAtIntersection(intersectionId).length;
+    
+    // Update queue length history
+    if (!this.intersectionQueueHistory[intersectionId]) {
+      this.intersectionQueueHistory[intersectionId] = [];
+    }
+    this.intersectionQueueHistory[intersectionId].push(queueLength);
+    
+    // Record updated intersection metrics
     this.intersectionMetrics.push({
-      intersectionId: intersection.id,
+      intersectionId: intersectionId,
       timestamp: time,
-      queueLength: queueLength
+      queueLength: queueLength,
+      // Calculate throughput as vehicles per minute (based on simulation time)
+      throughput: this.calculateIntersectionThroughput(intersectionId, time)
     });
+  }
+  
+  /**
+   * Calculate vehicles per minute throughput for an intersection
+   */
+  private calculateIntersectionThroughput(intersectionId: string, currentTime: number): number {
+    const throughput = this.intersectionThroughput[intersectionId] || 0;
+    const elapsedMinutes = Math.max(0.001, (currentTime - this.simulationStartTime) / 60);
+    return throughput / elapsedMinutes; // Vehicles per minute
+  }
+
+  /**
+   * Record a vehicle entering a lane
+   */
+  public recordLaneEnter(vehicle: Car, lane: any, time: number): void {
+    if (!this.isRecording) return;
+    
+    const laneId = lane.id;
+    
+    // Initialize lane tracking structures if needed
+    if (!this.vehiclesInLane[laneId]) {
+      this.vehiclesInLane[laneId] = new Set();
+    }
+    if (!this.laneEntryTimes[vehicle.id]) {
+      this.laneEntryTimes[vehicle.id] = {};
+    }
+    if (!this.laneWaitTimes[laneId]) {
+      this.laneWaitTimes[laneId] = [];
+    }
+    if (!this.laneTotalSpeeds[laneId]) {
+      this.laneTotalSpeeds[laneId] = { total: 0, count: 0 };
+    }
+    
+    // Record entry time for calculating wait time later
+    this.laneEntryTimes[vehicle.id][laneId] = time;
+    
+    // Add vehicle to the lane
+    this.vehiclesInLane[laneId].add(vehicle.id);
+    
+    // Update lane metrics
+    this.laneMetrics.push({
+      laneId: laneId,
+      timestamp: time,
+      vehicleCount: this.vehiclesInLane[laneId].size,
+      averageSpeed: this.calculateLaneAverageSpeed(laneId),
+      congestionRate: this.calculateLaneCongestion(lane, this.vehiclesInLane[laneId].size)
+    });
+    
+    // Record the event
+    this.vehicleMetrics.push({
+      vehicleId: vehicle.id,
+      timestamp: time,
+      speed: vehicle.speed,
+      laneId: laneId,
+      event: VehicleEvent.ENTER_LANE
+    });
+  }
+  
+  /**
+   * Record a vehicle exiting a lane
+   */
+  public recordLaneExit(vehicle: Car, lane: any, time: number): void {
+    if (!this.isRecording) return;
+    
+    const laneId = lane.id;
+    
+    // Make sure we have tracking data structures
+    if (!this.vehiclesInLane[laneId]) {
+      this.vehiclesInLane[laneId] = new Set();
+    }
+    if (!this.laneEntryTimes[vehicle.id]) {
+      this.laneEntryTimes[vehicle.id] = {};
+    }
+    if (!this.laneThroughput[laneId]) {
+      this.laneThroughput[laneId] = 0;
+    }
+    if (!this.laneWaitTimes[laneId]) {
+      this.laneWaitTimes[laneId] = [];
+    }
+    
+    // Calculate time spent in lane
+    if (this.laneEntryTimes[vehicle.id][laneId]) {
+      const timeInLane = time - this.laneEntryTimes[vehicle.id][laneId];
+      this.laneWaitTimes[laneId].push(timeInLane);
+      delete this.laneEntryTimes[vehicle.id][laneId];
+    }
+    
+    // Remove vehicle from lane
+    if (this.vehiclesInLane[laneId]) {
+      this.vehiclesInLane[laneId].delete(vehicle.id);
+    }
+    
+    // Increment throughput count
+    this.laneThroughput[laneId] = (this.laneThroughput[laneId] || 0) + 1;
+    
+    // Update lane metrics
+    this.laneMetrics.push({
+      laneId: laneId,
+      timestamp: time,
+      vehicleCount: this.vehiclesInLane[laneId]?.size || 0,
+      averageSpeed: this.calculateLaneAverageSpeed(laneId),
+      congestionRate: this.calculateLaneCongestion(lane, this.vehiclesInLane[laneId]?.size || 0)
+    });
+    
+    // Record the event
+    this.vehicleMetrics.push({
+      vehicleId: vehicle.id,
+      timestamp: time,
+      speed: vehicle.speed,
+      laneId: laneId,
+      event: VehicleEvent.EXIT_LANE
+    });
+  }
+  
+  /**
+   * Calculate average speed for a specific lane
+   */
+  private calculateLaneAverageSpeed(laneId: string): number {
+    const laneSpeedData = this.laneTotalSpeeds[laneId];
+    if (!laneSpeedData || laneSpeedData.count === 0) {
+      return 0;
+    }
+    return laneSpeedData.total / laneSpeedData.count;
+  }
+  
+  /**
+   * Calculate congestion rate for a lane (0-1)
+   * Uses vehicle count compared to lane capacity
+   */
+  private calculateLaneCongestion(lane: any, vehicleCount: number): number {
+    // Lane capacity is a reasonable estimate based on lane length and minimum safe distance
+    // This is an approximation - actual capacity would depend on lane properties
+    const approximateCapacity = lane.length / 10; // Assuming average vehicle + safe distance is ~10 units
+    return Math.min(1, vehicleCount / approximateCapacity);
+  }
+  
+  /**
+   * Sample the current state of a specific lane
+   */
+  public sampleLaneState(lane: any, time: number): void {
+    if (!this.isRecording) return;
+    
+    const laneId = lane.id;
+    if (!this.vehiclesInLane[laneId]) {
+      this.vehiclesInLane[laneId] = new Set();
+    }
+    
+    // Count vehicles in the lane
+    const vehicleCount = this.vehiclesInLane[laneId].size;
+    
+    // Calculate congestion rate
+    const congestionRate = this.calculateLaneCongestion(lane, vehicleCount);
+    
+    // Collect speeds of vehicles in the lane to calculate average speed
+    let totalSpeed = 0;
+    let count = 0;
+    
+    // This would require a mapping of which vehicles are in which lane
+    // We'll update this in the recordLaneEnter/Exit methods
+    
+    // Add this to our lane metrics
+    this.laneMetrics.push({
+      laneId: laneId,
+      timestamp: time,
+      vehicleCount: vehicleCount,
+      averageSpeed: this.calculateLaneAverageSpeed(laneId),
+      congestionRate: congestionRate,
+      queueLength: this.calculateLaneQueueLength(laneId)
+    });
+  }
+  
+  /**
+   * Calculate queue length in a lane based on stopped vehicles
+   */
+  private calculateLaneQueueLength(laneId: string): number {
+    // Count stopped vehicles in the lane
+    let queueCount = 0;
+    
+    if (this.vehiclesInLane[laneId]) {
+      this.vehiclesInLane[laneId].forEach(vehicleId => {
+        if (this.stoppedVehicles.has(vehicleId)) {
+          queueCount++;
+        }
+      });
+    }
+    
+    return queueCount;
+  }
+  
+  /**
+   * Update lane speed metrics when a vehicle's speed changes
+   */
+  public updateLaneSpeedMetrics(vehicle: Car, laneId: string, speed: number): void {
+    if (!this.isRecording || !laneId) return;
+    
+    // Initialize if needed
+    if (!this.laneTotalSpeeds[laneId]) {
+      this.laneTotalSpeeds[laneId] = { total: 0, count: 0 };
+    }
+    
+    // Update speed metrics for the lane
+    this.laneTotalSpeeds[laneId].total += speed;
+    this.laneTotalSpeeds[laneId].count++;
   }
 
   /**
@@ -388,8 +720,134 @@ export class KPICollector {
       stoppedVehicles: this.stoppedVehicles.size,
       intersectionUtilization,
       roadUtilization,
-      simulationTime: currentTime - this.simulationStartTime
+      simulationTime: currentTime - this.simulationStartTime,
+      
+      // New expanded metrics
+      laneMetrics: this.calculateLaneMetrics(),
+      intersectionMetrics: this.calculateIntersectionMetrics(),
+      globalThroughput: this.calculateGlobalThroughput(),
+      congestionIndex: this.calculateCongestionIndex()
     };
+  }
+
+  /**
+   * Calculate detailed lane metrics
+   */
+  private calculateLaneMetrics(): { [laneId: string]: LaneDetailedMetrics } {
+    const laneMetrics: { [laneId: string]: LaneDetailedMetrics } = {};
+    
+    // Calculate metrics for each vehicle
+    this.vehicleMetrics.forEach(metric => {
+      if (metric.event === VehicleEvent.ENTER_LANE || metric.event === VehicleEvent.EXIT_LANE) {
+        const laneId = metric.laneId || '';
+        if (!laneMetrics[laneId]) {
+          laneMetrics[laneId] = {
+            laneId: laneId,
+            averageSpeed: 0,
+            vehicleCount: 0,
+            maxVehicleCount: 0,
+            averageVehicleCount: 0,
+            congestionRate: 0,
+            throughput: 0,
+            totalVehiclesPassed: 0,
+            averageWaitTime: 0,
+            queueLength: 0
+          };
+        }
+        
+        const laneMetric = laneMetrics[laneId];
+        
+        // Update counts
+        laneMetric.vehicleCount++;
+        laneMetric.totalVehiclesPassed++;
+        
+        // Update speeds
+        laneMetric.averageSpeed += metric.speed;
+        
+        // Update queue length (simple approximation)
+        if (metric.event === VehicleEvent.ENTER_LANE) {
+          laneMetric.queueLength++;
+        } else if (metric.event === VehicleEvent.EXIT_LANE) {
+          laneMetric.queueLength = Math.max(0, laneMetric.queueLength - 1);
+        }
+      }
+    });
+    
+    // Finalize metrics calculation
+    for (const laneId in laneMetrics) {
+      const metric = laneMetrics[laneId];
+      metric.averageSpeed /= metric.vehicleCount || 1;
+      metric.congestionRate = Math.min(1, metric.queueLength / 10); // Assume max 10 vehicles before congestion
+      metric.throughput = metric.totalVehiclesPassed / (this.simulationStartTime + 1); // Per minute
+    }
+    
+    return laneMetrics;
+  }
+
+  /**
+   * Calculate detailed intersection metrics
+   */
+  private calculateIntersectionMetrics(): { [intersectionId: string]: IntersectionDetailedMetrics } {
+    const intersectionMetrics: { [intersectionId: string]: IntersectionDetailedMetrics } = {};
+    
+    // Calculate metrics for each vehicle
+    this.vehicleMetrics.forEach(metric => {
+      if (metric.event === VehicleEvent.ENTER_INTERSECTION || metric.event === VehicleEvent.EXIT_INTERSECTION) {
+        const intersectionId = metric.intersectionId || '';
+        if (!intersectionMetrics[intersectionId]) {
+          intersectionMetrics[intersectionId] = {
+            intersectionId: intersectionId,
+            throughput: 0,
+            averageWaitTime: 0,
+            maxWaitTime: 0,
+            averageQueueLength: 0,
+            maxQueueLength: 0,
+            totalVehiclesPassed: 0,
+            congestionRate: 0
+          };
+        }
+        
+        const intersectionMetric = intersectionMetrics[intersectionId];
+        
+        // Update counts
+        intersectionMetric.totalVehiclesPassed++;
+        
+        // Update queue length (simple approximation)
+        if (metric.event === VehicleEvent.ENTER_INTERSECTION) {
+          intersectionMetric.averageQueueLength++;
+        } else if (metric.event === VehicleEvent.EXIT_INTERSECTION) {
+          intersectionMetric.averageQueueLength = Math.max(0, intersectionMetric.averageQueueLength - 1);
+        }
+      }
+    });
+    
+    // Finalize metrics calculation
+    for (const intersectionId in intersectionMetrics) {
+      const metric = intersectionMetrics[intersectionId];
+      metric.throughput = metric.totalVehiclesPassed / (this.simulationStartTime + 1); // Per minute
+      metric.congestionRate = Math.min(1, metric.averageQueueLength / 10); // Assume max 10 vehicles before congestion
+    }
+    
+    return intersectionMetrics;
+  }
+
+  /**
+   * Calculate global throughput (vehicles per minute)
+   */
+  private calculateGlobalThroughput(): number {
+    return this.vehicleMetrics.length / (this.simulationStartTime + 1);
+  }
+
+  /**
+   * Calculate congestion index (0-1)
+   */
+  private calculateCongestionIndex(): number {
+    // Simple index based on average queue length across all intersections and lanes
+    const totalQueueLength = Object.values(this.calculateLaneMetrics()).reduce((sum, metric) => sum + metric.queueLength, 0) +
+                             Object.values(this.calculateIntersectionMetrics()).reduce((sum, metric) => sum + metric.averageQueueLength, 0);
+    
+    const maxPossibleQueueLength = (Object.keys(this.calculateLaneMetrics()).length + Object.keys(this.calculateIntersectionMetrics()).length) * 10; // Assume max 10 vehicles before congestion per lane/intersection
+    return Math.min(1, totalQueueLength / maxPossibleQueueLength);
   }
 
   /**
@@ -398,13 +856,39 @@ export class KPICollector {
   public exportMetricsCSV(): string {
     const metrics = this.getMetrics();
     let csv = 'Metric,Value\n';
+    
+    // Global metrics
+    csv += '# Global Simulation Metrics\n';
     csv += `Total Vehicles,${metrics.totalVehicles}\n`;
+    csv += `Active Vehicles,${metrics.activeVehicles}\n`;
     csv += `Completed Trips,${metrics.completedTrips}\n`;
     csv += `Average Speed (m/s),${metrics.averageSpeed.toFixed(2)}\n`;
     csv += `Average Wait Time (s),${metrics.averageWaitTime.toFixed(2)}\n`;
     csv += `Max Wait Time (s),${metrics.maxWaitTime.toFixed(2)}\n`;
     csv += `Total Stops,${metrics.totalStops}\n`;
-    csv += `Simulation Time (s),${metrics.simulationTime.toFixed(2)}\n`;
+    csv += `Stopped Vehicles,${metrics.stoppedVehicles}\n`;
+    csv += `Global Throughput (vehicles/min),${metrics.globalThroughput.toFixed(2)}\n`;
+    csv += `Global Congestion Index,${metrics.congestionIndex.toFixed(2)}\n`;
+    csv += `Simulation Time (s),${metrics.simulationTime.toFixed(2)}\n\n`;
+    
+    // Lane metrics
+    csv += '# Lane Metrics\n';
+    csv += 'Lane ID,Average Speed,Vehicle Count,Max Vehicle Count,Average Vehicle Count,Congestion Rate,Throughput,Total Vehicles Passed,Average Wait Time,Queue Length\n';
+    
+    Object.values(metrics.laneMetrics).forEach(lane => {
+      csv += `${lane.laneId},${lane.averageSpeed.toFixed(2)},${lane.vehicleCount},${lane.maxVehicleCount},`;
+      csv += `${lane.averageVehicleCount.toFixed(2)},${lane.congestionRate.toFixed(2)},${lane.throughput.toFixed(2)},`;
+      csv += `${lane.totalVehiclesPassed},${lane.averageWaitTime.toFixed(2)},${lane.queueLength}\n`;
+    });
+    
+    csv += '\n# Intersection Metrics\n';
+    csv += 'Intersection ID,Throughput,Average Wait Time,Max Wait Time,Average Queue Length,Max Queue Length,Total Vehicles Passed,Congestion Rate\n';
+    
+    Object.values(metrics.intersectionMetrics).forEach(intersection => {
+      csv += `${intersection.intersectionId},${intersection.throughput.toFixed(2)},${intersection.averageWaitTime.toFixed(2)},`;
+      csv += `${intersection.maxWaitTime.toFixed(2)},${intersection.averageQueueLength.toFixed(2)},${intersection.maxQueueLength},`;
+      csv += `${intersection.totalVehiclesPassed},${intersection.congestionRate.toFixed(2)}\n`;
+    });
     
     return csv;
   }
@@ -499,6 +983,23 @@ export class KPICollector {
       }
     });
     
+    // Check for lane entries without exits
+    const vehiclesInLaneWithoutExit = new Set();
+    this.vehicleMetrics.forEach(m => {
+      if (m.event === VehicleEvent.ENTER_LANE) {
+        // Check if there's a matching exit event after this
+        const hasExit = this.vehicleMetrics.some(exit => 
+          exit.vehicleId === m.vehicleId && 
+          exit.event === VehicleEvent.EXIT_LANE && 
+          exit.laneId === m.laneId && 
+          exit.timestamp > m.timestamp
+        );
+        if (!hasExit && this.activeVehicles.has(m.vehicleId)) {
+          vehiclesInLaneWithoutExit.add(m.vehicleId);
+        }
+      }
+    });
+    
     // Check for stop events without subsequent start events
     const stoppedWithoutStart = new Set();
     this.vehicleMetrics.forEach(m => {
@@ -525,16 +1026,51 @@ export class KPICollector {
     const directAvgSpeed = allSpeeds.length > 0
       ? allSpeeds.reduce((a, b) => a + b, 0) / allSpeeds.length
       : 0;
+      
+    // Validate lane metrics consistency
+    const laneEntryEvents = this.vehicleMetrics.filter(m => m.event === VehicleEvent.ENTER_LANE);
+    const laneExitEvents = this.vehicleMetrics.filter(m => m.event === VehicleEvent.EXIT_LANE);
+    const lanesToValidate = Object.keys(metrics.laneMetrics);
+    
+    const laneMetricsValidation: { [laneId: string]: { entries: number, exits: number, balance: number } } = {};
+    lanesToValidate.forEach(laneId => {
+      const entries = laneEntryEvents.filter(m => m.laneId === laneId).length;
+      const exits = laneExitEvents.filter(m => m.laneId === laneId).length;
+      laneMetricsValidation[laneId] = {
+        entries,
+        exits,
+        balance: entries - exits
+      };
+    });
+    
+    // Validate intersection metrics consistency
+    const intersectionEntryEvents = this.vehicleMetrics.filter(m => m.event === VehicleEvent.ENTER_INTERSECTION);
+    const intersectionExitEvents = this.vehicleMetrics.filter(m => m.event === VehicleEvent.EXIT_INTERSECTION);
+    const intersectionsToValidate = Object.keys(metrics.intersectionMetrics);
+    
+    const intersectionMetricsValidation: { [intersectionId: string]: { entries: number, exits: number, balance: number } } = {};
+    intersectionsToValidate.forEach(intersectionId => {
+      const entries = intersectionEntryEvents.filter(m => m.intersectionId === intersectionId).length;
+      const exits = intersectionExitEvents.filter(m => m.intersectionId === intersectionId).length;
+      intersectionMetricsValidation[intersectionId] = {
+        entries,
+        exits,
+        balance: entries - exits
+      };
+    });
     
     // Log integrity issues
     console.log('=== Data Integrity Checks ===');
     console.log('Vehicles with exit but no entry:', vehiclesWithExitButNoEntry.length);
     console.log('Vehicles with speed changes but no entry:', vehiclesWithSpeedChangeButNoEntry.size);
     console.log('Vehicles currently in intersection:', vehiclesInIntersectionWithoutExit.size);
+    console.log('Vehicles in lane without exit:', vehiclesInLaneWithoutExit.size);
     console.log('Vehicles stopped without restart:', stoppedWithoutStart.size);
     console.log('Calculated avg speed:', calculatedAvgSpeed);
     console.log('Direct measurement avg speed:', directAvgSpeed);
     console.log('Speed measurement count:', this.speedMeasurements);
+    console.log('Lane metrics validation:', laneMetricsValidation);
+    console.log('Intersection metrics validation:', intersectionMetricsValidation);
     console.log('Total event records:', this.vehicleMetrics.length);
     console.log('==============================');
     
@@ -560,12 +1096,32 @@ export class KPICollector {
     html += `<tr><td>Average speed (direct)</td><td>${directAvgSpeed.toFixed(2)} m/s</td></tr>`;
     html += `<tr><td>Speed measurements</td><td>${this.speedMeasurements}</td></tr>`;
     
+    // Lane and intersection validation
+    html += '<tr><th colspan="3">Lane Metrics Validation</th></tr>';
+    html += '<tr><td>Lane ID</td><td>Entries</td><td>Exits</td></tr>';
+    for (const [laneId, validation] of Object.entries(laneMetricsValidation)) {
+      const isBalanced = validation.balance === 0 || 
+                       (validation.entries > 0 && (validation.balance / validation.entries) < 0.05);
+      const rowClass = isBalanced ? '' : 'validation-error';
+      html += `<tr class="${rowClass}"><td>${laneId}</td><td>${validation.entries}</td><td>${validation.exits}</td></tr>`;
+    }
+    
+    html += '<tr><th colspan="3">Intersection Metrics Validation</th></tr>';
+    html += '<tr><td>Intersection ID</td><td>Entries</td><td>Exits</td></tr>';
+    for (const [intersectionId, validation] of Object.entries(intersectionMetricsValidation)) {
+      const isBalanced = validation.balance === 0 || 
+                       (validation.entries > 0 && (validation.balance / validation.entries) < 0.05);
+      const rowClass = isBalanced ? '' : 'validation-error';
+      html += `<tr class="${rowClass}"><td>${intersectionId}</td><td>${validation.entries}</td><td>${validation.exits}</td></tr>`;
+    }
+    
     html += '<tr><th colspan="2">Data Integrity Issues</th></tr>';
     
     // Add validation warnings in red if issues found
     const hasIssues = vehiclesWithExitButNoEntry.length > 0 || 
                      vehiclesWithSpeedChangeButNoEntry.size > 0 ||
-                     Math.abs(calculatedAvgSpeed - directAvgSpeed) > 1.0;
+                     Math.abs(calculatedAvgSpeed - directAvgSpeed) > 1.0 ||
+                     vehiclesInLaneWithoutExit.size > 0;
                      
     if (hasIssues) {
       if (vehiclesWithExitButNoEntry.length > 0) {
@@ -576,6 +1132,10 @@ export class KPICollector {
         html += `<tr class="validation-error"><td>Vehicles with speed changes but no entry</td><td>${vehiclesWithSpeedChangeButNoEntry.size}</td></tr>`;
       }
       
+      if (vehiclesInLaneWithoutExit.size > 0) {
+        html += `<tr class="validation-error"><td>Vehicles in lane without exit</td><td>${vehiclesInLaneWithoutExit.size}</td></tr>`;
+      }
+      
       if (Math.abs(calculatedAvgSpeed - directAvgSpeed) > 1.0) {
         html += `<tr class="validation-error"><td>Speed calculation discrepancy</td><td>${Math.abs(calculatedAvgSpeed - directAvgSpeed).toFixed(2)}</td></tr>`;
       }
@@ -583,7 +1143,12 @@ export class KPICollector {
       html += `<tr class="validation-success"><td colspan="2">All validation checks passed!</td></tr>`;
     }
     
+    // Global metrics summary
+    html += '<tr><th colspan="2">Global Metrics</th></tr>';
+    html += `<tr><td>Global Throughput (vehicles/min)</td><td>${metrics.globalThroughput.toFixed(2)}</td></tr>`;
+    html += `<tr><td>Congestion Index (0-1)</td><td>${metrics.congestionIndex.toFixed(2)}</td></tr>`;
     html += `<tr><td>Total event records</td><td>${this.vehicleMetrics.length}</td></tr>`;
+    
     html += '</table></div>';
     
     return html;

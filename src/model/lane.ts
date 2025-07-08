@@ -27,6 +27,7 @@ class Lane {
   public middleLine: Segment;
   public length: number;
   public direction: number;
+  public id: string; // Unique ID for lane
 
   constructor(sourceSegment: Segment, targetSegment: Segment, road: Road) {
     this.sourceSegment = sourceSegment;
@@ -37,6 +38,7 @@ class Lane {
     this.leftmostAdjacent = null;
     this.rightmostAdjacent = null;
     this.carsPositions = {};
+    this.id = _.uniqueId('lane');
     this.update();
   }
 

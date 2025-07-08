@@ -78,6 +78,9 @@ class Car {
     
     // Notify KPI collector when a new car enters the simulation
     kpiCollector.recordVehicleEnter(this, Car.worldTime);
+    
+    // Record initial lane entry
+    kpiCollector.recordLaneEnter(this, lane, Car.worldTime);
   }
 
   static copy(car: any): Car {
@@ -102,6 +105,11 @@ class Car {
     // We only record changes greater than 20% of max speed to avoid flooding with minor changes
     if (Math.abs(speed - this._speed) > (this.maxSpeed * 0.2)) {
       kpiCollector.recordSpeedChange(this, Car.worldTime, this._speed, speed);
+      
+      // If car is in a lane, update lane speed metrics
+      if (this.trajectory && this.trajectory.current && this.trajectory.current.lane) {
+        kpiCollector.updateLaneSpeedMetrics(this, this.trajectory.current.lane.id, speed);
+      }
     }
     
     this._speed = speed;
@@ -112,6 +120,11 @@ class Car {
   }
 
   release(): void {
+    // Record exit from current lane
+    if (this.trajectory && this.trajectory.current && this.trajectory.current.lane) {
+      kpiCollector.recordLaneExit(this, this.trajectory.current.lane, Car.worldTime);
+    }
+    
     // Notify KPI collector that a car is exiting the simulation
     kpiCollector.recordVehicleExit(this, Car.worldTime);
     this.trajectory.release();
@@ -196,10 +209,19 @@ class Car {
       if (preferedLane !== currentLane) {
         const previousLane = this.trajectory.current.lane;
         try {
+          // Record exit from previous lane before changing
+          kpiCollector.recordLaneExit(this, previousLane, Car.worldTime);
+          
           this.trajectory.changeLane(preferedLane);
-          // Notify KPI collector about lane change if successful
+          
+          // If lane change was successful
           if (this.trajectory.current.lane !== previousLane) {
+            // Record lane change and entry into new lane
             kpiCollector.recordLaneChange(this, Car.worldTime);
+            kpiCollector.recordLaneEnter(this, this.trajectory.current.lane, Car.worldTime);
+          } else {
+            // If lane change failed, re-enter the previous lane
+            kpiCollector.recordLaneEnter(this, previousLane, Car.worldTime);
           }
         } catch (error) {
           // Lane change failed, continue in current lane

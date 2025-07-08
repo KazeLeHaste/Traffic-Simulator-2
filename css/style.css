@@ -119,3 +119,240 @@ button, .btn {
 /* * { background-color: rgba(255, 0, 0, 0.1); } */
 /* * * { background-color: rgba(0, 255, 0, 0.2); } */
 /* * * * { background-color: rgba(0, 0, 255, 0.3); } */
+
+/* KPI Metrics Styles */
+.metrics-table-container {
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    background: #2d2d2d;
+}
+
+.metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85em;
+}
+
+.metrics-table th,
+.metrics-table td {
+    padding: 6px 8px;
+    border: 1px solid #404040;
+    text-align: left;
+}
+
+.metrics-table th {
+    background-color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.metrics-table tr:nth-child(even) {
+    background-color: #2a2a2a;
+}
+
+.metrics-table tr:hover {
+    background-color: #3a3a3a;
+}
+
+/* Color coding for congestion */
+.congested-row {
+    background-color: rgba(255, 99, 71, 0.2) !important; /* Tomato with transparency */
+}
+
+.moderate-row {
+    background-color: rgba(255, 165, 0, 0.2) !important; /* Orange with transparency */
+}
+
+/* KPI validation styles */
+.kpi-validation {
+    background-color: #2d2d2d;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+.kpi-validation h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #404040;
+    padding-bottom: 10px;
+    color: #f0f0f0;
+}
+
+.validation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.validation-table th, 
+.validation-table td {
+    padding: 6px 8px;
+    border: 1px solid #404040;
+    text-align: left;
+}
+
+.validation-table th {
+    background-color: #333;
+}
+
+.validation-error {
+    background-color: rgba(255, 99, 71, 0.2) !important;
+}
+
+.validation-success {
+    background-color: rgba(50, 205, 50, 0.2) !important;
+}
+
+/* Modal styles for validation and layout selector */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #2d2d2d;
+    margin: 10% auto;
+    padding: 0;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid #404040;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #f0f0f0;
+}
+
+.modal-body {
+    padding: 15px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: 15px;
+    border-top: 1px solid #404040;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Analytics panel styles */
+.analytics-section {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #404040;
+}
+
+.analytics-section:last-child {
+    border-bottom: none;
+}
+
+.analytics-section h4 {
+    margin-bottom: 10px;
+    color: #f0f0f0;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.metric .label {
+    color: #bbb;
+}
+
+.metric .value {
+    font-weight: 500;
+}
+
+/* Color coding for congestion index */
+.good {
+    color: #4caf50 !important;
+}
+
+.warning {
+    color: #ff9800 !important;
+}
+
+.critical {
+    color: #f44336 !important;
+}
+
+.analytics-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Layout selector styles */
+.layout-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.layout-option {
+    background: #333;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #404040;
+}
+
+.layout-option h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.layout-meta {
+    font-size: 0.9em;
+    color: #bbb;
+    margin-bottom: 10px;
+}
+
+.load-layout-btn {
+    width: 100%;
+    margin-top: 10px;
+}

@@ -4048,7 +4048,244 @@ button, .btn {
 /* * { background-color: rgba(255, 0, 0, 0.1); } */
 /* * * { background-color: rgba(0, 255, 0, 0.2); } */
 /* * * * { background-color: rgba(0, 0, 255, 0.3); } */
-`, "",{"version":3,"sources":["webpack://./css/style.css"],"names":[],"mappings":"AAAA;IACI,UAAU;IACV,SAAS;IACT,mBAAmB,EAAE,oBAAoB;IACzC,cAAc,EAAE,eAAe;IAC/B,yGAAyG;IACzG,YAAY;IACZ,WAAW;IACX,gBAAgB,EAAE,sBAAsB;AAC5C;;AAEA,qDAAqD;AACrD;IACI,cAAc;AAClB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,aAAa;IACb,YAAY;IACZ,gBAAgB,EAAE,gCAAgC;IAClD,mBAAmB,EAAE,oBAAoB;AAC7C;;AAEA,iCAAiC;AACjC;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;IACd,kBAAkB;IAClB,YAAY;IACZ,mBAAmB,EAAE,oBAAoB;IACzC,gCAAgC;AACpC;;AAEA;IACI,OAAO;IACP,gBAAgB,EAAE,6BAA6B;IAC/C,kBAAkB;IAClB,0BAA0B,EAAE,iCAAiC;IAC7D,mBAAmB;AACvB;;AAEA,kCAAkC;AAClC;IACI,cAAc;AAClB;;AAEA,iDAAiD;AACjD;;IAEI,YAAY;IACZ,WAAW;IACX,gBAAgB;IAChB,kBAAkB;IAClB,mBAAmB;AACvB;;AAEA;IACI,UAAU;IACV,SAAS;IACT,kBAAkB;IAClB,UAAU;IACV,oBAAoB;IACpB,cAAc;IACd,mBAAmB;IACnB,yBAAyB;IACzB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,OAAO;IACP,kBAAkB;IAClB,iBAAiB;IACjB,mBAAmB;IACnB,aAAa;IACb,mBAAmB;IACnB,uBAAuB;AAC3B;;AAEA;IACI,sBAAsB;IACtB,uBAAuB;IACvB,0BAA0B;IAC1B,2BAA2B;IAC3B,8BAA8B;IAC9B,yBAAyB;IACzB,yBAAyB;AAC7B;;AAEA;;IAEI,aAAa;IACb,YAAY;AAChB;;AAEA;IACI,YAAY;IACZ,mBAAmB;IACnB,+BAA+B;IAC/B,gBAAgB;IAChB,oBAAoB;IACpB,WAAW;AACf;;AAEA,wCAAwC;AACxC;IACI,oBAAoB;IACpB,eAAe;IACf,kBAAkB;IAClB,WAAW;AACf;;AAEA,wCAAwC;AACxC,kDAAkD;AAClD,oDAAoD;AACpD,sDAAsD","sourcesContent":["body, html {\n    padding: 0;\n    margin: 0;\n    background: #1a1a1a; /* Dark background */\n    color: #ffffff; /* White text */\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n    height: 100%;\n    width: 100%;\n    overflow: hidden; /* Default to hidden */\n}\n\n/* Style for pages where we want to allow scrolling */\nbody.allow-scroll {\n    overflow: auto;\n}\n\n#app-container {\n    display: flex;\n    flex-direction: column;\n    height: 100vh;\n    width: 100vw;\n    overflow: hidden; /* Prevent overflow by default */\n    background: #1a1a1a; /* Dark background */\n}\n\n/* Allow scrolling on home page */\n.allow-scroll #app-container {\n    overflow: auto;\n}\n\n#nav-container {\n    flex-shrink: 0;\n    position: relative;\n    z-index: 100;\n    background: #2d2d2d; /* Dark navigation */\n    border-bottom: 1px solid #404040;\n}\n\n#main-content {\n    flex: 1;\n    overflow: hidden; /* Hide overflow by default */\n    position: relative;\n    height: calc(100vh - 60px); /* Reserve space for navigation */\n    background: #1a1a1a;\n}\n\n/* Allow scrolling for home page */\n.allow-scroll #main-content {\n    overflow: auto;\n}\n\n/* Ensure pages fill their container completely */\n.builder-page,\n.simulation-page {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n    position: relative;\n    background: #1a1a1a;\n}\n\n#canvas {\n    padding: 0;\n    margin: 0;\n    position: relative;\n    z-index: 1;\n    pointer-events: auto;\n    display: block;\n    background: #2d2d2d;\n    border: 1px solid #404040;\n    width: 100%;\n    height: 100%;\n}\n\n.visualizer-area {\n    flex: 1;\n    position: relative;\n    min-height: 600px;\n    background: #2d2d2d;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.visualizer-area canvas {\n    width: 100% !important;\n    height: 100% !important;\n    max-width: 100% !important;\n    max-height: 100% !important;\n    background: #2d2d2d !important;\n    border: 1px solid #404040;\n    display: block !important;\n}\n\n.builder-content,\n.simulation-content {\n    display: flex;\n    height: 100%;\n}\n\n.sidebar {\n    width: 280px;\n    background: #2d2d2d;\n    border-right: 1px solid #404040;\n    overflow-y: auto;\n    pointer-events: auto;\n    z-index: 10;\n}\n\n/* Ensure buttons are always clickable */\nbutton, .btn {\n    pointer-events: auto;\n    cursor: pointer;\n    position: relative;\n    z-index: 20;\n}\n\n/* Debug helper - can be removed later */\n/* * { background-color: rgba(255, 0, 0, 0.1); } */\n/* * * { background-color: rgba(0, 255, 0, 0.2); } */\n/* * * * { background-color: rgba(0, 0, 255, 0.3); } */\n"],"sourceRoot":""}]);
+
+/* KPI Metrics Styles */
+.metrics-table-container {
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    background: #2d2d2d;
+}
+
+.metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85em;
+}
+
+.metrics-table th,
+.metrics-table td {
+    padding: 6px 8px;
+    border: 1px solid #404040;
+    text-align: left;
+}
+
+.metrics-table th {
+    background-color: #333;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.metrics-table tr:nth-child(even) {
+    background-color: #2a2a2a;
+}
+
+.metrics-table tr:hover {
+    background-color: #3a3a3a;
+}
+
+/* Color coding for congestion */
+.congested-row {
+    background-color: rgba(255, 99, 71, 0.2) !important; /* Tomato with transparency */
+}
+
+.moderate-row {
+    background-color: rgba(255, 165, 0, 0.2) !important; /* Orange with transparency */
+}
+
+/* KPI validation styles */
+.kpi-validation {
+    background-color: #2d2d2d;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 10px;
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+.kpi-validation h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #404040;
+    padding-bottom: 10px;
+    color: #f0f0f0;
+}
+
+.validation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.validation-table th, 
+.validation-table td {
+    padding: 6px 8px;
+    border: 1px solid #404040;
+    text-align: left;
+}
+
+.validation-table th {
+    background-color: #333;
+}
+
+.validation-error {
+    background-color: rgba(255, 99, 71, 0.2) !important;
+}
+
+.validation-success {
+    background-color: rgba(50, 205, 50, 0.2) !important;
+}
+
+/* Modal styles for validation and layout selector */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #2d2d2d;
+    margin: 10% auto;
+    padding: 0;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid #404040;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #f0f0f0;
+}
+
+.modal-body {
+    padding: 15px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: 15px;
+    border-top: 1px solid #404040;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Analytics panel styles */
+.analytics-section {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #404040;
+}
+
+.analytics-section:last-child {
+    border-bottom: none;
+}
+
+.analytics-section h4 {
+    margin-bottom: 10px;
+    color: #f0f0f0;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.metric .label {
+    color: #bbb;
+}
+
+.metric .value {
+    font-weight: 500;
+}
+
+/* Color coding for congestion index */
+.good {
+    color: #4caf50 !important;
+}
+
+.warning {
+    color: #ff9800 !important;
+}
+
+.critical {
+    color: #f44336 !important;
+}
+
+.analytics-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Layout selector styles */
+.layout-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.layout-option {
+    background: #333;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #404040;
+}
+
+.layout-option h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.layout-meta {
+    font-size: 0.9em;
+    color: #bbb;
+    margin-bottom: 10px;
+}
+
+.load-layout-btn {
+    width: 100%;
+    margin-top: 10px;
+}
+`, "",{"version":3,"sources":["webpack://./css/style.css"],"names":[],"mappings":"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","sourcesContent":["body, html {\n    padding: 0;\n    margin: 0;\n    background: #1a1a1a; /* Dark background */\n    color: #ffffff; /* White text */\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n    height: 100%;\n    width: 100%;\n    overflow: hidden; /* Default to hidden */\n}\n\n/* Style for pages where we want to allow scrolling */\nbody.allow-scroll {\n    overflow: auto;\n}\n\n#app-container {\n    display: flex;\n    flex-direction: column;\n    height: 100vh;\n    width: 100vw;\n    overflow: hidden; /* Prevent overflow by default */\n    background: #1a1a1a; /* Dark background */\n}\n\n/* Allow scrolling on home page */\n.allow-scroll #app-container {\n    overflow: auto;\n}\n\n#nav-container {\n    flex-shrink: 0;\n    position: relative;\n    z-index: 100;\n    background: #2d2d2d; /* Dark navigation */\n    border-bottom: 1px solid #404040;\n}\n\n#main-content {\n    flex: 1;\n    overflow: hidden; /* Hide overflow by default */\n    position: relative;\n    height: calc(100vh - 60px); /* Reserve space for navigation */\n    background: #1a1a1a;\n}\n\n/* Allow scrolling for home page */\n.allow-scroll #main-content {\n    overflow: auto;\n}\n\n/* Ensure pages fill their container completely */\n.builder-page,\n.simulation-page {\n    height: 100%;\n    width: 100%;\n    overflow: hidden;\n    position: relative;\n    background: #1a1a1a;\n}\n\n#canvas {\n    padding: 0;\n    margin: 0;\n    position: relative;\n    z-index: 1;\n    pointer-events: auto;\n    display: block;\n    background: #2d2d2d;\n    border: 1px solid #404040;\n    width: 100%;\n    height: 100%;\n}\n\n.visualizer-area {\n    flex: 1;\n    position: relative;\n    min-height: 600px;\n    background: #2d2d2d;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.visualizer-area canvas {\n    width: 100% !important;\n    height: 100% !important;\n    max-width: 100% !important;\n    max-height: 100% !important;\n    background: #2d2d2d !important;\n    border: 1px solid #404040;\n    display: block !important;\n}\n\n.builder-content,\n.simulation-content {\n    display: flex;\n    height: 100%;\n}\n\n.sidebar {\n    width: 280px;\n    background: #2d2d2d;\n    border-right: 1px solid #404040;\n    overflow-y: auto;\n    pointer-events: auto;\n    z-index: 10;\n}\n\n/* Ensure buttons are always clickable */\nbutton, .btn {\n    pointer-events: auto;\n    cursor: pointer;\n    position: relative;\n    z-index: 20;\n}\n\n/* Debug helper - can be removed later */\n/* * { background-color: rgba(255, 0, 0, 0.1); } */\n/* * * { background-color: rgba(0, 255, 0, 0.2); } */\n/* * * * { background-color: rgba(0, 0, 255, 0.3); } */\n\n/* KPI Metrics Styles */\n.metrics-table-container {\n    margin-top: 10px;\n    max-height: 300px;\n    overflow-y: auto;\n    border: 1px solid #404040;\n    border-radius: 4px;\n    background: #2d2d2d;\n}\n\n.metrics-table {\n    width: 100%;\n    border-collapse: collapse;\n    font-size: 0.85em;\n}\n\n.metrics-table th,\n.metrics-table td {\n    padding: 6px 8px;\n    border: 1px solid #404040;\n    text-align: left;\n}\n\n.metrics-table th {\n    background-color: #333;\n    position: sticky;\n    top: 0;\n    z-index: 1;\n}\n\n.metrics-table tr:nth-child(even) {\n    background-color: #2a2a2a;\n}\n\n.metrics-table tr:hover {\n    background-color: #3a3a3a;\n}\n\n/* Color coding for congestion */\n.congested-row {\n    background-color: rgba(255, 99, 71, 0.2) !important; /* Tomato with transparency */\n}\n\n.moderate-row {\n    background-color: rgba(255, 165, 0, 0.2) !important; /* Orange with transparency */\n}\n\n/* KPI validation styles */\n.kpi-validation {\n    background-color: #2d2d2d;\n    border: 1px solid #404040;\n    border-radius: 4px;\n    padding: 15px;\n    margin-top: 10px;\n    overflow-y: auto;\n    max-height: 80vh;\n}\n\n.kpi-validation h3 {\n    margin-top: 0;\n    border-bottom: 1px solid #404040;\n    padding-bottom: 10px;\n    color: #f0f0f0;\n}\n\n.validation-table {\n    width: 100%;\n    border-collapse: collapse;\n    margin: 10px 0;\n}\n\n.validation-table th, \n.validation-table td {\n    padding: 6px 8px;\n    border: 1px solid #404040;\n    text-align: left;\n}\n\n.validation-table th {\n    background-color: #333;\n}\n\n.validation-error {\n    background-color: rgba(255, 99, 71, 0.2) !important;\n}\n\n.validation-success {\n    background-color: rgba(50, 205, 50, 0.2) !important;\n}\n\n/* Modal styles for validation and layout selector */\n.modal {\n    display: none;\n    position: fixed;\n    z-index: 1000;\n    left: 0;\n    top: 0;\n    width: 100%;\n    height: 100%;\n    background-color: rgba(0,0,0,0.7);\n    overflow: auto;\n}\n\n.modal-content {\n    background-color: #2d2d2d;\n    margin: 10% auto;\n    padding: 0;\n    border: 1px solid #404040;\n    border-radius: 4px;\n    width: 80%;\n    max-width: 800px;\n    max-height: 80vh;\n    display: flex;\n    flex-direction: column;\n    box-shadow: 0 4px 8px rgba(0,0,0,0.2);\n}\n\n.modal-header {\n    padding: 15px;\n    border-bottom: 1px solid #404040;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n}\n\n.modal-header h2 {\n    margin: 0;\n    color: #f0f0f0;\n}\n\n.modal-body {\n    padding: 15px;\n    overflow-y: auto;\n    flex: 1;\n}\n\n.modal-footer {\n    padding: 15px;\n    border-top: 1px solid #404040;\n    display: flex;\n    justify-content: flex-end;\n}\n\n.close {\n    color: #aaa;\n    float: right;\n    font-size: 28px;\n    font-weight: bold;\n    cursor: pointer;\n}\n\n.close:hover,\n.close:focus {\n    color: #fff;\n    text-decoration: none;\n}\n\n/* Analytics panel styles */\n.analytics-section {\n    margin-bottom: 15px;\n    padding-bottom: 10px;\n    border-bottom: 1px solid #404040;\n}\n\n.analytics-section:last-child {\n    border-bottom: none;\n}\n\n.analytics-section h4 {\n    margin-bottom: 10px;\n    color: #f0f0f0;\n}\n\n.metric {\n    display: flex;\n    justify-content: space-between;\n    margin-bottom: 5px;\n    font-size: 0.9em;\n}\n\n.metric .label {\n    color: #bbb;\n}\n\n.metric .value {\n    font-weight: 500;\n}\n\n/* Color coding for congestion index */\n.good {\n    color: #4caf50 !important;\n}\n\n.warning {\n    color: #ff9800 !important;\n}\n\n.critical {\n    color: #f44336 !important;\n}\n\n.analytics-actions {\n    display: flex;\n    gap: 10px;\n    margin-top: 15px;\n}\n\n/* Layout selector styles */\n.layout-options {\n    display: grid;\n    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));\n    gap: 15px;\n}\n\n.layout-option {\n    background: #333;\n    padding: 15px;\n    border-radius: 4px;\n    border: 1px solid #404040;\n}\n\n.layout-option h4 {\n    margin-top: 0;\n    margin-bottom: 5px;\n}\n\n.layout-meta {\n    font-size: 0.9em;\n    color: #bbb;\n    margin-bottom: 10px;\n}\n\n.load-layout-btn {\n    width: 100%;\n    margin-top: 10px;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -21740,6 +21977,8 @@ class Car {
         this.nextLane = null;
         // Notify KPI collector when a new car enters the simulation
         kpi_collector_1.kpiCollector.recordVehicleEnter(this, Car.worldTime);
+        // Record initial lane entry
+        kpi_collector_1.kpiCollector.recordLaneEnter(this, lane, Car.worldTime);
     }
     static copy(car) {
         const result = Object.create(Car.prototype);
@@ -21761,6 +22000,10 @@ class Car {
         // We only record changes greater than 20% of max speed to avoid flooding with minor changes
         if (Math.abs(speed - this._speed) > (this.maxSpeed * 0.2)) {
             kpi_collector_1.kpiCollector.recordSpeedChange(this, Car.worldTime, this._speed, speed);
+            // If car is in a lane, update lane speed metrics
+            if (this.trajectory && this.trajectory.current && this.trajectory.current.lane) {
+                kpi_collector_1.kpiCollector.updateLaneSpeedMetrics(this, this.trajectory.current.lane.id, speed);
+            }
         }
         this._speed = speed;
     }
@@ -21768,6 +22011,10 @@ class Car {
         return this.trajectory.direction;
     }
     release() {
+        // Record exit from current lane
+        if (this.trajectory && this.trajectory.current && this.trajectory.current.lane) {
+            kpi_collector_1.kpiCollector.recordLaneExit(this, this.trajectory.current.lane, Car.worldTime);
+        }
         // Notify KPI collector that a car is exiting the simulation
         kpi_collector_1.kpiCollector.recordVehicleExit(this, Car.worldTime);
         this.trajectory.release();
@@ -21837,10 +22084,18 @@ class Car {
             if (preferedLane !== currentLane) {
                 const previousLane = this.trajectory.current.lane;
                 try {
+                    // Record exit from previous lane before changing
+                    kpi_collector_1.kpiCollector.recordLaneExit(this, previousLane, Car.worldTime);
                     this.trajectory.changeLane(preferedLane);
-                    // Notify KPI collector about lane change if successful
+                    // If lane change was successful
                     if (this.trajectory.current.lane !== previousLane) {
+                        // Record lane change and entry into new lane
                         kpi_collector_1.kpiCollector.recordLaneChange(this, Car.worldTime);
+                        kpi_collector_1.kpiCollector.recordLaneEnter(this, this.trajectory.current.lane, Car.worldTime);
+                    }
+                    else {
+                        // If lane change failed, re-enter the previous lane
+                        kpi_collector_1.kpiCollector.recordLaneEnter(this, previousLane, Car.worldTime);
                     }
                 }
                 catch (error) {
@@ -22197,12 +22452,15 @@ var VehicleEvent;
     VehicleEvent["STOP_MOVING"] = "stop_moving";
     VehicleEvent["CHANGE_LANE"] = "change_lane";
     VehicleEvent["SPEED_CHANGE"] = "speed_change";
+    VehicleEvent["ENTER_LANE"] = "enter_lane";
+    VehicleEvent["EXIT_LANE"] = "exit_lane";
 })(VehicleEvent = exports.VehicleEvent || (exports.VehicleEvent = {}));
 class KPICollector {
     constructor() {
         // Store metrics
         this.vehicleMetrics = [];
         this.intersectionMetrics = [];
+        this.laneMetrics = [];
         this.activeVehicles = new Set();
         this.stoppedVehicles = new Set();
         this.stoppedTimestamps = {};
@@ -22212,6 +22470,17 @@ class KPICollector {
         this.totalSpeed = 0;
         this.speedMeasurements = 0;
         this.waitTimes = [];
+        // Lane tracking
+        this.vehiclesInLane = {}; // laneId -> Set of vehicleIds
+        this.laneEntryTimes = {}; // vehicleId -> {laneId -> entryTime}
+        this.laneThroughput = {}; // laneId -> count
+        this.laneWaitTimes = {}; // laneId -> waitTimes array
+        this.laneTotalSpeeds = {}; // laneId -> {total, count}
+        // Intersection tracking
+        this.intersectionEntryTimes = {}; // vehicleId -> {intersectionId -> entryTime}
+        this.intersectionThroughput = {}; // intersectionId -> count
+        this.intersectionWaitTimes = {}; // intersectionId -> waitTimes array
+        this.intersectionQueueHistory = {}; // intersectionId -> queueLengths array
         // Settings
         this.sampleInterval = 0.5; // How often to sample speed (in simulation seconds)
         this.lastSampleTime = 0;
@@ -22241,6 +22510,7 @@ class KPICollector {
     reset() {
         this.vehicleMetrics = [];
         this.intersectionMetrics = [];
+        this.laneMetrics = [];
         this.activeVehicles = new Set();
         this.stoppedVehicles = new Set();
         this.stoppedTimestamps = {};
@@ -22250,6 +22520,17 @@ class KPICollector {
         this.speedMeasurements = 0;
         this.waitTimes = [];
         this.isRecording = false;
+        // Reset lane tracking
+        this.vehiclesInLane = {};
+        this.laneEntryTimes = {};
+        this.laneThroughput = {};
+        this.laneWaitTimes = {};
+        this.laneTotalSpeeds = {};
+        // Reset intersection tracking
+        this.intersectionEntryTimes = {};
+        this.intersectionThroughput = {};
+        this.intersectionWaitTimes = {};
+        this.intersectionQueueHistory = {};
         if (this.cleanupTimeout !== null) {
             clearTimeout(this.cleanupTimeout);
             this.cleanupTimeout = null;
@@ -22350,16 +22631,31 @@ class KPICollector {
     recordIntersectionEnter(vehicle, intersection, time) {
         if (!this.isRecording)
             return;
+        const intersectionId = intersection.id;
+        // Initialize intersection tracking structures if needed
+        if (!this.intersectionEntryTimes[vehicle.id]) {
+            this.intersectionEntryTimes[vehicle.id] = {};
+        }
+        if (!this.intersectionQueueHistory[intersectionId]) {
+            this.intersectionQueueHistory[intersectionId] = [];
+        }
+        // Record entry time for calculating wait time later
+        this.intersectionEntryTimes[vehicle.id][intersectionId] = time;
+        // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
             timestamp: time,
             speed: vehicle.speed,
+            intersectionId: intersectionId,
             event: VehicleEvent.ENTER_INTERSECTION
         });
         // Update intersection metrics
-        const queueLength = this.getVehiclesAtIntersection(intersection.id).length;
+        const queueLength = this.getVehiclesAtIntersection(intersectionId).length;
+        // Store queue length history
+        this.intersectionQueueHistory[intersectionId].push(queueLength);
+        // Record updated intersection metrics
         this.intersectionMetrics.push({
-            intersectionId: intersection.id,
+            intersectionId: intersectionId,
             timestamp: time,
             queueLength: queueLength
         });
@@ -22370,19 +22666,225 @@ class KPICollector {
     recordIntersectionExit(vehicle, intersection, time) {
         if (!this.isRecording)
             return;
+        const intersectionId = intersection.id;
+        // Initialize tracking if needed
+        if (!this.intersectionEntryTimes[vehicle.id]) {
+            this.intersectionEntryTimes[vehicle.id] = {};
+        }
+        if (!this.intersectionThroughput[intersectionId]) {
+            this.intersectionThroughput[intersectionId] = 0;
+        }
+        if (!this.intersectionWaitTimes[intersectionId]) {
+            this.intersectionWaitTimes[intersectionId] = [];
+        }
+        // Calculate wait time for the vehicle at this intersection
+        if (this.intersectionEntryTimes[vehicle.id][intersectionId]) {
+            const waitTime = time - this.intersectionEntryTimes[vehicle.id][intersectionId];
+            this.intersectionWaitTimes[intersectionId].push(waitTime);
+            delete this.intersectionEntryTimes[vehicle.id][intersectionId];
+        }
+        // Increment throughput counter
+        this.intersectionThroughput[intersectionId]++;
+        // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
             timestamp: time,
             speed: vehicle.speed,
+            intersectionId: intersectionId,
             event: VehicleEvent.EXIT_INTERSECTION
         });
         // Update intersection metrics
-        const queueLength = this.getVehiclesAtIntersection(intersection.id).length;
+        const queueLength = this.getVehiclesAtIntersection(intersectionId).length;
+        // Update queue length history
+        if (!this.intersectionQueueHistory[intersectionId]) {
+            this.intersectionQueueHistory[intersectionId] = [];
+        }
+        this.intersectionQueueHistory[intersectionId].push(queueLength);
+        // Record updated intersection metrics
         this.intersectionMetrics.push({
-            intersectionId: intersection.id,
+            intersectionId: intersectionId,
             timestamp: time,
-            queueLength: queueLength
+            queueLength: queueLength,
+            // Calculate throughput as vehicles per minute (based on simulation time)
+            throughput: this.calculateIntersectionThroughput(intersectionId, time)
         });
+    }
+    /**
+     * Calculate vehicles per minute throughput for an intersection
+     */
+    calculateIntersectionThroughput(intersectionId, currentTime) {
+        const throughput = this.intersectionThroughput[intersectionId] || 0;
+        const elapsedMinutes = Math.max(0.001, (currentTime - this.simulationStartTime) / 60);
+        return throughput / elapsedMinutes; // Vehicles per minute
+    }
+    /**
+     * Record a vehicle entering a lane
+     */
+    recordLaneEnter(vehicle, lane, time) {
+        if (!this.isRecording)
+            return;
+        const laneId = lane.id;
+        // Initialize lane tracking structures if needed
+        if (!this.vehiclesInLane[laneId]) {
+            this.vehiclesInLane[laneId] = new Set();
+        }
+        if (!this.laneEntryTimes[vehicle.id]) {
+            this.laneEntryTimes[vehicle.id] = {};
+        }
+        if (!this.laneWaitTimes[laneId]) {
+            this.laneWaitTimes[laneId] = [];
+        }
+        if (!this.laneTotalSpeeds[laneId]) {
+            this.laneTotalSpeeds[laneId] = { total: 0, count: 0 };
+        }
+        // Record entry time for calculating wait time later
+        this.laneEntryTimes[vehicle.id][laneId] = time;
+        // Add vehicle to the lane
+        this.vehiclesInLane[laneId].add(vehicle.id);
+        // Update lane metrics
+        this.laneMetrics.push({
+            laneId: laneId,
+            timestamp: time,
+            vehicleCount: this.vehiclesInLane[laneId].size,
+            averageSpeed: this.calculateLaneAverageSpeed(laneId),
+            congestionRate: this.calculateLaneCongestion(lane, this.vehiclesInLane[laneId].size)
+        });
+        // Record the event
+        this.vehicleMetrics.push({
+            vehicleId: vehicle.id,
+            timestamp: time,
+            speed: vehicle.speed,
+            laneId: laneId,
+            event: VehicleEvent.ENTER_LANE
+        });
+    }
+    /**
+     * Record a vehicle exiting a lane
+     */
+    recordLaneExit(vehicle, lane, time) {
+        var _a, _b;
+        if (!this.isRecording)
+            return;
+        const laneId = lane.id;
+        // Make sure we have tracking data structures
+        if (!this.vehiclesInLane[laneId]) {
+            this.vehiclesInLane[laneId] = new Set();
+        }
+        if (!this.laneEntryTimes[vehicle.id]) {
+            this.laneEntryTimes[vehicle.id] = {};
+        }
+        if (!this.laneThroughput[laneId]) {
+            this.laneThroughput[laneId] = 0;
+        }
+        if (!this.laneWaitTimes[laneId]) {
+            this.laneWaitTimes[laneId] = [];
+        }
+        // Calculate time spent in lane
+        if (this.laneEntryTimes[vehicle.id][laneId]) {
+            const timeInLane = time - this.laneEntryTimes[vehicle.id][laneId];
+            this.laneWaitTimes[laneId].push(timeInLane);
+            delete this.laneEntryTimes[vehicle.id][laneId];
+        }
+        // Remove vehicle from lane
+        if (this.vehiclesInLane[laneId]) {
+            this.vehiclesInLane[laneId].delete(vehicle.id);
+        }
+        // Increment throughput count
+        this.laneThroughput[laneId] = (this.laneThroughput[laneId] || 0) + 1;
+        // Update lane metrics
+        this.laneMetrics.push({
+            laneId: laneId,
+            timestamp: time,
+            vehicleCount: ((_a = this.vehiclesInLane[laneId]) === null || _a === void 0 ? void 0 : _a.size) || 0,
+            averageSpeed: this.calculateLaneAverageSpeed(laneId),
+            congestionRate: this.calculateLaneCongestion(lane, ((_b = this.vehiclesInLane[laneId]) === null || _b === void 0 ? void 0 : _b.size) || 0)
+        });
+        // Record the event
+        this.vehicleMetrics.push({
+            vehicleId: vehicle.id,
+            timestamp: time,
+            speed: vehicle.speed,
+            laneId: laneId,
+            event: VehicleEvent.EXIT_LANE
+        });
+    }
+    /**
+     * Calculate average speed for a specific lane
+     */
+    calculateLaneAverageSpeed(laneId) {
+        const laneSpeedData = this.laneTotalSpeeds[laneId];
+        if (!laneSpeedData || laneSpeedData.count === 0) {
+            return 0;
+        }
+        return laneSpeedData.total / laneSpeedData.count;
+    }
+    /**
+     * Calculate congestion rate for a lane (0-1)
+     * Uses vehicle count compared to lane capacity
+     */
+    calculateLaneCongestion(lane, vehicleCount) {
+        // Lane capacity is a reasonable estimate based on lane length and minimum safe distance
+        // This is an approximation - actual capacity would depend on lane properties
+        const approximateCapacity = lane.length / 10; // Assuming average vehicle + safe distance is ~10 units
+        return Math.min(1, vehicleCount / approximateCapacity);
+    }
+    /**
+     * Sample the current state of a specific lane
+     */
+    sampleLaneState(lane, time) {
+        if (!this.isRecording)
+            return;
+        const laneId = lane.id;
+        if (!this.vehiclesInLane[laneId]) {
+            this.vehiclesInLane[laneId] = new Set();
+        }
+        // Count vehicles in the lane
+        const vehicleCount = this.vehiclesInLane[laneId].size;
+        // Calculate congestion rate
+        const congestionRate = this.calculateLaneCongestion(lane, vehicleCount);
+        // Collect speeds of vehicles in the lane to calculate average speed
+        let totalSpeed = 0;
+        let count = 0;
+        // This would require a mapping of which vehicles are in which lane
+        // We'll update this in the recordLaneEnter/Exit methods
+        // Add this to our lane metrics
+        this.laneMetrics.push({
+            laneId: laneId,
+            timestamp: time,
+            vehicleCount: vehicleCount,
+            averageSpeed: this.calculateLaneAverageSpeed(laneId),
+            congestionRate: congestionRate,
+            queueLength: this.calculateLaneQueueLength(laneId)
+        });
+    }
+    /**
+     * Calculate queue length in a lane based on stopped vehicles
+     */
+    calculateLaneQueueLength(laneId) {
+        // Count stopped vehicles in the lane
+        let queueCount = 0;
+        if (this.vehiclesInLane[laneId]) {
+            this.vehiclesInLane[laneId].forEach(vehicleId => {
+                if (this.stoppedVehicles.has(vehicleId)) {
+                    queueCount++;
+                }
+            });
+        }
+        return queueCount;
+    }
+    /**
+     * Update lane speed metrics when a vehicle's speed changes
+     */
+    updateLaneSpeedMetrics(vehicle, laneId, speed) {
+        if (!this.isRecording || !laneId)
+            return;
+        // Initialize if needed
+        if (!this.laneTotalSpeeds[laneId]) {
+            this.laneTotalSpeeds[laneId] = { total: 0, count: 0 };
+        }
+        // Update speed metrics for the lane
+        this.laneTotalSpeeds[laneId].total += speed;
+        this.laneTotalSpeeds[laneId].count++;
     }
     /**
      * Sample the current speeds of all vehicles
@@ -22478,8 +22980,117 @@ class KPICollector {
             stoppedVehicles: this.stoppedVehicles.size,
             intersectionUtilization,
             roadUtilization,
-            simulationTime: currentTime - this.simulationStartTime
+            simulationTime: currentTime - this.simulationStartTime,
+            // New expanded metrics
+            laneMetrics: this.calculateLaneMetrics(),
+            intersectionMetrics: this.calculateIntersectionMetrics(),
+            globalThroughput: this.calculateGlobalThroughput(),
+            congestionIndex: this.calculateCongestionIndex()
         };
+    }
+    /**
+     * Calculate detailed lane metrics
+     */
+    calculateLaneMetrics() {
+        const laneMetrics = {};
+        // Calculate metrics for each vehicle
+        this.vehicleMetrics.forEach(metric => {
+            if (metric.event === VehicleEvent.ENTER_LANE || metric.event === VehicleEvent.EXIT_LANE) {
+                const laneId = metric.laneId || '';
+                if (!laneMetrics[laneId]) {
+                    laneMetrics[laneId] = {
+                        laneId: laneId,
+                        averageSpeed: 0,
+                        vehicleCount: 0,
+                        maxVehicleCount: 0,
+                        averageVehicleCount: 0,
+                        congestionRate: 0,
+                        throughput: 0,
+                        totalVehiclesPassed: 0,
+                        averageWaitTime: 0,
+                        queueLength: 0
+                    };
+                }
+                const laneMetric = laneMetrics[laneId];
+                // Update counts
+                laneMetric.vehicleCount++;
+                laneMetric.totalVehiclesPassed++;
+                // Update speeds
+                laneMetric.averageSpeed += metric.speed;
+                // Update queue length (simple approximation)
+                if (metric.event === VehicleEvent.ENTER_LANE) {
+                    laneMetric.queueLength++;
+                }
+                else if (metric.event === VehicleEvent.EXIT_LANE) {
+                    laneMetric.queueLength = Math.max(0, laneMetric.queueLength - 1);
+                }
+            }
+        });
+        // Finalize metrics calculation
+        for (const laneId in laneMetrics) {
+            const metric = laneMetrics[laneId];
+            metric.averageSpeed /= metric.vehicleCount || 1;
+            metric.congestionRate = Math.min(1, metric.queueLength / 10); // Assume max 10 vehicles before congestion
+            metric.throughput = metric.totalVehiclesPassed / (this.simulationStartTime + 1); // Per minute
+        }
+        return laneMetrics;
+    }
+    /**
+     * Calculate detailed intersection metrics
+     */
+    calculateIntersectionMetrics() {
+        const intersectionMetrics = {};
+        // Calculate metrics for each vehicle
+        this.vehicleMetrics.forEach(metric => {
+            if (metric.event === VehicleEvent.ENTER_INTERSECTION || metric.event === VehicleEvent.EXIT_INTERSECTION) {
+                const intersectionId = metric.intersectionId || '';
+                if (!intersectionMetrics[intersectionId]) {
+                    intersectionMetrics[intersectionId] = {
+                        intersectionId: intersectionId,
+                        throughput: 0,
+                        averageWaitTime: 0,
+                        maxWaitTime: 0,
+                        averageQueueLength: 0,
+                        maxQueueLength: 0,
+                        totalVehiclesPassed: 0,
+                        congestionRate: 0
+                    };
+                }
+                const intersectionMetric = intersectionMetrics[intersectionId];
+                // Update counts
+                intersectionMetric.totalVehiclesPassed++;
+                // Update queue length (simple approximation)
+                if (metric.event === VehicleEvent.ENTER_INTERSECTION) {
+                    intersectionMetric.averageQueueLength++;
+                }
+                else if (metric.event === VehicleEvent.EXIT_INTERSECTION) {
+                    intersectionMetric.averageQueueLength = Math.max(0, intersectionMetric.averageQueueLength - 1);
+                }
+            }
+        });
+        // Finalize metrics calculation
+        for (const intersectionId in intersectionMetrics) {
+            const metric = intersectionMetrics[intersectionId];
+            metric.throughput = metric.totalVehiclesPassed / (this.simulationStartTime + 1); // Per minute
+            metric.congestionRate = Math.min(1, metric.averageQueueLength / 10); // Assume max 10 vehicles before congestion
+        }
+        return intersectionMetrics;
+    }
+    /**
+     * Calculate global throughput (vehicles per minute)
+     */
+    calculateGlobalThroughput() {
+        return this.vehicleMetrics.length / (this.simulationStartTime + 1);
+    }
+    /**
+     * Calculate congestion index (0-1)
+     */
+    calculateCongestionIndex() {
+        // Simple index based on average queue length across all intersections and lanes
+        const totalQueueLength = Object.values(this.calculateLaneMetrics()).reduce((sum, metric) => sum + metric.queueLength, 0) +
+            Object.values(this.calculateIntersectionMetrics()).reduce((sum, metric) => sum + metric.averageQueueLength, 0);
+        const maxPossibleQueueLength = (Object.keys(this.calculateLaneMetrics()).length + Object.keys(this.calculateIntersectionMetrics()).length) * 10; // Assume max 10 vehicles before congestion per lane/intersection
+        return Math.min(1, totalQueueLength / maxPossibleQueueLength);
     }
     /**
      * Export metrics as CSV format
@@ -22487,13 +23098,34 @@ class KPICollector {
     exportMetricsCSV() {
         const metrics = this.getMetrics();
         let csv = 'Metric,Value\n';
+        // Global metrics
+        csv += '# Global Simulation Metrics\n';
         csv += `Total Vehicles,${metrics.totalVehicles}\n`;
+        csv += `Active Vehicles,${metrics.activeVehicles}\n`;
         csv += `Completed Trips,${metrics.completedTrips}\n`;
         csv += `Average Speed (m/s),${metrics.averageSpeed.toFixed(2)}\n`;
         csv += `Average Wait Time (s),${metrics.averageWaitTime.toFixed(2)}\n`;
         csv += `Max Wait Time (s),${metrics.maxWaitTime.toFixed(2)}\n`;
         csv += `Total Stops,${metrics.totalStops}\n`;
-        csv += `Simulation Time (s),${metrics.simulationTime.toFixed(2)}\n`;
+        csv += `Stopped Vehicles,${metrics.stoppedVehicles}\n`;
+        csv += `Global Throughput (vehicles/min),${metrics.globalThroughput.toFixed(2)}\n`;
+        csv += `Global Congestion Index,${metrics.congestionIndex.toFixed(2)}\n`;
+        csv += `Simulation Time (s),${metrics.simulationTime.toFixed(2)}\n\n`;
+        // Lane metrics
+        csv += '# Lane Metrics\n';
+        csv += 'Lane ID,Average Speed,Vehicle Count,Max Vehicle Count,Average Vehicle Count,Congestion Rate,Throughput,Total Vehicles Passed,Average Wait Time,Queue Length\n';
+        Object.values(metrics.laneMetrics).forEach(lane => {
+            csv += `${lane.laneId},${lane.averageSpeed.toFixed(2)},${lane.vehicleCount},${lane.maxVehicleCount},`;
+            csv += `${lane.averageVehicleCount.toFixed(2)},${lane.congestionRate.toFixed(2)},${lane.throughput.toFixed(2)},`;
+            csv += `${lane.totalVehiclesPassed},${lane.averageWaitTime.toFixed(2)},${lane.queueLength}\n`;
+        });
+        csv += '\n# Intersection Metrics\n';
+        csv += 'Intersection ID,Throughput,Average Wait Time,Max Wait Time,Average Queue Length,Max Queue Length,Total Vehicles Passed,Congestion Rate\n';
+        Object.values(metrics.intersectionMetrics).forEach(intersection => {
+            csv += `${intersection.intersectionId},${intersection.throughput.toFixed(2)},${intersection.averageWaitTime.toFixed(2)},`;
+            csv += `${intersection.maxWaitTime.toFixed(2)},${intersection.averageQueueLength.toFixed(2)},${intersection.maxQueueLength},`;
+            csv += `${intersection.totalVehiclesPassed},${intersection.congestionRate.toFixed(2)}\n`;
+        });
         return csv;
     }
     /**
@@ -22573,6 +23205,20 @@ class KPICollector {
                 }
             }
         });
+        // Check for lane entries without exits
+        const vehiclesInLaneWithoutExit = new Set();
+        this.vehicleMetrics.forEach(m => {
+            if (m.event === VehicleEvent.ENTER_LANE) {
+                // Check if there's a matching exit event after this
+                const hasExit = this.vehicleMetrics.some(exit => exit.vehicleId === m.vehicleId &&
+                    exit.event === VehicleEvent.EXIT_LANE &&
+                    exit.laneId === m.laneId &&
+                    exit.timestamp > m.timestamp);
+                if (!hasExit && this.activeVehicles.has(m.vehicleId)) {
+                    vehiclesInLaneWithoutExit.add(m.vehicleId);
+                }
+            }
+        });
         // Check for stop events without subsequent start events
         const stoppedWithoutStart = new Set();
         this.vehicleMetrics.forEach(m => {
@@ -22595,15 +23241,46 @@ class KPICollector {
         const directAvgSpeed = allSpeeds.length > 0
             ? allSpeeds.reduce((a, b) => a + b, 0) / allSpeeds.length
             : 0;
+        // Validate lane metrics consistency
+        const laneEntryEvents = this.vehicleMetrics.filter(m => m.event === VehicleEvent.ENTER_LANE);
+        const laneExitEvents = this.vehicleMetrics.filter(m => m.event === VehicleEvent.EXIT_LANE);
+        const lanesToValidate = Object.keys(metrics.laneMetrics);
+        const laneMetricsValidation = {};
+        lanesToValidate.forEach(laneId => {
+            const entries = laneEntryEvents.filter(m => m.laneId === laneId).length;
+            const exits = laneExitEvents.filter(m => m.laneId === laneId).length;
+            laneMetricsValidation[laneId] = {
+                entries,
+                exits,
+                balance: entries - exits
+            };
+        });
+        // Validate intersection metrics consistency
+        const intersectionEntryEvents = this.vehicleMetrics.filter(m => m.event === VehicleEvent.ENTER_INTERSECTION);
+        const intersectionExitEvents = this.vehicleMetrics.filter(m => m.event === VehicleEvent.EXIT_INTERSECTION);
+        const intersectionsToValidate = Object.keys(metrics.intersectionMetrics);
+        const intersectionMetricsValidation = {};
+        intersectionsToValidate.forEach(intersectionId => {
+            const entries = intersectionEntryEvents.filter(m => m.intersectionId === intersectionId).length;
+            const exits = intersectionExitEvents.filter(m => m.intersectionId === intersectionId).length;
+            intersectionMetricsValidation[intersectionId] = {
+                entries,
+                exits,
+                balance: entries - exits
+            };
+        });
         // Log integrity issues
         console.log('=== Data Integrity Checks ===');
         console.log('Vehicles with exit but no entry:', vehiclesWithExitButNoEntry.length);
         console.log('Vehicles with speed changes but no entry:', vehiclesWithSpeedChangeButNoEntry.size);
         console.log('Vehicles currently in intersection:', vehiclesInIntersectionWithoutExit.size);
+        console.log('Vehicles in lane without exit:', vehiclesInLaneWithoutExit.size);
         console.log('Vehicles stopped without restart:', stoppedWithoutStart.size);
         console.log('Calculated avg speed:', calculatedAvgSpeed);
         console.log('Direct measurement avg speed:', directAvgSpeed);
         console.log('Speed measurement count:', this.speedMeasurements);
+        console.log('Lane metrics validation:', laneMetricsValidation);
+        console.log('Intersection metrics validation:', intersectionMetricsValidation);
         console.log('Total event records:', this.vehicleMetrics.length);
         console.log('==============================');
         // Create HTML report for UI display
@@ -22624,17 +23301,38 @@ class KPICollector {
         html += `<tr><td>Average speed (calculated)</td><td>${calculatedAvgSpeed.toFixed(2)} m/s</td></tr>`;
         html += `<tr><td>Average speed (direct)</td><td>${directAvgSpeed.toFixed(2)} m/s</td></tr>`;
         html += `<tr><td>Speed measurements</td><td>${this.speedMeasurements}</td></tr>`;
+        // Lane and intersection validation
+        html += '<tr><th colspan="3">Lane Metrics Validation</th></tr>';
+        html += '<tr><td>Lane ID</td><td>Entries</td><td>Exits</td></tr>';
+        for (const [laneId, validation] of Object.entries(laneMetricsValidation)) {
+            const isBalanced = validation.balance === 0 ||
+                (validation.entries > 0 && (validation.balance / validation.entries) < 0.05);
+            const rowClass = isBalanced ? '' : 'validation-error';
+            html += `<tr class="${rowClass}"><td>${laneId}</td><td>${validation.entries}</td><td>${validation.exits}</td></tr>`;
+        }
+        html += '<tr><th colspan="3">Intersection Metrics Validation</th></tr>';
+        html += '<tr><td>Intersection ID</td><td>Entries</td><td>Exits</td></tr>';
+        for (const [intersectionId, validation] of Object.entries(intersectionMetricsValidation)) {
+            const isBalanced = validation.balance === 0 ||
+                (validation.entries > 0 && (validation.balance / validation.entries) < 0.05);
+            const rowClass = isBalanced ? '' : 'validation-error';
+            html += `<tr class="${rowClass}"><td>${intersectionId}</td><td>${validation.entries}</td><td>${validation.exits}</td></tr>`;
+        }
         html += '<tr><th colspan="2">Data Integrity Issues</th></tr>';
         // Add validation warnings in red if issues found
         const hasIssues = vehiclesWithExitButNoEntry.length > 0 ||
             vehiclesWithSpeedChangeButNoEntry.size > 0 ||
-            Math.abs(calculatedAvgSpeed - directAvgSpeed) > 1.0;
+            Math.abs(calculatedAvgSpeed - directAvgSpeed) > 1.0 ||
+            vehiclesInLaneWithoutExit.size > 0;
         if (hasIssues) {
             if (vehiclesWithExitButNoEntry.length > 0) {
                 html += `<tr class="validation-error"><td>Vehicles with exit but no entry</td><td>${vehiclesWithExitButNoEntry.length}</td></tr>`;
             }
             if (vehiclesWithSpeedChangeButNoEntry.size > 0) {
                 html += `<tr class="validation-error"><td>Vehicles with speed changes but no entry</td><td>${vehiclesWithSpeedChangeButNoEntry.size}</td></tr>`;
+            }
+            if (vehiclesInLaneWithoutExit.size > 0) {
+                html += `<tr class="validation-error"><td>Vehicles in lane without exit</td><td>${vehiclesInLaneWithoutExit.size}</td></tr>`;
             }
             if (Math.abs(calculatedAvgSpeed - directAvgSpeed) > 1.0) {
                 html += `<tr class="validation-error"><td>Speed calculation discrepancy</td><td>${Math.abs(calculatedAvgSpeed - directAvgSpeed).toFixed(2)}</td></tr>`;
@@ -22643,6 +23341,10 @@ class KPICollector {
         else {
             html += `<tr class="validation-success"><td colspan="2">All validation checks passed!</td></tr>`;
         }
+        // Global metrics summary
+        html += '<tr><th colspan="2">Global Metrics</th></tr>';
+        html += `<tr><td>Global Throughput (vehicles/min)</td><td>${metrics.globalThroughput.toFixed(2)}</td></tr>`;
+        html += `<tr><td>Congestion Index (0-1)</td><td>${metrics.congestionIndex.toFixed(2)}</td></tr>`;
         html += `<tr><td>Total event records</td><td>${this.vehicleMetrics.length}</td></tr>`;
         html += '</table></div>';
         return html;
@@ -22777,6 +23479,7 @@ class Lane {
         this.leftmostAdjacent = null;
         this.rightmostAdjacent = null;
         this.carsPositions = {};
+        this.id = _.uniqueId('lane');
         this.update();
     }
     toJSON() {
@@ -23487,6 +24190,10 @@ class World {
             }
             // Sample car speeds for KPI collection
             kpi_collector_1.kpiCollector.sampleSpeeds(this.cars.all(), this.time);
+            // Periodically sample lane states for KPI collection (every ~1 simulation second)
+            if (Math.floor(this.time) > Math.floor(this.time - delta)) {
+                this.sampleLaneStates();
+            }
         };
         this.set({});
     }
@@ -23555,6 +24262,18 @@ class World {
         this.carsNumber = 0;
         // Then do a full reset with set({})
         this.set({});
+    }
+    // Sample all lane states for KPI collection
+    sampleLaneStates() {
+        // Sample each lane's state
+        for (const roadId in this.roads.all()) {
+            const road = this.roads.all()[roadId];
+            if (road && road.lanes) {
+                for (const lane of road.lanes) {
+                    kpi_collector_1.kpiCollector.sampleLaneState(lane, this.time);
+                }
+            }
+        }
     }
     // Add or remove ONE car per tick to match target count (exactly from reference)
     refreshCars() {
@@ -23663,6 +24382,18 @@ class World {
                 }
             }
         }
+    }
+    // Get KPI metrics for the current simulation state
+    getKPIMetrics() {
+        return kpi_collector_1.kpiCollector.getMetrics(this.time);
+    }
+    // Export KPI metrics as CSV
+    exportKPIMetricsCSV() {
+        return kpi_collector_1.kpiCollector.exportMetricsCSV();
+    }
+    // Validate KPI metrics and return HTML report
+    validateKPIMetrics() {
+        return kpi_collector_1.kpiCollector.validateMetrics();
     }
 }
 module.exports = World;
@@ -25405,6 +26136,16 @@ class SimulationPageComponent {
                     <span class="label">Stopped Vehicles:</span>
                     <span class="value" id="stopped-vehicles">0</span>
                   </div>
+                  
+                  <div class="metric">
+                    <span class="label">Global Throughput:</span>
+                    <span class="value" id="global-throughput">0.00 veh/min</span>
+                  </div>
+                  
+                  <div class="metric">
+                    <span class="label">Congestion Index:</span>
+                    <span class="value" id="congestion-index">0.00</span>
+                  </div>
                 </div>
                 
                 <div class="analytics-section">
@@ -25421,14 +26162,57 @@ class SimulationPageComponent {
                   </div>
                 </div>
                 
-                <div class="analytics-actions">
-                  <button id="save-analytics" class="btn btn-secondary">
-                    💾 Save Analytics
-                  </button>
+                <div class="analytics-section">
+                  <h4>Lane Metrics</h4>
+                  <button id="toggle-lane-metrics" class="btn btn-sm">Show/Hide Lane Metrics</button>
                   
-                  <button id="export-csv" class="btn btn-secondary">
-                    📊 Export CSV
-                  </button>
+                  <div id="lane-metrics-container" class="metrics-table-container" style="display: none;">
+                    <table class="metrics-table">
+                      <thead>
+                        <tr>
+                          <th>Lane ID</th>
+                          <th>Avg Speed</th>
+                          <th>Vehicles</th>
+                          <th>Congestion</th>
+                          <th>Throughput</th>
+                          <th>Total Passed</th>
+                          <th>Queue Length</th>
+                        </tr>
+                      </thead>
+                      <tbody id="lane-metrics-body">
+                        <!-- Lanes will be populated here -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <div class="analytics-section">
+                  <h4>Intersection Metrics</h4>
+                  <button id="toggle-intersection-metrics" class="btn btn-sm">Show/Hide Intersection Metrics</button>
+                  
+                  <div id="intersection-metrics-container" class="metrics-table-container" style="display: none;">
+                    <table class="metrics-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Throughput</th>
+                          <th>Avg Wait</th>
+                          <th>Max Wait</th>
+                          <th>Avg Queue</th>
+                          <th>Total Passed</th>
+                          <th>Congestion</th>
+                        </tr>
+                      </thead>
+                      <tbody id="intersection-metrics-body">
+                        <!-- Intersections will be populated here -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <div class="analytics-actions">
+                  <button id="export-metrics" class="btn btn-sm btn-success">Export CSV</button>
+                  <button id="validate-metrics" class="btn btn-sm btn-info">Validate Metrics</button>
                 </div>
                 
                 <!-- Developer Tools Section -->
@@ -25467,7 +26251,7 @@ class SimulationPageComponent {
     `;
     }
     addEventListeners() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         // Console log to ensure this runs
         console.log('Setting up SimulationPage event listeners');
         // Simulation toggle
@@ -25482,13 +26266,29 @@ class SimulationPageComponent {
             panel.style.display = isHidden ? 'block' : 'none';
             btn.textContent = isHidden ? 'Hide Analytics' : 'Show Analytics';
         });
+        // Toggle lane metrics
+        (_d = document.getElementById('toggle-lane-metrics')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => {
+            const container = document.getElementById('lane-metrics-container');
+            if (container) {
+                const isHidden = container.style.display === 'none';
+                container.style.display = isHidden ? 'block' : 'none';
+            }
+        });
+        // Toggle intersection metrics
+        (_e = document.getElementById('toggle-intersection-metrics')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => {
+            const container = document.getElementById('intersection-metrics-container');
+            if (container) {
+                const isHidden = container.style.display === 'none';
+                container.style.display = isHidden ? 'block' : 'none';
+            }
+        });
         // Car count slider
-        (_d = document.getElementById('cars-range')) === null || _d === void 0 ? void 0 : _d.addEventListener('input', (e) => {
+        (_f = document.getElementById('cars-range')) === null || _f === void 0 ? void 0 : _f.addEventListener('input', (e) => {
             const value = e.target.value;
             document.getElementById('cars-value').textContent = value;
         });
         // Time factor slider
-        (_e = document.getElementById('time-factor-range')) === null || _e === void 0 ? void 0 : _e.addEventListener('input', (e) => {
+        (_g = document.getElementById('time-factor-range')) === null || _g === void 0 ? void 0 : _g.addEventListener('input', (e) => {
             const value = e.target.value;
             document.getElementById('time-factor-value').textContent = value;
             // Update the visualizer time factor in real-time if it exists
@@ -25496,10 +26296,8 @@ class SimulationPageComponent {
                 this.visualizer.timeFactor = parseFloat(value);
             }
         });
-        // Save analytics
-        (_f = document.getElementById('save-analytics')) === null || _f === void 0 ? void 0 : _f.addEventListener('click', () => this.saveAnalytics());
-        // Export CSV
-        (_g = document.getElementById('export-csv')) === null || _g === void 0 ? void 0 : _g.addEventListener('click', () => {
+        // Export metrics as CSV
+        (_h = document.getElementById('export-metrics')) === null || _h === void 0 ? void 0 : _h.addEventListener('click', () => {
             if (!this.world) {
                 this.showNotification('No simulation data to export', 'warning');
                 return;
@@ -25513,36 +26311,39 @@ class SimulationPageComponent {
                 this.showNotification('Failed to export metrics', 'error');
             }
         });
-        // Validate KPIs (for developers)
-        (_h = document.getElementById('validate-kpis')) === null || _h === void 0 ? void 0 : _h.addEventListener('click', () => {
+        // Validate metrics
+        (_j = document.getElementById('validate-metrics')) === null || _j === void 0 ? void 0 : _j.addEventListener('click', () => {
             if (!this.world) {
                 this.showNotification('No simulation data to validate', 'warning');
                 return;
             }
             try {
-                // Capture console logs to display in UI
-                const logs = [];
-                const originalConsoleLog = console.log;
-                console.log = (...args) => {
-                    originalConsoleLog(...args);
-                    logs.push(args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)).join(' '));
-                };
                 // Run validation and get HTML report
                 const validationHtml = kpi_collector_1.kpiCollector.validateMetrics();
-                // Restore original console.log
-                console.log = originalConsoleLog;
-                // Display results in UI
-                const outputElement = document.getElementById('validation-output');
-                const resultsElement = document.getElementById('validation-results');
-                const htmlResultsElement = document.getElementById('validation-html-results');
-                if (outputElement && resultsElement && htmlResultsElement) {
-                    outputElement.style.display = 'block';
-                    // Show HTML report in dedicated container
-                    htmlResultsElement.innerHTML = validationHtml;
-                    htmlResultsElement.style.display = 'block';
-                    // Also show raw console logs for debugging
-                    resultsElement.textContent = logs.join('\n');
+                // Create modal for displaying validation results
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <span class="close">&times;</span>
+              <h2>KPI Validation Results</h2>
+            </div>
+            <div class="modal-body">
+              ${validationHtml}
+            </div>
+          </div>
+        `;
+                document.body.appendChild(modal);
+                // Add event listener to close modal
+                const closeBtn = modal.querySelector('.close');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        document.body.removeChild(modal);
+                    });
                 }
+                // Show modal
+                modal.style.display = 'block';
                 this.showNotification('KPI validation complete', 'info');
             }
             catch (error) {
@@ -25550,8 +26351,8 @@ class SimulationPageComponent {
                 this.showNotification('Failed to validate KPIs', 'error');
             }
         });
-        // Load layout
-        (_j = document.getElementById('load-layout')) === null || _j === void 0 ? void 0 : _j.addEventListener('click', () => this.showLoadDialog());
+        // Load layout button
+        (_k = document.getElementById('load-layout')) === null || _k === void 0 ? void 0 : _k.addEventListener('click', () => this.showLayoutSelector());
     }
     async initializeSimulation() {
         var _a, _b, _c;
@@ -25978,6 +26779,99 @@ class SimulationPageComponent {
             totalIntersectionsEl.textContent = worldStats.totalIntersections.toString();
         if (totalRoadsEl)
             totalRoadsEl.textContent = worldStats.totalRoads.toString();
+        // Update advanced metrics
+        const globalThroughputEl = document.getElementById('global-throughput');
+        const congestionIndexEl = document.getElementById('congestion-index');
+        if (globalThroughputEl)
+            globalThroughputEl.textContent = kpiMetrics.globalThroughput.toFixed(2) + ' veh/min';
+        if (congestionIndexEl) {
+            congestionIndexEl.textContent = kpiMetrics.congestionIndex.toFixed(2);
+            // Add color coding based on congestion level
+            if (kpiMetrics.congestionIndex > 0.75) {
+                congestionIndexEl.classList.add('critical');
+                congestionIndexEl.classList.remove('warning', 'good');
+            }
+            else if (kpiMetrics.congestionIndex > 0.5) {
+                congestionIndexEl.classList.add('warning');
+                congestionIndexEl.classList.remove('critical', 'good');
+            }
+            else {
+                congestionIndexEl.classList.add('good');
+                congestionIndexEl.classList.remove('critical', 'warning');
+            }
+        }
+        // Update Lane Metrics Table if it exists
+        this.updateLaneMetricsTable(kpiMetrics);
+        // Update Intersection Metrics Table if it exists
+        this.updateIntersectionMetricsTable(kpiMetrics);
+    }
+    /**
+     * Updates the lane metrics table with current KPI data
+     */
+    updateLaneMetricsTable(kpiMetrics) {
+        const laneTableBody = document.getElementById('lane-metrics-body');
+        if (!laneTableBody)
+            return;
+        // Clear existing rows
+        laneTableBody.innerHTML = '';
+        // Add a row for each lane
+        Object.values(kpiMetrics.laneMetrics).forEach((lane) => {
+            const row = document.createElement('tr');
+            // Format lane ID to be more readable
+            const shortLaneId = lane.laneId.replace('lane', '');
+            // Build the row with lane metrics
+            row.innerHTML = `
+        <td>${shortLaneId}</td>
+        <td>${lane.averageSpeed.toFixed(2)} m/s</td>
+        <td>${lane.vehicleCount}</td>
+        <td>${lane.congestionRate.toFixed(2)}</td>
+        <td>${lane.throughput.toFixed(2)} veh/min</td>
+        <td>${lane.totalVehiclesPassed}</td>
+        <td>${lane.queueLength}</td>
+      `;
+            // Add color coding based on congestion level
+            if (lane.congestionRate > 0.75) {
+                row.classList.add('congested-row');
+            }
+            else if (lane.congestionRate > 0.5) {
+                row.classList.add('moderate-row');
+            }
+            laneTableBody.appendChild(row);
+        });
+    }
+    /**
+     * Updates the intersection metrics table with current KPI data
+     */
+    updateIntersectionMetricsTable(kpiMetrics) {
+        const intersectionTableBody = document.getElementById('intersection-metrics-body');
+        if (!intersectionTableBody)
+            return;
+        // Clear existing rows
+        intersectionTableBody.innerHTML = '';
+        // Add a row for each intersection
+        Object.values(kpiMetrics.intersectionMetrics).forEach((intersection) => {
+            const row = document.createElement('tr');
+            // Format intersection ID to be more readable
+            const shortIntersectionId = intersection.intersectionId.replace('intersection', '');
+            // Build the row with intersection metrics
+            row.innerHTML = `
+        <td>${shortIntersectionId}</td>
+        <td>${intersection.throughput.toFixed(2)} veh/min</td>
+        <td>${intersection.averageWaitTime.toFixed(2)}s</td>
+        <td>${intersection.maxWaitTime.toFixed(2)}s</td>
+        <td>${intersection.averageQueueLength.toFixed(1)}</td>
+        <td>${intersection.totalVehiclesPassed}</td>
+        <td>${intersection.congestionRate.toFixed(2)}</td>
+      `;
+            // Add color coding based on congestion level
+            if (intersection.congestionRate > 0.75) {
+                row.classList.add('congested-row');
+            }
+            else if (intersection.congestionRate > 0.5) {
+                row.classList.add('moderate-row');
+            }
+            intersectionTableBody.appendChild(row);
+        });
     }
     /**
      * Shows a notification message to the user
@@ -26541,6 +27435,87 @@ class SimulationPageComponent {
         catch (error) {
             console.error('Error loading layout:', error);
             this.showNotification('Failed to load layout', 'error');
+        }
+    }
+    /**
+     * Show layout selection dialog
+     */
+    async showLayoutSelector() {
+        try {
+            // Refresh layouts first
+            await this.loadLayouts();
+            if (this.layouts.length === 0) {
+                this.showNotification('No layouts available. Create one in the Builder first.', 'warning');
+                return;
+            }
+            // Create modal dialog for layout selection
+            const modal = document.createElement('div');
+            modal.className = 'modal layout-selector-modal';
+            // Build HTML for layout selection
+            let layoutOptionsHtml = '';
+            this.layouts.forEach(layout => {
+                layoutOptionsHtml += `
+          <div class="layout-option" data-layout-id="${layout.id}">
+            <h4>${layout.name || 'Untitled Layout'}</h4>
+            <p class="layout-meta">
+              ${layout.description || 'No description'}<br>
+              <small>Created: ${new Date(layout.created).toLocaleString()}</small>
+            </p>
+            <button class="btn btn-sm btn-primary load-layout-btn" data-layout-id="${layout.id}">
+              Load Layout
+            </button>
+          </div>
+        `;
+            });
+            // Create modal content
+            modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>Select a Layout</h2>
+          </div>
+          <div class="modal-body">
+            <div class="layout-options">
+              ${layoutOptionsHtml}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary close-modal-btn">Cancel</button>
+          </div>
+        </div>
+      `;
+            // Add modal to document
+            document.body.appendChild(modal);
+            // Add event listeners to load buttons
+            const loadButtons = modal.querySelectorAll('.load-layout-btn');
+            loadButtons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    const layoutId = button.getAttribute('data-layout-id');
+                    if (layoutId) {
+                        document.body.removeChild(modal);
+                        await this.loadLayoutById(layoutId);
+                    }
+                });
+            });
+            // Add event listener to close buttons
+            const closeButton = modal.querySelector('.close');
+            const cancelButton = modal.querySelector('.close-modal-btn');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+            }
+            if (cancelButton) {
+                cancelButton.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+            }
+            // Show modal
+            modal.style.display = 'block';
+        }
+        catch (error) {
+            console.error('❌ Failed to show layout selector:', error);
+            this.showNotification('Failed to show layout selection dialog', 'error');
         }
     }
     /**

@@ -171,6 +171,16 @@ export class SimulationPageComponent {
                     <span class="label">Stopped Vehicles:</span>
                     <span class="value" id="stopped-vehicles">0</span>
                   </div>
+                  
+                  <div class="metric">
+                    <span class="label">Global Throughput:</span>
+                    <span class="value" id="global-throughput">0.00 veh/min</span>
+                  </div>
+                  
+                  <div class="metric">
+                    <span class="label">Congestion Index:</span>
+                    <span class="value" id="congestion-index">0.00</span>
+                  </div>
                 </div>
                 
                 <div class="analytics-section">
@@ -187,14 +197,57 @@ export class SimulationPageComponent {
                   </div>
                 </div>
                 
-                <div class="analytics-actions">
-                  <button id="save-analytics" class="btn btn-secondary">
-                    💾 Save Analytics
-                  </button>
+                <div class="analytics-section">
+                  <h4>Lane Metrics</h4>
+                  <button id="toggle-lane-metrics" class="btn btn-sm">Show/Hide Lane Metrics</button>
                   
-                  <button id="export-csv" class="btn btn-secondary">
-                    📊 Export CSV
-                  </button>
+                  <div id="lane-metrics-container" class="metrics-table-container" style="display: none;">
+                    <table class="metrics-table">
+                      <thead>
+                        <tr>
+                          <th>Lane ID</th>
+                          <th>Avg Speed</th>
+                          <th>Vehicles</th>
+                          <th>Congestion</th>
+                          <th>Throughput</th>
+                          <th>Total Passed</th>
+                          <th>Queue Length</th>
+                        </tr>
+                      </thead>
+                      <tbody id="lane-metrics-body">
+                        <!-- Lanes will be populated here -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <div class="analytics-section">
+                  <h4>Intersection Metrics</h4>
+                  <button id="toggle-intersection-metrics" class="btn btn-sm">Show/Hide Intersection Metrics</button>
+                  
+                  <div id="intersection-metrics-container" class="metrics-table-container" style="display: none;">
+                    <table class="metrics-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Throughput</th>
+                          <th>Avg Wait</th>
+                          <th>Max Wait</th>
+                          <th>Avg Queue</th>
+                          <th>Total Passed</th>
+                          <th>Congestion</th>
+                        </tr>
+                      </thead>
+                      <tbody id="intersection-metrics-body">
+                        <!-- Intersections will be populated here -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <div class="analytics-actions">
+                  <button id="export-metrics" class="btn btn-sm btn-success">Export CSV</button>
+                  <button id="validate-metrics" class="btn btn-sm btn-info">Validate Metrics</button>
                 </div>
                 
                 <!-- Developer Tools Section -->
@@ -253,6 +306,24 @@ export class SimulationPageComponent {
       btn!.textContent = isHidden ? 'Hide Analytics' : 'Show Analytics';
     });
     
+    // Toggle lane metrics
+    document.getElementById('toggle-lane-metrics')?.addEventListener('click', () => {
+      const container = document.getElementById('lane-metrics-container');
+      if (container) {
+        const isHidden = container.style.display === 'none';
+        container.style.display = isHidden ? 'block' : 'none';
+      }
+    });
+    
+    // Toggle intersection metrics
+    document.getElementById('toggle-intersection-metrics')?.addEventListener('click', () => {
+      const container = document.getElementById('intersection-metrics-container');
+      if (container) {
+        const isHidden = container.style.display === 'none';
+        container.style.display = isHidden ? 'block' : 'none';
+      }
+    });
+    
     // Car count slider
     document.getElementById('cars-range')?.addEventListener('input', (e) => {
       const value = (e.target as HTMLInputElement).value;
@@ -270,11 +341,8 @@ export class SimulationPageComponent {
       }
     });
     
-    // Save analytics
-    document.getElementById('save-analytics')?.addEventListener('click', () => this.saveAnalytics());
-    
-    // Export CSV
-    document.getElementById('export-csv')?.addEventListener('click', () => {
+    // Export metrics as CSV
+    document.getElementById('export-metrics')?.addEventListener('click', () => {
       if (!this.world) {
         this.showNotification('No simulation data to export', 'warning');
         return;
@@ -289,45 +357,43 @@ export class SimulationPageComponent {
       }
     });
     
-    // Validate KPIs (for developers)
-    document.getElementById('validate-kpis')?.addEventListener('click', () => {
+    // Validate metrics
+    document.getElementById('validate-metrics')?.addEventListener('click', () => {
       if (!this.world) {
         this.showNotification('No simulation data to validate', 'warning');
         return;
       }
       
       try {
-        // Capture console logs to display in UI
-        const logs: string[] = [];
-        const originalConsoleLog = console.log;
-        console.log = (...args: any[]) => {
-          originalConsoleLog(...args);
-          logs.push(args.map(arg => 
-            typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-          ).join(' '));
-        };
-        
         // Run validation and get HTML report
         const validationHtml = kpiCollector.validateMetrics();
         
-        // Restore original console.log
-        console.log = originalConsoleLog;
+        // Create modal for displaying validation results
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <div class="modal-header">
+              <span class="close">&times;</span>
+              <h2>KPI Validation Results</h2>
+            </div>
+            <div class="modal-body">
+              ${validationHtml}
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
         
-        // Display results in UI
-        const outputElement = document.getElementById('validation-output');
-        const resultsElement = document.getElementById('validation-results');
-        const htmlResultsElement = document.getElementById('validation-html-results');
-        
-        if (outputElement && resultsElement && htmlResultsElement) {
-          outputElement.style.display = 'block';
-          
-          // Show HTML report in dedicated container
-          htmlResultsElement.innerHTML = validationHtml;
-          htmlResultsElement.style.display = 'block';
-          
-          // Also show raw console logs for debugging
-          resultsElement.textContent = logs.join('\n');
+        // Add event listener to close modal
+        const closeBtn = modal.querySelector('.close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modal);
+          });
         }
+        
+        // Show modal
+        modal.style.display = 'block';
         
         this.showNotification('KPI validation complete', 'info');
       } catch (error) {
@@ -336,8 +402,8 @@ export class SimulationPageComponent {
       }
     });
     
-    // Load layout
-    document.getElementById('load-layout')?.addEventListener('click', () => this.showLoadDialog());
+    // Load layout button
+    document.getElementById('load-layout')?.addEventListener('click', () => this.showLayoutSelector());
   }
 
   private async initializeSimulation() {
@@ -824,6 +890,111 @@ export class SimulationPageComponent {
     
     if (totalIntersectionsEl) totalIntersectionsEl.textContent = worldStats.totalIntersections.toString();
     if (totalRoadsEl) totalRoadsEl.textContent = worldStats.totalRoads.toString();
+    
+    // Update advanced metrics
+    const globalThroughputEl = document.getElementById('global-throughput');
+    const congestionIndexEl = document.getElementById('congestion-index');
+    
+    if (globalThroughputEl) globalThroughputEl.textContent = kpiMetrics.globalThroughput.toFixed(2) + ' veh/min';
+    if (congestionIndexEl) {
+      congestionIndexEl.textContent = kpiMetrics.congestionIndex.toFixed(2);
+      
+      // Add color coding based on congestion level
+      if (kpiMetrics.congestionIndex > 0.75) {
+        congestionIndexEl.classList.add('critical');
+        congestionIndexEl.classList.remove('warning', 'good');
+      } else if (kpiMetrics.congestionIndex > 0.5) {
+        congestionIndexEl.classList.add('warning');
+        congestionIndexEl.classList.remove('critical', 'good');
+      } else {
+        congestionIndexEl.classList.add('good');
+        congestionIndexEl.classList.remove('critical', 'warning');
+      }
+    }
+    
+    // Update Lane Metrics Table if it exists
+    this.updateLaneMetricsTable(kpiMetrics);
+    
+    // Update Intersection Metrics Table if it exists
+    this.updateIntersectionMetricsTable(kpiMetrics);
+  }
+  
+  /**
+   * Updates the lane metrics table with current KPI data
+   */
+  private updateLaneMetricsTable(kpiMetrics: any) {
+    const laneTableBody = document.getElementById('lane-metrics-body');
+    if (!laneTableBody) return;
+    
+    // Clear existing rows
+    laneTableBody.innerHTML = '';
+    
+    // Add a row for each lane
+    Object.values(kpiMetrics.laneMetrics).forEach((lane: any) => {
+      const row = document.createElement('tr');
+      
+      // Format lane ID to be more readable
+      const shortLaneId = lane.laneId.replace('lane', '');
+      
+      // Build the row with lane metrics
+      row.innerHTML = `
+        <td>${shortLaneId}</td>
+        <td>${lane.averageSpeed.toFixed(2)} m/s</td>
+        <td>${lane.vehicleCount}</td>
+        <td>${lane.congestionRate.toFixed(2)}</td>
+        <td>${lane.throughput.toFixed(2)} veh/min</td>
+        <td>${lane.totalVehiclesPassed}</td>
+        <td>${lane.queueLength}</td>
+      `;
+      
+      // Add color coding based on congestion level
+      if (lane.congestionRate > 0.75) {
+        row.classList.add('congested-row');
+      } else if (lane.congestionRate > 0.5) {
+        row.classList.add('moderate-row');
+      }
+      
+      laneTableBody.appendChild(row);
+    });
+  }
+  
+  /**
+   * Updates the intersection metrics table with current KPI data
+   */
+  private updateIntersectionMetricsTable(kpiMetrics: any) {
+    const intersectionTableBody = document.getElementById('intersection-metrics-body');
+    if (!intersectionTableBody) return;
+    
+    // Clear existing rows
+    intersectionTableBody.innerHTML = '';
+    
+    // Add a row for each intersection
+    Object.values(kpiMetrics.intersectionMetrics).forEach((intersection: any) => {
+      const row = document.createElement('tr');
+      
+      // Format intersection ID to be more readable
+      const shortIntersectionId = intersection.intersectionId.replace('intersection', '');
+      
+      // Build the row with intersection metrics
+      row.innerHTML = `
+        <td>${shortIntersectionId}</td>
+        <td>${intersection.throughput.toFixed(2)} veh/min</td>
+        <td>${intersection.averageWaitTime.toFixed(2)}s</td>
+        <td>${intersection.maxWaitTime.toFixed(2)}s</td>
+        <td>${intersection.averageQueueLength.toFixed(1)}</td>
+        <td>${intersection.totalVehiclesPassed}</td>
+        <td>${intersection.congestionRate.toFixed(2)}</td>
+      `;
+      
+      // Add color coding based on congestion level
+      if (intersection.congestionRate > 0.75) {
+        row.classList.add('congested-row');
+      } else if (intersection.congestionRate > 0.5) {
+        row.classList.add('moderate-row');
+      }
+      
+      intersectionTableBody.appendChild(row);
+    });
   }
   
   /**
@@ -1419,6 +1590,98 @@ export class SimulationPageComponent {
     } catch (error) {
       console.error('Error loading layout:', error);
       this.showNotification('Failed to load layout', 'error');
+    }
+  }
+
+  /**
+   * Show layout selection dialog
+   */
+  private async showLayoutSelector(): Promise<void> {
+    try {
+      // Refresh layouts first
+      await this.loadLayouts();
+      
+      if (this.layouts.length === 0) {
+        this.showNotification('No layouts available. Create one in the Builder first.', 'warning');
+        return;
+      }
+      
+      // Create modal dialog for layout selection
+      const modal = document.createElement('div');
+      modal.className = 'modal layout-selector-modal';
+      
+      // Build HTML for layout selection
+      let layoutOptionsHtml = '';
+      this.layouts.forEach(layout => {
+        layoutOptionsHtml += `
+          <div class="layout-option" data-layout-id="${layout.id}">
+            <h4>${layout.name || 'Untitled Layout'}</h4>
+            <p class="layout-meta">
+              ${layout.description || 'No description'}<br>
+              <small>Created: ${new Date(layout.created).toLocaleString()}</small>
+            </p>
+            <button class="btn btn-sm btn-primary load-layout-btn" data-layout-id="${layout.id}">
+              Load Layout
+            </button>
+          </div>
+        `;
+      });
+      
+      // Create modal content
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>Select a Layout</h2>
+          </div>
+          <div class="modal-body">
+            <div class="layout-options">
+              ${layoutOptionsHtml}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary close-modal-btn">Cancel</button>
+          </div>
+        </div>
+      `;
+      
+      // Add modal to document
+      document.body.appendChild(modal);
+      
+      // Add event listeners to load buttons
+      const loadButtons = modal.querySelectorAll('.load-layout-btn');
+      loadButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+          const layoutId = (button as HTMLElement).getAttribute('data-layout-id');
+          if (layoutId) {
+            document.body.removeChild(modal);
+            await this.loadLayoutById(layoutId);
+          }
+        });
+      });
+      
+      // Add event listener to close buttons
+      const closeButton = modal.querySelector('.close');
+      const cancelButton = modal.querySelector('.close-modal-btn');
+      
+      if (closeButton) {
+        closeButton.addEventListener('click', () => {
+          document.body.removeChild(modal);
+        });
+      }
+      
+      if (cancelButton) {
+        cancelButton.addEventListener('click', () => {
+          document.body.removeChild(modal);
+        });
+      }
+      
+      // Show modal
+      modal.style.display = 'block';
+      
+    } catch (error) {
+      console.error('❌ Failed to show layout selector:', error);
+      this.showNotification('Failed to show layout selection dialog', 'error');
     }
   }
 

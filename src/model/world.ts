@@ -141,6 +141,24 @@ class World {
     
     // Sample car speeds for KPI collection
     kpiCollector.sampleSpeeds(this.cars.all(), this.time);
+    
+    // Periodically sample lane states for KPI collection (every ~1 simulation second)
+    if (Math.floor(this.time) > Math.floor(this.time - delta)) {
+      this.sampleLaneStates();
+    }
+  }
+
+  // Sample all lane states for KPI collection
+  private sampleLaneStates(): void {
+    // Sample each lane's state
+    for (const roadId in this.roads.all()) {
+      const road = this.roads.all()[roadId];
+      if (road && road.lanes) {
+        for (const lane of road.lanes) {
+          kpiCollector.sampleLaneState(lane, this.time);
+        }
+      }
+    }
   }
 
   // Add or remove ONE car per tick to match target count (exactly from reference)
@@ -266,6 +284,21 @@ class World {
         }
       }
     }
+  }
+
+  // Get KPI metrics for the current simulation state
+  getKPIMetrics(): any {
+    return kpiCollector.getMetrics(this.time);
+  }
+
+  // Export KPI metrics as CSV
+  exportKPIMetricsCSV(): string {
+    return kpiCollector.exportMetricsCSV();
+  }
+
+  // Validate KPI metrics and return HTML report
+  validateKPIMetrics(): string {
+    return kpiCollector.validateMetrics();
   }
 }
 
