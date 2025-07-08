@@ -44,20 +44,20 @@ class Visualizer {
   private toolCheckInterval: number | null = null; // Track interval to prevent duplicates
   private _errorCount: number = 0; // Track consecutive errors for error recovery
 
-  constructor(world: any) {
+  constructor(world: any, canvasId: string = 'canvas') {
     this.world = world;
     
     // Ensure draw method is properly bound to this instance
     this.draw = this.draw.bind(this);
     
     // Get the canvas that should exist (created by page component)
-    this.$canvas = $('#canvas');
+    this.$canvas = $(`#${canvasId}`);
     this.canvas = this.$canvas[0] as HTMLCanvasElement;
     
     // Canvas setup
     if (!this.canvas) {
-      console.error('❌ Canvas element not found!');
-      throw new Error('Canvas element with id "canvas" not found');
+      console.error(`❌ Canvas element with id "${canvasId}" not found!`);
+      throw new Error(`Canvas element with id "${canvasId}" not found`);
     }
     
     this.ctx = this.canvas.getContext('2d')!;
@@ -448,6 +448,9 @@ class Visualizer {
       
       // Setup camera transform
       this.setupContext();
+      
+      // ALWAYS DRAW GRID FIRST (especially important for builder mode)
+      this.drawGrid();
       
       // ALWAYS DRAW ALL WORLD OBJECTS
       

@@ -42,12 +42,15 @@ class ControlSignals {
     if (!controlSignals) {
       return new ControlSignals(intersection);
     }
-    const result = Object.create(ControlSignals.prototype);
+    
+    // Create a proper instance with the correct prototype
+    const result = new ControlSignals(intersection);
+    
+    // Copy over the data properties
     result.flipMultiplier = controlSignals.flipMultiplier || Math.random();
     result.phaseOffset = controlSignals.phaseOffset || 100 * Math.random();
     result.time = result.phaseOffset;
     result.stateNum = controlSignals.stateNum || 0;
-    result.intersection = intersection;
     result.lastFlipTime = 0;
     
     // Ensure we have the proper states array if it was serialized

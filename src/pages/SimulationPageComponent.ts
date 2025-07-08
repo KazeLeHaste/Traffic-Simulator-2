@@ -195,7 +195,7 @@ export class SimulationPageComponent {
           </div>
           
           <div class="visualizer-area">
-            <canvas id="canvas"></canvas>
+            <canvas id="simulation-canvas"></canvas>
           </div>
         </div>
       </div>
@@ -284,7 +284,7 @@ export class SimulationPageComponent {
       }
       
       // Initialize visualizer
-      this.visualizer = new Visualizer(this.world);
+      this.visualizer = new Visualizer(this.world, 'simulation-canvas');
       
       // Important: Configure visualizer for simulation mode (not builder mode)
       this.visualizer.setMode(false); // false = simulation mode
@@ -367,9 +367,9 @@ export class SimulationPageComponent {
   }
 
   private initializeVisualizer() {
-    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+    const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
     if (!canvas) {
-      console.error('❌ Canvas not found in DOM during simulation initialization');
+      console.error('❌ Simulation canvas not found in DOM during simulation initialization');
       return;
     }
 
@@ -397,7 +397,7 @@ export class SimulationPageComponent {
 
     try {
       // Create visualizer in SIMULATION MODE
-      this.visualizer = new Visualizer(this.world);
+      this.visualizer = new Visualizer(this.world, 'simulation-canvas');
       
       // SIMULATION MODE: Start with no cars and no simulation running
       this.world.carsNumber = 0;
@@ -413,11 +413,16 @@ export class SimulationPageComponent {
         this.visualizer.bindTools();
       }
       
-      // Start the visualizer for rendering but not simulation
-      this.visualizer.start();
-      
-      // Ensure simulation is NOT running initially
+      // Don't start the animation loop automatically - let user control it
       this.visualizer.running = false;
+      this.isRunning = false;
+      
+      // Draw a single frame to show the current state
+      setTimeout(() => {
+        if (this.visualizer) {
+          this.visualizer.drawSingleFrame();
+        }
+      }, 100);
       this.isRunning = false;
       
       // Start analytics updates
@@ -442,7 +447,7 @@ export class SimulationPageComponent {
 
   private addResizeHandler() {
     const resizeCanvas = () => {
-      const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+      const canvas = document.getElementById('simulation-canvas') as HTMLCanvasElement;
       const visualizerArea = canvas?.parentElement;
       
       if (canvas && visualizerArea) {
@@ -477,19 +482,41 @@ export class SimulationPageComponent {
 
   private async loadLayoutById(layoutId: string) {
     try {
+      console.log('🔄 [SIM DEBUG] Loading layout:', layoutId);
+      
+      // Stop any running simulation first
+      if (this.isRunning && this.visualizer) {
+        this.visualizer.stop();
+        this.isRunning = false;
+      }
+      
       const layout = await appState.storage.loadLayout(layoutId);
       if (layout && this.world) {
+        console.log('🔄 [SIM DEBUG] Layout data loaded, applying to world...');
+        
+        // Clear the world first
+        this.world.clear();
+        
+        // Load the layout data
         this.world.load(JSON.stringify(layout.data));
         
-        // Set car count from slider
+        // Set car count from slider but don't spawn cars yet
         const carsRange = document.getElementById('cars-range') as HTMLInputElement;
         this.world.carsNumber = parseInt(carsRange?.value || '100');
         
-        this.updateAnalytics();
-        this.showNotification('Layout loaded successfully!');
+        console.log('🔄 [SIM DEBUG] Layout loaded, reinitializing visualizer...');
         
-        // Always re-initialize the visualizer after loading a layout
-        this.initializeVisualizer();
+        // Destroy and recreate visualizer to ensure clean state
+        if (this.visualizer) {
+          this.destroyVisualizer();
+        }
+        
+        // Wait a bit for cleanup then reinitialize
+        setTimeout(() => {
+          this.initializeVisualizer();
+          this.updateAnalytics();
+          this.showNotification('Layout loaded successfully!');
+        }, 100);
       }
     } catch (error) {
       console.error('Failed to load layout:', error);
@@ -586,8 +613,13 @@ export class SimulationPageComponent {
       console.log('🎮 [SIM] Stopping simulation');
       
       // Stop simulation (pause)
-      this.visualizer.running = false;
+      this.visualizer.stop(); // Use proper stop method
       this.isRunning = false;
+      
+      // Keep the canvas visible by doing a single frame draw
+      setTimeout(() => {
+        this.visualizer.drawSingleFrame();
+      }, 10);
       
       if (button) {
         button.innerHTML = '▶️ Start Simulation';
@@ -644,7 +676,7 @@ export class SimulationPageComponent {
       
       // Start the animation loop
       console.log('🎮 [SIM] Setting visualizer.running = true');
-      this.visualizer.running = true;
+      this.visualizer.start(); // Use proper start method
       this.isRunning = true;
       
       if (button) {
@@ -687,7 +719,11 @@ export class SimulationPageComponent {
   
       // 1. Stop the simulation and animation loop
       console.log('🔄 [SIM DEBUG] Stopping simulation and animation');
-      this.visualizer.running = false;
+      if (this.visualizer.stop) {
+        this.visualizer.stop();
+      } else {
+        this.visualizer.running = false;
+      }
       this.isRunning = false;
       
       // 2. Properly clean up visualizer (stop all animation loops)
@@ -1024,12 +1060,9 @@ export class SimulationPageComponent {
     `;
     document.head.appendChild(additionalStyles);
     
-    // 5. Force a reflow to apply styles immediately
+    // 5. Force a reflow to apply styles immediately - BUT DO IT GENTLY
     setTimeout(() => {
-      console.log('🎨 [SIM] Forcing style recalculation');
-      document.body.style.display = 'none';
-      document.body.offsetHeight; // Force reflow
-      document.body.style.display = '';
+      console.log('🎨 [SIM] Applying consistent styling');
       
       // Apply class to sidebar panels
       const panels = document.querySelectorAll('.panel');
@@ -1044,7 +1077,7 @@ export class SimulationPageComponent {
           button.classList.add('styled-button');
         }
       });
-    }, 10);
+    }, 100);
   }
   
   // Helper method to ensure CSS files are loaded
@@ -1078,6 +1111,13 @@ export class SimulationPageComponent {
     if (this.visualizer && typeof this.visualizer.destroy === 'function') {
       this.visualizer.destroy();
       this.visualizer = null;
+    }
+    
+    // Remove the canvas element to prevent duplicates
+    const canvas = document.getElementById('simulation-canvas');
+    if (canvas) {
+      console.log('🗑️ Simulation: Removing simulation canvas element');
+      canvas.remove();
     }
     
     // Remove any event listeners

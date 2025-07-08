@@ -3988,7 +3988,9 @@ body.allow-scroll {
     background: #1a1a1a;
 }
 
-#canvas {
+#canvas,
+#builder-canvas,
+#simulation-canvas {
     padding: 0;
     margin: 0;
     position: relative;
@@ -4090,7 +4092,7 @@ input[type="checkbox"]:checked:after {
 /* * { background-color: rgba(255, 0, 0, 0.1); } */
 /* * * { background-color: rgba(0, 255, 0, 0.2); } */
 /* * * * { background-color: rgba(0, 0, 255, 0.3); } */
-`, "",{"version":3,"sources":["webpack://./css/style.css"],"names":[],"mappings":"AAAA;IACI,UAAU;IACV,SAAS;IACT,mBAAmB,EAAE,oBAAoB;IACzC,cAAc,EAAE,eAAe;IAC/B,yGAAyG;IACzG,YAAY;IACZ,WAAW;IACX,gBAAgB,EAAE,sBAAsB;AAC5C;;AAEA,qDAAqD;AACrD;IACI,cAAc;AAClB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,aAAa;IACb,YAAY;IACZ,gBAAgB,EAAE,gCAAgC;IAClD,mBAAmB,EAAE,oBAAoB;AAC7C;;AAEA,iCAAiC;AACjC;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;IACd,kBAAkB;IAClB,YAAY;IACZ,mBAAmB,EAAE,oBAAoB;IACzC,gCAAgC;AACpC;;AAEA;IACI,OAAO;IACP,gBAAgB,EAAE,6BAA6B;IAC/C,kBAAkB;IAClB,0BAA0B,EAAE,iCAAiC;IAC7D,mBAAmB;AACvB;;AAEA,kCAAkC;AAClC;IACI,cAAc;AAClB;;AAEA,iDAAiD;AACjD;;IAEI,YAAY;IACZ,WAAW;IACX,gBAAgB;IAChB,kBAAkB;IAClB,mBAAmB;AACvB;;AAEA;IACI,UAAU;IACV,SAAS;IACT,kBAAkB;IAClB,UAAU;IACV,oBAAoB;IACpB,cAAc;IACd,mBAAmB;IACnB,yBAAyB;IACzB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,OAAO;IACP,kBAAkB;IAClB,iBAAiB;IACjB,mBAAmB;IACnB,aAAa;IACb,mBAAmB;IACnB,uBAAuB;AAC3B;;AAEA;IACI,sBAAsB;IACtB,uBAAuB;IACvB,0BAA0B;IAC1B,2BAA2B;IAC3B,8BAA8B;IAC9B,yBAAyB;IACzB,yBAAyB;AAC7B;;AAEA;;IAEI,aAAa;IACb,YAAY;AAChB;;AAEA;IACI,YAAY;IACZ,mBAAmB;IACnB,+BAA+B;IAC/B,gBAAgB;IAChB,oBAAoB;IACpB,WAAW;AACf;;AAEA,wCAAwC;AACxC;IACI,oBAAoB;IACpB,eAAe;IACf,kBAAkB;IAClB,WAAW;AACf;;AAEA,qBAAqB;AACrB;IACI,cAAc;IACd,aAAa;IACb,mBAAmB;AACvB;;AAEA;IACI,iBAAiB;IACjB,eAAe;IACf,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,eAAe;IACf,iBAAiB;AACrB;;AAEA,qDAAqD;AACrD;IACI,gBAAgB;IAChB,sBAAsB;IACtB,sBAAsB;IACtB,kBAAkB;IAClB,kBAAkB;AACtB;;AAEA;IACI,yBAAyB;IACzB,qBAAqB;AACzB;;AAEA;IACI,YAAY;IACZ,eAAe;IACf,kBAAkB;IAClB,MAAM;IACN,SAAS;IACT,YAAY;AAChB;;AAEA,wCAAwC;AACxC,kDAAkD;AAClD,oDAAoD;AACpD,sDAAsD","sourcesContent":["body, html {\r\n    padding: 0;\r\n    margin: 0;\r\n    background: #1a1a1a; /* Dark background */\r\n    color: #ffffff; /* White text */\r\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\r\n    height: 100%;\r\n    width: 100%;\r\n    overflow: hidden; /* Default to hidden */\r\n}\r\n\r\n/* Style for pages where we want to allow scrolling */\r\nbody.allow-scroll {\r\n    overflow: auto;\r\n}\r\n\r\n#app-container {\r\n    display: flex;\r\n    flex-direction: column;\r\n    height: 100vh;\r\n    width: 100vw;\r\n    overflow: hidden; /* Prevent overflow by default */\r\n    background: #1a1a1a; /* Dark background */\r\n}\r\n\r\n/* Allow scrolling on home page */\r\n.allow-scroll #app-container {\r\n    overflow: auto;\r\n}\r\n\r\n#nav-container {\r\n    flex-shrink: 0;\r\n    position: relative;\r\n    z-index: 100;\r\n    background: #2d2d2d; /* Dark navigation */\r\n    border-bottom: 1px solid #404040;\r\n}\r\n\r\n#main-content {\r\n    flex: 1;\r\n    overflow: hidden; /* Hide overflow by default */\r\n    position: relative;\r\n    height: calc(100vh - 60px); /* Reserve space for navigation */\r\n    background: #1a1a1a;\r\n}\r\n\r\n/* Allow scrolling for home page */\r\n.allow-scroll #main-content {\r\n    overflow: auto;\r\n}\r\n\r\n/* Ensure pages fill their container completely */\r\n.builder-page,\r\n.simulation-page {\r\n    height: 100%;\r\n    width: 100%;\r\n    overflow: hidden;\r\n    position: relative;\r\n    background: #1a1a1a;\r\n}\r\n\r\n#canvas {\r\n    padding: 0;\r\n    margin: 0;\r\n    position: relative;\r\n    z-index: 1;\r\n    pointer-events: auto;\r\n    display: block;\r\n    background: #2d2d2d;\r\n    border: 1px solid #404040;\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.visualizer-area {\r\n    flex: 1;\r\n    position: relative;\r\n    min-height: 600px;\r\n    background: #2d2d2d;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n}\r\n\r\n.visualizer-area canvas {\r\n    width: 100% !important;\r\n    height: 100% !important;\r\n    max-width: 100% !important;\r\n    max-height: 100% !important;\r\n    background: #2d2d2d !important;\r\n    border: 1px solid #404040;\r\n    display: block !important;\r\n}\r\n\r\n.builder-content,\r\n.simulation-content {\r\n    display: flex;\r\n    height: 100%;\r\n}\r\n\r\n.sidebar {\r\n    width: 280px;\r\n    background: #2d2d2d;\r\n    border-right: 1px solid #404040;\r\n    overflow-y: auto;\r\n    pointer-events: auto;\r\n    z-index: 10;\r\n}\r\n\r\n/* Ensure buttons are always clickable */\r\nbutton, .btn {\r\n    pointer-events: auto;\r\n    cursor: pointer;\r\n    position: relative;\r\n    z-index: 20;\r\n}\r\n\r\n/* Checkbox styling */\r\n.checkbox-container {\r\n    margin: 10px 0;\r\n    display: flex;\r\n    align-items: center;\r\n}\r\n\r\n.checkbox {\r\n    margin-right: 8px;\r\n    cursor: pointer;\r\n    width: 16px;\r\n    height: 16px;\r\n}\r\n\r\n.checkbox-container label {\r\n    cursor: pointer;\r\n    user-select: none;\r\n}\r\n\r\n/* Use a custom checkbox style that fits dark theme */\r\ninput[type=\"checkbox\"] {\r\n    appearance: none;\r\n    background-color: #333;\r\n    border: 1px solid #555;\r\n    border-radius: 3px;\r\n    position: relative;\r\n}\r\n\r\ninput[type=\"checkbox\"]:checked {\r\n    background-color: #4a90e2;\r\n    border-color: #4a90e2;\r\n}\r\n\r\ninput[type=\"checkbox\"]:checked:after {\r\n    content: '✓';\r\n    font-size: 12px;\r\n    position: absolute;\r\n    top: 0;\r\n    left: 3px;\r\n    color: white;\r\n}\r\n\r\n/* Debug helper - can be removed later */\r\n/* * { background-color: rgba(255, 0, 0, 0.1); } */\r\n/* * * { background-color: rgba(0, 255, 0, 0.2); } */\r\n/* * * * { background-color: rgba(0, 0, 255, 0.3); } */\r\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./css/style.css"],"names":[],"mappings":"AAAA;IACI,UAAU;IACV,SAAS;IACT,mBAAmB,EAAE,oBAAoB;IACzC,cAAc,EAAE,eAAe;IAC/B,yGAAyG;IACzG,YAAY;IACZ,WAAW;IACX,gBAAgB,EAAE,sBAAsB;AAC5C;;AAEA,qDAAqD;AACrD;IACI,cAAc;AAClB;;AAEA;IACI,aAAa;IACb,sBAAsB;IACtB,aAAa;IACb,YAAY;IACZ,gBAAgB,EAAE,gCAAgC;IAClD,mBAAmB,EAAE,oBAAoB;AAC7C;;AAEA,iCAAiC;AACjC;IACI,cAAc;AAClB;;AAEA;IACI,cAAc;IACd,kBAAkB;IAClB,YAAY;IACZ,mBAAmB,EAAE,oBAAoB;IACzC,gCAAgC;AACpC;;AAEA;IACI,OAAO;IACP,gBAAgB,EAAE,6BAA6B;IAC/C,kBAAkB;IAClB,0BAA0B,EAAE,iCAAiC;IAC7D,mBAAmB;AACvB;;AAEA,kCAAkC;AAClC;IACI,cAAc;AAClB;;AAEA,iDAAiD;AACjD;;IAEI,YAAY;IACZ,WAAW;IACX,gBAAgB;IAChB,kBAAkB;IAClB,mBAAmB;AACvB;;AAEA;;;IAGI,UAAU;IACV,SAAS;IACT,kBAAkB;IAClB,UAAU;IACV,oBAAoB;IACpB,cAAc;IACd,mBAAmB;IACnB,yBAAyB;IACzB,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,OAAO;IACP,kBAAkB;IAClB,iBAAiB;IACjB,mBAAmB;IACnB,aAAa;IACb,mBAAmB;IACnB,uBAAuB;AAC3B;;AAEA;IACI,sBAAsB;IACtB,uBAAuB;IACvB,0BAA0B;IAC1B,2BAA2B;IAC3B,8BAA8B;IAC9B,yBAAyB;IACzB,yBAAyB;AAC7B;;AAEA;;IAEI,aAAa;IACb,YAAY;AAChB;;AAEA;IACI,YAAY;IACZ,mBAAmB;IACnB,+BAA+B;IAC/B,gBAAgB;IAChB,oBAAoB;IACpB,WAAW;AACf;;AAEA,wCAAwC;AACxC;IACI,oBAAoB;IACpB,eAAe;IACf,kBAAkB;IAClB,WAAW;AACf;;AAEA,qBAAqB;AACrB;IACI,cAAc;IACd,aAAa;IACb,mBAAmB;AACvB;;AAEA;IACI,iBAAiB;IACjB,eAAe;IACf,WAAW;IACX,YAAY;AAChB;;AAEA;IACI,eAAe;IACf,iBAAiB;AACrB;;AAEA,qDAAqD;AACrD;IACI,gBAAgB;IAChB,sBAAsB;IACtB,sBAAsB;IACtB,kBAAkB;IAClB,kBAAkB;AACtB;;AAEA;IACI,yBAAyB;IACzB,qBAAqB;AACzB;;AAEA;IACI,YAAY;IACZ,eAAe;IACf,kBAAkB;IAClB,MAAM;IACN,SAAS;IACT,YAAY;AAChB;;AAEA,wCAAwC;AACxC,kDAAkD;AAClD,oDAAoD;AACpD,sDAAsD","sourcesContent":["body, html {\r\n    padding: 0;\r\n    margin: 0;\r\n    background: #1a1a1a; /* Dark background */\r\n    color: #ffffff; /* White text */\r\n    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\r\n    height: 100%;\r\n    width: 100%;\r\n    overflow: hidden; /* Default to hidden */\r\n}\r\n\r\n/* Style for pages where we want to allow scrolling */\r\nbody.allow-scroll {\r\n    overflow: auto;\r\n}\r\n\r\n#app-container {\r\n    display: flex;\r\n    flex-direction: column;\r\n    height: 100vh;\r\n    width: 100vw;\r\n    overflow: hidden; /* Prevent overflow by default */\r\n    background: #1a1a1a; /* Dark background */\r\n}\r\n\r\n/* Allow scrolling on home page */\r\n.allow-scroll #app-container {\r\n    overflow: auto;\r\n}\r\n\r\n#nav-container {\r\n    flex-shrink: 0;\r\n    position: relative;\r\n    z-index: 100;\r\n    background: #2d2d2d; /* Dark navigation */\r\n    border-bottom: 1px solid #404040;\r\n}\r\n\r\n#main-content {\r\n    flex: 1;\r\n    overflow: hidden; /* Hide overflow by default */\r\n    position: relative;\r\n    height: calc(100vh - 60px); /* Reserve space for navigation */\r\n    background: #1a1a1a;\r\n}\r\n\r\n/* Allow scrolling for home page */\r\n.allow-scroll #main-content {\r\n    overflow: auto;\r\n}\r\n\r\n/* Ensure pages fill their container completely */\r\n.builder-page,\r\n.simulation-page {\r\n    height: 100%;\r\n    width: 100%;\r\n    overflow: hidden;\r\n    position: relative;\r\n    background: #1a1a1a;\r\n}\r\n\r\n#canvas,\r\n#builder-canvas,\r\n#simulation-canvas {\r\n    padding: 0;\r\n    margin: 0;\r\n    position: relative;\r\n    z-index: 1;\r\n    pointer-events: auto;\r\n    display: block;\r\n    background: #2d2d2d;\r\n    border: 1px solid #404040;\r\n    width: 100%;\r\n    height: 100%;\r\n}\r\n\r\n.visualizer-area {\r\n    flex: 1;\r\n    position: relative;\r\n    min-height: 600px;\r\n    background: #2d2d2d;\r\n    display: flex;\r\n    align-items: center;\r\n    justify-content: center;\r\n}\r\n\r\n.visualizer-area canvas {\r\n    width: 100% !important;\r\n    height: 100% !important;\r\n    max-width: 100% !important;\r\n    max-height: 100% !important;\r\n    background: #2d2d2d !important;\r\n    border: 1px solid #404040;\r\n    display: block !important;\r\n}\r\n\r\n.builder-content,\r\n.simulation-content {\r\n    display: flex;\r\n    height: 100%;\r\n}\r\n\r\n.sidebar {\r\n    width: 280px;\r\n    background: #2d2d2d;\r\n    border-right: 1px solid #404040;\r\n    overflow-y: auto;\r\n    pointer-events: auto;\r\n    z-index: 10;\r\n}\r\n\r\n/* Ensure buttons are always clickable */\r\nbutton, .btn {\r\n    pointer-events: auto;\r\n    cursor: pointer;\r\n    position: relative;\r\n    z-index: 20;\r\n}\r\n\r\n/* Checkbox styling */\r\n.checkbox-container {\r\n    margin: 10px 0;\r\n    display: flex;\r\n    align-items: center;\r\n}\r\n\r\n.checkbox {\r\n    margin-right: 8px;\r\n    cursor: pointer;\r\n    width: 16px;\r\n    height: 16px;\r\n}\r\n\r\n.checkbox-container label {\r\n    cursor: pointer;\r\n    user-select: none;\r\n}\r\n\r\n/* Use a custom checkbox style that fits dark theme */\r\ninput[type=\"checkbox\"] {\r\n    appearance: none;\r\n    background-color: #333;\r\n    border: 1px solid #555;\r\n    border-radius: 3px;\r\n    position: relative;\r\n}\r\n\r\ninput[type=\"checkbox\"]:checked {\r\n    background-color: #4a90e2;\r\n    border-color: #4a90e2;\r\n}\r\n\r\ninput[type=\"checkbox\"]:checked:after {\r\n    content: '✓';\r\n    font-size: 12px;\r\n    position: absolute;\r\n    top: 0;\r\n    left: 3px;\r\n    color: white;\r\n}\r\n\r\n/* Debug helper - can be removed later */\r\n/* * { background-color: rgba(255, 0, 0, 0.1); } */\r\n/* * * { background-color: rgba(0, 255, 0, 0.2); } */\r\n/* * * * { background-color: rgba(0, 0, 255, 0.3); } */\r\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -21992,12 +21994,13 @@ class ControlSignals {
         if (!controlSignals) {
             return new ControlSignals(intersection);
         }
-        const result = Object.create(ControlSignals.prototype);
+        // Create a proper instance with the correct prototype
+        const result = new ControlSignals(intersection);
+        // Copy over the data properties
         result.flipMultiplier = controlSignals.flipMultiplier || Math.random();
         result.phaseOffset = controlSignals.phaseOffset || 100 * Math.random();
         result.time = result.phaseOffset;
         result.stateNum = controlSignals.stateNum || 0;
-        result.intersection = intersection;
         result.lastFlipTime = 0;
         // Ensure we have the proper states array if it was serialized
         result.states = controlSignals.states || [
@@ -23232,7 +23235,7 @@ class BuilderPageComponent {
           </div>
           
           <div class="visualizer-area">
-            <canvas id="canvas"></canvas>
+            <canvas id="builder-canvas"></canvas>
           </div>
         </div>
       </div>
@@ -23316,26 +23319,52 @@ class BuilderPageComponent {
             return;
         }
         console.log('🎨 [DEBUG] Initializing new visualizer...');
-        try {
-            // Create new visualizer with the world
-            this.visualizer = new Visualizer(this.world);
-            // Set builder mode
-            this.visualizer.isBuilderMode = true;
-            // Ensure zooming is at a reasonable level
-            if (this.visualizer.zoomer) {
-                this.visualizer.zoomer.defaultZoom = 4;
+        // Wait for DOM to be fully rendered before initializing visualizer
+        setTimeout(() => {
+            try {
+                // Ensure canvas exists and is properly sized
+                const canvas = document.getElementById('builder-canvas');
+                if (!canvas) {
+                    console.error('🎨 [ERROR] Builder canvas element not found in DOM');
+                    return;
+                }
+                // Make sure canvas has proper dimensions before creating visualizer
+                const container = canvas.parentElement;
+                if (container) {
+                    const rect = container.getBoundingClientRect();
+                    canvas.width = Math.max(rect.width, 800);
+                    canvas.height = Math.max(rect.height, 600);
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                }
+                // Create new visualizer with the world
+                this.visualizer = new Visualizer(this.world, 'builder-canvas');
+                // Set builder mode FIRST
+                this.visualizer.isBuilderMode = true;
+                // Ensure zooming is at a reasonable level
+                if (this.visualizer.zoomer) {
+                    this.visualizer.zoomer.defaultZoom = 4;
+                    this.visualizer.zoomer.scale = 1;
+                }
+                console.log('🎨 [DEBUG] Visualizer initialized successfully');
+                // Force initial draw with grid - use multiple attempts to ensure rendering
+                setTimeout(() => {
+                    if (this.visualizer) {
+                        // Ensure we start the animation loop so the grid is drawn continuously
+                        this.visualizer.start();
+                        // Also force a single frame draw immediately
+                        this.visualizer.drawSingleFrame();
+                    }
+                }, 100);
             }
-            console.log('🎨 [DEBUG] Visualizer initialized successfully');
-            // Do a single draw to show the initial state
-            this.visualizer.forceRefresh();
-        }
-        catch (error) {
-            console.error('🎨 [ERROR] Failed to initialize visualizer:', error);
-        }
+            catch (error) {
+                console.error('🎨 [ERROR] Failed to initialize visualizer:', error);
+            }
+        }, 50);
     }
     addResizeHandler() {
         const resizeCanvas = () => {
-            const canvas = document.getElementById('canvas');
+            const canvas = document.getElementById('builder-canvas');
             const visualizerArea = canvas === null || canvas === void 0 ? void 0 : canvas.parentElement;
             if (canvas && visualizerArea) {
                 const rect = visualizerArea.getBoundingClientRect();
@@ -24089,9 +24118,9 @@ class BuilderPageComponent {
             this.world = null;
         }
         // Remove the canvas element to prevent duplicates
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('builder-canvas');
         if (canvas) {
-            console.log('🗑️ Builder: Removing canvas element');
+            console.log('🗑️ Builder: Removing builder canvas element');
             canvas.remove();
         }
         // Clear the container
@@ -24912,7 +24941,7 @@ class SimulationPageComponent {
           </div>
           
           <div class="visualizer-area">
-            <canvas id="canvas"></canvas>
+            <canvas id="simulation-canvas"></canvas>
           </div>
         </div>
       </div>
@@ -24992,7 +25021,7 @@ class SimulationPageComponent {
                 this.world.load();
             }
             // Initialize visualizer
-            this.visualizer = new Visualizer(this.world);
+            this.visualizer = new Visualizer(this.world, 'simulation-canvas');
             // Important: Configure visualizer for simulation mode (not builder mode)
             this.visualizer.setMode(false); // false = simulation mode
             // Set initial values for controls
@@ -25062,9 +25091,9 @@ class SimulationPageComponent {
         }
     }
     initializeVisualizer() {
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('simulation-canvas');
         if (!canvas) {
-            console.error('❌ Canvas not found in DOM during simulation initialization');
+            console.error('❌ Simulation canvas not found in DOM during simulation initialization');
             return;
         }
         console.log('🎨 Initializing simulation visualizer...');
@@ -25087,7 +25116,7 @@ class SimulationPageComponent {
         }
         try {
             // Create visualizer in SIMULATION MODE
-            this.visualizer = new Visualizer(this.world);
+            this.visualizer = new Visualizer(this.world, 'simulation-canvas');
             // SIMULATION MODE: Start with no cars and no simulation running
             this.world.carsNumber = 0;
             if (this.world.cars && this.world.cars.clear) {
@@ -25099,10 +25128,15 @@ class SimulationPageComponent {
             if (typeof this.visualizer.bindTools === 'function') {
                 this.visualizer.bindTools();
             }
-            // Start the visualizer for rendering but not simulation
-            this.visualizer.start();
-            // Ensure simulation is NOT running initially
+            // Don't start the animation loop automatically - let user control it
             this.visualizer.running = false;
+            this.isRunning = false;
+            // Draw a single frame to show the current state
+            setTimeout(() => {
+                if (this.visualizer) {
+                    this.visualizer.drawSingleFrame();
+                }
+            }, 100);
             this.isRunning = false;
             // Start analytics updates
             this.startAnalyticsUpdates();
@@ -25123,7 +25157,7 @@ class SimulationPageComponent {
     }
     addResizeHandler() {
         const resizeCanvas = () => {
-            const canvas = document.getElementById('canvas');
+            const canvas = document.getElementById('simulation-canvas');
             const visualizerArea = canvas === null || canvas === void 0 ? void 0 : canvas.parentElement;
             if (canvas && visualizerArea) {
                 const rect = visualizerArea.getBoundingClientRect();
@@ -25152,16 +25186,33 @@ class SimulationPageComponent {
     }
     async loadLayoutById(layoutId) {
         try {
+            console.log('🔄 [SIM DEBUG] Loading layout:', layoutId);
+            // Stop any running simulation first
+            if (this.isRunning && this.visualizer) {
+                this.visualizer.stop();
+                this.isRunning = false;
+            }
             const layout = await AppState_1.appState.storage.loadLayout(layoutId);
             if (layout && this.world) {
+                console.log('🔄 [SIM DEBUG] Layout data loaded, applying to world...');
+                // Clear the world first
+                this.world.clear();
+                // Load the layout data
                 this.world.load(JSON.stringify(layout.data));
-                // Set car count from slider
+                // Set car count from slider but don't spawn cars yet
                 const carsRange = document.getElementById('cars-range');
                 this.world.carsNumber = parseInt((carsRange === null || carsRange === void 0 ? void 0 : carsRange.value) || '100');
-                this.updateAnalytics();
-                this.showNotification('Layout loaded successfully!');
-                // Always re-initialize the visualizer after loading a layout
-                this.initializeVisualizer();
+                console.log('🔄 [SIM DEBUG] Layout loaded, reinitializing visualizer...');
+                // Destroy and recreate visualizer to ensure clean state
+                if (this.visualizer) {
+                    this.destroyVisualizer();
+                }
+                // Wait a bit for cleanup then reinitialize
+                setTimeout(() => {
+                    this.initializeVisualizer();
+                    this.updateAnalytics();
+                    this.showNotification('Layout loaded successfully!');
+                }, 100);
             }
         }
         catch (error) {
@@ -25248,8 +25299,12 @@ class SimulationPageComponent {
         if (this.isRunning) {
             console.log('🎮 [SIM] Stopping simulation');
             // Stop simulation (pause)
-            this.visualizer.running = false;
+            this.visualizer.stop(); // Use proper stop method
             this.isRunning = false;
+            // Keep the canvas visible by doing a single frame draw
+            setTimeout(() => {
+                this.visualizer.drawSingleFrame();
+            }, 10);
             if (button) {
                 button.innerHTML = '▶️ Start Simulation';
                 button.className = 'btn btn-success btn-block';
@@ -25295,7 +25350,7 @@ class SimulationPageComponent {
             }
             // Start the animation loop
             console.log('🎮 [SIM] Setting visualizer.running = true');
-            this.visualizer.running = true;
+            this.visualizer.start(); // Use proper start method
             this.isRunning = true;
             if (button) {
                 button.innerHTML = '⏸️ Pause Simulation';
@@ -25332,7 +25387,12 @@ class SimulationPageComponent {
             }
             // 1. Stop the simulation and animation loop
             console.log('🔄 [SIM DEBUG] Stopping simulation and animation');
-            this.visualizer.running = false;
+            if (this.visualizer.stop) {
+                this.visualizer.stop();
+            }
+            else {
+                this.visualizer.running = false;
+            }
             this.isRunning = false;
             // 2. Properly clean up visualizer (stop all animation loops)
             console.log('🔄 [SIM DEBUG] Destroying visualizer');
@@ -25633,12 +25693,9 @@ class SimulationPageComponent {
       }
     `;
         document.head.appendChild(additionalStyles);
-        // 5. Force a reflow to apply styles immediately
+        // 5. Force a reflow to apply styles immediately - BUT DO IT GENTLY
         setTimeout(() => {
-            console.log('🎨 [SIM] Forcing style recalculation');
-            document.body.style.display = 'none';
-            document.body.offsetHeight; // Force reflow
-            document.body.style.display = '';
+            console.log('🎨 [SIM] Applying consistent styling');
             // Apply class to sidebar panels
             const panels = document.querySelectorAll('.panel');
             panels.forEach(panel => {
@@ -25651,7 +25708,7 @@ class SimulationPageComponent {
                     button.classList.add('styled-button');
                 }
             });
-        }, 10);
+        }, 100);
     }
     // Helper method to ensure CSS files are loaded
     ensureCssFile(id, href) {
@@ -25683,6 +25740,12 @@ class SimulationPageComponent {
         if (this.visualizer && typeof this.visualizer.destroy === 'function') {
             this.visualizer.destroy();
             this.visualizer = null;
+        }
+        // Remove the canvas element to prevent duplicates
+        const canvas = document.getElementById('simulation-canvas');
+        if (canvas) {
+            console.log('🗑️ Simulation: Removing simulation canvas element');
+            canvas.remove();
         }
         // Remove any event listeners
         try {
@@ -26407,7 +26470,7 @@ const Road = __webpack_require__(/*! ../model/road */ "./src/model/road.ts");
 const Intersection = __webpack_require__(/*! ../model/intersection */ "./src/model/intersection.ts");
 const { PI } = Math;
 class Visualizer {
-    constructor(world) {
+    constructor(world, canvasId = 'canvas') {
         this.isBuilderMode = false; // New property to control simulation behavior
         this.toolCheckInterval = null; // Track interval to prevent duplicates
         this._errorCount = 0; // Track consecutive errors for error recovery
@@ -26461,12 +26524,12 @@ class Visualizer {
         // Ensure draw method is properly bound to this instance
         this.draw = this.draw.bind(this);
         // Get the canvas that should exist (created by page component)
-        this.$canvas = $('#canvas');
+        this.$canvas = $(`#${canvasId}`);
         this.canvas = this.$canvas[0];
         // Canvas setup
         if (!this.canvas) {
-            console.error('❌ Canvas element not found!');
-            throw new Error('Canvas element with id "canvas" not found');
+            console.error(`❌ Canvas element with id "${canvasId}" not found!`);
+            throw new Error(`Canvas element with id "${canvasId}" not found`);
         }
         this.ctx = this.canvas.getContext('2d');
         if (!this.ctx) {
@@ -26741,6 +26804,8 @@ class Visualizer {
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             // Setup camera transform
             this.setupContext();
+            // ALWAYS DRAW GRID FIRST (especially important for builder mode)
+            this.drawGrid();
             // ALWAYS DRAW ALL WORLD OBJECTS
             // Draw intersections
             const intersections = ((_b = (_a = this.world) === null || _a === void 0 ? void 0 : _a.intersections) === null || _b === void 0 ? void 0 : _b.all()) || {};

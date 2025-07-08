@@ -59,7 +59,9 @@ body.allow-scroll {
     background: #1a1a1a;
 }
 
-#canvas {
+#canvas,
+#builder-canvas,
+#simulation-canvas {
     padding: 0;
     margin: 0;
     position: relative;
