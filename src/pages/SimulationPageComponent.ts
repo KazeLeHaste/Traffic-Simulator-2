@@ -127,16 +127,6 @@ export class SimulationPageComponent {
               </div>
             </div>
             
-            <!-- Traffic Control Model Selector -->
-            <div class="panel">
-              <h3>Traffic Control Model</h3>
-              <select id="traffic-control-model" class="form-select">
-                <option value="fixed-timing">Fixed Timing</option>
-                <option value="demand-responsive">Demand Responsive</option>
-                <option value="adaptive-signal">Adaptive Signal Control</option>
-              </select>
-            </div>
-            
             <!-- Analytics Panel -->
             <div class="panel">
               <h3>Analytics</h3>
@@ -371,6 +361,8 @@ export class SimulationPageComponent {
       
       // Show notification
       this.showNotification(`Traffic control model changed to ${this.getReadableModelName(selectedModel)}`, 'info');
+      
+      console.log('🚦 Traffic control model changed to:', selectedModel);
     });
     
     // Time factor slider
@@ -382,19 +374,6 @@ export class SimulationPageComponent {
       if (this.visualizer) {
         this.visualizer.timeFactor = parseFloat(value);
       }
-    });
-    
-    // Traffic control model selector
-    document.getElementById('traffic-control-model')?.addEventListener('change', (e) => {
-      const selectedModel = (e.target as HTMLSelectElement).value;
-      this.selectedTrafficControlModel = selectedModel;
-      
-      // Update the traffic control strategy in the world
-      if (this.world) {
-
-      }
-      
-      console.log('🚦 Traffic control model changed to:', selectedModel);
     });
     
     // Export metrics as CSV

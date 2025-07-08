@@ -29520,6 +29520,7 @@ const AppState_1 = __webpack_require__(/*! ../core/AppState */ "./src/core/AppSt
 const World = __webpack_require__(/*! ../model/world */ "./src/model/world.ts");
 const Visualizer = __webpack_require__(/*! ../visualizer/visualizer */ "./src/visualizer/visualizer.ts");
 const kpi_collector_1 = __webpack_require__(/*! ../model/kpi-collector */ "./src/model/kpi-collector.ts");
+const TrafficControlStrategyManager_1 = __webpack_require__(/*! ../model/traffic-control/TrafficControlStrategyManager */ "./src/model/traffic-control/TrafficControlStrategyManager.ts");
 /**
  * Simulation page for running traffic simulations
  */
@@ -29535,6 +29536,7 @@ class SimulationPageComponent {
             simulationTime: 0
         };
         this.analyticsInterval = null;
+        this.selectedTrafficControlModel = 'fixed-timing'; // Default model
         this.container = container;
         this.init();
     }
@@ -29604,6 +29606,19 @@ class SimulationPageComponent {
                 <button id="reset-simulation" class="btn btn-info btn-block">
                   🔄 Reset Simulation
                 </button>
+              </div>
+              
+              <div class="control-group">
+                <label for="traffic-control-model">Traffic Control Model:</label>
+                <div class="model-status">
+                  <span class="active-model-indicator" id="active-model-indicator">Fixed Timing</span>
+                </div>
+                <select id="traffic-control-model" class="form-control">
+                  <option value="fixed-timing">Fixed Timing</option>
+                  <option value="adaptive-timing">Adaptive Timing</option>
+                  <option value="traffic-enforcer">Traffic Enforcer</option>
+                  <option value="all-red-flashing">All Red Flashing</option>
+                </select>
               </div>
               
               <div class="control-group">
@@ -29791,7 +29806,7 @@ class SimulationPageComponent {
     `;
     }
     addEventListeners() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
         // Console log to ensure this runs
         console.log('Setting up SimulationPage event listeners');
         // Simulation toggle
@@ -29827,8 +29842,23 @@ class SimulationPageComponent {
             const value = e.target.value;
             document.getElementById('cars-value').textContent = value;
         });
+        // Traffic control model selector
+        (_g = document.getElementById('traffic-control-model')) === null || _g === void 0 ? void 0 : _g.addEventListener('change', (e) => {
+            const selectedModel = e.target.value;
+            this.selectedTrafficControlModel = selectedModel;
+            // Update the indicator
+            const indicator = document.getElementById('active-model-indicator');
+            if (indicator) {
+                indicator.textContent = this.getReadableModelName(selectedModel);
+            }
+            // Apply to all intersections in the world
+            this.applyTrafficControlModelToAllIntersections();
+            // Show notification
+            this.showNotification(`Traffic control model changed to ${this.getReadableModelName(selectedModel)}`, 'info');
+            console.log('🚦 Traffic control model changed to:', selectedModel);
+        });
         // Time factor slider
-        (_g = document.getElementById('time-factor-range')) === null || _g === void 0 ? void 0 : _g.addEventListener('input', (e) => {
+        (_h = document.getElementById('time-factor-range')) === null || _h === void 0 ? void 0 : _h.addEventListener('input', (e) => {
             const value = e.target.value;
             document.getElementById('time-factor-value').textContent = value;
             // Update the visualizer time factor in real-time if it exists
@@ -29837,7 +29867,7 @@ class SimulationPageComponent {
             }
         });
         // Export metrics as CSV
-        (_h = document.getElementById('export-metrics')) === null || _h === void 0 ? void 0 : _h.addEventListener('click', () => {
+        (_j = document.getElementById('export-metrics')) === null || _j === void 0 ? void 0 : _j.addEventListener('click', () => {
             if (!this.world) {
                 this.showNotification('No simulation data to export', 'warning');
                 return;
@@ -29852,7 +29882,7 @@ class SimulationPageComponent {
             }
         });
         // Validate metrics
-        (_j = document.getElementById('validate-metrics')) === null || _j === void 0 ? void 0 : _j.addEventListener('click', () => {
+        (_k = document.getElementById('validate-metrics')) === null || _k === void 0 ? void 0 : _k.addEventListener('click', () => {
             if (!this.world) {
                 this.showNotification('No simulation data to validate', 'warning');
                 return;
@@ -29892,7 +29922,7 @@ class SimulationPageComponent {
             }
         });
         // Load layout button
-        (_k = document.getElementById('load-layout')) === null || _k === void 0 ? void 0 : _k.addEventListener('click', () => this.showLayoutSelector());
+        (_l = document.getElementById('load-layout')) === null || _l === void 0 ? void 0 : _l.addEventListener('click', () => this.showLayoutSelector());
     }
     async initializeSimulation() {
         var _a, _b, _c;
@@ -29912,6 +29942,8 @@ class SimulationPageComponent {
                 cars: this.world.carsNumber,
                 actualCars: ((_c = this.world.cars) === null || _c === void 0 ? void 0 : _c.length) || 0
             });
+            // Set up the initial traffic control model UI
+            this.setupTrafficControlModelUI();
             // Initialize visualizer only when DOM is fully ready
             // Use requestAnimationFrame for better timing with DOM rendering
             requestAnimationFrame(() => {
@@ -30226,6 +30258,9 @@ class SimulationPageComponent {
             // 7. Now that visualizer is ready, spawn cars
             console.log('🔄 [SIM DEBUG] Spawning cars');
             this.world.refreshCars();
+            // 7b. Apply the selected traffic control model to all intersections
+            console.log('🔄 [SIM DEBUG] Applying traffic control model:', this.selectedTrafficControlModel);
+            this.applyTrafficControlModelToAllIntersections();
             // 8. Update analytics and notify user
             this.updateAnalytics();
             this.showNotification('Simulation reset successfully!');
@@ -30701,6 +30736,31 @@ class SimulationPageComponent {
         color: #8f8;
         font-weight: bold;
       }
+      
+      .active-model-indicator {
+        display: inline-block;
+        font-weight: bold;
+        padding: 3px 8px;
+        margin-bottom: 8px;
+        border-radius: 4px;
+        background-color: #333;
+        border: 1px solid #555;
+        color: #33ee33;
+      }
+      
+      .model-status {
+        margin-bottom: 5px;
+        text-align: center;
+      }
+      
+      #traffic-control-model {
+        width: 100%;
+        padding: 6px;
+        background-color: #333;
+        color: #fff;
+        border: 1px solid #555;
+        border-radius: 4px;
+      }
     `;
         document.head.appendChild(styleElement);
     }
@@ -30962,6 +31022,8 @@ class SimulationPageComponent {
             if (this.world) {
                 // Stringify the layout data because World.load expects a string
                 this.world.load(JSON.stringify(layout.data));
+                // Apply selected traffic control model
+                this.applyTrafficControlModelToAllIntersections();
                 // Update analytics
                 this.updateAnalytics();
                 // Show success message
@@ -31103,6 +31165,56 @@ class SimulationPageComponent {
     hide() {
         if (this.container) {
             this.container.style.display = 'none';
+        }
+    }
+    /**
+     * Applies the selected traffic control model to all intersections
+     */
+    applyTrafficControlModelToAllIntersections() {
+        if (!this.world || !this.world.intersections) {
+            console.warn('Cannot apply traffic control model: World or intersections not initialized');
+            return;
+        }
+        // Set the global strategy in the manager
+        TrafficControlStrategyManager_1.trafficControlStrategyManager.selectStrategy(this.selectedTrafficControlModel);
+        // Apply to all intersections
+        const intersections = this.world.intersections.all();
+        let appliedCount = 0;
+        for (const id in intersections) {
+            const intersection = intersections[id];
+            if (intersection && intersection.trafficLightController) {
+                if (intersection.setTrafficControlStrategy(this.selectedTrafficControlModel)) {
+                    appliedCount++;
+                }
+            }
+        }
+        console.log(`Applied ${this.getReadableModelName(this.selectedTrafficControlModel)} traffic control model to ${appliedCount} intersections`);
+    }
+    /**
+     * Get a human-readable name for the traffic control model
+     */
+    getReadableModelName(modelId) {
+        switch (modelId) {
+            case 'fixed-timing': return 'Fixed Timing';
+            case 'adaptive-timing': return 'Adaptive Timing';
+            case 'traffic-enforcer': return 'Traffic Enforcer';
+            case 'all-red-flashing': return 'All Red Flashing';
+            default: return modelId;
+        }
+    }
+    /**
+     * Set up the traffic control model UI to match the current selected model
+     */
+    setupTrafficControlModelUI() {
+        // Set the select element to match the current model
+        const selectElement = document.getElementById('traffic-control-model');
+        if (selectElement) {
+            selectElement.value = this.selectedTrafficControlModel;
+        }
+        // Update the indicator to show the current model
+        const indicator = document.getElementById('active-model-indicator');
+        if (indicator) {
+            indicator.textContent = this.getReadableModelName(this.selectedTrafficControlModel);
         }
     }
 }
