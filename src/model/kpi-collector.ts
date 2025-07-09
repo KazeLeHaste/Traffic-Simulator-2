@@ -206,14 +206,18 @@ export class KPICollector {
   public recordVehicleEnter(vehicle: Car, time: number): void {
     if (!this.isRecording) return;
     
+    // Add to active vehicles set
     this.activeVehicles.add(vehicle.id);
     
+    // Record the vehicle event
     this.vehicleMetrics.push({
       vehicleId: vehicle.id,
       timestamp: time,
       speed: vehicle.speed,
       event: VehicleEvent.ENTER_SIMULATION
     });
+    
+    console.log(`KPI Collector: Vehicle ${vehicle.id} entered simulation at time ${time}`);
   }
 
   /**
@@ -222,21 +226,21 @@ export class KPICollector {
   public recordVehicleExit(vehicle: Car, time: number): void {
     if (!this.isRecording) return;
     
+    // Remove from active vehicles set
     this.activeVehicles.delete(vehicle.id);
+    
+    // Increment completed trips counter
     this.completedTrips++;
     
-    // If vehicle was stopped, clear that state
-    if (this.stoppedVehicles.has(vehicle.id)) {
-      this.stoppedVehicles.delete(vehicle.id);
-      delete this.stoppedTimestamps[vehicle.id];
-    }
-    
+    // Record the vehicle event
     this.vehicleMetrics.push({
       vehicleId: vehicle.id,
       timestamp: time,
       speed: vehicle.speed,
       event: VehicleEvent.EXIT_SIMULATION
     });
+    
+    console.log(`KPI Collector: Vehicle ${vehicle.id} exited simulation at time ${time}`);
   }
 
   /**
@@ -245,19 +249,19 @@ export class KPICollector {
   public recordVehicleStop(vehicle: Car, time: number): void {
     if (!this.isRecording) return;
     
-    // Only record if vehicle wasn't already stopped
-    if (!this.stoppedVehicles.has(vehicle.id)) {
-      this.stoppedVehicles.add(vehicle.id);
-      this.stoppedTimestamps[vehicle.id] = time;
-      
-      this.vehicleMetrics.push({
-        vehicleId: vehicle.id,
-        timestamp: time,
-        speed: vehicle.speed,
-        position: vehicle.coords,
-        event: VehicleEvent.STOP_MOVING
-      });
-    }
+    // Add to stopped vehicles set
+    this.stoppedVehicles.add(vehicle.id);
+    
+    // Record stop timestamp for duration calculation later
+    this.stoppedTimestamps[vehicle.id] = time;
+    
+    // Record the vehicle event
+    this.vehicleMetrics.push({
+      vehicleId: vehicle.id,
+      timestamp: time,
+      speed: vehicle.speed,
+      event: VehicleEvent.STOP_MOVING
+    });
   }
 
   /**
@@ -266,23 +270,27 @@ export class KPICollector {
   public recordVehicleStart(vehicle: Car, time: number): void {
     if (!this.isRecording) return;
     
-    // Only record if vehicle was stopped
-    if (this.stoppedVehicles.has(vehicle.id)) {
-      const stoppedTime = time - this.stoppedTimestamps[vehicle.id];
-      this.stoppedVehicles.delete(vehicle.id);
+    // Remove from stopped vehicles set
+    this.stoppedVehicles.delete(vehicle.id);
+    
+    // Calculate stop duration if we have a stop timestamp
+    let duration = 0;
+    if (this.stoppedTimestamps[vehicle.id]) {
+      duration = time - this.stoppedTimestamps[vehicle.id];
       delete this.stoppedTimestamps[vehicle.id];
       
-      // Record wait time for analytics
-      this.waitTimes.push(stoppedTime);
-      
-      this.vehicleMetrics.push({
-        vehicleId: vehicle.id,
-        timestamp: time,
-        speed: vehicle.speed,
-        duration: stoppedTime,
-        event: VehicleEvent.START_MOVING
-      });
+      // Record wait time for statistics
+      this.waitTimes.push(duration);
     }
+    
+    // Record the vehicle event
+    this.vehicleMetrics.push({
+      vehicleId: vehicle.id,
+      timestamp: time,
+      speed: vehicle.speed,
+      event: VehicleEvent.START_MOVING,
+      duration: duration
+    });
   }
 
   /**
@@ -422,35 +430,35 @@ export class KPICollector {
     if (!this.laneEntryTimes[vehicle.id]) {
       this.laneEntryTimes[vehicle.id] = {};
     }
-    if (!this.laneWaitTimes[laneId]) {
-      this.laneWaitTimes[laneId] = [];
-    }
-    if (!this.laneTotalSpeeds[laneId]) {
-      this.laneTotalSpeeds[laneId] = { total: 0, count: 0 };
-    }
+    
+    // Add vehicle to lane set
+    this.vehiclesInLane[laneId].add(vehicle.id);
     
     // Record entry time for calculating wait time later
     this.laneEntryTimes[vehicle.id][laneId] = time;
     
-    // Add vehicle to the lane
-    this.vehiclesInLane[laneId].add(vehicle.id);
-    
-    // Update lane metrics
-    this.laneMetrics.push({
-      laneId: laneId,
-      timestamp: time,
-      vehicleCount: this.vehiclesInLane[laneId].size,
-      averageSpeed: this.calculateLaneAverageSpeed(laneId),
-      congestionRate: this.calculateLaneCongestion(lane, this.vehiclesInLane[laneId].size)
-    });
-    
-    // Record the event
+    // Record the vehicle event
     this.vehicleMetrics.push({
       vehicleId: vehicle.id,
       timestamp: time,
       speed: vehicle.speed,
       laneId: laneId,
+      roadId: lane.road ? lane.road.id : undefined,
       event: VehicleEvent.ENTER_LANE
+    });
+    
+    // Update lane metrics
+    const vehicleCount = this.vehiclesInLane[laneId].size;
+    const averageSpeed = this.calculateAverageLaneSpeed(laneId);
+    const congestionRate = this.calculateLaneCongestion(laneId, lane);
+    
+    // Record lane metrics
+    this.laneMetrics.push({
+      laneId: laneId,
+      timestamp: time,
+      vehicleCount: vehicleCount,
+      averageSpeed: averageSpeed,
+      congestionRate: congestionRate
     });
   }
   
@@ -462,7 +470,7 @@ export class KPICollector {
     
     const laneId = lane.id;
     
-    // Make sure we have tracking data structures
+    // Initialize tracking structures if needed
     if (!this.vehiclesInLane[laneId]) {
       this.vehiclesInLane[laneId] = new Set();
     }
@@ -476,60 +484,66 @@ export class KPICollector {
       this.laneWaitTimes[laneId] = [];
     }
     
+    // Remove vehicle from lane set
+    this.vehiclesInLane[laneId].delete(vehicle.id);
+    
     // Calculate time spent in lane
-    if (this.laneEntryTimes[vehicle.id][laneId]) {
+    if (this.laneEntryTimes[vehicle.id] && this.laneEntryTimes[vehicle.id][laneId]) {
       const timeInLane = time - this.laneEntryTimes[vehicle.id][laneId];
       this.laneWaitTimes[laneId].push(timeInLane);
       delete this.laneEntryTimes[vehicle.id][laneId];
     }
     
-    // Remove vehicle from lane
-    if (this.vehiclesInLane[laneId]) {
-      this.vehiclesInLane[laneId].delete(vehicle.id);
-    }
+    // Increment lane throughput counter
+    this.laneThroughput[laneId]++;
     
-    // Increment throughput count
-    this.laneThroughput[laneId] = (this.laneThroughput[laneId] || 0) + 1;
-    
-    // Update lane metrics
-    this.laneMetrics.push({
-      laneId: laneId,
-      timestamp: time,
-      vehicleCount: this.vehiclesInLane[laneId]?.size || 0,
-      averageSpeed: this.calculateLaneAverageSpeed(laneId),
-      congestionRate: this.calculateLaneCongestion(lane, this.vehiclesInLane[laneId]?.size || 0)
-    });
-    
-    // Record the event
+    // Record the vehicle event
     this.vehicleMetrics.push({
       vehicleId: vehicle.id,
       timestamp: time,
       speed: vehicle.speed,
       laneId: laneId,
+      roadId: lane.road ? lane.road.id : undefined,
       event: VehicleEvent.EXIT_LANE
     });
+    
+    // Update lane metrics
+    const vehicleCount = this.vehiclesInLane[laneId].size;
+    const averageSpeed = this.calculateAverageLaneSpeed(laneId);
+    const congestionRate = this.calculateLaneCongestion(laneId, lane);
+    
+    // Record lane metrics
+    this.laneMetrics.push({
+      laneId: laneId,
+      timestamp: time,
+      vehicleCount: vehicleCount,
+      averageSpeed: averageSpeed,
+      congestionRate: congestionRate
+    });
   }
-  
+
   /**
-   * Calculate average speed for a specific lane
+   * Calculate average speed in a lane
    */
-  private calculateLaneAverageSpeed(laneId: string): number {
-    const laneSpeedData = this.laneTotalSpeeds[laneId];
-    if (!laneSpeedData || laneSpeedData.count === 0) {
+  private calculateAverageLaneSpeed(laneId: string): number {
+    if (!this.laneTotalSpeeds[laneId] || this.laneTotalSpeeds[laneId].count === 0) {
       return 0;
     }
-    return laneSpeedData.total / laneSpeedData.count;
+    
+    return this.laneTotalSpeeds[laneId].total / this.laneTotalSpeeds[laneId].count;
   }
   
   /**
-   * Calculate congestion rate for a lane (0-1)
-   * Uses vehicle count compared to lane capacity
+   * Calculate lane congestion (0-1 scale)
    */
-  private calculateLaneCongestion(lane: any, vehicleCount: number): number {
-    // Lane capacity is a reasonable estimate based on lane length and minimum safe distance
-    // This is an approximation - actual capacity would depend on lane properties
-    const approximateCapacity = lane.length / 10; // Assuming average vehicle + safe distance is ~10 units
-    return Math.min(1, vehicleCount / approximateCapacity);
+  private calculateLaneCongestion(laneId: string, lane: any): number {
+    if (!this.vehiclesInLane[laneId]) {
+      return 0;
+    }
+    
+    // Assuming a lane can fit roughly lane.length / 5 cars (average car length + safety distance)
+    const laneCapacity = lane.length ? Math.floor(lane.length / 5) : 10;
+    return Math.min(this.vehiclesInLane[laneId].size / laneCapacity, 1);
   }
   
   /**
@@ -561,7 +575,7 @@ export class KPICollector {
       laneId: laneId,
       timestamp: time,
       vehicleCount: vehicleCount,
-      averageSpeed: this.calculateLaneAverageSpeed(laneId),
+      averageSpeed: this.calculateAverageLaneSpeed(laneId),
       congestionRate: congestionRate,
       queueLength: this.calculateLaneQueueLength(laneId)
     });
