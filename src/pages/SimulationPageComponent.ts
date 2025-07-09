@@ -23,6 +23,15 @@ export class SimulationPageComponent {
   };
   private analyticsInterval: number | null = null;
   private selectedTrafficControlModel: string = 'fixed-timing'; // Default model
+  
+  // Benchmark related properties
+  private isBenchmarkRunning: boolean = false;
+  private benchmarkDuration: number = 60; // Default: 60 simulation seconds
+  private benchmarkTimer: number | null = null;
+  private benchmarkStartTime: number = 0;
+  private benchmarkResults: any = {};
+  private benchmarkIntervalSamples: any[] = [];
+  private benchmarkSettings: any = {};
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -100,6 +109,12 @@ export class SimulationPageComponent {
               <div class="control-group">
                 <button id="reset-simulation" class="btn btn-info btn-block">
                   🔄 Reset Simulation
+                </button>
+              </div>
+              
+              <div class="control-group">
+                <button id="run-benchmark" class="btn btn-primary btn-block">
+                  📊 Run KPI Benchmark
                 </button>
               </div>
               
@@ -298,6 +313,97 @@ export class SimulationPageComponent {
           </div>
         </div>
       </div>
+      
+      <!-- KPI Benchmark Modal (hidden by default) -->
+      <div id="benchmark-modal" class="modal" style="display: none;">
+        <div class="modal-content benchmark-modal-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>KPI Benchmark Configuration</h2>
+          </div>
+          <div class="modal-body">
+            <div class="benchmark-settings">
+              <div class="form-group">
+                <label for="benchmark-layout">Layout:</label>
+                <select id="benchmark-layout" class="form-control">
+                  <option value="">Current Layout</option>
+                  <!-- Layout options will be populated dynamically -->
+                </select>
+                <small class="setting-description">Select a layout to use for the benchmark (or use current layout)</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-duration">Simulation Duration (seconds):</label>
+                <input type="number" id="benchmark-duration" class="form-control" min="10" max="300" value="60">
+                <small class="setting-description">How long the simulation should run (in simulation seconds)</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-model">Traffic Control Model:</label>
+                <select id="benchmark-model" class="form-control">
+                  <option value="fixed-timing">Fixed Timing</option>
+                  <option value="adaptive-timing">Adaptive Timing</option>
+                  <option value="traffic-enforcer">Traffic Enforcer</option>
+                  <option value="all-red-flashing">All Red Flashing</option>
+                </select>
+                <small class="setting-description">Traffic control model to test during benchmark</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-cars">Number of Vehicles:</label>
+                <input type="number" id="benchmark-cars" class="form-control" min="10" max="200" value="100">
+                <small class="setting-description">Number of vehicles to simulate</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-time-factor">Time Factor:</label>
+                <input type="number" id="benchmark-time-factor" class="form-control" min="0.1" max="5" step="0.1" value="2">
+                <small class="setting-description">Speed of simulation (higher = faster)</small>
+              </div>
+              
+              <div class="benchmark-options">
+                <div class="option">
+                  <input type="checkbox" id="benchmark-repeat" checked>
+                  <label for="benchmark-repeat">Collect continuous data</label>
+                </div>
+                <div class="option">
+                  <input type="checkbox" id="benchmark-export" checked>
+                  <label for="benchmark-export">Export results after completion</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-benchmark">Cancel</button>
+            <button class="btn btn-primary" id="start-benchmark">Start Benchmark</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Benchmark Results Modal (hidden by default) -->
+      <div id="benchmark-results-modal" class="modal" style="display: none;">
+        <div class="modal-content benchmark-results-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>KPI Benchmark Results</h2>
+          </div>
+          <div class="modal-body">
+            <div id="benchmark-summary" class="benchmark-summary">
+              <!-- Summary info will be added here dynamically -->
+            </div>
+            <div id="benchmark-metrics" class="benchmark-metrics">
+              <!-- Metrics will be added here dynamically -->
+            </div>
+            <div id="benchmark-charts" class="benchmark-charts">
+              <!-- Charts will be added here dynamically -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="close-benchmark-results">Close</button>
+            <button class="btn btn-success" id="export-benchmark-results">Export Results (CSV)</button>
+          </div>
+        </div>
+      </div>
     `;
   }
 
@@ -310,6 +416,9 @@ export class SimulationPageComponent {
     
     // Reset simulation
     document.getElementById('reset-simulation')?.addEventListener('click', () => this.resetSimulation());
+    
+    // Run KPI Benchmark
+    document.getElementById('run-benchmark')?.addEventListener('click', () => this.showBenchmarkModal());
     
     // Toggle analytics panel
     document.getElementById('toggle-analytics')?.addEventListener('click', () => {
@@ -1865,5 +1974,953 @@ export class SimulationPageComponent {
     if (indicator) {
       indicator.textContent = this.getReadableModelName(this.selectedTrafficControlModel);
     }
+  }
+  
+  /**
+   * Shows the KPI benchmark configuration modal
+   */
+  private showBenchmarkModal(): void {
+    // Create the benchmark modal dynamically if it doesn't exist
+    let modal = document.getElementById('benchmark-modal');
+    
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'benchmark-modal';
+      modal.className = 'modal';
+      modal.style.display = 'none';
+      
+      // Create modal content
+      modal.innerHTML = `
+        <div class="modal-content benchmark-modal-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>KPI Benchmark Configuration</h2>
+          </div>
+          <div class="modal-body">
+            <div class="benchmark-settings">
+              <div class="form-group">
+                <label for="benchmark-layout">Layout:</label>
+                <select id="benchmark-layout" class="form-control">
+                  <option value="">Current Layout</option>
+                  <!-- Layout options will be populated dynamically -->
+                </select>
+                <small class="setting-description">Select a layout to use for the benchmark (or use current layout)</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-duration">Simulation Duration (seconds):</label>
+                <input type="number" id="benchmark-duration" class="form-control" min="10" max="300" value="60">
+                <small class="setting-description">How long the simulation should run (in simulation seconds)</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-model">Traffic Control Model:</label>
+                <select id="benchmark-model" class="form-control">
+                  <option value="fixed-timing">Fixed Timing</option>
+                  <option value="adaptive-timing">Adaptive Timing</option>
+                  <option value="traffic-enforcer">Traffic Enforcer</option>
+                  <option value="all-red-flashing">All Red Flashing</option>
+                </select>
+                <small class="setting-description">Traffic control model to test during benchmark</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-cars">Number of Vehicles:</label>
+                <input type="number" id="benchmark-cars" class="form-control" min="10" max="200" value="100">
+                <small class="setting-description">Number of vehicles to simulate</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-time-factor">Time Factor:</label>
+                <input type="number" id="benchmark-time-factor" class="form-control" min="0.1" max="5" step="0.1" value="2">
+                <small class="setting-description">Speed of simulation (higher = faster)</small>
+              </div>
+              
+              <div class="benchmark-options">
+                <div class="option">
+                  <input type="checkbox" id="benchmark-repeat" checked>
+                  <label for="benchmark-repeat">Collect continuous data</label>
+                </div>
+                <div class="option">
+                  <input type="checkbox" id="benchmark-export" checked>
+                  <label for="benchmark-export">Export results after completion</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-benchmark">Cancel</button>
+            <button class="btn btn-primary" id="start-benchmark">Start Benchmark</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+    }
+    
+    // Add CSS for the benchmark modal
+    this.addBenchmarkModalStyles();
+    
+    // Populate layout options
+    this.populateLayoutOptions();
+    
+    // Set current values
+    const modelSelect = document.getElementById('benchmark-model') as HTMLSelectElement;
+    if (modelSelect) {
+      modelSelect.value = this.selectedTrafficControlModel;
+    }
+    
+    const carsInput = document.getElementById('benchmark-cars') as HTMLInputElement;
+    if (carsInput) {
+      const currentCars = (document.getElementById('cars-range') as HTMLInputElement)?.value || '100';
+      carsInput.value = currentCars;
+    }
+    
+    const timeFactorInput = document.getElementById('benchmark-time-factor') as HTMLInputElement;
+    if (timeFactorInput) {
+      const currentTimeFactor = (document.getElementById('time-factor-range') as HTMLInputElement)?.value || '1';
+      timeFactorInput.value = currentTimeFactor;
+    }
+    
+    // Add event listeners to modal
+    const closeBtn = modal.querySelector('.close') as HTMLElement;
+    const cancelBtn = document.getElementById('cancel-benchmark');
+    const startBtn = document.getElementById('start-benchmark');
+    
+    // Close modal function
+    const closeModal = () => {
+      modal!.style.display = 'none';
+      
+      // Remove event listeners to prevent memory leaks
+      if (closeBtn) closeBtn.removeEventListener('click', closeModal);
+      if (cancelBtn) cancelBtn.removeEventListener('click', closeModal);
+      if (startBtn) startBtn.removeEventListener('click', startBenchmark);
+    };
+    
+    // Start benchmark function
+    const startBenchmark = () => {
+      // Collect settings from form
+      this.collectBenchmarkSettings();
+      
+      // Close the modal
+      closeModal();
+      
+      // Start the benchmark
+      this.startBenchmark();
+    };
+    
+    // Attach events
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    if (startBtn) startBtn.addEventListener('click', startBenchmark);
+    
+    // Show modal
+    modal.style.display = 'block';
+  }
+  
+  /**
+   * Collects benchmark settings from the configuration form
+   */
+  private collectBenchmarkSettings(): void {
+    // Get values from form elements
+    const layoutId = (document.getElementById('benchmark-layout') as HTMLSelectElement)?.value;
+    const duration = (document.getElementById('benchmark-duration') as HTMLInputElement)?.value;
+    const model = (document.getElementById('benchmark-model') as HTMLSelectElement)?.value;
+    const cars = (document.getElementById('benchmark-cars') as HTMLInputElement)?.value;
+    const timeFactor = (document.getElementById('benchmark-time-factor') as HTMLInputElement)?.value;
+    const collectData = (document.getElementById('benchmark-repeat') as HTMLInputElement)?.checked;
+    const exportResults = (document.getElementById('benchmark-export') as HTMLInputElement)?.checked;
+    
+    // Store settings
+    this.benchmarkSettings = {
+      layoutId: layoutId || '', // Empty string means use current layout
+      duration: parseInt(duration || '60'),
+      model: model || 'fixed-timing',
+      cars: parseInt(cars || '100'),
+      timeFactor: parseFloat(timeFactor || '2'),
+      collectData: collectData !== false, // Default to true if undefined
+      exportResults: exportResults !== false // Default to true if undefined
+    };
+    
+    console.log('📊 [BENCHMARK] Settings collected:', this.benchmarkSettings);
+    
+    // Update class properties
+    this.benchmarkDuration = this.benchmarkSettings.duration;
+  }
+  
+  /**
+   * Starts the benchmark process
+   */
+  private async startBenchmark(): Promise<void> {
+    if (this.isBenchmarkRunning) {
+      console.warn('📊 [BENCHMARK] Benchmark already running');
+      return;
+    }
+    
+    try {
+      console.log('📊 [BENCHMARK] Starting benchmark...');
+      
+      // Set flag
+      this.isBenchmarkRunning = true;
+      
+      // Show notification
+      this.showNotification(`Starting KPI benchmark for ${this.benchmarkSettings.duration} seconds using ${this.getReadableModelName(this.benchmarkSettings.model)} control...`, 'info', 5000);
+      
+      // 1. Reset simulation
+      console.log('📊 [BENCHMARK] Resetting simulation');
+      await this.resetSimulation();
+      
+      // Small delay to ensure reset is complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // 2. Apply benchmark settings
+      console.log('📊 [BENCHMARK] Applying settings');
+      
+      // Load selected layout if specified
+      if (this.benchmarkSettings.layoutId) {
+        console.log('📊 [BENCHMARK] Loading layout:', this.benchmarkSettings.layoutId);
+        
+        try {
+          // Find layout from the layouts array
+          const layoutToLoad = this.layouts.find(l => l.id === this.benchmarkSettings.layoutId);
+          
+          if (layoutToLoad) {
+            this.showNotification(`Loading layout: ${layoutToLoad.name || 'Unnamed'}...`, 'info');
+            
+            // Load the layout
+            if (this.world) {
+              this.world.load(JSON.stringify(layoutToLoad.data));
+              console.log('📊 [BENCHMARK] Layout loaded successfully');
+            }
+          } else {
+            console.warn('📊 [BENCHMARK] Selected layout not found');
+          }
+        } catch (error) {
+          console.error('📊 [BENCHMARK] Error loading layout:', error);
+          this.showNotification('Error loading layout for benchmark', 'error');
+        }
+      } else {
+        console.log('📊 [BENCHMARK] Using current layout');
+      }
+      
+      // Set car count
+      if (this.world) {
+        this.world.carsNumber = this.benchmarkSettings.cars;
+        
+        // Update car slider to match
+        const carSlider = document.getElementById('cars-value');
+        const carRange = document.getElementById('cars-range') as HTMLInputElement;
+        if (carSlider) carSlider.textContent = this.benchmarkSettings.cars.toString();
+        if (carRange) carRange.value = this.benchmarkSettings.cars.toString();
+      }
+      
+      // Set traffic control model
+      this.selectedTrafficControlModel = this.benchmarkSettings.model;
+      this.applyTrafficControlModelToAllIntersections();
+      this.setupTrafficControlModelUI();
+      
+      // Set time factor
+      if (this.visualizer) {
+        this.visualizer.timeFactor = this.benchmarkSettings.timeFactor;
+        
+        // Update time factor UI
+        const timeFactorValue = document.getElementById('time-factor-value');
+        const timeFactorRange = document.getElementById('time-factor-range') as HTMLInputElement;
+        if (timeFactorValue) timeFactorValue.textContent = this.benchmarkSettings.timeFactor.toString();
+        if (timeFactorRange) timeFactorRange.value = this.benchmarkSettings.timeFactor.toString();
+      }
+      
+      // 3. Clear benchmark data
+      this.benchmarkResults = {};
+      this.benchmarkIntervalSamples = [];
+      
+      // 4. Start KPI collection
+      console.log('📊 [BENCHMARK] Starting KPI collection');
+      kpiCollector.reset();
+      kpiCollector.startRecording(0);
+      
+      // 5. Start simulation
+      console.log('📊 [BENCHMARK] Starting simulation run');
+      this.benchmarkStartTime = this.world?.time || 0;
+      
+      // If simulation is already running, don't toggle again
+      if (!this.isRunning) {
+        this.toggleSimulation();
+      }
+      
+      // 6. Set up timer to collect data at intervals and end the benchmark
+      this.startBenchmarkTimer();
+      
+    } catch (error) {
+      console.error('📊 [BENCHMARK ERROR]', error);
+      this.isBenchmarkRunning = false;
+      this.showNotification('Failed to start benchmark', 'error');
+    }
+  }
+  
+  /**
+   * Starts the benchmark timer to collect data and end the benchmark
+   */
+  private startBenchmarkTimer(): void {
+    // Clear any existing timer
+    if (this.benchmarkTimer) {
+      clearInterval(this.benchmarkTimer);
+    }
+    
+    console.log('📊 [BENCHMARK] Starting timer for', this.benchmarkDuration, 'seconds');
+    
+    // Sample rate in ms (collect data every 5 seconds of simulation time)
+    const sampleIntervalSim = 2; // simulation seconds
+    let lastSampleTime = this.benchmarkStartTime;
+    
+    // Real-world interval for checking (more frequent)
+    const checkInterval = 200; // ms
+    
+    // Set the timer
+    this.benchmarkTimer = window.setInterval(() => {
+      if (!this.world || !this.isRunning) {
+        console.warn('📊 [BENCHMARK] World or simulation not running');
+        this.endBenchmark('cancelled');
+        return;
+      }
+      
+      // Current simulation time
+      const currentTime = this.world.time;
+      
+      // Calculate elapsed time in simulation seconds
+      const elapsedTime = currentTime - this.benchmarkStartTime;
+      
+      // Calculate progress (0-100%)
+      const progress = Math.min(100, (elapsedTime / this.benchmarkDuration) * 100);
+      
+      // Check if it's time to collect a data sample
+      if (this.benchmarkSettings.collectData && currentTime - lastSampleTime >= sampleIntervalSim) {
+        // Collect data sample
+        this.collectBenchmarkSample(elapsedTime);
+        lastSampleTime = currentTime;
+      }
+      
+      // Check if benchmark is complete
+      if (elapsedTime >= this.benchmarkDuration) {
+        console.log('📊 [BENCHMARK] Duration reached, ending benchmark');
+        this.endBenchmark('completed');
+      }
+    }, checkInterval);
+  }
+  
+  /**
+   * Collects a data sample for the benchmark
+   */
+  private collectBenchmarkSample(elapsedTime: number): void {
+    if (!this.world) return;
+    
+    // Get metrics
+    const metrics = kpiCollector.getMetrics(this.world.time);
+    
+    // Store sample with timestamp
+    this.benchmarkIntervalSamples.push({
+      time: elapsedTime,
+      metrics: { ...metrics }
+    });
+    
+    console.log('📊 [BENCHMARK] Sample collected at time', elapsedTime.toFixed(1));
+  }
+  
+  /**
+   * Ends the benchmark and shows results
+   */
+  private endBenchmark(status: 'completed' | 'cancelled'): void {
+    // Clear timer
+    if (this.benchmarkTimer) {
+      clearInterval(this.benchmarkTimer);
+      this.benchmarkTimer = null;
+    }
+    
+    // If cancelled, just clean up
+    if (status === 'cancelled') {
+      console.log('📊 [BENCHMARK] Benchmark cancelled');
+      this.isBenchmarkRunning = false;
+      this.showNotification('Benchmark cancelled', 'warning');
+      return;
+    }
+    
+    console.log('📊 [BENCHMARK] Benchmark completed, processing results');
+    
+    try {
+      // Pause simulation
+      if (this.isRunning) {
+        this.toggleSimulation();
+      }
+      
+      // Get final metrics
+      const finalMetrics = kpiCollector.getMetrics(this.world?.time || 0);
+      
+      // Store results
+      this.benchmarkResults = {
+        settings: { ...this.benchmarkSettings },
+        duration: this.world?.time - this.benchmarkStartTime || 0,
+        samples: this.benchmarkIntervalSamples,
+        metrics: finalMetrics,
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log('📊 [BENCHMARK] Results processed:', this.benchmarkResults);
+      
+      // Show notification
+      this.showNotification('Benchmark completed successfully!', 'success');
+      
+      // Show results
+      this.showBenchmarkResults();
+      
+      // Export if configured
+      if (this.benchmarkSettings.exportResults) {
+        this.exportBenchmarkResults();
+      }
+    } catch (error) {
+      console.error('📊 [BENCHMARK] Error processing results:', error);
+      this.showNotification('Error processing benchmark results', 'error');
+    } finally {
+      // Reset benchmark state
+      this.isBenchmarkRunning = false;
+    }
+  }
+  
+  /**
+   * Shows the benchmark results in a modal
+   */
+  private showBenchmarkResults(): void {
+    // Create results modal if it doesn't exist
+    let resultsModal = document.getElementById('benchmark-results-modal');
+    
+    if (!resultsModal) {
+      resultsModal = document.createElement('div');
+      resultsModal.id = 'benchmark-results-modal';
+      resultsModal.className = 'modal';
+      
+      resultsModal.innerHTML = `
+        <div class="modal-content benchmark-results-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>KPI Benchmark Results</h2>
+          </div>
+          <div class="modal-body">
+            <div id="benchmark-summary" class="benchmark-summary">
+              <!-- Summary info will be added here dynamically -->
+            </div>
+            <div id="benchmark-metrics" class="benchmark-metrics">
+              <!-- Metrics will be added here dynamically -->
+            </div>
+            <div id="benchmark-charts" class="benchmark-charts">
+              <!-- Charts will be added here dynamically -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="close-benchmark-results">Close</button>
+            <button class="btn btn-success" id="export-benchmark-results">Export Results (CSV)</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(resultsModal);
+    }
+    
+    // Add CSS for the results modal
+    this.addBenchmarkModalStyles();
+    
+    // Populate the results
+    this.populateBenchmarkResults();
+    
+    // Add event listeners
+    const closeBtn = resultsModal.querySelector('.close');
+    const closeResultsBtn = document.getElementById('close-benchmark-results');
+    const exportResultsBtn = document.getElementById('export-benchmark-results');
+    
+    const closeModal = () => {
+      resultsModal!.style.display = 'none';
+      
+      // Remove event listeners
+      if (closeBtn) closeBtn.removeEventListener('click', closeModal);
+      if (closeResultsBtn) closeResultsBtn.removeEventListener('click', closeModal);
+      if (exportResultsBtn) exportResultsBtn.removeEventListener('click', this.exportBenchmarkResults);
+    };
+    
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (closeResultsBtn) closeResultsBtn.addEventListener('click', closeModal);
+    if (exportResultsBtn) exportResultsBtn.addEventListener('click', () => this.exportBenchmarkResults());
+    
+    // Show the modal
+    resultsModal.style.display = 'block';
+  }
+  
+  /**
+   * Populates the benchmark results in the results modal
+   */
+  private populateBenchmarkResults(): void {
+    const summaryContainer = document.getElementById('benchmark-summary');
+    const metricsContainer = document.getElementById('benchmark-metrics');
+    
+    if (!summaryContainer || !metricsContainer || !this.benchmarkResults?.metrics) {
+      console.error('📊 [BENCHMARK] Cannot display results: Missing elements or data');
+      return;
+    }
+    
+    const metrics = this.benchmarkResults.metrics;
+    const settings = this.benchmarkResults.settings;
+    const duration = this.benchmarkResults.duration;
+    
+    // Format the summary section
+    let layoutName = 'Current Layout';
+    if (settings.layoutId) {
+      const layout = this.layouts.find(l => l.id === settings.layoutId);
+      if (layout) {
+        layoutName = layout.name || `Layout ${layout.id}`;
+      }
+    }
+    
+    summaryContainer.innerHTML = `
+      <h3>Benchmark Summary</h3>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-label">Layout</div>
+          <div class="summary-value">${layoutName}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Control Model</div>
+          <div class="summary-value">${this.getReadableModelName(settings.model)}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Duration</div>
+          <div class="summary-value">${duration.toFixed(1)} sec</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Vehicles</div>
+          <div class="summary-value">${settings.cars}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Time Factor</div>
+          <div class="summary-value">${settings.timeFactor}x</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Timestamp</div>
+          <div class="summary-value">${new Date(this.benchmarkResults.timestamp).toLocaleString()}</div>
+        </div>
+      </div>
+    `;
+    
+    // Format the metrics section
+    metricsContainer.innerHTML = `
+      <h3>Performance Metrics</h3>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-title">Traffic Flow</div>
+          <div class="metric-value">${metrics.globalThroughput.toFixed(2)}</div>
+          <div class="metric-unit">vehicles/min</div>
+        </div>
+        <div class="metric-card ${metrics.congestionIndex > 0.7 ? 'critical' : metrics.congestionIndex > 0.5 ? 'warning' : 'good'}">
+          <div class="metric-title">Congestion Index</div>
+          <div class="metric-value">${metrics.congestionIndex.toFixed(2)}</div>
+          <div class="metric-unit">ratio</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Average Speed</div>
+          <div class="metric-value">${metrics.averageSpeed.toFixed(2)}</div>
+          <div class="metric-unit">m/s</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Average Wait</div>
+          <div class="metric-value">${metrics.averageWaitTime.toFixed(1)}</div>
+          <div class="metric-unit">seconds</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Completed Trips</div>
+          <div class="metric-value">${metrics.completedTrips}</div>
+          <div class="metric-unit">vehicles</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Stopped Vehicles</div>
+          <div class="metric-value">${metrics.stoppedVehicles}</div>
+          <div class="metric-unit">count</div>
+        </div>
+      </div>
+      
+      <h3>Network Performance</h3>
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Total Intersections</td>
+            <td>${metrics.totalIntersections}</td>
+          </tr>
+          <tr>
+            <td>Total Roads</td>
+            <td>${metrics.totalRoads}</td>
+          </tr>
+          <tr>
+            <td>Active Vehicles</td>
+            <td>${metrics.activeVehicles}</td>
+          </tr>
+          <tr>
+            <td>Total Vehicles</td>
+            <td>${metrics.totalVehicles}</td>
+          </tr>
+          <tr>
+            <td>Total Stops</td>
+            <td>${metrics.totalStops}</td>
+          </tr>
+          <tr>
+            <td>Maximum Wait Time</td>
+            <td>${metrics.maxWaitTime.toFixed(1)}s</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+  }
+  
+  /**
+   * Exports benchmark results as a CSV file
+   */
+  private exportBenchmarkResults(): void {
+    if (!this.benchmarkResults || !this.benchmarkResults.metrics) {
+      console.error('📊 [BENCHMARK] No results to export');
+      this.showNotification('No benchmark results to export', 'warning');
+      return;
+    }
+    
+    try {
+      const metrics = this.benchmarkResults.metrics;
+      const settings = this.benchmarkResults.settings;
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `traffic-benchmark-${timestamp}.csv`;
+      
+      // Get layout name
+      let layoutName = 'Current Layout';
+      if (settings.layoutId) {
+        const layout = this.layouts.find(l => l.id === settings.layoutId);
+        if (layout) {
+          layoutName = layout.name || `Layout ${layout.id}`;
+        }
+      }
+      
+      // Create CSV content
+      let csvContent = 'Parameter,Value\n';
+      
+      // Add settings
+      csvContent += [
+        ['Layout', layoutName],
+        ['Control Model', this.getReadableModelName(settings.model)],
+        ['Duration (sec)', this.benchmarkResults.duration.toFixed(1)],
+        ['Vehicles', settings.cars],
+        ['Time Factor', settings.timeFactor],
+        ['Timestamp', new Date(this.benchmarkResults.timestamp).toLocaleString()],
+        ['', ''], // Empty row for separation
+        ['Metric', 'Value'], // Header for metrics section
+        ['Global Throughput (veh/min)', metrics.globalThroughput.toFixed(2)],
+        ['Congestion Index', metrics.congestionIndex.toFixed(2)],
+        ['Average Speed (m/s)', metrics.averageSpeed.toFixed(2)],
+        ['Average Wait Time (sec)', metrics.averageWaitTime.toFixed(1)],
+        ['Maximum Wait Time (sec)', metrics.maxWaitTime.toFixed(1)],
+        ['Completed Trips', metrics.completedTrips],
+        ['Stopped Vehicles', metrics.stoppedVehicles],
+        ['Total Stops', metrics.totalStops],
+        ['Total Intersections', metrics.totalIntersections],
+        ['Total Roads', metrics.totalRoads],
+        ['Active Vehicles', metrics.activeVehicles],
+        ['Total Vehicles', metrics.totalVehicles]
+      ].map(row => `"${row[0]}","${row[1]}"`).join('\n');
+      
+      // If we have samples, add them
+      if (this.benchmarkIntervalSamples && this.benchmarkIntervalSamples.length > 0) {
+        csvContent += '\n\n"Time (sec)","Active Vehicles","Average Speed","Congestion Index","Throughput"\n';
+        
+        csvContent += this.benchmarkIntervalSamples.map(sample => {
+          const sampleMetrics = sample.metrics;
+          return [
+            sample.time.toFixed(1),
+            sampleMetrics.activeVehicles,
+            sampleMetrics.averageSpeed.toFixed(2),
+            sampleMetrics.congestionIndex.toFixed(2),
+            sampleMetrics.globalThroughput.toFixed(2)
+          ].join(',');
+        }).join('\n');
+      }
+      
+      // Create and trigger download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      this.showNotification('Benchmark results exported as CSV', 'success');
+      
+    } catch (error) {
+      console.error('📊 [BENCHMARK] Error exporting results:', error);
+      this.showNotification('Error exporting benchmark results', 'error');
+    }
+  }
+  
+  /**
+   * Populates the layout selection dropdown in the benchmark modal
+   */
+  private populateLayoutOptions(): void {
+    const layoutSelect = document.getElementById('benchmark-layout') as HTMLSelectElement;
+    if (!layoutSelect) return;
+    
+    // Clear existing options except the first one (Current Layout)
+    while (layoutSelect.options.length > 1) {
+      layoutSelect.remove(1);
+    }
+    
+    // Add options for each layout
+    this.layouts.forEach(layout => {
+      const option = document.createElement('option');
+      option.value = layout.id;
+      option.textContent = layout.name || `Layout ${layout.id}`;
+      layoutSelect.appendChild(option);
+    });
+  }
+  
+  /**
+   * Adds CSS styles for the benchmark modals
+   */
+  private addBenchmarkModalStyles(): void {
+    if (document.getElementById('benchmark-modal-styles')) {
+      return;
+    }
+    
+    const styleElement = document.createElement('style');
+    styleElement.id = 'benchmark-modal-styles';
+    styleElement.textContent = `
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+      
+      .modal-content {
+        background-color: #2d2d2d;
+        margin: 5% auto;
+        padding: 0;
+        border: 1px solid #404040;
+        width: 80%;
+        max-width: 800px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        border-radius: 5px;
+      }
+      
+      .benchmark-modal-content {
+        max-width: 600px;
+      }
+      
+      .benchmark-results-content {
+        max-width: 800px;
+      }
+      
+      .modal-header {
+        padding: 15px;
+        background-color: #375a7f;
+        color: white;
+        border-bottom: 1px solid #222;
+        border-radius: 5px 5px 0 0;
+      }
+      
+      .modal-header h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+      
+      .modal-body {
+        padding: 15px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+      
+      .modal-footer {
+        padding: 15px;
+        background-color: #333;
+        border-top: 1px solid #404040;
+        text-align: right;
+        border-radius: 0 0 5px 5px;
+      }
+      
+      .close {
+        color: white;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        line-height: 20px;
+      }
+      
+      .close:hover,
+      .close:focus {
+        color: #aaa;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      
+      .benchmark-settings {
+        padding: 10px;
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #ddd;
+        font-weight: 500;
+      }
+      
+      .form-control {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #444;
+        background-color: #333;
+        color: #fff;
+        border-radius: 3px;
+      }
+      
+      .setting-description {
+        font-size: 12px;
+        color: #aaa;
+        margin-top: 5px;
+        display: block;
+      }
+      
+      .benchmark-options {
+        margin-top: 20px;
+        border-top: 1px solid #444;
+        padding-top: 15px;
+      }
+      
+      .option {
+        margin-bottom: 10px;
+      }
+      
+      .benchmark-summary {
+        background-color: #333;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+        margin-top: 10px;
+      }
+      
+      .summary-item {
+        background-color: #2a2a2a;
+        padding: 10px;
+        border-radius: 3px;
+        border: 1px solid #444;
+      }
+      
+      .summary-label {
+        font-size: 12px;
+        color: #aaa;
+        margin-bottom: 5px;
+      }
+      
+      .summary-value {
+        font-size: 16px;
+        font-weight: 500;
+        color: #fff;
+      }
+      
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      
+      .metric-card {
+        background-color: #2a2a2a;
+        padding: 15px;
+        border-radius: 5px;
+        text-align: center;
+        border: 1px solid #444;
+      }
+      
+      .metric-card.good {
+        border-color: #00bc8c;
+        background-color: rgba(0, 188, 140, 0.2);
+      }
+      
+      .metric-card.warning {
+        border-color: #f39c12;
+        background-color: rgba(243, 156, 18, 0.2);
+      }
+      
+      .metric-card.critical {
+        border-color: #e74c3c;
+        background-color: rgba(231, 76, 60, 0.2);
+      }
+      
+      .metric-title {
+        font-size: 12px;
+        color: #aaa;
+        margin-bottom: 5px;
+      }
+      
+      .metric-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+      }
+      
+      .metric-unit {
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+      }
+      
+      .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        margin-bottom: 20px;
+      }
+      
+      .results-table th {
+        background-color: #375a7f;
+        color: white;
+        text-align: left;
+        padding: 8px 12px;
+      }
+      
+      .results-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #444;
+      }
+      
+      .results-table tr:nth-child(even) {
+        background-color: #2a2a2a;
+      }
+      
+      .benchmark-charts {
+        margin-top: 30px;
+      }
+    `;
+    
+    document.head.appendChild(styleElement);
   }
 }
