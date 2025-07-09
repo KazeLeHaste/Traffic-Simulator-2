@@ -5740,6 +5740,14 @@ class ControlSignals {
         this.stateNum += 1;
         this.lastFlipTime = this.time;
     }
+    /**
+     * Reset the control signals to initial state
+     */
+    reset() {
+        this.time = this.phaseOffset;
+        this.stateNum = 0;
+        this.lastFlipTime = 0;
+    }
 }
 // Traffic light states
 ControlSignals.STATE = { RED: 0, GREEN: 1 };
@@ -8142,11 +8150,40 @@ class TrafficControlStrategyManager {
         this.strategies = new Map();
         /** Currently selected strategy type */
         this.selectedStrategyType = 'fixed-timing';
+        /** Strategy settings cache for reproducibility */
+        this.strategySettings = new Map();
         // Register all available strategies
         this.registerStrategy('fixed-timing', FixedTimingStrategy_1.FixedTimingStrategy);
         this.registerStrategy('adaptive-timing', AdaptiveTimingStrategy_1.AdaptiveTimingStrategy);
         this.registerStrategy('all-red-flashing', AllRedFlashingStrategy_1.AllRedFlashingStrategy);
         this.registerStrategy('traffic-enforcer', TrafficEnforcerStrategy_1.TrafficEnforcerStrategy);
+        // Initialize default strategy settings
+        this.initializeDefaultSettings();
+    }
+    /**
+     * Initialize default settings for each strategy
+     */
+    initializeDefaultSettings() {
+        this.strategySettings.set('fixed-timing', {
+            cycleTime: 30,
+            greenPhaseRatio: 0.45,
+            yellowPhaseRatio: 0.1, // Default yellow phase ratio
+        });
+        this.strategySettings.set('adaptive-timing', {
+            minGreenTime: 10,
+            maxGreenTime: 60,
+            yellowTime: 3,
+            vehicleWeightFactor: 1.0,
+            waitTimeWeightFactor: 0.5,
+        });
+        this.strategySettings.set('all-red-flashing', {
+            flashInterval: 1.0, // Flash interval in seconds
+        });
+        this.strategySettings.set('traffic-enforcer', {
+            decisionInterval: 5,
+            queueThreshold: 5,
+            minGreenTime: 10, // Minimum green time before switching
+        });
     }
     /**
      * Register a new traffic control strategy
@@ -8181,6 +8218,18 @@ class TrafficControlStrategyManager {
         return this.selectedStrategyType;
     }
     /**
+     * Get a concrete instance of a strategy by name
+     * @param strategyType The type of strategy to get
+     * @returns A new instance of the requested strategy
+     */
+    getStrategy(strategyType) {
+        const StrategyClass = this.strategies.get(strategyType);
+        if (!StrategyClass) {
+            return null;
+        }
+        return new StrategyClass();
+    }
+    /**
      * Create a new instance of the currently selected strategy
      */
     createStrategy() {
@@ -8198,6 +8247,34 @@ class TrafficControlStrategyManager {
         const strategy = this.createStrategy();
         strategy.initialize(intersection);
         return strategy;
+    }
+    /**
+     * Get the settings for a specific strategy
+     * @param strategyType The type of strategy
+     * @returns The settings for the strategy
+     */
+    getStrategySettings(strategyType) {
+        return this.strategySettings.get(strategyType) || null;
+    }
+    /**
+     * Apply strategy settings
+     * @param strategyType The type of strategy
+     * @param settings The settings to apply
+     */
+    applyStrategySettings(strategyType, settings) {
+        if (!this.strategies.has(strategyType)) {
+            console.warn(`Strategy type '${strategyType}' not found`);
+            return;
+        }
+        // Store the settings
+        this.strategySettings.set(strategyType, {
+            ...this.getStrategySettings(strategyType),
+            ...settings
+        });
+        // If this is the currently selected strategy, notify any listeners (future enhancement)
+        if (strategyType === this.selectedStrategyType) {
+            // Future: Emit event or notify subscribers
+        }
     }
     /**
      * Create a strategy from saved data
@@ -8897,6 +8974,17 @@ class TrafficLightController {
                 this.trafficStates[i].queueLength = Math.max(this.trafficStates[i].queueLength, intersectionMetric.averageQueueLength / 4);
             }
         }
+    }
+    /**
+     * Reset the controller to its initial state
+     */
+    reset() {
+        this.time = 0;
+        if (this.strategy && typeof this.strategy.reset === 'function') {
+            this.strategy.reset();
+        }
+        // Reset traffic states
+        this.initializeTrafficStates();
     }
 }
 module.exports = TrafficLightController;

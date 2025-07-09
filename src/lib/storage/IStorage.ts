@@ -29,6 +29,27 @@ export interface IStorage {
   loadAnalytics(): Promise<any[]>;
 
   /**
+   * Save a scenario with all parameters required for reproducible simulation
+   * A scenario includes road layout, traffic control settings, and simulation parameters
+   */
+  saveScenario(scenario: any, scenarioName?: string): Promise<void>;
+
+  /**
+   * Load a specific scenario by ID
+   */
+  loadScenario(id: string): Promise<any | null>;
+
+  /**
+   * Load all saved scenarios
+   */
+  loadAllScenarios(): Promise<any[]>;
+
+  /**
+   * Delete a specific scenario by ID
+   */
+  deleteScenario(id: string): Promise<void>;
+
+  /**
    * Clear all stored data
    */
   clear(): Promise<void>;

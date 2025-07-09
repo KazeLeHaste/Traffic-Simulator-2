@@ -208,6 +208,19 @@ class TrafficLightController {
     // This ensures the strategy has the latest data even if state isn't accessed
     this.strategy.update(delta, this.trafficStates);
   }
+  
+  /**
+   * Reset the controller to its initial state
+   */
+  public reset(): void {
+    this.time = 0;
+    if (this.strategy && typeof this.strategy.reset === 'function') {
+      this.strategy.reset();
+    }
+    
+    // Reset traffic states
+    this.initializeTrafficStates();
+  }
 }
 
 export = TrafficLightController;

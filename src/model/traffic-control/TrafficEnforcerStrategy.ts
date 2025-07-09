@@ -6,7 +6,7 @@
  */
 
 import Intersection = require('../intersection');
-import { TrafficState } from './ITrafficControlStrategy';
+import { TrafficState, ITrafficControlStrategy } from './ITrafficControlStrategy';
 import { AbstractTrafficControlStrategy } from './AbstractTrafficControlStrategy';
 import settings = require('../../settings');
 
@@ -528,6 +528,75 @@ export class TrafficEnforcerStrategy extends AbstractTrafficControlStrategy {
     
     strategy.initialize(intersection);
     return strategy;
+  }
+  
+  /**
+   * Create from JSON (instance method)
+   */
+  fromJSON(data: any, intersection: Intersection): ITrafficControlStrategy {
+    // Initialize with the intersection
+    this.initialize(intersection);
+    
+    // Restore state from data
+    if (data.currentPhase !== undefined) {
+      this.currentPhase = data.currentPhase;
+    }
+    
+    if (data.timeInPhase !== undefined) {
+      this.timeInPhase = data.timeInPhase;
+    }
+    
+    if (data.phaseDuration !== undefined) {
+      this.phaseDuration = data.phaseDuration;
+    }
+    
+    // Restore traffic enforcer specific properties
+    if (data.decisionInterval !== undefined) {
+      this.decisionInterval = data.decisionInterval;
+    }
+    
+    if (data.timeSinceLastDecision !== undefined) {
+      this.timeSinceLastDecision = data.timeSinceLastDecision;
+    }
+    
+    if (data.minimumGreenTime !== undefined) {
+      this.minimumGreenTime = data.minimumGreenTime;
+    }
+    
+    if (data.currentSignals) {
+      this.currentSignals = data.currentSignals;
+    }
+    
+    if (data.queueLengths) {
+      this.queueLengths = data.queueLengths;
+    }
+    
+    if (data.waitTimes) {
+      this.waitTimes = data.waitTimes;
+    }
+    
+    if (data.flowRates) {
+      this.flowRates = data.flowRates;
+    }
+    
+    if (data.congestionScores) {
+      this.congestionScores = data.congestionScores;
+    }
+    
+    if (data.greenTimers) {
+      this.greenTimers = data.greenTimers;
+    }
+    
+    if (data.activeMovements) {
+      this.activeMovements = data.activeMovements;
+    }
+    
+    // Restore configuration
+    if (data.configOptions) {
+      this.configOptions = { ...this.configOptions, ...data.configOptions };
+    }
+    
+    return this;
   }
   
   /**

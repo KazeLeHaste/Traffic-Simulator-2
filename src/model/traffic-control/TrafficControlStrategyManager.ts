@@ -13,6 +13,13 @@ import { AllRedFlashingStrategy } from './AllRedFlashingStrategy';
 import { TrafficEnforcerStrategy } from './TrafficEnforcerStrategy';
 
 /**
+ * Strategy settings type for saving/loading
+ */
+export interface StrategySettings {
+  [key: string]: any;
+}
+
+/**
  * Manages traffic control strategies in the simulation
  */
 export class TrafficControlStrategyManager {
@@ -21,6 +28,9 @@ export class TrafficControlStrategyManager {
   
   /** Currently selected strategy type */
   private selectedStrategyType: string = 'fixed-timing';
+  
+  /** Strategy settings cache for reproducibility */
+  private strategySettings: Map<string, StrategySettings> = new Map();
 
   /**
    * Initialize the strategy manager with default strategies
@@ -31,6 +41,38 @@ export class TrafficControlStrategyManager {
     this.registerStrategy('adaptive-timing', AdaptiveTimingStrategy);
     this.registerStrategy('all-red-flashing', AllRedFlashingStrategy);
     this.registerStrategy('traffic-enforcer', TrafficEnforcerStrategy);
+    
+    // Initialize default strategy settings
+    this.initializeDefaultSettings();
+  }
+  
+  /**
+   * Initialize default settings for each strategy
+   */
+  private initializeDefaultSettings(): void {
+    this.strategySettings.set('fixed-timing', {
+      cycleTime: 30, // Default cycle time in seconds
+      greenPhaseRatio: 0.45, // Default green phase ratio
+      yellowPhaseRatio: 0.1, // Default yellow phase ratio
+    });
+    
+    this.strategySettings.set('adaptive-timing', {
+      minGreenTime: 10,
+      maxGreenTime: 60,
+      yellowTime: 3,
+      vehicleWeightFactor: 1.0,
+      waitTimeWeightFactor: 0.5,
+    });
+    
+    this.strategySettings.set('all-red-flashing', {
+      flashInterval: 1.0, // Flash interval in seconds
+    });
+    
+    this.strategySettings.set('traffic-enforcer', {
+      decisionInterval: 5, // How often to make decisions (seconds)
+      queueThreshold: 5, // Number of vehicles that constitute a queue
+      minGreenTime: 10, // Minimum green time before switching
+    });
   }
 
   /**
@@ -68,6 +110,19 @@ export class TrafficControlStrategyManager {
   getSelectedStrategyType(): string {
     return this.selectedStrategyType;
   }
+  
+  /**
+   * Get a concrete instance of a strategy by name
+   * @param strategyType The type of strategy to get
+   * @returns A new instance of the requested strategy
+   */
+  getStrategy(strategyType: string): ITrafficControlStrategy | null {
+    const StrategyClass = this.strategies.get(strategyType);
+    if (!StrategyClass) {
+      return null;
+    }
+    return new StrategyClass();
+  }
 
   /**
    * Create a new instance of the currently selected strategy
@@ -88,6 +143,38 @@ export class TrafficControlStrategyManager {
     const strategy = this.createStrategy();
     strategy.initialize(intersection);
     return strategy;
+  }
+  
+  /**
+   * Get the settings for a specific strategy
+   * @param strategyType The type of strategy
+   * @returns The settings for the strategy
+   */
+  getStrategySettings(strategyType: string): StrategySettings | null {
+    return this.strategySettings.get(strategyType) || null;
+  }
+  
+  /**
+   * Apply strategy settings
+   * @param strategyType The type of strategy
+   * @param settings The settings to apply
+   */
+  applyStrategySettings(strategyType: string, settings: StrategySettings): void {
+    if (!this.strategies.has(strategyType)) {
+      console.warn(`Strategy type '${strategyType}' not found`);
+      return;
+    }
+    
+    // Store the settings
+    this.strategySettings.set(strategyType, { 
+      ...this.getStrategySettings(strategyType), 
+      ...settings 
+    });
+    
+    // If this is the currently selected strategy, notify any listeners (future enhancement)
+    if (strategyType === this.selectedStrategyType) {
+      // Future: Emit event or notify subscribers
+    }
   }
 
   /**

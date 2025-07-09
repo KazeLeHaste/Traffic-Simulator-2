@@ -118,6 +118,15 @@ class ControlSignals {
       this.flip();
     }
   }
+
+  /**
+   * Reset the control signals to initial state
+   */
+  reset(): void {
+    this.time = this.phaseOffset;
+    this.stateNum = 0;
+    this.lastFlipTime = 0;
+  }
 }
 
 // Set up properties using the CoffeeScript-style property decorator

@@ -21987,6 +21987,7 @@ class LocalStorage {
         this.LAYOUT_KEY = 'traffic_simulator_layouts';
         this.ANALYTICS_KEY = 'traffic_simulator_analytics';
         this.CURRENT_LAYOUT_KEY = 'traffic_simulator_current_layout';
+        this.SCENARIO_KEY = 'traffic_simulator_scenarios';
     }
     async saveLayout(layout, layoutName) {
         try {
@@ -22052,11 +22053,50 @@ class LocalStorage {
             return [];
         }
     }
+    async saveScenario(scenario, scenarioName) {
+        try {
+            const scenarios = await this.loadAllScenarios();
+            const newScenario = {
+                id: `scenario_${Date.now()}`,
+                name: scenarioName || `Scenario ${new Date().toLocaleString()}`,
+                data: scenario,
+                createdAt: new Date().toISOString()
+            };
+            scenarios.push(newScenario);
+            localStorage.setItem(this.SCENARIO_KEY, JSON.stringify(scenarios));
+        }
+        catch (error) {
+            console.error('Failed to save scenario:', error);
+            throw new Error('Failed to save scenario to local storage');
+        }
+    }
+    async loadScenario(id) {
+        try {
+            const scenarios = await this.loadAllScenarios();
+            const scenario = scenarios.find(s => s.id === id);
+            return scenario ? scenario.data : null;
+        }
+        catch (error) {
+            console.error('Failed to load scenario:', error);
+            return null;
+        }
+    }
+    async loadAllScenarios() {
+        try {
+            const data = localStorage.getItem(this.SCENARIO_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+        catch (error) {
+            console.error('Failed to load scenarios:', error);
+            return [];
+        }
+    }
     async clear() {
         try {
             localStorage.removeItem(this.LAYOUT_KEY);
             localStorage.removeItem(this.ANALYTICS_KEY);
             localStorage.removeItem(this.CURRENT_LAYOUT_KEY);
+            localStorage.removeItem(this.SCENARIO_KEY);
             // Keep the legacy 'world' key for now
         }
         catch (error) {
@@ -22475,6 +22515,14 @@ class ControlSignals {
     flip() {
         this.stateNum += 1;
         this.lastFlipTime = this.time;
+    }
+    /**
+     * Reset the control signals to initial state
+     */
+    reset() {
+        this.time = this.phaseOffset;
+        this.stateNum = 0;
+        this.lastFlipTime = 0;
     }
 }
 // Traffic light states
@@ -25277,11 +25325,40 @@ class TrafficControlStrategyManager {
         this.strategies = new Map();
         /** Currently selected strategy type */
         this.selectedStrategyType = 'fixed-timing';
+        /** Strategy settings cache for reproducibility */
+        this.strategySettings = new Map();
         // Register all available strategies
         this.registerStrategy('fixed-timing', FixedTimingStrategy_1.FixedTimingStrategy);
         this.registerStrategy('adaptive-timing', AdaptiveTimingStrategy_1.AdaptiveTimingStrategy);
         this.registerStrategy('all-red-flashing', AllRedFlashingStrategy_1.AllRedFlashingStrategy);
         this.registerStrategy('traffic-enforcer', TrafficEnforcerStrategy_1.TrafficEnforcerStrategy);
+        // Initialize default strategy settings
+        this.initializeDefaultSettings();
+    }
+    /**
+     * Initialize default settings for each strategy
+     */
+    initializeDefaultSettings() {
+        this.strategySettings.set('fixed-timing', {
+            cycleTime: 30,
+            greenPhaseRatio: 0.45,
+            yellowPhaseRatio: 0.1, // Default yellow phase ratio
+        });
+        this.strategySettings.set('adaptive-timing', {
+            minGreenTime: 10,
+            maxGreenTime: 60,
+            yellowTime: 3,
+            vehicleWeightFactor: 1.0,
+            waitTimeWeightFactor: 0.5,
+        });
+        this.strategySettings.set('all-red-flashing', {
+            flashInterval: 1.0, // Flash interval in seconds
+        });
+        this.strategySettings.set('traffic-enforcer', {
+            decisionInterval: 5,
+            queueThreshold: 5,
+            minGreenTime: 10, // Minimum green time before switching
+        });
     }
     /**
      * Register a new traffic control strategy
@@ -25316,6 +25393,18 @@ class TrafficControlStrategyManager {
         return this.selectedStrategyType;
     }
     /**
+     * Get a concrete instance of a strategy by name
+     * @param strategyType The type of strategy to get
+     * @returns A new instance of the requested strategy
+     */
+    getStrategy(strategyType) {
+        const StrategyClass = this.strategies.get(strategyType);
+        if (!StrategyClass) {
+            return null;
+        }
+        return new StrategyClass();
+    }
+    /**
      * Create a new instance of the currently selected strategy
      */
     createStrategy() {
@@ -25333,6 +25422,34 @@ class TrafficControlStrategyManager {
         const strategy = this.createStrategy();
         strategy.initialize(intersection);
         return strategy;
+    }
+    /**
+     * Get the settings for a specific strategy
+     * @param strategyType The type of strategy
+     * @returns The settings for the strategy
+     */
+    getStrategySettings(strategyType) {
+        return this.strategySettings.get(strategyType) || null;
+    }
+    /**
+     * Apply strategy settings
+     * @param strategyType The type of strategy
+     * @param settings The settings to apply
+     */
+    applyStrategySettings(strategyType, settings) {
+        if (!this.strategies.has(strategyType)) {
+            console.warn(`Strategy type '${strategyType}' not found`);
+            return;
+        }
+        // Store the settings
+        this.strategySettings.set(strategyType, {
+            ...this.getStrategySettings(strategyType),
+            ...settings
+        });
+        // If this is the currently selected strategy, notify any listeners (future enhancement)
+        if (strategyType === this.selectedStrategyType) {
+            // Future: Emit event or notify subscribers
+        }
     }
     /**
      * Create a strategy from saved data
@@ -26034,6 +26151,17 @@ class TrafficLightController {
                 this.trafficStates[i].queueLength = Math.max(this.trafficStates[i].queueLength, intersectionMetric.averageQueueLength / 4);
             }
         }
+    }
+    /**
+     * Reset the controller to its initial state
+     */
+    reset() {
+        this.time = 0;
+        if (this.strategy && typeof this.strategy.reset === 'function') {
+            this.strategy.reset();
+        }
+        // Reset traffic states
+        this.initializeTrafficStates();
     }
 }
 module.exports = TrafficLightController;
@@ -27693,7 +27821,11 @@ const Pool = __webpack_require__(/*! ./pool */ "./src/model/pool.ts");
 const Rect = __webpack_require__(/*! ../geom/rect */ "./src/geom/rect.ts");
 const settings = __webpack_require__(/*! ../settings */ "./src/settings.ts");
 const kpi_collector_1 = __webpack_require__(/*! ./kpi-collector */ "./src/model/kpi-collector.ts");
+const TrafficControlStrategyManager_1 = __webpack_require__(/*! ./traffic-control/TrafficControlStrategyManager */ "./src/model/traffic-control/TrafficControlStrategyManager.ts");
 const { random } = Math;
+/**
+ * Represents a complete traffic simulation world
+ */
 class World {
     constructor() {
         // Main update function called every frame (directly from reference)
@@ -27735,6 +27867,7 @@ class World {
                 this.sampleLaneStates();
             }
         };
+        this.customSettings = {};
         this.set({});
     }
     // Calculate the average speed of all cars
@@ -27756,6 +27889,8 @@ class World {
         this.cars = new Pool(Car, obj.cars);
         this.carsNumber = 0;
         this.time = 0;
+        this.activeTrafficControlStrategy = obj.activeTrafficControlStrategy || 'fixed-timing';
+        this.customSettings = obj.customSettings || {};
     }
     // Save current world state to localStorage (excluding cars)
     save() {
@@ -27772,6 +27907,8 @@ class World {
         }
         this.clear();
         this.carsNumber = parsedData.carsNumber || 0;
+        this.activeTrafficControlStrategy = parsedData.activeTrafficControlStrategy || 'fixed-timing';
+        this.customSettings = parsedData.customSettings || {};
         // Load intersections
         for (const id in parsedData.intersections) {
             const intersection = parsedData.intersections[id];
@@ -27784,6 +27921,101 @@ class World {
             roadCopy.source = this.getIntersection(road.source);
             roadCopy.target = this.getIntersection(road.target);
             this.addRoad(roadCopy);
+        }
+        // Apply traffic control strategy if specified
+        if (this.activeTrafficControlStrategy) {
+            this.applyTrafficControlStrategy(this.activeTrafficControlStrategy);
+        }
+    }
+    // Save as a complete scenario for reproducible benchmarks
+    saveAsScenario() {
+        const scenarioData = {
+            // Base world state (without cars)
+            worldState: {
+                intersections: this.intersections,
+                roads: this.roads,
+                carsNumber: this.carsNumber,
+                activeTrafficControlStrategy: this.activeTrafficControlStrategy,
+                customSettings: this.customSettings
+            },
+            // Additional simulation parameters
+            simulationParams: {
+                timeFactor: settings.defaultTimeFactor
+            },
+            // Traffic control configuration
+            trafficControlParams: TrafficControlStrategyManager_1.trafficControlStrategyManager.getStrategySettings(this.activeTrafficControlStrategy),
+            // Random seed for reproducibility (not implemented yet, but placeholder)
+            randomSeed: null,
+            // Metadata
+            timestamp: new Date().toISOString(),
+            version: '1.0.0'
+        };
+        return scenarioData;
+    }
+    // Load a complete scenario
+    loadScenario(scenarioData) {
+        if (!scenarioData || !scenarioData.worldState) {
+            console.error('Invalid scenario data');
+            return;
+        }
+        // Clear current state
+        this.clear();
+        // Update simulation parameters
+        if (scenarioData.simulationParams) {
+            settings.defaultTimeFactor = scenarioData.simulationParams.timeFactor || settings.defaultTimeFactor;
+        }
+        // Load world state
+        const worldState = scenarioData.worldState;
+        this.carsNumber = worldState.carsNumber || 0;
+        this.activeTrafficControlStrategy = worldState.activeTrafficControlStrategy || 'fixed-timing';
+        this.customSettings = worldState.customSettings || {};
+        // Load intersections
+        for (const id in worldState.intersections) {
+            const intersection = worldState.intersections[id];
+            this.addIntersection(Intersection.copy(intersection));
+        }
+        // Load roads and connect them to intersections
+        for (const id in worldState.roads) {
+            const road = worldState.roads[id];
+            const roadCopy = Road.copy(road);
+            roadCopy.source = this.getIntersection(road.source);
+            roadCopy.target = this.getIntersection(road.target);
+            this.addRoad(roadCopy);
+        }
+        // Apply traffic control configuration
+        if (scenarioData.trafficControlParams) {
+            TrafficControlStrategyManager_1.trafficControlStrategyManager.applyStrategySettings(this.activeTrafficControlStrategy, scenarioData.trafficControlParams);
+        }
+        // Apply traffic control strategy
+        this.applyTrafficControlStrategy(this.activeTrafficControlStrategy);
+    }
+    // Apply a traffic control strategy to all intersections
+    applyTrafficControlStrategy(strategyName) {
+        var _a;
+        if (!strategyName)
+            return;
+        // Store the active strategy
+        this.activeTrafficControlStrategy = strategyName;
+        // Update all intersections
+        for (const id in this.intersections.all()) {
+            const intersection = this.intersections.all()[id];
+            if (intersection && intersection.setTrafficControlStrategy) {
+                // We need to pass the strategy name as a string
+                if (strategyName === null || strategyName === undefined) {
+                    // Handle null or undefined case
+                    intersection.setTrafficControlStrategy('DefaultStrategy');
+                }
+                else if (typeof strategyName === 'object') {
+                    console.error('Expected strategy name string but received an object', strategyName);
+                    // Try to get the strategy name if possible, using non-null assertion since we know it's an object here
+                    const strategyNameStr = ((_a = strategyName.constructor) === null || _a === void 0 ? void 0 : _a.name) || 'UnknownStrategy';
+                    intersection.setTrafficControlStrategy(strategyNameStr);
+                }
+                else {
+                    // Pass the strategy name as is (should be string at this point)
+                    intersection.setTrafficControlStrategy(strategyName);
+                }
+            }
         }
     }
     // Clear all entities from the world
@@ -29520,13 +29752,13 @@ const AppState_1 = __webpack_require__(/*! ../core/AppState */ "./src/core/AppSt
 const World = __webpack_require__(/*! ../model/world */ "./src/model/world.ts");
 const Visualizer = __webpack_require__(/*! ../visualizer/visualizer */ "./src/visualizer/visualizer.ts");
 const kpi_collector_1 = __webpack_require__(/*! ../model/kpi-collector */ "./src/model/kpi-collector.ts");
-const TrafficControlStrategyManager_1 = __webpack_require__(/*! ../model/traffic-control/TrafficControlStrategyManager */ "./src/model/traffic-control/TrafficControlStrategyManager.ts");
 /**
  * Simulation page for running traffic simulations
  */
 class SimulationPageComponent {
     constructor(container) {
         this.layouts = [];
+        this.scenarios = [];
         this.isRunning = false;
         this.analytics = {
             totalCars: 0,
@@ -29537,6 +29769,23 @@ class SimulationPageComponent {
         };
         this.analyticsInterval = null;
         this.selectedTrafficControlModel = 'fixed-timing'; // Default model
+        // Benchmark related properties
+        this.isBenchmarkRunning = false;
+        this.benchmarkDuration = 60; // Default: 60 simulation seconds
+        this.benchmarkTimer = null;
+        this.benchmarkStartTime = 0;
+        this.benchmarkResults = {};
+        this.benchmarkIntervalSamples = [];
+        this.benchmarkSettings = {};
+        this.currentScenario = null;
+        // GUI control for settings
+        this.gui = null;
+        // Handle window resize event
+        this.handleResize = () => {
+            if (this.visualizer) {
+                this.visualizer.resize(window.innerWidth, window.innerHeight);
+            }
+        };
         this.container = container;
         this.init();
     }
@@ -29544,6 +29793,7 @@ class SimulationPageComponent {
         // Apply styles first to prevent theme flicker
         this.addStyles();
         await this.loadLayouts();
+        await this.loadScenarios();
         this.render();
         // Add event listeners with a small delay to ensure DOM is fully rendered
         setTimeout(() => this.addEventListeners(), 100);
@@ -29564,6 +29814,15 @@ class SimulationPageComponent {
         catch (error) {
             console.error('Failed to load layouts:', error);
             this.layouts = [];
+        }
+    }
+    async loadScenarios() {
+        try {
+            this.scenarios = await AppState_1.appState.storage.loadAllScenarios();
+        }
+        catch (error) {
+            console.error('Failed to load scenarios:', error);
+            this.scenarios = [];
         }
     }
     render() {
@@ -29592,6 +29851,34 @@ class SimulationPageComponent {
               </div>
             </div>
             
+            <!-- Scenario Management Panel -->
+            <div class="panel">
+              <h3>Scenario Management</h3>
+              
+              <div class="control-group">
+                <button id="save-scenario" class="btn btn-primary btn-block">
+                  💾 Save Current Scenario
+                </button>
+              </div>
+              
+              <div class="control-group">
+                <button id="load-scenario" class="btn btn-info btn-block">
+                  📂 Load Scenario
+                </button>
+              </div>
+              
+              <div class="scenario-status">
+                <small class="text-muted">
+                  ${this.scenarios.length > 0
+            ? `${this.scenarios.length} saved scenario(s) available`
+            : 'No saved scenarios found.'}
+                </small>
+                ${this.currentScenario
+            ? `<div class="current-scenario-info">Current: ${this.currentScenario.name}</div>`
+            : ''}
+              </div>
+            </div>
+            
             <!-- Simulation Controls -->
             <div class="panel">
               <h3>Simulation Controls</h3>
@@ -29605,6 +29892,12 @@ class SimulationPageComponent {
               <div class="control-group">
                 <button id="reset-simulation" class="btn btn-info btn-block">
                   🔄 Reset Simulation
+                </button>
+              </div>
+              
+              <div class="control-group">
+                <button id="run-benchmark" class="btn btn-primary btn-block">
+                  📊 Run KPI Benchmark
                 </button>
               </div>
               
@@ -29798,664 +30091,519 @@ class SimulationPageComponent {
             </div>
           </div>
           
-          <div class="visualizer-area">
+          <div class="visualization-area">
             <canvas id="simulation-canvas"></canvas>
           </div>
         </div>
       </div>
-    `;
-    }
-    addEventListeners() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
-        // Console log to ensure this runs
-        console.log('Setting up SimulationPage event listeners');
-        // Simulation toggle
-        (_a = document.getElementById('toggle-simulation')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.toggleSimulation());
-        // Reset simulation
-        (_b = document.getElementById('reset-simulation')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.resetSimulation());
-        // Toggle analytics panel
-        (_c = document.getElementById('toggle-analytics')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => {
-            const panel = document.getElementById('analytics-panel');
-            const btn = document.getElementById('toggle-analytics');
-            const isHidden = (panel === null || panel === void 0 ? void 0 : panel.style.display) === 'none';
-            panel.style.display = isHidden ? 'block' : 'none';
-            btn.textContent = isHidden ? 'Hide Analytics' : 'Show Analytics';
-        });
-        // Toggle lane metrics
-        (_d = document.getElementById('toggle-lane-metrics')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => {
-            const container = document.getElementById('lane-metrics-container');
-            if (container) {
-                const isHidden = container.style.display === 'none';
-                container.style.display = isHidden ? 'block' : 'none';
-            }
-        });
-        // Toggle intersection metrics
-        (_e = document.getElementById('toggle-intersection-metrics')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => {
-            const container = document.getElementById('intersection-metrics-container');
-            if (container) {
-                const isHidden = container.style.display === 'none';
-                container.style.display = isHidden ? 'block' : 'none';
-            }
-        });
-        // Car count slider
-        (_f = document.getElementById('cars-range')) === null || _f === void 0 ? void 0 : _f.addEventListener('input', (e) => {
-            const value = e.target.value;
-            document.getElementById('cars-value').textContent = value;
-        });
-        // Traffic control model selector
-        (_g = document.getElementById('traffic-control-model')) === null || _g === void 0 ? void 0 : _g.addEventListener('change', (e) => {
-            const selectedModel = e.target.value;
-            this.selectedTrafficControlModel = selectedModel;
-            // Update the indicator
-            const indicator = document.getElementById('active-model-indicator');
-            if (indicator) {
-                indicator.textContent = this.getReadableModelName(selectedModel);
-            }
-            // Apply to all intersections in the world
-            this.applyTrafficControlModelToAllIntersections();
-            // Show notification
-            this.showNotification(`Traffic control model changed to ${this.getReadableModelName(selectedModel)}`, 'info');
-            console.log('🚦 Traffic control model changed to:', selectedModel);
-        });
-        // Time factor slider
-        (_h = document.getElementById('time-factor-range')) === null || _h === void 0 ? void 0 : _h.addEventListener('input', (e) => {
-            const value = e.target.value;
-            document.getElementById('time-factor-value').textContent = value;
-            // Update the visualizer time factor in real-time if it exists
-            if (this.visualizer) {
-                this.visualizer.timeFactor = parseFloat(value);
-            }
-        });
-        // Export metrics as CSV
-        (_j = document.getElementById('export-metrics')) === null || _j === void 0 ? void 0 : _j.addEventListener('click', () => {
-            if (!this.world) {
-                this.showNotification('No simulation data to export', 'warning');
-                return;
-            }
-            try {
-                kpi_collector_1.kpiCollector.downloadMetricsCSV();
-                this.showNotification('Metrics exported as CSV', 'success');
-            }
-            catch (error) {
-                console.error('Failed to export metrics as CSV:', error);
-                this.showNotification('Failed to export metrics', 'error');
-            }
-        });
-        // Validate metrics
-        (_k = document.getElementById('validate-metrics')) === null || _k === void 0 ? void 0 : _k.addEventListener('click', () => {
-            if (!this.world) {
-                this.showNotification('No simulation data to validate', 'warning');
-                return;
-            }
-            try {
-                // Run validation and get HTML report
-                const validationHtml = kpi_collector_1.kpiCollector.validateMetrics();
-                // Create modal for displaying validation results
-                const modal = document.createElement('div');
-                modal.className = 'modal';
-                modal.innerHTML = `
-          <div class="modal-content">
-            <div class="modal-header">
-              <span class="close">&times;</span>
-              <h2>KPI Validation Results</h2>
-            </div>
-            <div class="modal-body">
-              ${validationHtml}
+      
+      <!-- KPI Benchmark Modal (hidden by default) -->
+      <div id="benchmark-modal" class="modal" style="display: none;">
+        <div class="modal-content benchmark-modal-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>KPI Benchmark Configuration</h2>
+          </div>
+          <div class="modal-body">
+            <div class="benchmark-settings">
+              <div class="form-group">
+                <label for="benchmark-layout">Layout:</label>
+                <select id="benchmark-layout" class="form-control">
+                  <option value="">Current Layout</option>
+                  <!-- Layout options will be populated dynamically -->
+                </select>
+                <small class="setting-description">Select a layout to use for the benchmark (or use current layout)</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-duration">Simulation Duration (seconds):</label>
+                <input type="number" id="benchmark-duration" class="form-control" min="10" max="300" value="60">
+                <small class="setting-description">How long the simulation should run (in simulation seconds)</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-model">Traffic Control Model:</label>
+                <select id="benchmark-model" class="form-control">
+                  <option value="fixed-timing">Fixed Timing</option>
+                  <option value="adaptive-timing">Adaptive Timing</option>
+                  <option value="traffic-enforcer">Traffic Enforcer</option>
+                  <option value="all-red-flashing">All Red Flashing</option>
+                </select>
+                <small class="setting-description">Traffic control model to test during benchmark</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-cars">Number of Vehicles:</label>
+                <input type="number" id="benchmark-cars" class="form-control" min="10" max="200" value="100">
+                <small class="setting-description">Number of vehicles to simulate</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="benchmark-time-factor">Time Factor:</label>
+                <input type="number" id="benchmark-time-factor" class="form-control" min="0.1" max="5" step="0.1" value="2">
+                <small class="setting-description">Speed of simulation (higher = faster)</small>
+              </div>
+              
+              <div class="benchmark-options">
+                <div class="option">
+                  <input type="checkbox" id="benchmark-repeat" checked>
+                  <label for="benchmark-repeat">Collect continuous data</label>
+                </div>
+                <div class="option">
+                  <input type="checkbox" id="benchmark-export" checked>
+                  <label for="benchmark-export">Export results after completion</label>
+                </div>
+              </div>
             </div>
           </div>
-        `;
-                document.body.appendChild(modal);
-                // Add event listener to close modal
-                const closeBtn = modal.querySelector('.close');
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', () => {
-                        document.body.removeChild(modal);
-                    });
-                }
-                // Show modal
-                modal.style.display = 'block';
-                this.showNotification('KPI validation complete', 'info');
-            }
-            catch (error) {
-                console.error('Failed to validate KPIs:', error);
-                this.showNotification('Failed to validate KPIs', 'error');
-            }
-        });
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-benchmark">Cancel</button>
+            <button class="btn btn-primary" id="start-benchmark">Start Benchmark</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Benchmark Results Modal (hidden by default) -->
+      <div id="benchmark-results-modal" class="modal" style="display: none;">
+        <div class="modal-content benchmark-results-content">
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>KPI Benchmark Results</h2>
+          </div>
+          <div class="modal-body">
+            <div id="benchmark-summary" class="benchmark-summary">
+              <!-- Summary info will be added here dynamically -->
+            </div>
+            <div id="benchmark-metrics" class="benchmark-metrics">
+              <!-- Metrics will be added here dynamically -->
+            </div>
+            <div id="benchmark-charts" class="benchmark-charts">
+              <!-- Charts will be added here dynamically -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="close-benchmark-results">Close</button>
+            <button class="btn btn-success" id="export-benchmark-results">Export Results (CSV)</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Scenario Dialog -->
+      <div id="scenario-dialog" class="modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Scenario Management</h2>
+            <span class="close-modal" id="close-scenario-dialog">&times;</span>
+          </div>
+          <div class="modal-body">
+            <!-- Tabs -->
+            <div class="dialog-tabs">
+              <button class="tab-btn active" data-tab="save-tab">Save Scenario</button>
+              <button class="tab-btn" data-tab="load-tab">Load Scenario</button>
+            </div>
+            
+            <!-- Save Tab -->
+            <div id="save-tab" class="tab-content">
+              <div class="form-group">
+                <label for="scenario-name">Scenario Name:</label>
+                <input type="text" id="scenario-name" class="form-control" placeholder="Enter a name for this scenario">
+              </div>
+              <div class="form-group">
+                <label for="scenario-description">Description (optional):</label>
+                <textarea id="scenario-description" class="form-control" placeholder="Add a description"></textarea>
+              </div>
+              <button id="save-scenario-confirm" class="btn btn-primary">Save Scenario</button>
+            </div>
+            
+            <!-- Load Tab -->
+            <div id="load-tab" class="tab-content" style="display: none;">
+              <div class="scenarios-list-container">
+                <ul id="scenarios-list" class="scenarios-list">
+                  <!-- Scenarios will be listed here dynamically -->
+                </ul>
+              </div>
+              <div class="form-actions">
+                <button id="load-scenario-confirm" class="btn btn-primary" disabled>Load Selected</button>
+                <button id="delete-scenario" class="btn btn-danger" disabled>Delete Selected</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+        // Update the visualization area if needed
+        const visualizationArea = this.container.querySelector('.visualizer-area');
+        if (visualizationArea) {
+            // Any additional setup for the visualization area
+        }
+    }
+    addEventListeners() {
         // Load layout button
-        (_l = document.getElementById('load-layout')) === null || _l === void 0 ? void 0 : _l.addEventListener('click', () => this.showLayoutSelector());
-    }
-    async initializeSimulation() {
-        var _a, _b, _c;
-        console.log('🌍 Initializing world for simulation...');
-        try {
-            this.world = new World();
-            // Start with completely empty world for simulation - user loads layouts manually
-            this.world.clear();
-            this.world.carsNumber = 0;
-            // Ensure no cars are spawned initially
-            if (this.world.cars && this.world.cars.clear) {
-                this.world.cars.clear();
-            }
-            console.log('🌍 World initialized with:', {
-                intersections: Object.keys(((_a = this.world.intersections) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
-                roads: Object.keys(((_b = this.world.roads) === null || _b === void 0 ? void 0 : _b.all()) || {}).length,
-                cars: this.world.carsNumber,
-                actualCars: ((_c = this.world.cars) === null || _c === void 0 ? void 0 : _c.length) || 0
-            });
-            // Set up the initial traffic control model UI
-            this.setupTrafficControlModelUI();
-            // Initialize visualizer only when DOM is fully ready
-            // Use requestAnimationFrame for better timing with DOM rendering
-            requestAnimationFrame(() => {
-                if (document.getElementById('simulation-canvas')) {
-                    this.initializeVisualizer();
-                }
-                else {
-                    console.error('❌ Canvas element not ready, trying again in 100ms');
-                    // Fallback to setTimeout if element isn't ready yet
-                    setTimeout(() => this.initializeVisualizer(), 100);
-                }
-            });
-        }
-        catch (error) {
-            console.error('🚨 Failed to initialize simulation world:', error);
-        }
-    }
-    destroyVisualizer() {
-        console.log('🎨 [SIM DEBUG] Destroying visualizer...');
-        try {
-            if (this.visualizer) {
-                // Stop any running animation
-                if (this.visualizer.running) {
-                    this.visualizer.running = false;
-                }
-                // Call the visualizer's destroy method to clean up resources
-                if (typeof this.visualizer.destroy === 'function') {
-                    this.visualizer.destroy();
-                }
-                // Clear visualizer reference
-                this.visualizer = null;
-                console.log('🎨 [SIM DEBUG] Visualizer destroyed successfully');
-            }
-            else {
-                console.log('🎨 [SIM DEBUG] No visualizer to destroy');
-            }
-        }
-        catch (error) {
-            console.error('🎨 [SIM ERROR] Error destroying visualizer:', error);
-        }
-    }
-    initializeVisualizer() {
-        const canvas = document.getElementById('simulation-canvas');
-        if (!canvas) {
-            console.error('❌ Canvas not found in DOM during simulation initialization');
-            return;
-        }
-        console.log('🎨 Initializing simulation visualizer...');
-        // Destroy existing visualizer to prevent conflicts
-        if (this.visualizer) {
-            console.log('🎨 Destroying existing visualizer before creating new one');
-            this.destroyVisualizer();
-        }
-        // Set canvas size based on container
-        const visualizerArea = canvas.parentElement;
-        if (visualizerArea) {
-            const rect = visualizerArea.getBoundingClientRect();
-            const targetWidth = Math.max(rect.width, 600);
-            const targetHeight = Math.max(rect.height, 400);
-            canvas.width = targetWidth;
-            canvas.height = targetHeight;
-            // Apply CSS for proper display
-            canvas.style.cssText = `
-        width: 100% !important;
-        height: 100% !important;
-        display: block !important;
-        background: #2d2d2d !important;
-        border: 1px solid #404040;
-      `;
-        }
-        try {
-            // Verify canvas exists one more time and that it has a valid parent element
-            const canvas = document.getElementById('simulation-canvas');
-            const parent = canvas === null || canvas === void 0 ? void 0 : canvas.parentElement;
-            if (!canvas || !parent) {
-                console.error('❌ Canvas or parent container not found before visualizer creation');
-                return;
-            }
-            // Create visualizer in SIMULATION MODE
-            this.visualizer = new Visualizer(this.world, 'simulation-canvas');
-            // SIMULATION MODE: Start with no cars and no simulation running
-            this.world.carsNumber = 0;
-            if (this.world.cars && this.world.cars.clear) {
-                this.world.cars.clear();
-            }
-            // Set to simulation mode but don't start simulation automatically
-            this.visualizer.isBuilderMode = false;
-            // Start the visualizer for rendering but not simulation
-            this.visualizer.start();
-            // Ensure simulation is NOT running initially
-            this.visualizer.running = false;
-            this.isRunning = false;
-            // Start analytics updates
-            this.startAnalyticsUpdates();
-            // Force initial draw after a short delay
-            setTimeout(() => {
-                if (this.visualizer && this.visualizer.drawSingleFrame) {
-                    this.visualizer.drawSingleFrame();
-                }
-            }, 200);
-            console.log('✅ Simulation visualizer initialized successfully (not running)');
-        }
-        catch (error) {
-            console.error('❌ Error initializing simulation visualizer:', error);
-        }
-        // Add window resize handler for responsive canvas
-        this.addResizeHandler();
-    }
-    addResizeHandler() {
-        const resizeCanvas = () => {
-            const canvas = document.getElementById('simulation-canvas');
-            if (!canvas) {
-                console.warn('⚠️ Canvas not found during resize operation');
-                return;
-            }
-            const visualizerArea = canvas.parentElement;
-            if (!visualizerArea) {
-                console.warn('⚠️ Canvas parent element not found during resize');
-                return;
-            }
-            // Get the current dimensions of the container
-            const rect = visualizerArea.getBoundingClientRect();
-            const targetWidth = Math.max(rect.width || 800, 400);
-            const targetHeight = Math.max(rect.height || 600, 300);
-            // Update canvas dimensions
-            canvas.width = targetWidth;
-            canvas.height = targetHeight;
-            console.log('🎨 Simulation: Canvas resized to:', targetWidth, 'x', targetHeight);
-            // Redraw after resize using requestAnimationFrame for better timing
-            if (this.visualizer && this.visualizer.drawSingleFrame) {
-                requestAnimationFrame(() => {
-                    this.visualizer.drawSingleFrame();
-                });
-            }
-        };
-        // Debounced resize handler
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(resizeCanvas, 150);
+        const loadLayoutButton = document.getElementById('load-layout');
+        loadLayoutButton === null || loadLayoutButton === void 0 ? void 0 : loadLayoutButton.addEventListener('click', () => this.showLoadLayoutDialog());
+        // Save scenario button
+        const saveScenarioButton = document.getElementById('save-scenario');
+        saveScenarioButton === null || saveScenarioButton === void 0 ? void 0 : saveScenarioButton.addEventListener('click', () => this.showScenarioDialog('save'));
+        // Load scenario button
+        const loadScenarioButton = document.getElementById('load-scenario');
+        loadScenarioButton === null || loadScenarioButton === void 0 ? void 0 : loadScenarioButton.addEventListener('click', () => this.showScenarioDialog('load'));
+        // Toggle simulation button
+        const toggleSimulationButton = document.getElementById('toggle-simulation');
+        toggleSimulationButton === null || toggleSimulationButton === void 0 ? void 0 : toggleSimulationButton.addEventListener('click', () => this.toggleSimulation());
+        // Reset simulation button
+        const resetSimulationButton = document.getElementById('reset-simulation');
+        resetSimulationButton === null || resetSimulationButton === void 0 ? void 0 : resetSimulationButton.addEventListener('click', () => this.resetSimulation());
+        // Run benchmark button
+        const runBenchmarkButton = document.getElementById('run-benchmark');
+        runBenchmarkButton === null || runBenchmarkButton === void 0 ? void 0 : runBenchmarkButton.addEventListener('click', () => this.runBenchmark());
+        // Traffic control model dropdown
+        const trafficControlModelSelect = document.getElementById('traffic-control-model');
+        trafficControlModelSelect === null || trafficControlModelSelect === void 0 ? void 0 : trafficControlModelSelect.addEventListener('change', () => {
+            this.selectedTrafficControlModel = trafficControlModelSelect.value;
+            this.updateTrafficControlModel();
         });
-    }
-    async loadSelectedLayout() {
-        var _a, _b, _c;
-        const select = document.getElementById('layout-select');
-        const layoutId = select === null || select === void 0 ? void 0 : select.value;
-        if (!layoutId)
-            return;
-        const layout = this.layouts.find(l => l.id === layoutId);
-        if (layout && this.world) {
-            try {
-                this.world.load(JSON.stringify(layout.data));
-                this.world.carsNumber = parseInt(((_a = document.getElementById('cars-range')) === null || _a === void 0 ? void 0 : _a.value) || '100');
-                this.updateAnalytics();
-                this.showNotification('Layout loaded successfully!');
-                // Always re-initialize the visualizer after loading a layout
-                this.initializeVisualizer();
-                // Restart visualizer if running
-                if (this.isRunning) {
-                    (_b = this.visualizer) === null || _b === void 0 ? void 0 : _b.stop();
-                    (_c = this.visualizer) === null || _c === void 0 ? void 0 : _c.start();
+        // Cars range slider
+        const carsRangeSlider = document.getElementById('cars-range');
+        carsRangeSlider === null || carsRangeSlider === void 0 ? void 0 : carsRangeSlider.addEventListener('input', () => {
+            const value = parseInt(carsRangeSlider.value);
+            document.getElementById('cars-value').textContent = value.toString();
+            if (this.world) {
+                this.world.carsNumber = value;
+            }
+        });
+        // Time factor range slider
+        const timeFactorRangeSlider = document.getElementById('time-factor-range');
+        timeFactorRangeSlider === null || timeFactorRangeSlider === void 0 ? void 0 : timeFactorRangeSlider.addEventListener('input', () => {
+            const value = parseFloat(timeFactorRangeSlider.value);
+            document.getElementById('time-factor-value').textContent = value.toFixed(1);
+            if (this.visualizer) {
+                this.visualizer.setTimeFactor(value);
+            }
+        });
+        // Toggle analytics button
+        const toggleAnalyticsButton = document.getElementById('toggle-analytics');
+        toggleAnalyticsButton === null || toggleAnalyticsButton === void 0 ? void 0 : toggleAnalyticsButton.addEventListener('click', () => {
+            const panel = document.getElementById('analytics-panel');
+            if (!panel)
+                return;
+            const isHidden = (panel === null || panel === void 0 ? void 0 : panel.style.display) === 'none';
+            panel.style.display = isHidden ? 'block' : 'none';
+            toggleAnalyticsButton.textContent = isHidden ? 'Hide Analytics' : 'Show Analytics';
+        });
+        // Close scenario dialog button
+        const closeScenarioDialogBtn = document.getElementById('close-scenario-dialog');
+        closeScenarioDialogBtn === null || closeScenarioDialogBtn === void 0 ? void 0 : closeScenarioDialogBtn.addEventListener('click', () => {
+            const dialog = document.getElementById('scenario-dialog');
+            if (dialog) {
+                dialog.style.display = 'none';
+            }
+        });
+        // Tab buttons in scenario dialog
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.target;
+                const tabId = target.getAttribute('data-tab');
+                // Hide all tab contents and remove active class
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // Show selected tab content and add active class
+                if (tabId) {
+                    document.getElementById(tabId).style.display = 'block';
+                    target.classList.add('active');
                 }
-            }
-            catch (error) {
-                console.error('Failed to load layout:', error);
-                this.showNotification('Failed to load layout!', 'error');
-            }
-        }
+            });
+        });
+        // Save scenario confirm button
+        const saveScenarioConfirmButton = document.getElementById('save-scenario-confirm');
+        saveScenarioConfirmButton === null || saveScenarioConfirmButton === void 0 ? void 0 : saveScenarioConfirmButton.addEventListener('click', () => this.saveScenario());
+        // Load scenario confirm button
+        const loadScenarioConfirmButton = document.getElementById('load-scenario-confirm');
+        loadScenarioConfirmButton === null || loadScenarioConfirmButton === void 0 ? void 0 : loadScenarioConfirmButton.addEventListener('click', () => this.loadSelectedScenario());
     }
-    toggleSimulation() {
-        var _a;
-        console.log('🎮 [SIM] Toggle simulation called');
-        if (!this.visualizer || !this.world) {
-            console.error('🎮 [SIM ERROR] Visualizer or world not available');
-            return;
-        }
-        const button = document.getElementById('toggle-simulation');
-        if (this.isRunning) {
-            console.log('🎮 [SIM] Stopping simulation');
-            // Stop simulation (pause)
-            this.visualizer.running = false;
-            this.isRunning = false;
-            // Stop KPI collection
-            kpi_collector_1.kpiCollector.stopRecording();
-            if (button) {
-                button.innerHTML = '▶️ Start Simulation';
-                button.className = 'btn btn-success btn-block';
-            }
-            console.log('🎮 [SIM] Simulation stopped');
+    // Show the scenario dialog for saving or loading
+    showScenarioDialog(mode) {
+        const dialog = document.getElementById('scenario-dialog');
+        dialog.style.display = 'block';
+        // Set the active tab based on mode
+        const saveTab = document.getElementById('save-tab');
+        const loadTab = document.getElementById('load-tab');
+        const saveTabBtn = document.querySelector(`.tab-btn[data-tab="save-tab"]`);
+        const loadTabBtn = document.querySelector(`.tab-btn[data-tab="load-tab"]`);
+        if (mode === 'save') {
+            saveTab.style.display = 'block';
+            loadTab.style.display = 'none';
+            saveTabBtn.classList.add('active');
+            loadTabBtn.classList.remove('active');
         }
         else {
-            console.log('🎮 [SIM] Starting simulation');
-            // Start simulation 
-            // Ensure visualizer is in simulation mode (not builder mode)
-            this.visualizer.isBuilderMode = false;
-            // Make sure we have the right number of cars
-            const carsRange = document.getElementById('cars-range');
-            let targetCarCount = 100; // Default
-            if (carsRange) {
-                targetCarCount = parseInt(carsRange.value || '100');
-            }
-            console.log('🎮 [SIM] Setting car count to', targetCarCount);
-            this.world.carsNumber = targetCarCount;
-            // Reset all cars to ensure a clean start
-            console.log('🎮 [SIM] Clearing existing cars');
-            if (this.world.cars && this.world.cars.clear) {
-                this.world.cars.clear();
-            }
-            // Reset KPI collector and start recording
-            kpi_collector_1.kpiCollector.reset();
-            kpi_collector_1.kpiCollector.startRecording(this.world.time);
-            // Force refresh cars to spawn them with proper state
-            console.log('🎮 [SIM] Refreshing cars');
-            // Use refreshCars instead of manually adding each car
-            this.world.refreshCars();
-            console.log('🎮 [SIM] Car count after refresh:', Object.keys(((_a = this.world.cars) === null || _a === void 0 ? void 0 : _a.all()) || {}).length);
-            // Set proper time factor from slider
-            const timeFactorSlider = document.getElementById('time-factor-range');
-            if (timeFactorSlider && this.visualizer) {
-                const factor = parseFloat(timeFactorSlider.value || '1.0');
-                console.log('🎮 [SIM] Setting time factor to', factor);
-                this.visualizer.timeFactor = factor;
-            }
-            // Start the animation loop
-            console.log('🎮 [SIM] Setting visualizer.running = true');
-            this.visualizer.running = true;
-            this.isRunning = true;
-            if (button) {
-                button.innerHTML = '⏸️ Pause Simulation';
-                button.className = 'btn btn-warning btn-block';
-            }
-            console.log('🎮 [SIM] Simulation started');
+            saveTab.style.display = 'none';
+            loadTab.style.display = 'block';
+            saveTabBtn.classList.remove('active');
+            loadTabBtn.classList.add('active');
+            // Populate the scenarios list
+            this.populateScenariosListUI();
         }
     }
-    resetSimulation() {
-        console.log('🔄 [SIM DEBUG] Reset simulation requested');
+    // Populate the scenarios list in the UI
+    populateScenariosListUI() {
+        const scenariosList = document.getElementById('scenarios-list');
+        // Clear the list
+        scenariosList.innerHTML = '';
+        if (this.scenarios.length === 0) {
+            scenariosList.innerHTML = '<div class="list-empty-message">No saved scenarios found.</div>';
+            return;
+        }
+        // Add each scenario to the list
+        this.scenarios.forEach(scenario => {
+            const scenarioItem = document.createElement('div');
+            scenarioItem.className = 'list-item';
+            scenarioItem.dataset.id = scenario.id;
+            const date = new Date(scenario.createdAt).toLocaleDateString();
+            const time = new Date(scenario.createdAt).toLocaleTimeString();
+            scenarioItem.innerHTML = `
+        <div class="list-item-info">
+          <div class="list-item-title">${scenario.name}</div>
+          <div class="list-item-meta">Created: ${date} ${time}</div>
+        </div>
+        <button class="btn-delete" data-id="${scenario.id}">&times;</button>
+      `;
+            // Add click event to select the scenario
+            scenarioItem.addEventListener('click', (e) => {
+                // Ignore clicks on the delete button
+                if (e.target.classList.contains('btn-delete')) {
+                    return;
+                }
+                // Remove the 'selected' class from all items
+                document.querySelectorAll('.list-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                // Add the 'selected' class to this item
+                scenarioItem.classList.add('selected');
+            });
+            // Add delete button event
+            const deleteButton = scenarioItem.querySelector('.btn-delete');
+            deleteButton === null || deleteButton === void 0 ? void 0 : deleteButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.deleteScenario(scenario.id);
+            });
+            scenariosList.appendChild(scenarioItem);
+        });
+    }
+    // Save the current scenario
+    async saveScenario() {
+        if (!this.world) {
+            this.showNotification('No simulation world to save', 'warning');
+            return;
+        }
+        // Get scenario name from input
+        const scenarioNameInput = document.getElementById('scenario-name');
+        const scenarioName = scenarioNameInput.value.trim() || `Scenario ${new Date().toLocaleString()}`;
+        // Get scenario description from input
+        const scenarioDescriptionInput = document.getElementById('scenario-description');
+        const scenarioDescription = scenarioDescriptionInput.value.trim();
+        // Get scenario data from world
+        const scenarioData = this.world.saveAsScenario();
+        // Add description to scenario data
+        scenarioData.description = scenarioDescription;
         try {
-            if (!this.world || !this.visualizer) {
-                console.error('🔄 [SIM ERROR] Cannot reset - world or visualizer is not available');
+            // Save scenario
+            await AppState_1.appState.storage.saveScenario(scenarioData, scenarioName);
+            // Reload scenarios
+            await this.loadScenarios();
+            // Update current scenario info
+            this.currentScenario = {
+                name: scenarioName,
+                id: `scenario_${Date.now()}`,
+                data: scenarioData
+            };
+            // Update scenario status in UI
+            const scenarioStatus = document.querySelector('.scenario-status');
+            if (scenarioStatus) {
+                scenarioStatus.innerHTML = `
+          <small class="text-muted">
+            ${this.scenarios.length} saved scenario(s) available
+          </small>
+          <div class="current-scenario-info">Current: ${scenarioName}</div>
+        `;
+            }
+            // Close dialog
+            document.getElementById('scenario-dialog').style.display = 'none';
+            // Show success notification
+            this.showNotification('Scenario saved successfully', 'success');
+        }
+        catch (error) {
+            console.error('Failed to save scenario:', error);
+            this.showNotification('Failed to save scenario', 'error');
+        }
+    }
+    // Load a scenario by ID
+    async loadScenarioById(id) {
+        try {
+            const scenarioData = await AppState_1.appState.storage.loadScenario(id);
+            if (!scenarioData) {
+                this.showNotification('Scenario not found', 'error');
                 return;
             }
-            // Store simulation state we want to preserve
-            const wasRunning = this.isRunning;
-            let carCount = 100; // Default
-            const carSlider = document.getElementById('cars-range');
-            if (carSlider) {
-                carCount = parseInt(carSlider.value || '100');
-            }
-            // Stop simulation if running
-            if (wasRunning) {
-                this.visualizer.running = false;
-                this.isRunning = false;
-            }
-            // Save current layout data
-            let currentLayoutData = null;
-            try {
-                // Get the current layout as a serialized string before clearing
-                const layoutData = {
-                    intersections: this.world.intersections.all(),
-                    roads: this.world.roads.all(),
-                };
-                currentLayoutData = JSON.stringify(layoutData);
-            }
-            catch (err) {
-                console.error('🔄 [SIM ERROR] Failed to save layout data:', err);
-            }
-            // Reset world time and clear vehicles
-            console.log('🔄 [SIM DEBUG] Resetting world time and clearing vehicles');
-            this.world.time = 0;
-            this.world.carsNumber = 0; // Temporarily set to 0 to prevent auto-spawning
-            // Clear KPIs
-            kpi_collector_1.kpiCollector.reset();
-            // Clear cars
-            if (this.world.cars && this.world.cars.clear) {
-                this.world.cars.clear();
-            }
-            // 1. Stop the simulation and animation loop
-            console.log('🔄 [SIM DEBUG] Stopping simulation and animation');
-            this.visualizer.running = false;
-            this.isRunning = false;
-            // 2. Properly clean up visualizer (stop all animation loops)
-            console.log('🔄 [SIM DEBUG] Destroying visualizer');
-            if (typeof this.visualizer.destroy === 'function') {
-                this.visualizer.destroy();
-            }
-            else if (typeof this.visualizer.stop === 'function') {
-                this.visualizer.stop();
-            }
-            // Clear references
-            this.visualizer = null;
-            // 3. Properly clean up world
-            console.log('🔄 [SIM DEBUG] Clearing world');
-            this.world.clear();
-            // 4. Reload the layout (if we have saved state)
-            if (currentLayoutData) {
-                console.log('🔄 [SIM DEBUG] Reloading saved layout');
-                try {
-                    this.world.load(currentLayoutData);
-                    console.log('🔄 [SIM DEBUG] Layout reloaded successfully');
+            // Find the scenario in the scenarios array to get its name
+            const scenario = this.scenarios.find(s => s.id === id);
+            // Load the scenario
+            if (this.world) {
+                // Stop simulation if running
+                if (this.isRunning) {
+                    this.toggleSimulation();
                 }
-                catch (reloadErr) {
-                    console.error('🔄 [SIM ERROR] Failed to reload layout:', reloadErr);
+                // Reset KPI collector
+                kpi_collector_1.kpiCollector.reset();
+                // Load the scenario into the world
+                this.world.loadScenario(scenarioData);
+                // Update UI components
+                this.updateUIFromWorld();
+                // Update current scenario info
+                this.currentScenario = scenario;
+                // Update scenario status in UI
+                const scenarioStatus = document.querySelector('.scenario-status');
+                if (scenarioStatus) {
+                    scenarioStatus.innerHTML = `
+            <small class="text-muted">
+              ${this.scenarios.length} saved scenario(s) available
+            </small>
+            <div class="current-scenario-info">Current: ${scenario.name}</div>
+          `;
                 }
-            }
-            // 5. Set car count but don't spawn them yet
-            this.world.carsNumber = carCount;
-            console.log('🔄 [SIM DEBUG] Set cars number to:', this.world.carsNumber);
-            this.world.time = 0;
-            // 6. Re-initialize the visualizer with the cleaned world
-            console.log('🔄 [SIM DEBUG] Re-initializing visualizer');
-            this.initializeVisualizer();
-            // 7. Now that visualizer is ready, spawn cars
-            console.log('🔄 [SIM DEBUG] Spawning cars');
-            this.world.refreshCars();
-            // 7b. Apply the selected traffic control model to all intersections
-            console.log('🔄 [SIM DEBUG] Applying traffic control model:', this.selectedTrafficControlModel);
-            this.applyTrafficControlModelToAllIntersections();
-            // 8. Update analytics and notify user
-            this.updateAnalytics();
-            this.showNotification('Simulation reset successfully!');
-            // 9. If it was previously running, restart it
-            if (wasRunning) {
-                console.log('🔄 [SIM DEBUG] Restarting simulation');
-                setTimeout(() => {
-                    if (this.visualizer) {
-                        this.visualizer.running = true;
-                        this.isRunning = true;
-                        // Update UI
-                        const toggleBtn = document.getElementById('toggle-simulation');
-                        if (toggleBtn) {
-                            toggleBtn.textContent = '⏸️ Pause Simulation';
-                            toggleBtn.className = 'btn btn-warning btn-block';
-                        }
-                    }
-                }, 500);
+                // Show success notification
+                this.showNotification(`Scenario "${scenario.name}" loaded successfully`, 'success');
             }
         }
-        catch (resetError) {
-            console.error('🔄 [SIM ERROR] Reset simulation failed:', resetError);
-            console.error('🔄 [SIM ERROR] Stack trace:', resetError.stack);
-            // Emergency recovery - force page reload if reset catastrophically fails
-            this.showNotification('Reset failed. Refreshing page...', 'error');
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+        catch (error) {
+            console.error('Failed to load scenario:', error);
+            this.showNotification('Failed to load scenario', 'error');
         }
     }
-    startAnalyticsUpdates() {
-        if (this.analyticsInterval) {
-            clearInterval(this.analyticsInterval);
+    // Load the selected scenario from the list
+    loadSelectedScenario() {
+        const selectedItem = document.querySelector('.list-item.selected');
+        if (!selectedItem) {
+            this.showNotification('No scenario selected', 'warning');
+            return;
         }
-        this.analyticsInterval = window.setInterval(() => {
-            this.updateAnalytics();
-        }, 1000);
+        const scenarioId = selectedItem.getAttribute('data-id');
+        this.loadScenarioById(scenarioId);
+        // Close dialog
+        document.getElementById('scenario-dialog').style.display = 'none';
     }
-    updateAnalytics() {
-        var _a, _b, _c;
+    // Delete a scenario
+    async deleteScenario(id) {
+        if (!confirm('Are you sure you want to delete this scenario?')) {
+            return;
+        }
+        try {
+            // Filter out the scenario with the given ID
+            this.scenarios = this.scenarios.filter(s => s.id !== id);
+            // Save the updated scenarios list
+            localStorage.setItem('traffic_simulator_scenarios', JSON.stringify(this.scenarios));
+            // Update the UI
+            this.populateScenariosListUI();
+            // Update scenario status
+            const scenarioStatus = document.querySelector('.scenario-status');
+            if (scenarioStatus) {
+                scenarioStatus.innerHTML = `
+          <small class="text-muted">
+            ${this.scenarios.length} saved scenario(s) available
+          </small>
+          ${this.currentScenario && this.currentScenario.id !== id
+                    ? `<div class="current-scenario-info">Current: ${this.currentScenario.name}</div>`
+                    : ''}
+        `;
+            }
+            // Clear current scenario if it was deleted
+            if (this.currentScenario && this.currentScenario.id === id) {
+                this.currentScenario = null;
+            }
+            // Show success notification
+            this.showNotification('Scenario deleted', 'success');
+        }
+        catch (error) {
+            console.error('Failed to delete scenario:', error);
+            this.showNotification('Failed to delete scenario', 'error');
+        }
+    }
+    // Update UI components from world state
+    updateUIFromWorld() {
         if (!this.world)
             return;
-        // Get raw data from world
-        const worldStats = {
-            totalCars: Object.keys(((_a = this.world.cars) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
-            averageSpeed: this.world.instantSpeed || 0,
-            totalIntersections: Object.keys(((_b = this.world.intersections) === null || _b === void 0 ? void 0 : _b.all()) || {}).length,
-            totalRoads: Object.keys(((_c = this.world.roads) === null || _c === void 0 ? void 0 : _c.all()) || {}).length,
-            simulationTime: this.world.time || 0
-        };
-        // Get KPI metrics from collector
-        const kpiMetrics = kpi_collector_1.kpiCollector.getMetrics(this.world.time);
-        // Combine data for our analytics
-        this.analytics = {
-            ...worldStats,
-            ...kpiMetrics
-        };
-        // Update UI elements - Basic simulation stats
-        const activeCarsEl = document.getElementById('active-cars');
-        const totalVehiclesEl = document.getElementById('total-vehicles');
-        const completedTripsEl = document.getElementById('completed-trips');
-        const simulationTimeEl = document.getElementById('simulation-time');
-        if (activeCarsEl)
-            activeCarsEl.textContent = kpiMetrics.activeVehicles.toString();
-        if (totalVehiclesEl)
-            totalVehiclesEl.textContent = kpiMetrics.totalVehicles.toString();
-        if (completedTripsEl)
-            completedTripsEl.textContent = kpiMetrics.completedTrips.toString();
-        if (simulationTimeEl)
-            simulationTimeEl.textContent = kpiMetrics.simulationTime.toFixed(1) + 's';
-        // Update UI elements - Performance metrics
-        const averageSpeedEl = document.getElementById('average-speed');
-        const avgWaitTimeEl = document.getElementById('avg-wait-time');
-        const maxWaitTimeEl = document.getElementById('max-wait-time');
-        const totalStopsEl = document.getElementById('total-stops');
-        const stoppedVehiclesEl = document.getElementById('stopped-vehicles');
-        if (averageSpeedEl)
-            averageSpeedEl.textContent = kpiMetrics.averageSpeed.toFixed(2) + ' m/s';
-        if (avgWaitTimeEl)
-            avgWaitTimeEl.textContent = kpiMetrics.averageWaitTime.toFixed(1) + 's';
-        if (maxWaitTimeEl)
-            maxWaitTimeEl.textContent = kpiMetrics.maxWaitTime.toFixed(1) + 's';
-        if (totalStopsEl)
-            totalStopsEl.textContent = kpiMetrics.totalStops.toString();
-        if (stoppedVehiclesEl)
-            stoppedVehiclesEl.textContent = kpiMetrics.stoppedVehicles.toString();
-        // Update UI elements - Network stats
-        const totalIntersectionsEl = document.getElementById('total-intersections');
-        const totalRoadsEl = document.getElementById('total-roads');
-        if (totalIntersectionsEl)
-            totalIntersectionsEl.textContent = worldStats.totalIntersections.toString();
-        if (totalRoadsEl)
-            totalRoadsEl.textContent = worldStats.totalRoads.toString();
-        // Update advanced metrics
-        const globalThroughputEl = document.getElementById('global-throughput');
-        const congestionIndexEl = document.getElementById('congestion-index');
-        if (globalThroughputEl)
-            globalThroughputEl.textContent = kpiMetrics.globalThroughput.toFixed(2) + ' veh/min';
-        if (congestionIndexEl) {
-            congestionIndexEl.textContent = kpiMetrics.congestionIndex.toFixed(2);
-            // Add color coding based on congestion level
-            if (kpiMetrics.congestionIndex > 0.75) {
-                congestionIndexEl.classList.add('critical');
-                congestionIndexEl.classList.remove('warning', 'good');
-            }
-            else if (kpiMetrics.congestionIndex > 0.5) {
-                congestionIndexEl.classList.add('warning');
-                congestionIndexEl.classList.remove('critical', 'good');
-            }
-            else {
-                congestionIndexEl.classList.add('good');
-                congestionIndexEl.classList.remove('critical', 'warning');
-            }
+        // Update cars range slider
+        const carsRangeSlider = document.getElementById('cars-range');
+        if (carsRangeSlider) {
+            carsRangeSlider.value = this.world.carsNumber.toString();
+            document.getElementById('cars-value').textContent = this.world.carsNumber.toString();
         }
-        // Update Lane Metrics Table if it exists
-        this.updateLaneMetricsTable(kpiMetrics);
-        // Update Intersection Metrics Table if it exists
-        this.updateIntersectionMetricsTable(kpiMetrics);
+        // Update traffic control model dropdown
+        const trafficControlModelSelect = document.getElementById('traffic-control-model');
+        if (trafficControlModelSelect && this.world.activeTrafficControlStrategy) {
+            trafficControlModelSelect.value = this.world.activeTrafficControlStrategy;
+            this.selectedTrafficControlModel = this.world.activeTrafficControlStrategy;
+            this.updateActiveModelIndicator(this.selectedTrafficControlModel);
+        }
     }
-    /**
-     * Updates the lane metrics table with current KPI data
-     */
-    updateLaneMetricsTable(kpiMetrics) {
-        const laneTableBody = document.getElementById('lane-metrics-body');
-        if (!laneTableBody)
+    // Update the active model indicator
+    updateActiveModelIndicator(modelType) {
+        const indicator = document.getElementById('active-model-indicator');
+        if (!indicator)
             return;
-        // Clear existing rows
-        laneTableBody.innerHTML = '';
-        // Add a row for each lane
-        Object.values(kpiMetrics.laneMetrics).forEach((lane) => {
-            const row = document.createElement('tr');
-            // Format lane ID to be more readable
-            const shortLaneId = lane.laneId.replace('lane', '');
-            // Build the row with lane metrics
-            row.innerHTML = `
-        <td>${shortLaneId}</td>
-        <td>${lane.averageSpeed.toFixed(2)} m/s</td>
-        <td>${lane.vehicleCount}</td>
-        <td>${lane.congestionRate.toFixed(2)}</td>
-        <td>${lane.throughput.toFixed(2)} veh/min</td>
-        <td>${lane.totalVehiclesPassed}</td>
-        <td>${lane.queueLength}</td>
-      `;
-            // Add color coding based on congestion level
-            if (lane.congestionRate > 0.75) {
-                row.classList.add('congested-row');
-            }
-            else if (lane.congestionRate > 0.5) {
-                row.classList.add('moderate-row');
-            }
-            laneTableBody.appendChild(row);
-        });
+        let modelName = 'Fixed Timing';
+        switch (modelType) {
+            case 'fixed-timing':
+                modelName = 'Fixed Timing';
+                break;
+            case 'adaptive-timing':
+                modelName = 'Adaptive Timing';
+                break;
+            case 'traffic-enforcer':
+                modelName = 'Traffic Enforcer';
+                break;
+            case 'all-red-flashing':
+                modelName = 'All Red Flashing';
+                break;
+        }
+        indicator.textContent = modelName;
     }
-    /**
-     * Updates the intersection metrics table with current KPI data
-     */
-    updateIntersectionMetricsTable(kpiMetrics) {
-        const intersectionTableBody = document.getElementById('intersection-metrics-body');
-        if (!intersectionTableBody)
-            return;
-        // Clear existing rows
-        intersectionTableBody.innerHTML = '';
-        // Add a row for each intersection
-        Object.values(kpiMetrics.intersectionMetrics).forEach((intersection) => {
-            const row = document.createElement('tr');
-            // Format intersection ID to be more readable
-            const shortIntersectionId = intersection.intersectionId.replace('intersection', '');
-            // Build the row with intersection metrics
-            row.innerHTML = `
-        <td>${shortIntersectionId}</td>
-        <td>${intersection.throughput.toFixed(2)} veh/min</td>
-        <td>${intersection.averageWaitTime.toFixed(2)}s</td>
-        <td>${intersection.maxWaitTime.toFixed(2)}s</td>
-        <td>${intersection.averageQueueLength.toFixed(1)}</td>
-        <td>${intersection.totalVehiclesPassed}</td>
-        <td>${intersection.congestionRate.toFixed(2)}</td>
-      `;
-            // Add color coding based on congestion level
-            if (intersection.congestionRate > 0.75) {
-                row.classList.add('congested-row');
+    // Initialize the simulation
+    async initializeSimulation() {
+        try {
+            // Create a new world instance
+            this.world = new World();
+            // Initialize visualizer with the canvas element
+            // Pass world and canvas ID to visualizer (note: constructor expects world first, then canvasId)
+            this.visualizer = new Visualizer(this.world, 'simulation-canvas');
+            // Set initial cars number
+            const carsRangeSlider = document.getElementById('cars-range');
+            if (carsRangeSlider) {
+                this.world.carsNumber = parseInt(carsRangeSlider.value);
             }
-            else if (intersection.congestionRate > 0.5) {
-                row.classList.add('moderate-row');
+            // Set initial time factor
+            const timeFactorRangeSlider = document.getElementById('time-factor-range');
+            if (timeFactorRangeSlider && this.visualizer) {
+                this.visualizer.setTimeFactor(parseFloat(timeFactorRangeSlider.value));
             }
-            intersectionTableBody.appendChild(row);
-        });
+            // Generate random map if no layout is loaded
+            if (Object.keys(this.world.intersections.all()).length === 0) {
+                this.world.generateMap();
+            }
+            // Set initial traffic control strategy
+            this.updateTrafficControlModel();
+        }
+        catch (error) {
+            console.error('Failed to initialize simulation:', error);
+        }
     }
-    /**
-     * Shows a notification message to the user
-     * @param message Message to display
-     * @param type Optional type ('info', 'success', 'warning', 'error')
-     * @param duration Time in ms to show the notification
-     */
-    showNotification(message, type = 'info', duration = 3000) {
-        // Check if a notification container exists, if not create it
+    // Show a notification message
+    showNotification(message, type = 'success') {
+        // Create notification element if it doesn't exist
         let notificationContainer = document.getElementById('notification-container');
         if (!notificationContainer) {
             notificationContainer = document.createElement('div');
@@ -30466,53 +30614,591 @@ class SimulationPageComponent {
             notificationContainer.style.zIndex = '9999';
             document.body.appendChild(notificationContainer);
         }
-        // Create notification element
+        // Create notification
         const notification = document.createElement('div');
-        notification.className = 'notification ' + type;
-        notification.style.backgroundColor = this.getNotificationColor(type);
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+      <div class="notification-content">
+        ${message}
+      </div>
+      <button class="notification-close">&times;</button>
+    `;
+        // Style the notification
+        notification.style.backgroundColor =
+            type === 'success' ? '#43a047' :
+                type === 'warning' ? '#fb8c00' :
+                    '#e53935';
         notification.style.color = '#fff';
-        notification.style.padding = '10px 15px';
-        notification.style.margin = '5px 0';
+        notification.style.padding = '12px 20px';
+        notification.style.marginBottom = '10px';
         notification.style.borderRadius = '4px';
-        notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+        notification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+        notification.style.display = 'flex';
+        notification.style.justifyContent = 'space-between';
+        notification.style.alignItems = 'center';
         notification.style.transition = 'all 0.3s ease';
-        notification.style.opacity = '0';
-        notification.textContent = message;
+        // Add close button event
+        const closeButton = notification.querySelector('.notification-close');
+        closeButton.style.background = 'none';
+        closeButton.style.border = 'none';
+        closeButton.style.color = '#fff';
+        closeButton.style.fontSize = '20px';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.marginLeft = '10px';
+        closeButton.onclick = () => {
+            notification.style.opacity = '0';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        };
         // Add to container
         notificationContainer.appendChild(notification);
-        // Fade in
-        setTimeout(() => {
-            notification.style.opacity = '1';
-        }, 10);
-        // Remove after duration
+        // Auto-remove after 5 seconds
         setTimeout(() => {
             notification.style.opacity = '0';
             setTimeout(() => {
                 notification.remove();
             }, 300);
-        }, duration);
+        }, 5000);
     }
-    getNotificationColor(type) {
-        switch (type) {
-            case 'success': return '#4caf50';
-            case 'warning': return '#ff9800';
-            case 'error': return '#f44336';
-            default: return '#2196f3'; // info
+    // Show the load layout dialog
+    showLoadLayoutDialog() {
+        // Create dialog if it doesn't exist
+        let dialog = document.getElementById('load-layout-dialog');
+        if (!dialog) {
+            dialog = document.createElement('div');
+            dialog.id = 'load-layout-dialog';
+            dialog.className = 'dialog';
+            dialog.innerHTML = `
+        <div class="dialog-content">
+          <div class="dialog-header">
+            <h3>Load Layout</h3>
+            <button class="close-btn">&times;</button>
+          </div>
+          <div class="dialog-body">
+            <div id="layouts-list" class="list-container">
+              <div class="list-empty-message">No saved layouts found.</div>
+            </div>
+            <div class="form-actions">
+              <button id="load-layout-confirm" class="btn btn-primary">Load</button>
+              <button class="btn btn-secondary close-dialog">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+            document.body.appendChild(dialog);
+            // Add close button events
+            const closeButtons = dialog.querySelectorAll('.close-btn, .close-dialog');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    dialog.style.display = 'none';
+                });
+            });
+            // Add load button event
+            const loadButton = dialog.querySelector('#load-layout-confirm');
+            loadButton === null || loadButton === void 0 ? void 0 : loadButton.addEventListener('click', () => {
+                const selectedItem = document.querySelector('.list-item.selected');
+                if (selectedItem) {
+                    const layoutId = selectedItem.getAttribute('data-id');
+                    this.loadLayoutById(layoutId);
+                    dialog.style.display = 'none';
+                }
+                else {
+                    this.showNotification('No layout selected', 'warning');
+                }
+            });
+        }
+        // Show dialog
+        dialog.style.display = 'block';
+        // Populate layouts list
+        this.populateLayoutsListUI();
+    }
+    // Populate the layouts list in the UI
+    populateLayoutsListUI() {
+        const layoutsList = document.getElementById('layouts-list');
+        // Clear the list
+        layoutsList.innerHTML = '';
+        if (this.layouts.length === 0) {
+            layoutsList.innerHTML = '<div class="list-empty-message">No saved layouts found.</div>';
+            return;
+        }
+        // Add each layout to the list
+        this.layouts.forEach(layout => {
+            const layoutItem = document.createElement('div');
+            layoutItem.className = 'list-item';
+            layoutItem.dataset.id = layout.id;
+            const date = new Date(layout.createdAt).toLocaleDateString();
+            const time = new Date(layout.createdAt).toLocaleTimeString();
+            layoutItem.innerHTML = `
+        <div class="list-item-info">
+          <div class="list-item-title">${layout.name}</div>
+          <div class="list-item-meta">Created: ${date} ${time}</div>
+        </div>
+      `;
+            // Add click event to select the layout
+            layoutItem.addEventListener('click', () => {
+                // Remove the 'selected' class from all items
+                document.querySelectorAll('.list-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                // Add the 'selected' class to this item
+                layoutItem.classList.add('selected');
+            });
+            layoutsList.appendChild(layoutItem);
+        });
+    }
+    // Load a layout by ID
+    async loadLayoutById(id) {
+        try {
+            // Find the layout in the layouts array
+            const layout = this.layouts.find(l => l.id === id);
+            if (!layout) {
+                this.showNotification('Layout not found', 'error');
+                return;
+            }
+            // Stop simulation if running
+            if (this.isRunning) {
+                this.toggleSimulation();
+            }
+            // Reset KPI collector
+            kpi_collector_1.kpiCollector.reset();
+            // Clear the current world
+            this.world.clear();
+            // Load the layout data
+            if (layout && layout.data) {
+                const worldData = layout.data;
+                // Load into world
+                this.world.load(JSON.stringify(worldData));
+                // Reset car count to 100 by default
+                this.world.carsNumber = 100;
+                // Update UI components
+                const carsRangeSlider = document.getElementById('cars-range');
+                if (carsRangeSlider) {
+                    carsRangeSlider.value = this.world.carsNumber.toString();
+                    document.getElementById('cars-value').textContent = this.world.carsNumber.toString();
+                }
+                // Show success notification
+                this.showNotification(`Layout "${layout.name}" loaded successfully`, 'success');
+            }
+        }
+        catch (error) {
+            console.error('Failed to load layout:', error);
+            this.showNotification('Failed to load layout', 'error');
+        }
+    }
+    // Toggle simulation running state
+    toggleSimulation() {
+        // Don't allow toggling during benchmark
+        if (this.isBenchmarkRunning) {
+            this.showNotification('Cannot toggle simulation during benchmark', 'warning');
+            return;
+        }
+        const toggleButton = document.getElementById('toggle-simulation');
+        if (this.isRunning) {
+            // Stop simulation
+            this.isRunning = false;
+            this.visualizer.stop();
+            toggleButton.textContent = '▶️ Start Simulation';
+            toggleButton.classList.replace('btn-danger', 'btn-success');
+            // Clear analytics interval
+            if (this.analyticsInterval !== null) {
+                clearInterval(this.analyticsInterval);
+                this.analyticsInterval = null;
+            }
+            // Stop KPI collection
+            kpi_collector_1.kpiCollector.stopRecording();
+        }
+        else {
+            // Start simulation
+            this.isRunning = true;
+            this.visualizer.start();
+            toggleButton.textContent = '⏸ Pause Simulation';
+            toggleButton.classList.replace('btn-success', 'btn-danger');
+            // Start KPI collection
+            kpi_collector_1.kpiCollector.startRecording(this.world.time);
+            // Set up analytics interval
+            this.analyticsInterval = window.setInterval(() => {
+                this.updateAnalytics();
+            }, 500);
+        }
+    }
+    // Stop the simulation
+    stop() {
+        if (this.isRunning) {
+            this.isRunning = false;
+            if (this.visualizer) {
+                this.visualizer.stop();
+            }
+            // Clear analytics interval
+            if (this.analyticsInterval !== null) {
+                clearInterval(this.analyticsInterval);
+                this.analyticsInterval = null;
+            }
+            // Stop KPI collection
+            kpi_collector_1.kpiCollector.stopRecording();
+            // Update button state
+            const toggleButton = document.getElementById('toggle-simulation');
+            if (toggleButton) {
+                toggleButton.textContent = '▶️ Start Simulation';
+                toggleButton.classList.replace('btn-danger', 'btn-success');
+            }
+        }
+    }
+    // Reset simulation to initial state
+    resetSimulation() {
+        // Don't allow reset during benchmark
+        if (this.isBenchmarkRunning) {
+            this.showNotification('Cannot reset simulation during benchmark', 'warning');
+            return;
+        }
+        // Stop simulation if running
+        if (this.isRunning) {
+            this.toggleSimulation();
+        }
+        // Reset KPI collector
+        kpi_collector_1.kpiCollector.reset();
+        // Clear all cars
+        for (const id in this.world.cars.all()) {
+            const car = this.world.cars.all()[id];
+            if (car) {
+                this.world.removeCar(car);
+            }
+        }
+        // Reset time
+        this.world.time = 0;
+        // Reset traffic lights
+        for (const id in this.world.intersections.all()) {
+            const intersection = this.world.intersections.all()[id];
+            if (intersection) {
+                // Reset trafficLightController if it exists
+                if (intersection.trafficLightController && typeof intersection.trafficLightController.reset === 'function') {
+                    intersection.trafficLightController.reset();
+                }
+                // Legacy support for controlSignals
+                else if (intersection.controlSignals && typeof intersection.controlSignals.reset === 'function') {
+                    intersection.controlSignals.reset();
+                }
+            }
+        }
+        // Update analytics
+        this.updateAnalytics();
+        // Show notification
+        this.showNotification('Simulation reset', 'success');
+    }
+    // Run a KPI benchmark
+    runBenchmark() {
+        // Don't start a benchmark if one is already running
+        if (this.isBenchmarkRunning) {
+            this.showNotification('Benchmark already running', 'warning');
+            return;
+        }
+        // Reset simulation first
+        this.resetSimulation();
+        // Initialize benchmark settings
+        this.benchmarkSettings = {
+            duration: this.benchmarkDuration,
+            carsNumber: this.world.carsNumber,
+            timeFactor: parseFloat(document.getElementById('time-factor-range').value),
+            trafficControlModel: this.selectedTrafficControlModel,
+            startTime: new Date().toISOString()
+        };
+        // Show notification
+        this.showNotification(`Starting ${this.benchmarkDuration} second benchmark...`, 'success');
+        // Start simulation
+        this.isBenchmarkRunning = true;
+        this.benchmarkStartTime = this.world.time;
+        this.benchmarkIntervalSamples = [];
+        // Update benchmark button
+        const benchmarkButton = document.getElementById('run-benchmark');
+        benchmarkButton.textContent = '⏱️ Benchmark Running...';
+        benchmarkButton.classList.add('btn-warning');
+        benchmarkButton.disabled = true;
+        // Start simulation if not already running
+        if (!this.isRunning) {
+            this.toggleSimulation();
+        }
+        // Set interval to collect samples
+        const sampleInterval = window.setInterval(() => {
+            // Collect a sample every second
+            this.benchmarkIntervalSamples.push(kpi_collector_1.kpiCollector.getMetrics(this.world.time));
+        }, 1000);
+        // Set timeout to end benchmark
+        this.benchmarkTimer = window.setTimeout(() => {
+            clearInterval(sampleInterval);
+            this.endBenchmark();
+        }, this.benchmarkDuration * 1000 / this.visualizer.timeFactor);
+    }
+    // End the benchmark and collect results
+    endBenchmark() {
+        // Stop benchmark
+        this.isBenchmarkRunning = false;
+        // Stop simulation
+        if (this.isRunning) {
+            this.toggleSimulation();
+        }
+        // Get final metrics
+        const finalMetrics = kpi_collector_1.kpiCollector.getMetrics(this.world.time);
+        // Build benchmark results
+        this.benchmarkResults = {
+            settings: this.benchmarkSettings,
+            finalMetrics: finalMetrics,
+            samples: this.benchmarkIntervalSamples,
+            endTime: new Date().toISOString(),
+            duration: this.world.time - this.benchmarkStartTime,
+            validation: kpi_collector_1.kpiCollector.validateMetrics()
+        };
+        // Update benchmark button
+        const benchmarkButton = document.getElementById('run-benchmark');
+        benchmarkButton.textContent = '📊 Run KPI Benchmark';
+        benchmarkButton.classList.remove('btn-warning');
+        benchmarkButton.disabled = false;
+        // Show results dialog
+        this.showBenchmarkResults();
+        // Show notification
+        this.showNotification('Benchmark completed', 'success');
+    }
+    // Show benchmark results dialog
+    showBenchmarkResults() {
+        // Create dialog if it doesn't exist
+        let dialog = document.getElementById('benchmark-results-dialog');
+        if (!dialog) {
+            dialog = document.createElement('div');
+            dialog.id = 'benchmark-results-dialog';
+            dialog.className = 'dialog';
+            dialog.innerHTML = `
+        <div class="dialog-content" style="max-width: 800px;">
+          <div class="dialog-header">
+            <h3>Benchmark Results</h3>
+            <button class="close-btn">&times;</button>
+          </div>
+          <div class="dialog-body">
+            <div class="benchmark-results-container">
+              <h4>Benchmark Summary</h4>
+              <div id="benchmark-summary"></div>
+              
+              <h4>Performance Metrics</h4>
+              <div id="benchmark-metrics"></div>
+              
+              <h4>Validation</h4>
+              <div id="benchmark-validation"></div>
+            </div>
+            <div class="form-actions">
+              <button id="save-benchmark" class="btn btn-primary">Save Results</button>
+              <button class="btn btn-secondary close-dialog">Close</button>
+            </div>
+          </div>
+        </div>
+      `;
+            document.body.appendChild(dialog);
+            // Add close button events
+            const closeButtons = dialog.querySelectorAll('.close-btn, .close-dialog');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    dialog.style.display = 'none';
+                });
+            });
+            // Add save button event
+            const saveButton = dialog.querySelector('#save-benchmark');
+            saveButton === null || saveButton === void 0 ? void 0 : saveButton.addEventListener('click', () => {
+                this.saveBenchmarkResults();
+                dialog.style.display = 'none';
+            });
+        }
+        // Show dialog
+        dialog.style.display = 'block';
+        // Populate results
+        this.populateBenchmarkResultsUI();
+    }
+    // Populate benchmark results UI
+    populateBenchmarkResultsUI() {
+        const summaryContainer = document.getElementById('benchmark-summary');
+        const metricsContainer = document.getElementById('benchmark-metrics');
+        const validationContainer = document.getElementById('benchmark-validation');
+        // Format date for display
+        const startDate = new Date(this.benchmarkResults.settings.startTime);
+        const endDate = new Date(this.benchmarkResults.endTime);
+        // Summary
+        summaryContainer.innerHTML = `
+      <div class="metrics-table">
+        <div class="metrics-row">
+          <div class="metrics-label">Duration:</div>
+          <div class="metrics-value">${this.benchmarkResults.duration.toFixed(1)} simulation seconds</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Vehicles:</div>
+          <div class="metrics-value">${this.benchmarkResults.settings.carsNumber}</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Traffic Control:</div>
+          <div class="metrics-value">${this.getTrafficControlName(this.benchmarkResults.settings.trafficControlModel)}</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Time Factor:</div>
+          <div class="metrics-value">${this.benchmarkResults.settings.timeFactor}x</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Started:</div>
+          <div class="metrics-value">${startDate.toLocaleString()}</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Ended:</div>
+          <div class="metrics-value">${endDate.toLocaleString()}</div>
+        </div>
+      </div>
+    `;
+        // Metrics
+        const metrics = this.benchmarkResults.finalMetrics;
+        metricsContainer.innerHTML = `
+      <div class="metrics-table">
+        <div class="metrics-row">
+          <div class="metrics-label">Average Speed:</div>
+          <div class="metrics-value">${metrics.averageSpeed.toFixed(2)} m/s</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Average Wait Time:</div>
+          <div class="metrics-value">${metrics.averageWaitTime.toFixed(1)} s</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Maximum Wait Time:</div>
+          <div class="metrics-value">${metrics.maxWaitTime.toFixed(1)} s</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Total Stops:</div>
+          <div class="metrics-value">${metrics.totalStops}</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Stopped Vehicles:</div>
+          <div class="metrics-value">${metrics.stoppedVehicles}</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Completed Trips:</div>
+          <div class="metrics-value">${metrics.completedTrips}</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Global Throughput:</div>
+          <div class="metrics-value">${metrics.globalThroughput.toFixed(2)} vehicles/min</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Congestion Index:</div>
+          <div class="metrics-value">${metrics.congestionIndex.toFixed(3)}</div>
+        </div>
+      </div>
+    `;
+        // Validation
+        validationContainer.innerHTML = `
+      <div class="validation-formatted">
+        ${this.benchmarkResults.validation}
+      </div>
+    `;
+    }
+    // Get human-readable traffic control model name
+    getTrafficControlName(modelType) {
+        switch (modelType) {
+            case 'fixed-timing': return 'Fixed Timing';
+            case 'adaptive-timing': return 'Adaptive Timing';
+            case 'traffic-enforcer': return 'Traffic Enforcer';
+            case 'all-red-flashing': return 'All Red Flashing';
+            default: return modelType;
+        }
+    }
+    // Update traffic control model
+    updateTrafficControlModel() {
+        if (!this.world)
+            return;
+        // Apply selected strategy
+        this.world.applyTrafficControlStrategy(this.selectedTrafficControlModel);
+        // Update indicator
+        this.updateActiveModelIndicator(this.selectedTrafficControlModel);
+    }
+    // Update analytics display
+    updateAnalytics() {
+        if (!this.world)
+            return;
+        // Collect basic stats
+        this.analytics = {
+            totalCars: Object.keys(this.world.cars.all() || {}).length,
+            averageSpeed: this.world.instantSpeed,
+            totalIntersections: Object.keys(this.world.intersections.all() || {}).length,
+            totalRoads: Object.keys(this.world.roads.all() || {}).length,
+            simulationTime: this.world.time
+        };
+        // Update UI
+        document.getElementById('active-cars').textContent = this.analytics.totalCars.toString();
+        document.getElementById('simulation-time').textContent = this.analytics.simulationTime.toFixed(1) + 's';
+        // Get KPI metrics
+        const kpiMetrics = kpi_collector_1.kpiCollector.getMetrics(this.world.time);
+        // Update KPI UI
+        document.getElementById('total-vehicles').textContent = kpiMetrics.totalVehicles.toString();
+        document.getElementById('completed-trips').textContent = kpiMetrics.completedTrips.toString();
+        document.getElementById('average-speed').textContent = kpiMetrics.averageSpeed.toFixed(2) + ' m/s';
+        document.getElementById('avg-wait-time').textContent = kpiMetrics.averageWaitTime.toFixed(1) + 's';
+        document.getElementById('max-wait-time').textContent = kpiMetrics.maxWaitTime.toFixed(1) + 's';
+        document.getElementById('total-stops').textContent = kpiMetrics.totalStops.toString();
+    }
+    // Save benchmark results
+    async saveBenchmarkResults() {
+        try {
+            if (!this.benchmarkResults) {
+                this.showNotification('No benchmark results to save', 'warning');
+                return;
+            }
+            // Save as analytics
+            await AppState_1.appState.storage.saveAnalytics({
+                type: 'benchmark',
+                data: this.benchmarkResults
+            });
+            // Show success notification
+            this.showNotification('Benchmark results saved successfully', 'success');
+        }
+        catch (error) {
+            console.error('Failed to save benchmark results:', error);
+            this.showNotification('Failed to save benchmark results', 'error');
         }
     }
     /**
-     * Adds CSS styles required for the simulation page
+     * Saves current simulation analytics data
      */
-    addStyles() {
-        // Avoid duplicate style elements
-        if (document.getElementById('simulation-page-styles')) {
-            return;
+    async saveAnalytics() {
+        try {
+            if (!this.world) {
+                this.showNotification('No simulation data to save', 'warning');
+                return;
+            }
+            // Generate filename based on time
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `traffic-sim-analytics-${timestamp}.json`;
+            // Get KPI metrics
+            const kpiMetrics = kpi_collector_1.kpiCollector.getMetrics(this.world.time);
+            // Create and save analytics data
+            const analyticsData = {
+                timestamp: new Date().toISOString(),
+                metrics: {
+                    ...this.analytics,
+                    kpi: kpiMetrics
+                },
+                layout: {
+                    intersections: this.world.intersections.length,
+                    roads: this.world.roads.length
+                },
+                settings: {
+                    carsNumber: this.world.carsNumber,
+                    trafficControlModel: this.selectedTrafficControlModel
+                }
+            };
+            // Save to storage
+            await AppState_1.appState.storage.saveAnalytics(analyticsData);
+            // Show success message
+            this.showNotification('Analytics saved successfully', 'success');
         }
-        // Force dark theme styles to be applied
-        document.body.classList.add('dark-theme');
+        catch (error) {
+            console.error('Failed to save analytics:', error);
+            this.showNotification('Failed to save analytics', 'error');
+        }
+    }
+    // Adds necessary styles for the UI
+    addStyles() {
         const styleElement = document.createElement('style');
-        styleElement.id = 'simulation-page-styles';
-        styleElement.innerHTML = `
+        styleElement.textContent = `
       .simulation-page {
         display: flex;
         flex-direction: column;
@@ -30520,75 +31206,90 @@ class SimulationPageComponent {
       }
       
       .page-header {
-        padding: 15px;
-        background-color: #2d2d2d;
-        border-bottom: 1px solid #404040;
+        padding: 1rem;
+        background-color: #2c2c2c;
+        color: #fff;
       }
       
       .page-header h2 {
         margin: 0;
-        color: #ffffff;
-        font-size: 24px;
+        font-size: 1.5rem;
+      }
+      
+      .page-header p {
+        margin: 0.5rem 0 0;
+        color: #aaa;
       }
       
       .simulation-content {
         display: flex;
         flex: 1;
-        overflow: hidden;
+        min-height: 0;
       }
       
       .sidebar {
-        width: 280px;
+        width: 300px;
+        background-color: #1e1e1e;
+        padding: 1rem;
         overflow-y: auto;
-        background-color: #2d2d2d;
-        border-right: 1px solid #404040;
-        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .visualization-area {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background-color: #333;
+      }
+      
+      #simulation-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
       }
       
       .panel {
-        background-color: #333333;
-        border: 1px solid #404040;
-        border-radius: 4px;
-        margin-bottom: 15px;
-        padding: 10px;
+        background-color: #252525;
+        border-radius: 6px;
+        padding: 1rem;
       }
       
       .panel h3 {
         margin-top: 0;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
         font-size: 16px;
-        border-bottom: 1px solid #404040;
-        padding-bottom: 5px;
-        color: #ffffff;
-      }
-      
-      .visualizer-area {
-        flex: 1;
-        overflow: hidden;
-        position: relative;
-        background: #1a1a1a;
-      }
-      
-      .visualizer-area canvas {
-        width: 100%;
-        height: 100%;
-        background: #1a1a1a;
+        color: #eee;
+        border-bottom: 1px solid #444;
+        padding-bottom: 8px;
       }
       
       .control-group {
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      
+      .control-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #ccc;
+        font-size: 13px;
+      }
+      
+      .text-muted {
+        color: #888;
       }
       
       .btn {
         display: inline-block;
-        padding: 6px 12px;
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 1.5;
+        font-weight: 400;
         text-align: center;
         white-space: nowrap;
         vertical-align: middle;
-        cursor: pointer;
+        user-select: none;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.9rem;
+        line-height: 1.5;
         border: 1px solid transparent;
         border-radius: 4px;
       }
@@ -30608,6 +31309,8 @@ class SimulationPageComponent {
       .btn-warning:hover { background-color: #e67e22; }
       .btn-secondary { background-color: #444444; color: white; border: 1px solid #666666; }
       .btn-secondary:hover { background-color: #555555; }
+      .btn-danger { background-color: #e74c3c; color: white; border: 1px solid #e74c3c; }
+      .btn-danger:hover { background-color: #d62c1a; }
       
       .slider {
         width: 100%;
@@ -30761,461 +31464,235 @@ class SimulationPageComponent {
         border: 1px solid #555;
         border-radius: 4px;
       }
+      
+      /* Scenario Dialog Styles */
+      .dialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .dialog-content {
+        background-color: #333;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        color: #fff;
+      }
+      
+      .dialog-header {
+        padding: 15px;
+        border-bottom: 1px solid #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .dialog-header h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+      
+      .dialog-body {
+        padding: 15px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+      
+      .close-btn {
+        background: none;
+        border: none;
+        color: #ccc;
+        font-size: 24px;
+        cursor: pointer;
+      }
+      
+      .close-btn:hover {
+        color: #fff;
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #ccc;
+      }
+      
+      .form-control {
+        width: 100%;
+        padding: 8px 10px;
+        background-color: #222;
+        border: 1px solid #555;
+        border-radius: 4px;
+        color: #fff;
+      }
+      
+      textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+      }
+      
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      
+      /* Tab styles */
+      .tab-control {
+        display: flex;
+        border-bottom: 1px solid #444;
+        margin-bottom: 15px;
+      }
+      
+      .tab-btn {
+        padding: 8px 15px;
+        background-color: transparent;
+        border: none;
+        color: #ccc;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+      }
+      
+      .tab-btn.active {
+        color: #fff;
+        border-bottom-color: #007bff;
+      }
+      
+      .tab-content {
+        padding: 10px 0;
+      }
+      
+      .list-container {
+        max-height: 300px;
+        overflow-y: auto;
+        background-color: #222;
+        border-radius: 4px;
+        border: 1px solid #444;
+      }
+      
+      .list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #333;
+        cursor: pointer;
+      }
+      
+      .list-item:last-child {
+        border-bottom: none;
+      }
+      
+      .list-item.selected {
+        background-color: #2a5885;
+      }
+      
+      .list-item:hover {
+        background-color: #2a2a2a;
+      }
+      
+      .list-item-title {
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 3px;
+      }
+      
+      .list-item-meta {
+        font-size: 12px;
+        color: #aaa;
+      }
+      
+      .list-empty-message {
+        padding: 15px;
+        text-align: center;
+        color: #888;
+      }
+      
+      .btn-delete {
+        background: none;
+        border: none;
+        color: #f55;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      
+      .current-scenario-info {
+        font-size: 12px;
+        padding: 5px 0;
+        color: #33ee33;
+      }
+      
+      /* Benchmark Results styles */
+      .metrics-table {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      
+      .metrics-row {
+        display: flex;
+        border-bottom: 1px solid #444;
+        padding: 6px 0;
+      }
+      
+      .metrics-row:last-child {
+        border-bottom: none;
+      }
+      
+      .metrics-label {
+        width: 40%;
+        color: #aaa;
+        font-size: 14px;
+      }
+      
+      .metrics-value {
+        width: 60%;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 500;
+      }
     `;
         document.head.appendChild(styleElement);
     }
-    /**
-     * Saves current simulation analytics data
-     */
-    async saveAnalytics() {
-        var _a, _b, _c;
-        try {
-            if (!this.world) {
-                this.showNotification('No simulation data to save', 'warning');
-                return;
-            }
-            // Generate filename based on time
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const filename = `traffic-sim-analytics-${timestamp}.json`;
-            // Get KPI metrics
-            const kpiMetrics = kpi_collector_1.kpiCollector.getMetrics(this.world.time);
-            // Create and save analytics data
-            const analyticsData = {
-                timestamp: new Date().toISOString(),
-                metrics: {
-                    ...this.analytics,
-                    kpi: kpiMetrics
-                },
-                layout: {
-                    roads: Object.keys(((_a = this.world.roads) === null || _a === void 0 ? void 0 : _a.all()) || {}).length,
-                    intersections: Object.keys(((_b = this.world.intersections) === null || _b === void 0 ? void 0 : _b.all()) || {}).length
-                },
-                simulation: {
-                    time: this.world.time || 0,
-                    carCount: Object.keys(((_c = this.world.cars) === null || _c === void 0 ? void 0 : _c.all()) || {}).length,
-                    activeVehicles: kpiMetrics.activeVehicles,
-                    completedTrips: kpiMetrics.completedTrips,
-                    averageSpeed: kpiMetrics.averageSpeed,
-                    averageWaitTime: kpiMetrics.averageWaitTime,
-                    totalStops: kpiMetrics.totalStops
-                }
-            };
-            // Create a blob from the data
-            const blob = new Blob([JSON.stringify(analyticsData, null, 2)], { type: 'application/json' });
-            // Create download link and trigger it
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            this.showNotification('Analytics saved successfully', 'success');
-        }
-        catch (error) {
-            console.error('Failed to save analytics:', error);
-            this.showNotification('Failed to save analytics', 'error');
-        }
-    }
-    /**
-     * Shows a dialog to load a saved layout
-     */
-    async showLoadDialog() {
-        try {
-            if (this.layouts.length === 0) {
-                this.showNotification('No saved layouts found. Create one in the Builder first!', 'warning');
-                return;
-            }
-            // Create load dialog
-            const dialog = document.createElement('div');
-            dialog.className = 'modal-overlay';
-            dialog.innerHTML = `
-        <div class="modal-dialog modal-large">
-          <div class="modal-header">
-            <h3>Load Layout</h3>
-            <button class="close-btn" id="close-load-dialog">×</button>
-          </div>
-          <div class="modal-body">
-            <p>Select a layout to load for simulation:</p>
-            <div class="layout-grid">
-              ${this.layouts.map(layout => `
-                <div class="layout-card" data-layout-id="${layout.id}">
-                  <div class="layout-info">
-                    <h4>${layout.name || 'Unnamed Layout'}</h4>
-                    <small>Created: ${new Date(layout.createdAt).toLocaleString()}</small>
-                  </div>
-                  <div class="layout-actions">
-                    <button class="btn btn-primary load-layout-btn" data-layout-id="${layout.id}">Load</button>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary" id="cancel-load">Cancel</button>
-          </div>
-        </div>
-      `;
-            // Add CSS for the dialog
-            const styleElement = document.createElement('style');
-            if (!document.getElementById('modal-dialog-styles')) {
-                styleElement.id = 'modal-dialog-styles';
-                styleElement.textContent = `
-          .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-          
-          .modal-dialog {
-            background-color: #2d2d2d;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #404040;
-          }
-          
-          .modal-large {
-            max-width: 800px;
-          }
-          
-          .modal-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #404040;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          
-          .modal-header h3 {
-            margin: 0;
-            color: #ffffff;
-          }
-          
-          .close-btn {
-            background: transparent;
-            border: none;
-            color: #b0b0b0;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0;
-          }
-          
-          .close-btn:hover {
-            color: #ffffff;
-          }
-          
-          .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            max-height: calc(90vh - 140px);
-          }
-          
-          .modal-footer {
-            padding: 15px 20px;
-            border-top: 1px solid #404040;
-            text-align: right;
-          }
-          
-          .layout-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-          }
-          
-          .layout-card {
-            border: 1px solid #404040;
-            background-color: #333333;
-            border-radius: 5px;
-            padding: 15px;
-            transition: all 0.2s ease;
-          }
-          
-          .layout-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border-color: #007bff;
-          }
-          
-          .layout-info h4 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            color: #ffffff;
-          }
-          
-          .layout-info small {
-            color: #b0b0b0;
-            display: block;
-            margin-bottom: 15px;
-          }
-          
-          .layout-actions {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-          }
-        `;
-                document.head.appendChild(styleElement);
-            }
-            document.body.appendChild(dialog);
-            // Event listeners
-            const cancelLoad = document.getElementById('cancel-load');
-            const closeLoad = document.getElementById('close-load-dialog');
-            const closeDialog = () => {
-                if (dialog && dialog.parentNode) {
-                    document.body.removeChild(dialog);
-                }
-            };
-            // Load layout buttons
-            dialog.querySelectorAll('.load-layout-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const layoutId = e.target.getAttribute('data-layout-id');
-                    if (layoutId) {
-                        closeDialog();
-                        await this.loadLayoutById(layoutId);
-                    }
-                });
-            });
-            cancelLoad === null || cancelLoad === void 0 ? void 0 : cancelLoad.addEventListener('click', closeDialog);
-            closeLoad === null || closeLoad === void 0 ? void 0 : closeLoad.addEventListener('click', closeDialog);
-        }
-        catch (error) {
-            console.error('Error showing load dialog:', error);
-            this.showNotification('Failed to show load dialog', 'error');
-        }
-    }
-    /**
-     * Loads a layout by ID
-     */
-    async loadLayoutById(layoutId) {
-        try {
-            console.log('🔄 [SIM DEBUG] Starting loadLayoutById for ID:', layoutId);
-            // Show loading state
-            this.showNotification(`Loading layout...`, 'info');
-            // Find layout from previously loaded layouts
-            const layout = this.layouts.find(l => l.id === layoutId);
-            console.log('🔄 [SIM DEBUG] Layout found:', layout ? layout.name : 'Not found');
-            if (!layout) {
-                this.showNotification(`Layout not found (ID: ${layoutId})`, 'error');
-                return;
-            }
-            console.log('🔄 [SIM DEBUG] Layout data:', layout.data);
-            // Stop current simulation if running
-            const wasRunning = this.isRunning;
-            if (wasRunning) {
-                this.toggleSimulation(); // This will stop it
-            }
-            // Reset the simulation
-            await this.resetSimulation();
-            // Load the layout into world
-            if (this.world) {
-                // Stringify the layout data because World.load expects a string
-                this.world.load(JSON.stringify(layout.data));
-                // Apply selected traffic control model
-                this.applyTrafficControlModelToAllIntersections();
-                // Update analytics
-                this.updateAnalytics();
-                // Show success message
-                this.showNotification(`Layout "${layout.name || 'Unnamed'}" loaded successfully`, 'success');
-                // Restart if it was running
-                if (wasRunning) {
-                    setTimeout(() => this.toggleSimulation(), 500); // This will start it again
-                }
-            }
-        }
-        catch (error) {
-            console.error('Error loading layout:', error);
-            this.showNotification('Failed to load layout', 'error');
-        }
-    }
-    /**
-     * Show layout selection dialog
-     */
-    async showLayoutSelector() {
-        try {
-            // Refresh layouts first
-            await this.loadLayouts();
-            if (this.layouts.length === 0) {
-                this.showNotification('No layouts available. Create one in the Builder first.', 'warning');
-                return;
-            }
-            // Create modal dialog for layout selection
-            const modal = document.createElement('div');
-            modal.className = 'modal layout-selector-modal';
-            // Build HTML for layout selection
-            let layoutOptionsHtml = '';
-            this.layouts.forEach(layout => {
-                layoutOptionsHtml += `
-          <div class="layout-option" data-layout-id="${layout.id}">
-            <h4>${layout.name || 'Untitled Layout'}</h4>
-            <p class="layout-meta">
-              ${layout.description || 'No description'}<br>
-              <small>Created: ${new Date(layout.created).toLocaleString()}</small>
-            </p>
-            <button class="btn btn-sm btn-primary load-layout-btn" data-layout-id="${layout.id}">
-              Load Layout
-            </button>
-          </div>
-        `;
-            });
-            // Create modal content
-            modal.innerHTML = `
-        <div class="modal-content">
-          <div class="modal-header">
-            <span class="close">&times;</span>
-            <h2>Select a Layout</h2>
-          </div>
-          <div class="modal-body">
-            <div class="layout-options">
-              ${layoutOptionsHtml}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-secondary close-modal-btn">Cancel</button>
-          </div>
-        </div>
-      `;
-            // Add modal to document
-            document.body.appendChild(modal);
-            // Add event listeners to load buttons
-            const loadButtons = modal.querySelectorAll('.load-layout-btn');
-            loadButtons.forEach(button => {
-                button.addEventListener('click', async () => {
-                    const layoutId = button.getAttribute('data-layout-id');
-                    if (layoutId) {
-                        document.body.removeChild(modal);
-                        await this.loadLayoutById(layoutId);
-                    }
-                });
-            });
-            // Add event listener to close buttons
-            const closeButton = modal.querySelector('.close');
-            const cancelButton = modal.querySelector('.close-modal-btn');
-            if (closeButton) {
-                closeButton.addEventListener('click', () => {
-                    document.body.removeChild(modal);
-                });
-            }
-            if (cancelButton) {
-                cancelButton.addEventListener('click', () => {
-                    document.body.removeChild(modal);
-                });
-            }
-            // Show modal
-            modal.style.display = 'block';
-        }
-        catch (error) {
-            console.error('❌ Failed to show layout selector:', error);
-            this.showNotification('Failed to show layout selection dialog', 'error');
-        }
-    }
-    /**
-     * Clean up resources when component is destroyed
-     */
+    // Clean up resources when component is destroyed
     destroy() {
-        console.log('🧹 Simulation: Destroying page and cleaning up canvas...');
+        console.log('🧹 Simulation: Destroying page and cleaning up resources...');
+        // Stop the simulation if running
+        if (this.isRunning) {
+            this.stop();
+        }
+        // Clean up world
+        if (this.world) {
+            this.world.clear();
+            this.world = null;
+        }
+        // Clean up visualizer
         if (this.visualizer) {
-            if (this.visualizer.destroy) {
+            if (typeof this.visualizer.destroy === 'function') {
                 this.visualizer.destroy();
-            }
-            else {
-                this.visualizer.stop();
             }
             this.visualizer = null;
         }
-        if (this.analyticsInterval) {
-            clearInterval(this.analyticsInterval);
-            this.analyticsInterval = null;
+        // Clean up GUI
+        if (this.gui) {
+            this.gui.destroy();
+            this.gui = null;
         }
-        if (this.world) {
-            this.world = null;
-        }
-        // Remove the canvas element to prevent duplicates
-        const canvas = document.getElementById('simulation-canvas');
-        if (canvas) {
-            console.log('🗑️ Simulation: Removing canvas element');
-            canvas.remove();
-        }
-        // Clear the container
-        if (this.container) {
-            this.container.innerHTML = '';
-        }
+        // Remove event listeners
+        window.removeEventListener('resize', this.handleResize);
         console.log('✅ Simulation: Page destroyed and cleaned up');
-    }
-    // Public interface methods for app integration
-    getContainer() {
-        return this.container;
-    }
-    show() {
-        if (this.container) {
-            this.container.style.display = 'block';
-        }
-    }
-    hide() {
-        if (this.container) {
-            this.container.style.display = 'none';
-        }
-    }
-    /**
-     * Applies the selected traffic control model to all intersections
-     */
-    applyTrafficControlModelToAllIntersections() {
-        if (!this.world || !this.world.intersections) {
-            console.warn('Cannot apply traffic control model: World or intersections not initialized');
-            return;
-        }
-        // Set the global strategy in the manager
-        TrafficControlStrategyManager_1.trafficControlStrategyManager.selectStrategy(this.selectedTrafficControlModel);
-        // Apply to all intersections
-        const intersections = this.world.intersections.all();
-        let appliedCount = 0;
-        for (const id in intersections) {
-            const intersection = intersections[id];
-            if (intersection && intersection.trafficLightController) {
-                if (intersection.setTrafficControlStrategy(this.selectedTrafficControlModel)) {
-                    appliedCount++;
-                }
-            }
-        }
-        console.log(`Applied ${this.getReadableModelName(this.selectedTrafficControlModel)} traffic control model to ${appliedCount} intersections`);
-    }
-    /**
-     * Get a human-readable name for the traffic control model
-     */
-    getReadableModelName(modelId) {
-        switch (modelId) {
-            case 'fixed-timing': return 'Fixed Timing';
-            case 'adaptive-timing': return 'Adaptive Timing';
-            case 'traffic-enforcer': return 'Traffic Enforcer';
-            case 'all-red-flashing': return 'All Red Flashing';
-            default: return modelId;
-        }
-    }
-    /**
-     * Set up the traffic control model UI to match the current selected model
-     */
-    setupTrafficControlModelUI() {
-        // Set the select element to match the current model
-        const selectElement = document.getElementById('traffic-control-model');
-        if (selectElement) {
-            selectElement.value = this.selectedTrafficControlModel;
-        }
-        // Update the indicator to show the current model
-        const indicator = document.getElementById('active-model-indicator');
-        if (indicator) {
-            indicator.textContent = this.getReadableModelName(this.selectedTrafficControlModel);
-        }
     }
 }
 exports.SimulationPageComponent = SimulationPageComponent;
@@ -32681,6 +33158,43 @@ class Visualizer {
                 tool.unbind();
             }
         });
+    }
+    // DEBUG: Simple canvas test method (removed to prevent red background flash)
+    // testCanvasRendering(): void {
+    //   console.log('🧪 Testing basic canvas rendering...');
+    //   
+    //   // Clear any existing transforms
+    //   this.ctx.resetTransform();
+    //   
+    //   // Clear canvas with solid color
+    //   this.ctx.fillStyle = '#ff0000';
+    //   this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    //   
+    //   // Draw test shapes at screen coordinates
+    //   this.ctx.fillStyle = '#00ff00';
+    //   this.ctx.fillRect(50, 50, 200, 100);
+    //   
+    //   this.ctx.fillStyle = '#0000ff';
+    //   this.ctx.fillRect(300, 200, 150, 100);
+    //   
+    //   // Draw large visible text
+    //   this.ctx.fillStyle = '#ffffff';
+    //   this.ctx.font = 'bold 30px Arial';
+    //   this.ctx.fillText('CANVAS TEST OK!', 50, 150);
+    //   
+    //   this.ctx.font = 'bold 20px Arial';
+    //   this.ctx.fillText('Canvas size: ' + this.canvas.width + 'x' + this.canvas.height, 50, 180);
+    //   
+    //   console.log('🧪 Basic canvas test completed - should be RED with GREEN/BLUE boxes');
+    // }
+    // Method to set the time factor (simulation speed)
+    setTimeFactor(factor) {
+        if (typeof factor !== 'number' || isNaN(factor)) {
+            console.error('Invalid time factor:', factor);
+            return;
+        }
+        console.log('Setting time factor to:', factor);
+        this.timeFactor = Math.max(0.1, Math.min(5.0, factor)); // Clamp between 0.1 and 5.0
     }
 }
 module.exports = Visualizer;

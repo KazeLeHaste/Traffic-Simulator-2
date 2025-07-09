@@ -962,6 +962,16 @@ class Visualizer {
   //   
   //   console.log('🧪 Basic canvas test completed - should be RED with GREEN/BLUE boxes');
   // }
+  
+  // Method to set the time factor (simulation speed)
+  setTimeFactor(factor: number): void {
+    if (typeof factor !== 'number' || isNaN(factor)) {
+      console.error('Invalid time factor:', factor);
+      return;
+    }
+    console.log('Setting time factor to:', factor);
+    this.timeFactor = Math.max(0.1, Math.min(5.0, factor)); // Clamp between 0.1 and 5.0
+  }
 }
 
 export = Visualizer;

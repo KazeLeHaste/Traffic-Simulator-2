@@ -6,7 +6,7 @@
  */
 
 import Intersection = require('../intersection');
-import { TrafficState } from './ITrafficControlStrategy';
+import { TrafficState, ITrafficControlStrategy } from './ITrafficControlStrategy';
 import { AbstractTrafficControlStrategy } from './AbstractTrafficControlStrategy';
 import settings = require('../../settings');
 
@@ -765,38 +765,119 @@ export class AdaptiveTimingStrategy extends AbstractTrafficControlStrategy {
   /**
    * Create from JSON
    */
+  fromJSON(data: any, intersection: Intersection): ITrafficControlStrategy {
+    // Initialize with the intersection
+    this.initialize(intersection);
+    
+    // Restore state from data
+    if (data.currentPhase !== undefined) {
+      this.currentPhase = data.currentPhase;
+    }
+    
+    if (data.timeInPhase !== undefined) {
+      this.timeInPhase = data.timeInPhase;
+    }
+    
+    if (data.totalPhases !== undefined) {
+      this.totalPhases = data.totalPhases;
+    }
+    
+    if (data.phaseDuration !== undefined) {
+      this.phaseDuration = data.phaseDuration;
+    }
+    
+    // Restore states array if present
+    if (data.states) {
+      this.states = data.states;
+    }
+    
+    // Restore adaptive timing specific properties
+    if (data.minPhaseDuration !== undefined) this.minPhaseDuration = data.minPhaseDuration;
+    if (data.maxPhaseDuration !== undefined) this.maxPhaseDuration = data.maxPhaseDuration;
+    if (data.basePhaseDuration !== undefined) this.basePhaseDuration = data.basePhaseDuration;
+    if (data.trafficSensitivity !== undefined) this.trafficSensitivity = data.trafficSensitivity;
+    if (data.queueWeight !== undefined) this.queueWeight = data.queueWeight;
+    if (data.waitTimeWeight !== undefined) this.waitTimeWeight = data.waitTimeWeight;
+    if (data.flowRateWeight !== undefined) this.flowRateWeight = data.flowRateWeight;
+    if (data.trendWeight !== undefined) this.trendWeight = data.trendWeight;
+    if (data.prioritizeLeftTurns !== undefined) this.prioritizeLeftTurns = data.prioritizeLeftTurns;
+    if (data.enableLogging !== undefined) this.enableLogging = data.enableLogging;
+    if (data.emergencyMode !== undefined) this.emergencyMode = data.emergencyMode;
+    if (data.fairnessWeight !== undefined) this.fairnessWeight = data.fairnessWeight;
+    
+    // Restore metrics
+    if (data.queueLengths) this.queueLengths = data.queueLengths;
+    if (data.waitTimes) this.waitTimes = data.waitTimes;
+    if (data.flowRates) this.flowRates = data.flowRates;
+    if (data.congestionScores) this.congestionScores = data.congestionScores;
+    if (data.throughputRates) this.throughputRates = data.throughputRates;
+    if (data.saturationRates) this.saturationRates = data.saturationRates;
+    if (data.fairnessMetric !== undefined) this.fairnessMetric = data.fairnessMetric;
+    if (data.emergencyActivations !== undefined) this.emergencyActivations = data.emergencyActivations;
+    
+    // Restore history arrays
+    if (data.queueHistory) this.queueHistory = data.queueHistory;
+    if (data.waitTimeHistory) this.waitTimeHistory = data.waitTimeHistory;
+    if (data.flowRateHistory) this.flowRateHistory = data.flowRateHistory;
+    if (data.phaseDurationHistory) this.phaseDurationHistory = data.phaseDurationHistory;
+    if (data.trafficScoreHistory) this.trafficScoreHistory = data.trafficScoreHistory;
+    if (data.phaseChanges !== undefined) this.phaseChanges = data.phaseChanges;
+    
+    // Restore configuration
+    if (data.configOptions) {
+      this.configOptions = { ...this.configOptions, ...data.configOptions };
+    }
+    
+    if (this.enableLogging) {
+      console.log(`Restored AdaptiveTimingStrategy from saved data for intersection ${intersection.id}`);
+    }
+    
+    return this;
+  }
+  
+  /**
+   * Create strategy from JSON data (static factory method)
+   */
   static fromJSON(data: any, intersection: Intersection): AdaptiveTimingStrategy {
     const strategy = new AdaptiveTimingStrategy();
     
-    // Restore state from saved data
-    strategy.currentPhase = data.currentPhase || 0;
-    strategy.timeInPhase = data.timeInPhase || 0;
-    strategy.totalPhases = data.totalPhases || 4;
-    strategy.phaseDuration = data.phaseDuration || 30;
-    strategy.configOptions = data.configOptions || {};
+    // Restore state from data
+    if (data.currentPhase !== undefined) {
+      strategy.currentPhase = data.currentPhase;
+    }
     
-    // Restore adaptive-specific properties
-    strategy.minPhaseDuration = data.minPhaseDuration || strategy.configOptions.minPhaseDuration || 10;
-    strategy.maxPhaseDuration = data.maxPhaseDuration || strategy.configOptions.maxPhaseDuration || 60;
-    strategy.basePhaseDuration = data.basePhaseDuration || strategy.configOptions.baseDuration || 30;
-    strategy.trafficSensitivity = data.trafficSensitivity || strategy.configOptions.trafficSensitivity || 0.5;
-    strategy.queueWeight = data.queueWeight || strategy.configOptions.queueWeight || 1.0;
-    strategy.waitTimeWeight = data.waitTimeWeight || strategy.configOptions.waitTimeWeight || 1.0;
-    strategy.flowRateWeight = data.flowRateWeight || strategy.configOptions.flowRateWeight || 0.5;
-    strategy.trendWeight = data.trendWeight || strategy.configOptions.trendWeight || 0.3;
-    strategy.prioritizeLeftTurns = data.prioritizeLeftTurns !== undefined ? 
-      data.prioritizeLeftTurns : strategy.configOptions.prioritizeLeftTurns !== undefined ? 
-      strategy.configOptions.prioritizeLeftTurns : true;
-    strategy.enableLogging = data.enableLogging || strategy.configOptions.enableLogging || false;
-    strategy.emergencyMode = data.emergencyMode || strategy.configOptions.emergencyMode || false;
-    strategy.fairnessWeight = data.fairnessWeight || strategy.configOptions.fairnessWeight || 0.5;
+    if (data.timeInPhase !== undefined) {
+      strategy.timeInPhase = data.timeInPhase;
+    }
     
-    // If states array was saved, restore it
+    if (data.totalPhases !== undefined) {
+      strategy.totalPhases = data.totalPhases;
+    }
+    
+    if (data.phaseDuration !== undefined) {
+      strategy.phaseDuration = data.phaseDuration;
+    }
+    
+    // Restore states array if present
     if (data.states) {
       strategy.states = data.states;
     }
     
-    // Restore metrics if available
+    // Restore adaptive timing specific properties
+    if (data.minPhaseDuration !== undefined) strategy.minPhaseDuration = data.minPhaseDuration;
+    if (data.maxPhaseDuration !== undefined) strategy.maxPhaseDuration = data.maxPhaseDuration;
+    if (data.basePhaseDuration !== undefined) strategy.basePhaseDuration = data.basePhaseDuration;
+    if (data.trafficSensitivity !== undefined) strategy.trafficSensitivity = data.trafficSensitivity;
+    if (data.queueWeight !== undefined) strategy.queueWeight = data.queueWeight;
+    if (data.waitTimeWeight !== undefined) strategy.waitTimeWeight = data.waitTimeWeight;
+    if (data.flowRateWeight !== undefined) strategy.flowRateWeight = data.flowRateWeight;
+    if (data.trendWeight !== undefined) strategy.trendWeight = data.trendWeight;
+    if (data.prioritizeLeftTurns !== undefined) strategy.prioritizeLeftTurns = data.prioritizeLeftTurns;
+    if (data.enableLogging !== undefined) strategy.enableLogging = data.enableLogging;
+    if (data.emergencyMode !== undefined) strategy.emergencyMode = data.emergencyMode;
+    if (data.fairnessWeight !== undefined) strategy.fairnessWeight = data.fairnessWeight;
+    
+    // Restore metrics
     if (data.queueLengths) strategy.queueLengths = data.queueLengths;
     if (data.waitTimes) strategy.waitTimes = data.waitTimes;
     if (data.flowRates) strategy.flowRates = data.flowRates;
@@ -813,6 +894,11 @@ export class AdaptiveTimingStrategy extends AbstractTrafficControlStrategy {
     if (data.phaseDurationHistory) strategy.phaseDurationHistory = data.phaseDurationHistory;
     if (data.trafficScoreHistory) strategy.trafficScoreHistory = data.trafficScoreHistory;
     if (data.phaseChanges !== undefined) strategy.phaseChanges = data.phaseChanges;
+    
+    // Restore configuration
+    if (data.configOptions) {
+      strategy.configOptions = { ...strategy.configOptions, ...data.configOptions };
+    }
     
     strategy.initialize(intersection);
     return strategy;

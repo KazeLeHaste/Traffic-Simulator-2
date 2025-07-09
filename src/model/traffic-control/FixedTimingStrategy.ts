@@ -12,7 +12,7 @@
  */
 
 import Intersection = require('../intersection');
-import { TrafficState } from './ITrafficControlStrategy';
+import { TrafficState, ITrafficControlStrategy } from './ITrafficControlStrategy';
 import { AbstractTrafficControlStrategy } from './AbstractTrafficControlStrategy';
 import settings = require('../../settings');
 
@@ -310,5 +310,62 @@ export class FixedTimingStrategy extends AbstractTrafficControlStrategy {
     this.enableLogging = enabled;
     this.configOptions.enableLogging = enabled;
     this.log(`Logging ${enabled ? 'enabled' : 'disabled'}`);
+  }
+  
+  /**
+   * Create from JSON data
+   * @param data The serialized strategy data
+   * @param intersection The intersection to control
+   * @returns Initialized strategy instance
+   */
+  fromJSON(data: any, intersection: Intersection): ITrafficControlStrategy {
+    // Initialize with the intersection
+    this.initialize(intersection);
+    
+    // Restore state from data
+    if (data.currentPhase !== undefined) {
+      this.currentPhase = data.currentPhase;
+    }
+    
+    if (data.timeInPhase !== undefined) {
+      this.timeInPhase = data.timeInPhase;
+    }
+    
+    if (data.totalPhases !== undefined) {
+      this.totalPhases = data.totalPhases;
+    }
+    
+    if (data.phaseDuration !== undefined) {
+      this.phaseDuration = data.phaseDuration;
+    }
+    
+    // Restore flipMultiplier if present
+    if (data.flipMultiplier !== undefined) {
+      this.flipMultiplier = data.flipMultiplier;
+    }
+    
+    // Restore states array if present
+    if (data.states) {
+      this.states = data.states;
+    }
+    
+    // Restore configuration
+    if (data.configOptions) {
+      this.configOptions = { ...this.configOptions, ...data.configOptions };
+      
+      // Apply specific config options
+      if (this.configOptions.enableLogging !== undefined) {
+        this.enableLogging = this.configOptions.enableLogging;
+      }
+    }
+    
+    // Reset timing stats with the correct number of phases
+    this.resetTimingStats();
+    
+    if (this.enableLogging) {
+      this.log(`Restored FixedTimingStrategy from saved data for intersection ${intersection.id}`);
+    }
+    
+    return this;
   }
 }

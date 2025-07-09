@@ -32,6 +32,22 @@ export class DatabaseStorage implements IStorage {
     throw new Error('DatabaseStorage not implemented yet. Please use LocalStorage.');
   }
 
+  async saveScenario(scenario: any, scenarioName?: string): Promise<void> {
+    throw new Error('DatabaseStorage not implemented yet. Please use LocalStorage.');
+  }
+
+  async loadScenario(id: string): Promise<any | null> {
+    throw new Error('DatabaseStorage not implemented yet. Please use LocalStorage.');
+  }
+
+  async loadAllScenarios(): Promise<any[]> {
+    throw new Error('DatabaseStorage not implemented yet. Please use LocalStorage.');
+  }
+
+  async deleteScenario(id: string): Promise<void> {
+    throw new Error('DatabaseStorage not implemented yet. Please use LocalStorage.');
+  }
+
   async clear(): Promise<void> {
     throw new Error('DatabaseStorage not implemented yet. Please use LocalStorage.');
   }

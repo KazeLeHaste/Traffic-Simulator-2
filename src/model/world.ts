@@ -7,17 +7,24 @@ import Pool = require('./pool');
 import Rect = require('../geom/rect');
 import settings = require('../settings');
 import { kpiCollector } from './kpi-collector';
+import { trafficControlStrategyManager } from './traffic-control/TrafficControlStrategyManager';
 
 const { random } = Math;
 
+/**
+ * Represents a complete traffic simulation world
+ */
 class World {
   public intersections: Pool<Intersection>;
   public roads: Pool<Road>;
   public cars: Pool<Car>;
   public carsNumber: number;
   public time: number;
+  public activeTrafficControlStrategy: string;
+  public customSettings: { [key: string]: any };
 
   constructor() {
+    this.customSettings = {};
     this.set({});
   }
 
@@ -41,6 +48,8 @@ class World {
     this.cars = new Pool(Car, obj.cars);
     this.carsNumber = 0;
     this.time = 0;
+    this.activeTrafficControlStrategy = obj.activeTrafficControlStrategy || 'fixed-timing';
+    this.customSettings = obj.customSettings || {};
   }
 
   // Save current world state to localStorage (excluding cars)
@@ -63,6 +72,8 @@ class World {
     this.clear();
     
     this.carsNumber = parsedData.carsNumber || 0;
+    this.activeTrafficControlStrategy = parsedData.activeTrafficControlStrategy || 'fixed-timing';
+    this.customSettings = parsedData.customSettings || {};
     
     // Load intersections
     for (const id in parsedData.intersections) {
@@ -77,6 +88,182 @@ class World {
       roadCopy.source = this.getIntersection(road.source);
       roadCopy.target = this.getIntersection(road.target);
       this.addRoad(roadCopy);
+    }
+    
+    // Apply traffic control strategy if specified
+    if (this.activeTrafficControlStrategy) {
+      this.applyTrafficControlStrategy(this.activeTrafficControlStrategy);
+    }
+  }
+
+  // Save as a complete scenario for reproducible benchmarks
+  saveAsScenario(): any {
+    const scenarioData = {
+      // Base world state (without cars)
+      worldState: {
+        intersections: this.intersections,
+        roads: this.roads,
+        carsNumber: this.carsNumber,
+        activeTrafficControlStrategy: this.activeTrafficControlStrategy,
+        customSettings: this.customSettings
+      },
+      // Additional simulation parameters
+      simulationParams: {
+        timeFactor: settings.defaultTimeFactor
+      },
+      // Traffic control configuration
+      trafficControlParams: trafficControlStrategyManager.getStrategySettings(this.activeTrafficControlStrategy),
+      // Random seed for reproducibility (not implemented yet, but placeholder)
+      randomSeed: null,
+      // Metadata
+      timestamp: new Date().toISOString(),
+      version: '1.0.0'
+    };
+    
+    return scenarioData;
+  }
+
+  // Load a complete scenario
+  loadScenario(scenarioData: any): void {
+    console.log('World.loadScenario called with data:', scenarioData);
+    
+    // Check if we have valid scenario data
+    if (!scenarioData) {
+      console.error('Scenario data is null or undefined');
+      throw new Error('Invalid scenario data: null or undefined');
+    }
+    
+    // Handle different data formats - direct world state vs. wrapped scenario data
+    let worldState: any;
+    
+    if (scenarioData.worldState) {
+      console.log('Using wrapped scenario data format');
+      worldState = scenarioData.worldState;
+      
+      // Update simulation parameters if available
+      if (scenarioData.simulationParams) {
+        console.log('Applying simulation parameters:', scenarioData.simulationParams);
+        settings.defaultTimeFactor = scenarioData.simulationParams.timeFactor || settings.defaultTimeFactor;
+      }
+      
+      // Apply traffic control parameters if available
+      if (scenarioData.trafficControlParams) {
+        console.log('Traffic control parameters will be applied after world setup');
+      }
+    } else {
+      console.log('Using direct world state format - legacy or simplified scenario');
+      worldState = scenarioData;
+    }
+    
+    // Validate world state
+    if (!worldState.intersections || !worldState.roads) {
+      console.error('Invalid world state data - missing required properties', worldState);
+      throw new Error('Invalid scenario data: missing required properties');
+    }
+    
+    // Clear current state
+    console.log('Clearing current world state');
+    this.clear();
+    
+    // Load world state
+    console.log('Loading world state:', worldState);
+    this.carsNumber = worldState.carsNumber || 0;
+    this.activeTrafficControlStrategy = worldState.activeTrafficControlStrategy || 'fixed-timing';
+    this.customSettings = worldState.customSettings || {};
+    
+    // Load intersections
+    console.log('Loading intersections...');
+    for (const id in worldState.intersections) {
+      console.log(`Loading intersection: ${id}`);
+      const intersection = worldState.intersections[id];
+      try {
+        this.addIntersection(Intersection.copy(intersection));
+      } catch (error) {
+        console.error(`Failed to load intersection ${id}:`, error);
+        throw new Error(`Failed to load intersection ${id}: ${error.message}`);
+      }
+    }
+    console.log('All intersections loaded successfully');
+    
+    // Load roads and connect them to intersections
+    console.log('Loading roads...');
+    for (const id in worldState.roads) {
+      console.log(`Loading road: ${id}`);
+      try {
+        const road = worldState.roads[id];
+        const roadCopy = Road.copy(road);
+        
+        // Get source and target intersections
+        const sourceIntersection = this.getIntersection(road.source);
+        const targetIntersection = this.getIntersection(road.target);
+        
+        if (!sourceIntersection) {
+          throw new Error(`Source intersection ${road.source} not found`);
+        }
+        
+        if (!targetIntersection) {
+          throw new Error(`Target intersection ${road.target} not found`);
+        }
+        
+        roadCopy.source = sourceIntersection;
+        roadCopy.target = targetIntersection;
+        this.addRoad(roadCopy);
+      } catch (error) {
+        console.error(`Failed to load road ${id}:`, error);
+        throw new Error(`Failed to load road ${id}: ${error.message}`);
+      }
+    }
+    console.log('All roads loaded successfully');
+    
+    // Apply traffic control configuration
+    console.log('Applying traffic control settings...');
+    
+    try {
+      // Apply traffic control strategy
+      console.log(`Applying traffic control strategy: ${this.activeTrafficControlStrategy}`);
+      this.applyTrafficControlStrategy(this.activeTrafficControlStrategy);
+      
+      // Apply traffic control parameters if available (only for wrapped scenario format)
+      if (scenarioData.trafficControlParams) {
+        console.log('Applying traffic control parameters:', scenarioData.trafficControlParams);
+        trafficControlStrategyManager.applyStrategySettings(
+          this.activeTrafficControlStrategy, 
+          scenarioData.trafficControlParams
+        );
+      }
+      
+      console.log('Traffic control strategy applied successfully');
+    } catch (error) {
+      console.error('Error applying traffic control strategy:', error);
+      // Continue anyway - don't throw, this is not critical
+    }
+  }
+
+  // Apply a traffic control strategy to all intersections
+  applyTrafficControlStrategy(strategyName: string): void {
+    if (!strategyName) return;
+    
+    // Store the active strategy
+    this.activeTrafficControlStrategy = strategyName;
+    
+    // Update all intersections
+    for (const id in this.intersections.all()) {
+      const intersection = this.intersections.all()[id];
+      if (intersection && intersection.setTrafficControlStrategy) {
+        // We need to pass the strategy name as a string
+        if (strategyName === null || strategyName === undefined) {
+          // Handle null or undefined case
+          intersection.setTrafficControlStrategy('DefaultStrategy');
+        } else if (typeof strategyName === 'object') {
+          console.error('Expected strategy name string but received an object', strategyName);
+          // Try to get the strategy name if possible, using non-null assertion since we know it's an object here
+          const strategyNameStr = strategyName!.constructor?.name || 'UnknownStrategy';
+          intersection.setTrafficControlStrategy(strategyNameStr);
+        } else {
+          // Pass the strategy name as is (should be string at this point)
+          intersection.setTrafficControlStrategy(strategyName);
+        }
+      }
     }
   }
 

@@ -6,7 +6,7 @@
  */
 
 import Intersection = require('../intersection');
-import { TrafficState } from './ITrafficControlStrategy';
+import { TrafficState, ITrafficControlStrategy } from './ITrafficControlStrategy';
 import { AbstractTrafficControlStrategy } from './AbstractTrafficControlStrategy';
 
 /**
@@ -84,7 +84,7 @@ export class AllRedFlashingStrategy extends AbstractTrafficControlStrategy {
   }
   
   /**
-   * Create from JSON
+   * Create from JSON (static method)
    */
   static fromJSON(data: any, intersection: Intersection): AllRedFlashingStrategy {
     const strategy = new AllRedFlashingStrategy();
@@ -101,6 +101,43 @@ export class AllRedFlashingStrategy extends AbstractTrafficControlStrategy {
     
     strategy.initialize(intersection);
     return strategy;
+  }
+  
+  /**
+   * Create from JSON (instance method)
+   */
+  fromJSON(data: any, intersection: Intersection): ITrafficControlStrategy {
+    // Initialize with the intersection
+    this.initialize(intersection);
+    
+    // Restore state from saved data
+    if (data.flashInterval !== undefined) {
+      this.flashInterval = data.flashInterval;
+    }
+    
+    if (data.signalsVisible !== undefined) {
+      this.signalsVisible = data.signalsVisible;
+    }
+    
+    if (data.timeInFlashState !== undefined) {
+      this.timeInFlashState = data.timeInFlashState;
+    }
+    
+    // Restore common properties
+    if (data.currentPhase !== undefined) {
+      this.currentPhase = data.currentPhase;
+    }
+    
+    if (data.timeInPhase !== undefined) {
+      this.timeInPhase = data.timeInPhase;
+    }
+    
+    // Apply configuration options
+    if (data.configOptions) {
+      this.configOptions = { ...this.configOptions, ...data.configOptions };
+    }
+    
+    return this;
   }
   
   /**
