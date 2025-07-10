@@ -16,5 +16,9 @@ To run traffic control tests, open the browser console and type:
   trafficControlTests.runAllTests()
   
 Or run specific test categories:
+  trafficControlTests.runKPICollectorTests()
+  trafficControlTests.runTrafficLightControllerTests()
   trafficControlTests.runFixedTimingTests()
+  trafficControlTests.runAdaptiveTimingTests()
+  trafficControlTests.runTrafficEnforcerTests()
 `);
