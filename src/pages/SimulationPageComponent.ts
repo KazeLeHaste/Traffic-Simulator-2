@@ -1312,9 +1312,9 @@ export class SimulationPageComponent {
   }
   
   // Load a layout by ID
-  private async loadLayoutById(id: string): Promise<void> {
+  private async loadLayoutById(id: string, customCarsNumber?: number): Promise<void> {
     try {
-      console.log('🔄 Starting loadLayoutById for ID:', id);
+      console.log('🔄 Starting loadLayoutById for ID:', id, customCarsNumber ? `with ${customCarsNumber} cars` : '');
       // Find the layout in the layouts array
       const layout = this.layouts.find(l => l.id === id);
       
@@ -1342,12 +1342,13 @@ export class SimulationPageComponent {
         console.log('🔄 Layout data found, loading into world');
         const worldData = layout.data;
         
-        // Load into world
-        this.world.load(JSON.stringify(worldData));
-        console.log('✅ Layout loaded into world');
+        // Set car count first - use customCarsNumber if provided, otherwise default to 100
+        this.world.carsNumber = customCarsNumber !== undefined ? customCarsNumber : 100;
         
-        // Reset car count to 100 by default
-        this.world.carsNumber = 100;
+        // Load into world but preserve car count
+        this.world.load(JSON.stringify(worldData), true);
+        console.log('✅ Layout loaded into world with car count preserved:', this.world.carsNumber);
+        console.log(`🚗 Setting car count to ${this.world.carsNumber}`);
         
         // Update UI components
         const carsRangeSlider = document.getElementById('cars-range') as HTMLInputElement;
@@ -1441,6 +1442,19 @@ export class SimulationPageComponent {
       return;
     }
     
+    // Store current car number and time factor
+    const currentCarsNumber = this.world.carsNumber;
+    let currentTimeFactor = 1.0;
+    
+    if (this.visualizer && this.visualizer.timeFactor) {
+      currentTimeFactor = this.visualizer.timeFactor;
+    }
+    
+    console.log('🔄 Resetting simulation, preserving:', {
+      carsNumber: currentCarsNumber,
+      timeFactor: currentTimeFactor
+    });
+    
     // Stop simulation if running
     if (this.isRunning) {
       this.toggleSimulation();
@@ -1459,6 +1473,9 @@ export class SimulationPageComponent {
     
     // Reset time
     this.world.time = 0;
+    
+    // Restore car number
+    this.world.carsNumber = currentCarsNumber;
     
     // Reset traffic lights
     for (const id in this.world.intersections.all()) {
@@ -1490,37 +1507,60 @@ export class SimulationPageComponent {
       return;
     }
     
-    // First ensure layouts are loaded
-    if (this.layouts.length === 0) {
-      console.log('🔄 Loading layouts before showing benchmark dialog');
-      await this.loadLayouts();
-      console.log('✅ Loaded layouts:', this.layouts.length);
-    }
-    
-    if (this.layouts.length === 0) {
-      this.showNotification('No layouts available. Please create a layout in the Builder first.', 'warning');
+    // Validate that we have necessary settings to run a benchmark
+    if (!this.world) {
+      this.showNotification('No active simulation world. Please load a layout first.', 'warning');
       return;
     }
     
-    // Get the current layout ID if any is loaded, otherwise use the first one
-    const currentLayoutId = this.world && this.world.layoutId ? this.world.layoutId : (this.layouts.length > 0 ? this.layouts[0].id : '');
+    // Check if we have a valid traffic control model
+    if (!this.selectedTrafficControlModel) {
+      this.showNotification('No traffic control model selected.', 'warning');
+      return;
+    }
     
-    console.log('📊 Current settings for benchmark dialog:', {
-      layoutId: currentLayoutId,
-      availableLayouts: this.layouts.map(l => `${l.id} (${l.name})`)
-    });
+    // Get the current layout info
+    let currentLayoutName = "Current Layout";
+    const currentLayoutId = this.world.layoutId;
     
-    // Prepare current settings for configuration modal
+    // If we have a layout ID, try to get its name
+    if (currentLayoutId) {
+      const layout = this.layouts.find(l => l.id === currentLayoutId);
+      if (layout && layout.name) {
+        currentLayoutName = layout.name;
+      }
+    }
+    
+    // Get current traffic control model name
+    let trafficControlModelName = this.selectedTrafficControlModel;
+    try {
+      trafficControlStrategyManager.selectStrategy(this.selectedTrafficControlModel);
+      const strategy = trafficControlStrategyManager.createStrategy();
+      if (strategy && strategy.displayName) {
+        trafficControlModelName = strategy.displayName;
+      }
+    } catch (error) {
+      console.error('Error getting traffic control model name:', error);
+    }
+    
+    // Get current simulation settings for display in the dialog
+    const currentTimeFactor = parseFloat((document.getElementById('time-factor-range') as HTMLInputElement).value);
+    
+    // Prepare current settings for configuration modal (now just showing existing settings)
     const currentSettings = {
       layoutId: currentLayoutId,
+      layoutName: currentLayoutName,
       duration: this.benchmarkDuration,
       carsNumber: this.world.carsNumber,
-      timeFactor: parseFloat((document.getElementById('time-factor-range') as HTMLInputElement).value),
-      trafficControlModel: this.selectedTrafficControlModel
+      timeFactor: currentTimeFactor,
+      trafficControlModel: this.selectedTrafficControlModel,
+      trafficControlModelName: trafficControlModelName
     };
     
-    // Show the benchmark configuration modal
-    const config = await BenchmarkConfigurationComponent.show(this.container, this.layouts, currentSettings);
+    console.log('📊 Current settings for benchmark dialog:', currentSettings);
+    
+    // Show the simplified benchmark configuration modal (just duration)
+    const config = await BenchmarkConfigurationComponent.show(this.container, currentSettings);
     
     // If user cancelled, exit
     if (!config) {
@@ -1530,90 +1570,70 @@ export class SimulationPageComponent {
     
     console.log('📊 Benchmark configuration received:', config);
     
-    // Reset simulation first
+    // We'll use current settings but with the configured duration
+    const benchmarkDuration = config.simulationDuration;
+    console.log(`� Using current settings with ${benchmarkDuration} seconds duration`);
+    
+    // Reset simulation first (preserves car count and time factor)
     this.resetSimulation();
     
-    // Load selected layout
-    try {
-      console.log('🔄 Loading layout with ID:', config.layoutId);
-      console.log('🔄 Available layouts:', this.layouts.map(l => `${l.id} (${l.name})`));
-      
-      const selectedLayout = this.layouts.find(layout => layout.id === config.layoutId);
-      
-      if (selectedLayout) {
-        console.log('🔄 Found layout:', selectedLayout.name);
-        try {
-          await this.loadLayoutById(selectedLayout.id);
-          console.log('✅ Layout loaded successfully');
-        } catch (error) {
-          console.error('❌ Error loading layout:', error);
-          this.showNotification('Error loading layout. Using default.', 'error');
-        }
-      } else if (this.layouts.length > 0) {
-        // If the specified layout is not found but we have layouts, use the first one
-        console.log('⚠️ Layout not found with ID:', config.layoutId, '. Using first available layout instead.');
-        await this.loadLayoutById(this.layouts[0].id);
-      } else {
-        console.error('❌ No layouts available');
-        this.showNotification('No layouts available. Creating a default layout.', 'warning');
-        
-        // If no layouts are available, just continue with an empty world
-        // The simulation will run on whatever is currently displayed
-      }
-    } catch (error) {
-      console.error('❌ Error in layout loading process:', error);
+    // Make sure we are using the current traffic control model
+    this.updateTrafficControlModel();
+    
+    // Update the car count slider display if needed
+    const carsDisplay = document.getElementById('cars-value');
+    if (carsDisplay) {
+      carsDisplay.textContent = this.world.carsNumber.toString();
     }
     
-    // Set traffic control model
-    if (config.trafficControlModel !== this.selectedTrafficControlModel) {
-      this.selectedTrafficControlModel = config.trafficControlModel;
-      this.updateTrafficControlModel();
-    }
-    
-    // Set car number
-    if (config.carsNumber !== this.world.carsNumber) {
-      this.world.carsNumber = config.carsNumber;
-      const carsDisplay = document.getElementById('cars-value');
-      if (carsDisplay) {
-        carsDisplay.textContent = config.carsNumber.toString();
-      }
-      
-      const carsRange = document.getElementById('cars-range') as HTMLInputElement;
-      if (carsRange) {
-        carsRange.value = config.carsNumber.toString();
-      }
-    }
-    
-    // Set time factor
-    const timeFactorRange = document.getElementById('time-factor-range') as HTMLInputElement;
-    
-    // Always set the time factor to match what was configured
-    timeFactorRange.value = config.timeFactor.toString();
-    const timeFactorValue = document.getElementById('time-factor-value');
-    if (timeFactorValue) {
-      timeFactorValue.textContent = config.timeFactor.toFixed(1);
+    const carsRange = document.getElementById('cars-range') as HTMLInputElement;
+    if (carsRange) {
+      carsRange.value = this.world.carsNumber.toString();
     }
     
     // Make sure the visualizer has the correct time factor
-    if (this.visualizer) {
-      console.log(`🕒 Setting time factor to ${config.timeFactor}`);
-      this.visualizer.setTimeFactor(config.timeFactor);
+    const timeFactorRange = document.getElementById('time-factor-range') as HTMLInputElement;
+    const timeFactorValue = document.getElementById('time-factor-value');
+    
+    if (this.visualizer && timeFactorRange) {
+      const timeFactor = parseFloat(timeFactorRange.value);
+      console.log(`🕒 Using time factor: ${timeFactor}`);
+      
+      this.visualizer.timeFactor = timeFactor; // Direct property set
+      
+      // Also call the method if it exists
+      if (typeof this.visualizer.setTimeFactor === 'function') {
+        this.visualizer.setTimeFactor(timeFactor);
+      }
+      
+      // Update the display
+      if (timeFactorValue) {
+        timeFactorValue.textContent = timeFactor.toFixed(1);
+      }
+    }
+    
+    // Ensure cars are correctly initialized
+    if (this.world) {
+      console.log(`🔄 Forcing world update with ${this.world.carsNumber} cars`);
+      // Use the forceRefreshCars method to immediately adjust the car count
+      this.world.forceRefreshCars();
     }
     
     // Store benchmark settings
     this.benchmarkDuration = config.simulationDuration;
     
-    // Find the layout name
-    const layoutForSettings = this.layouts.find(l => l.id === config.layoutId);
-    const layoutName = layoutForSettings ? layoutForSettings.name : 'Default Layout';
+    // Find the layout name for the current layout (using existing variables)
+    let settingsLayoutName = currentLayoutName;
+    const settingsLayoutId = currentLayoutId;
     
+    // Store all current settings for the benchmark
     this.benchmarkSettings = {
-      layoutId: config.layoutId,
-      layoutName: layoutName,
+      layoutId: settingsLayoutId,
+      layoutName: settingsLayoutName,
       duration: config.simulationDuration,
-      carsNumber: config.carsNumber,
-      timeFactor: config.timeFactor,
-      trafficControlModel: config.trafficControlModel,
+      carsNumber: this.world.carsNumber,
+      timeFactor: this.visualizer ? this.visualizer.timeFactor : 1.0,
+      trafficControlModel: this.selectedTrafficControlModel,
       startTime: new Date().toISOString()
     };
     
@@ -1872,8 +1892,25 @@ export class SimulationPageComponent {
   private updateTrafficControlModel(): void {
     if (!this.world) return;
     
-    // Apply selected strategy
-    this.world.applyTrafficControlStrategy(this.selectedTrafficControlModel);
+    console.log(`🚦 Applying traffic control model: ${this.selectedTrafficControlModel}`);
+    
+    try {
+      // Apply selected strategy
+      this.world.applyTrafficControlStrategy(this.selectedTrafficControlModel);
+      
+      // Ensure each intersection has its model correctly set
+      for (const id in this.world.intersections.all()) {
+        const intersection = this.world.intersections.all()[id];
+        if (intersection && intersection.trafficLightController) {
+          if (typeof intersection.trafficLightController.setStrategy === 'function') {
+            // Use the new API
+            intersection.trafficLightController.setStrategy(this.selectedTrafficControlModel);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error applying traffic control model:', error);
+    }
     
     // Update indicator
     this.updateActiveModelIndicator(this.selectedTrafficControlModel);

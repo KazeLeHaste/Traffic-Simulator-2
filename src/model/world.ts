@@ -60,7 +60,7 @@ class World {
   }
 
   // Load world from provided data or localStorage
-  load(data?: string): void {
+  load(data?: string, preserveCarsNumber?: boolean): void {
     data = data || localStorage.world;
     
     const parsedData = data && JSON.parse(data);
@@ -69,9 +69,13 @@ class World {
       return;
     }
     
+    // Store original car count if we need to preserve it
+    const originalCarsNumber = preserveCarsNumber ? this.carsNumber : undefined;
+    
     this.clear();
     
-    this.carsNumber = parsedData.carsNumber || 0;
+    // Use preserved car number or from parsed data
+    this.carsNumber = originalCarsNumber !== undefined ? originalCarsNumber : (parsedData.carsNumber || 0);
     this.activeTrafficControlStrategy = parsedData.activeTrafficControlStrategy || 'fixed-timing';
     this.customSettings = parsedData.customSettings || {};
     
@@ -357,6 +361,33 @@ class World {
     if (Object.keys(this.cars.all()).length > this.carsNumber) {
       this.removeRandomCar();
     }
+  }
+
+  // Force immediate refresh of all cars to match target count
+  // This is used when we want to immediately update the car count
+  // rather than waiting for the gradual tick-by-tick update
+  forceRefreshCars(): void {
+    // Get current car count
+    const currentCount = Object.keys(this.cars.all()).length;
+    const targetCount = this.carsNumber;
+    const difference = targetCount - currentCount;
+    
+    console.log(`🚗 Force refreshing cars: current=${currentCount}, target=${targetCount}, diff=${difference}`);
+    
+    // Add or remove cars as needed
+    if (difference > 0) {
+      // Add cars
+      for (let i = 0; i < difference; i++) {
+        this.addRandomCar();
+      }
+    } else if (difference < 0) {
+      // Remove cars
+      for (let i = 0; i < Math.abs(difference); i++) {
+        this.removeRandomCar();
+      }
+    }
+    
+    console.log(`🚗 Cars after force refresh: ${Object.keys(this.cars.all()).length}`);
   }
 
   // Add a road to the world and update its connections

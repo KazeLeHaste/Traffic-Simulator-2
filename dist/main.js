@@ -45841,14 +45841,17 @@ class World {
         localStorage.world = JSON.stringify(data);
     }
     // Load world from provided data or localStorage
-    load(data) {
+    load(data, preserveCarsNumber) {
         data = data || localStorage.world;
         const parsedData = data && JSON.parse(data);
         if (!parsedData) {
             return;
         }
+        // Store original car count if we need to preserve it
+        const originalCarsNumber = preserveCarsNumber ? this.carsNumber : undefined;
         this.clear();
-        this.carsNumber = parsedData.carsNumber || 0;
+        // Use preserved car number or from parsed data
+        this.carsNumber = originalCarsNumber !== undefined ? originalCarsNumber : (parsedData.carsNumber || 0);
         this.activeTrafficControlStrategy = parsedData.activeTrafficControlStrategy || 'fixed-timing';
         this.customSettings = parsedData.customSettings || {};
         // Load intersections
@@ -46058,6 +46061,30 @@ class World {
         if (Object.keys(this.cars.all()).length > this.carsNumber) {
             this.removeRandomCar();
         }
+    }
+    // Force immediate refresh of all cars to match target count
+    // This is used when we want to immediately update the car count
+    // rather than waiting for the gradual tick-by-tick update
+    forceRefreshCars() {
+        // Get current car count
+        const currentCount = Object.keys(this.cars.all()).length;
+        const targetCount = this.carsNumber;
+        const difference = targetCount - currentCount;
+        console.log(`🚗 Force refreshing cars: current=${currentCount}, target=${targetCount}, diff=${difference}`);
+        // Add or remove cars as needed
+        if (difference > 0) {
+            // Add cars
+            for (let i = 0; i < difference; i++) {
+                this.addRandomCar();
+            }
+        }
+        else if (difference < 0) {
+            // Remove cars
+            for (let i = 0; i < Math.abs(difference); i++) {
+                this.removeRandomCar();
+            }
+        }
+        console.log(`🚗 Cars after force refresh: ${Object.keys(this.cars.all()).length}`);
     }
     // Add a road to the world and update its connections
     addRoad(road) {
@@ -48933,9 +48960,9 @@ class SimulationPageComponent {
         });
     }
     // Load a layout by ID
-    async loadLayoutById(id) {
+    async loadLayoutById(id, customCarsNumber) {
         try {
-            console.log('🔄 Starting loadLayoutById for ID:', id);
+            console.log('🔄 Starting loadLayoutById for ID:', id, customCarsNumber ? `with ${customCarsNumber} cars` : '');
             // Find the layout in the layouts array
             const layout = this.layouts.find(l => l.id === id);
             if (!layout) {
@@ -48956,11 +48983,12 @@ class SimulationPageComponent {
             if (layout && layout.data) {
                 console.log('🔄 Layout data found, loading into world');
                 const worldData = layout.data;
-                // Load into world
-                this.world.load(JSON.stringify(worldData));
-                console.log('✅ Layout loaded into world');
-                // Reset car count to 100 by default
-                this.world.carsNumber = 100;
+                // Set car count first - use customCarsNumber if provided, otherwise default to 100
+                this.world.carsNumber = customCarsNumber !== undefined ? customCarsNumber : 100;
+                // Load into world but preserve car count
+                this.world.load(JSON.stringify(worldData), true);
+                console.log('✅ Layout loaded into world with car count preserved:', this.world.carsNumber);
+                console.log(`🚗 Setting car count to ${this.world.carsNumber}`);
                 // Update UI components
                 const carsRangeSlider = document.getElementById('cars-range');
                 if (carsRangeSlider) {
@@ -49041,6 +49069,16 @@ class SimulationPageComponent {
             this.showNotification('Cannot reset simulation during benchmark', 'warning');
             return;
         }
+        // Store current car number and time factor
+        const currentCarsNumber = this.world.carsNumber;
+        let currentTimeFactor = 1.0;
+        if (this.visualizer && this.visualizer.timeFactor) {
+            currentTimeFactor = this.visualizer.timeFactor;
+        }
+        console.log('🔄 Resetting simulation, preserving:', {
+            carsNumber: currentCarsNumber,
+            timeFactor: currentTimeFactor
+        });
         // Stop simulation if running
         if (this.isRunning) {
             this.toggleSimulation();
@@ -49056,6 +49094,8 @@ class SimulationPageComponent {
         }
         // Reset time
         this.world.time = 0;
+        // Restore car number
+        this.world.carsNumber = currentCarsNumber;
         // Reset traffic lights
         for (const id in this.world.intersections.all()) {
             const intersection = this.world.intersections.all()[id];
@@ -49116,16 +49156,17 @@ class SimulationPageComponent {
         console.log('📊 Benchmark configuration received:', config);
         // Reset simulation first
         this.resetSimulation();
-        // Load selected layout
+        // Load selected layout with configured car number
         try {
-            console.log('🔄 Loading layout with ID:', config.layoutId);
+            console.log('🔄 Loading layout with ID:', config.layoutId, `and ${config.carsNumber} cars`);
             console.log('🔄 Available layouts:', this.layouts.map(l => `${l.id} (${l.name})`));
             const selectedLayout = this.layouts.find(layout => layout.id === config.layoutId);
             if (selectedLayout) {
                 console.log('🔄 Found layout:', selectedLayout.name);
                 try {
-                    await this.loadLayoutById(selectedLayout.id);
-                    console.log('✅ Layout loaded successfully');
+                    // Pass the configured car number when loading the layout
+                    await this.loadLayoutById(selectedLayout.id, config.carsNumber);
+                    console.log('✅ Layout loaded successfully with', config.carsNumber, 'cars');
                 }
                 catch (error) {
                     console.error('❌ Error loading layout:', error);
@@ -49135,13 +49176,14 @@ class SimulationPageComponent {
             else if (this.layouts.length > 0) {
                 // If the specified layout is not found but we have layouts, use the first one
                 console.log('⚠️ Layout not found with ID:', config.layoutId, '. Using first available layout instead.');
-                await this.loadLayoutById(this.layouts[0].id);
+                await this.loadLayoutById(this.layouts[0].id, config.carsNumber);
             }
             else {
                 console.error('❌ No layouts available');
                 this.showNotification('No layouts available. Creating a default layout.', 'warning');
                 // If no layouts are available, just continue with an empty world
                 // The simulation will run on whatever is currently displayed
+                this.world.carsNumber = config.carsNumber;
             }
         }
         catch (error) {
@@ -49152,21 +49194,23 @@ class SimulationPageComponent {
             this.selectedTrafficControlModel = config.trafficControlModel;
             this.updateTrafficControlModel();
         }
-        // Set car number
-        if (config.carsNumber !== this.world.carsNumber) {
+        // Double-check the car number is set correctly after layout load
+        console.log(`🚗 Verifying car number is set to ${config.carsNumber}`);
+        if (this.world.carsNumber !== config.carsNumber) {
+            console.log(`🚗 Car number mismatch: ${this.world.carsNumber} !== ${config.carsNumber}, fixing...`);
             this.world.carsNumber = config.carsNumber;
-            const carsDisplay = document.getElementById('cars-value');
-            if (carsDisplay) {
-                carsDisplay.textContent = config.carsNumber.toString();
-            }
-            const carsRange = document.getElementById('cars-range');
-            if (carsRange) {
-                carsRange.value = config.carsNumber.toString();
-            }
         }
-        // Set time factor
+        // Update UI to reflect the car number
+        const carsDisplay = document.getElementById('cars-value');
+        if (carsDisplay) {
+            carsDisplay.textContent = config.carsNumber.toString();
+        }
+        const carsRange = document.getElementById('cars-range');
+        if (carsRange) {
+            carsRange.value = config.carsNumber.toString();
+        }
+        // Set time factor - always set it regardless of comparison
         const timeFactorRange = document.getElementById('time-factor-range');
-        // Always set the time factor to match what was configured
         timeFactorRange.value = config.timeFactor.toString();
         const timeFactorValue = document.getElementById('time-factor-value');
         if (timeFactorValue) {
@@ -49175,7 +49219,17 @@ class SimulationPageComponent {
         // Make sure the visualizer has the correct time factor
         if (this.visualizer) {
             console.log(`🕒 Setting time factor to ${config.timeFactor}`);
-            this.visualizer.setTimeFactor(config.timeFactor);
+            this.visualizer.timeFactor = config.timeFactor; // Direct property set
+            // Also call the method if it exists
+            if (typeof this.visualizer.setTimeFactor === 'function') {
+                this.visualizer.setTimeFactor(config.timeFactor);
+            }
+        }
+        // Force update the world with the new car number and refresh the simulation immediately
+        if (this.world) {
+            console.log(`🔄 Forcing world update with ${config.carsNumber} cars`);
+            // Use the new forceRefreshCars method to immediately adjust the car count
+            this.world.forceRefreshCars();
         }
         // Store benchmark settings
         this.benchmarkDuration = config.simulationDuration;
@@ -49413,8 +49467,24 @@ class SimulationPageComponent {
     updateTrafficControlModel() {
         if (!this.world)
             return;
-        // Apply selected strategy
-        this.world.applyTrafficControlStrategy(this.selectedTrafficControlModel);
+        console.log(`🚦 Applying traffic control model: ${this.selectedTrafficControlModel}`);
+        try {
+            // Apply selected strategy
+            this.world.applyTrafficControlStrategy(this.selectedTrafficControlModel);
+            // Ensure each intersection has its model correctly set
+            for (const id in this.world.intersections.all()) {
+                const intersection = this.world.intersections.all()[id];
+                if (intersection && intersection.trafficLightController) {
+                    if (typeof intersection.trafficLightController.setStrategy === 'function') {
+                        // Use the new API
+                        intersection.trafficLightController.setStrategy(this.selectedTrafficControlModel);
+                    }
+                }
+            }
+        }
+        catch (error) {
+            console.error('Error applying traffic control model:', error);
+        }
         // Update indicator
         this.updateActiveModelIndicator(this.selectedTrafficControlModel);
     }
