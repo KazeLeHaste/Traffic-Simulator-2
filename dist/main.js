@@ -38820,7 +38820,6 @@ class KPIVisualizationComponent {
             </button>
             <button id="export-csv-btn" class="btn btn-success btn-sm">📄 Export CSV</button>
             <button id="export-json-btn" class="btn btn-info btn-sm">📋 Export JSON</button>
-            <button id="compare-runs-btn" class="btn btn-warning btn-sm">📊 Compare Runs</button>
             <button id="validate-data-btn" class="btn btn-secondary btn-sm">✓ Validate Data</button>
           </div>
         </div>
@@ -39137,21 +39136,20 @@ class KPIVisualizationComponent {
      * Initialize event listeners for interactive elements
      */
     initializeEventListeners() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
         // Add to analytics button
         (_a = document.getElementById('add-to-analytics-btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.addToAnalytics());
         // Export buttons
         (_b = document.getElementById('export-csv-btn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.exportCSV());
         (_c = document.getElementById('export-json-btn')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.exportJSON());
-        (_d = document.getElementById('compare-runs-btn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.showComparisonPanel());
-        (_e = document.getElementById('validate-data-btn')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => this.showValidationPanel());
+        (_d = document.getElementById('validate-data-btn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.showValidationPanel());
         // Table search and sort
-        (_f = document.getElementById('lane-search')) === null || _f === void 0 ? void 0 : _f.addEventListener('input', (e) => this.filterTable('lane-metrics-table', e.target.value));
-        (_g = document.getElementById('intersection-search')) === null || _g === void 0 ? void 0 : _g.addEventListener('input', (e) => this.filterTable('intersection-metrics-table', e.target.value));
-        (_h = document.getElementById('los-search')) === null || _h === void 0 ? void 0 : _h.addEventListener('input', (e) => this.filterTable('los-table', e.target.value));
-        (_j = document.getElementById('lane-sort')) === null || _j === void 0 ? void 0 : _j.addEventListener('change', (e) => this.sortTable('lane-metrics-table', e.target.value));
-        (_k = document.getElementById('intersection-sort')) === null || _k === void 0 ? void 0 : _k.addEventListener('change', (e) => this.sortTable('intersection-metrics-table', e.target.value));
-        (_l = document.getElementById('los-filter')) === null || _l === void 0 ? void 0 : _l.addEventListener('change', (e) => this.filterTableByValue('los-table', 1, e.target.value));
+        (_e = document.getElementById('lane-search')) === null || _e === void 0 ? void 0 : _e.addEventListener('input', (e) => this.filterTable('lane-metrics-table', e.target.value));
+        (_f = document.getElementById('intersection-search')) === null || _f === void 0 ? void 0 : _f.addEventListener('input', (e) => this.filterTable('intersection-metrics-table', e.target.value));
+        (_g = document.getElementById('los-search')) === null || _g === void 0 ? void 0 : _g.addEventListener('input', (e) => this.filterTable('los-table', e.target.value));
+        (_h = document.getElementById('lane-sort')) === null || _h === void 0 ? void 0 : _h.addEventListener('change', (e) => this.sortTable('lane-metrics-table', e.target.value));
+        (_j = document.getElementById('intersection-sort')) === null || _j === void 0 ? void 0 : _j.addEventListener('change', (e) => this.sortTable('intersection-metrics-table', e.target.value));
+        (_k = document.getElementById('los-filter')) === null || _k === void 0 ? void 0 : _k.addEventListener('change', (e) => this.filterTableByValue('los-table', 1, e.target.value));
         // Table header sorting for all tables
         const sortableTables = [
             'enhanced-kpi-table', 'emissions-table', 'los-table',
@@ -39166,10 +39164,10 @@ class KPIVisualizationComponent {
             });
         });
         // Comparison panel
-        (_m = document.getElementById('close-comparison')) === null || _m === void 0 ? void 0 : _m.addEventListener('click', () => {
+        (_l = document.getElementById('close-comparison')) === null || _l === void 0 ? void 0 : _l.addEventListener('click', () => {
             document.getElementById('comparison-panel').style.display = 'none';
         });
-        (_o = document.getElementById('comparison-benchmark')) === null || _o === void 0 ? void 0 : _o.addEventListener('change', (e) => {
+        (_m = document.getElementById('comparison-benchmark')) === null || _m === void 0 ? void 0 : _m.addEventListener('change', (e) => {
             const selectedId = e.target.value;
             if (selectedId) {
                 this.showComparison(selectedId);
@@ -48211,6 +48209,7 @@ module.exports = World;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AnalyticsPageComponent = void 0;
 const SessionAnalyticsStorage_1 = __webpack_require__(/*! ../lib/storage/SessionAnalyticsStorage */ "./src/lib/storage/SessionAnalyticsStorage.ts");
+const KPIVisualizationComponent_1 = __webpack_require__(/*! ../components/KPIVisualizationComponent */ "./src/components/KPIVisualizationComponent.ts");
 /**
  * Analytics Page Component
  *
@@ -48637,65 +48636,85 @@ class AnalyticsPageComponent {
         }).join('');
     }
     viewEntryDetails(analyticsId) {
-        var _a, _b, _c;
         const entry = SessionAnalyticsStorage_1.sessionAnalyticsStorage.getAnalyticsEntry(analyticsId);
-        if (!entry)
+        if (!entry) {
+            console.error('Analytics entry not found with ID:', analyticsId);
+            console.error('Analytics entry not found with ID:', analyticsId);
             return;
-        // Create a modal dialog to show entry details
-        const modal = document.createElement('div');
-        modal.className = 'analytics-modal';
-        modal.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>📊 Benchmark Details</h3>
-          <button class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="details-grid">
-            <div class="detail-section">
-              <h4>General Information</h4>
-              <p><strong>Name:</strong> ${entry.name}</p>
-              <p><strong>Original ID:</strong> ${entry.id}</p>
-              <p><strong>Analytics ID:</strong> ${entry.analyticsId}</p>
-              <p><strong>Added to Analytics:</strong> ${new Date(entry.addedTimestamp).toLocaleString()}</p>
-              <p><strong>Original Timestamp:</strong> ${new Date(entry.timestamp).toLocaleString()}</p>
-            </div>
-            <div class="detail-section">
-              <h4>Settings</h4>
-              <p><strong>Duration:</strong> ${((_a = entry.settings) === null || _a === void 0 ? void 0 : _a.duration) || 'N/A'}s</p>
-              <p><strong>Traffic Control:</strong> ${((_b = entry.settings) === null || _b === void 0 ? void 0 : _b.trafficControlModel) || 'N/A'}</p>
-              <p><strong>Vehicle Count:</strong> ${((_c = entry.settings) === null || _c === void 0 ? void 0 : _c.carsNumber) || 'N/A'}</p>
-            </div>
-            <div class="detail-section">
-              <h4>Key Metrics</h4>
-              <p><strong>Average Speed:</strong> ${entry.finalMetrics.averageSpeed.toFixed(2)} m/s</p>
-              <p><strong>Global Throughput:</strong> ${entry.finalMetrics.globalThroughput.toFixed(2)} veh/min</p>
-              <p><strong>Average Wait Time:</strong> ${entry.finalMetrics.averageWaitTime.toFixed(2)}s</p>
-              <p><strong>Congestion Index:</strong> ${(entry.finalMetrics.congestionIndex * 100).toFixed(1)}%</p>
-              <p><strong>Completed Trips:</strong> ${entry.finalMetrics.completedTrips}</p>
-              <p><strong>Total Stops:</strong> ${entry.finalMetrics.totalStops}</p>
-            </div>
+        }
+        console.log('Showing details for analytics entry:', entry.name);
+        // Create a benchmark results dialog similar to the one in SimulationPageComponent
+        let dialog = document.getElementById('analytics-details-dialog');
+        const visualizationContainerId = 'analytics-kpi-visualization-container';
+        if (!dialog) {
+            console.log('Creating new analytics details dialog');
+            dialog = document.createElement('div');
+            dialog.id = 'analytics-details-dialog';
+            dialog.className = 'dialog benchmark-dialog';
+            dialog.innerHTML = `
+        <div class="dialog-content" style="max-width: 95vw; max-height: 90vh; width: 1400px;">
+          <div class="dialog-header">
+            <h3>📊 KPI Benchmark Results</h3>
+            <button class="close-btn" style="font-size: 24px;">&times;</button>
+          </div>
+          <div class="dialog-body" style="max-height: calc(90vh - 100px); overflow-y: auto;">
+            <div id="${visualizationContainerId}"></div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary modal-close">Close</button>
-        </div>
-      </div>
-    `;
-        document.body.appendChild(modal);
-        modal.style.display = 'block';
-        // Add close handlers
-        modal.querySelectorAll('.modal-close').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.body.removeChild(modal);
+      `;
+            document.body.appendChild(dialog);
+            // Add close button events
+            const closeButtons = dialog.querySelectorAll('.close-btn');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    console.log('Closing analytics details dialog');
+                    dialog.style.display = 'none';
+                    // Clean up the KPI visualization component
+                    const container = document.getElementById(visualizationContainerId);
+                    if (container) {
+                        console.log('Cleaning up visualization container');
+                        container.innerHTML = '';
+                    }
+                });
             });
-        });
-        // Close on backdrop click
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
+        }
+        // Show dialog
+        dialog.style.display = 'block';
+        // Convert analytics entry to benchmark run format
+        const benchmarkRun = {
+            id: entry.id,
+            name: entry.name,
+            timestamp: entry.timestamp,
+            finalMetrics: entry.finalMetrics,
+            samples: entry.samples,
+            settings: entry.settings,
+            validation: entry.validation
+        };
+        console.log('Created benchmark run object:', benchmarkRun.name);
+        // Initialize KPI visualization component
+        const container = document.getElementById(visualizationContainerId);
+        if (!container) {
+            console.error('Visualization container not found:', visualizationContainerId);
+            return;
+        }
+        console.log('Clearing previous visualization content');
+        container.innerHTML = ''; // Clear previous content
+        try {
+            console.log('Creating new KPI visualization component');
+            // Create new visualization component and display the results
+            const kpiVisualization = new KPIVisualizationComponent_1.KPIVisualizationComponent(container);
+            kpiVisualization.displayBenchmarkResults(benchmarkRun);
+            console.log('KPI visualization displayed successfully');
+            // Hide the "Add to Analytics" button since we're already in the analytics page
+            const addToAnalyticsBtn = container.querySelector('#add-to-analytics-btn');
+            if (addToAnalyticsBtn) {
+                console.log('Hiding Add to Analytics button');
+                addToAnalyticsBtn.style.display = 'none';
             }
-        });
+        }
+        catch (error) {
+            console.error('Error displaying KPI visualization:', error);
+        }
     }
     startAutoRefresh() {
         // Refresh every 5 seconds to show any new analytics entries

@@ -1,6 +1,6 @@
 import { Router } from '../core/Router';
 import { sessionAnalyticsStorage, AnalyticsEntry } from '../lib/storage/SessionAnalyticsStorage';
-import { BenchmarkRun } from '../components/KPIVisualizationComponent';
+import { BenchmarkRun, KPIVisualizationComponent } from '../components/KPIVisualizationComponent';
 
 /**
  * Analytics Page Component
@@ -461,66 +461,98 @@ export class AnalyticsPageComponent {
 
   private viewEntryDetails(analyticsId: string): void {
     const entry = sessionAnalyticsStorage.getAnalyticsEntry(analyticsId);
-    if (!entry) return;
+    if (!entry) {
+      console.error('Analytics entry not found with ID:', analyticsId);
+      console.error('Analytics entry not found with ID:', analyticsId);
+      return;
+    }
 
-    // Create a modal dialog to show entry details
-    const modal = document.createElement('div');
-    modal.className = 'analytics-modal';
-    modal.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>📊 Benchmark Details</h3>
-          <button class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="details-grid">
-            <div class="detail-section">
-              <h4>General Information</h4>
-              <p><strong>Name:</strong> ${entry.name}</p>
-              <p><strong>Original ID:</strong> ${entry.id}</p>
-              <p><strong>Analytics ID:</strong> ${entry.analyticsId}</p>
-              <p><strong>Added to Analytics:</strong> ${new Date(entry.addedTimestamp).toLocaleString()}</p>
-              <p><strong>Original Timestamp:</strong> ${new Date(entry.timestamp).toLocaleString()}</p>
-            </div>
-            <div class="detail-section">
-              <h4>Settings</h4>
-              <p><strong>Duration:</strong> ${entry.settings?.duration || 'N/A'}s</p>
-              <p><strong>Traffic Control:</strong> ${entry.settings?.trafficControlModel || 'N/A'}</p>
-              <p><strong>Vehicle Count:</strong> ${entry.settings?.carsNumber || 'N/A'}</p>
-            </div>
-            <div class="detail-section">
-              <h4>Key Metrics</h4>
-              <p><strong>Average Speed:</strong> ${entry.finalMetrics.averageSpeed.toFixed(2)} m/s</p>
-              <p><strong>Global Throughput:</strong> ${entry.finalMetrics.globalThroughput.toFixed(2)} veh/min</p>
-              <p><strong>Average Wait Time:</strong> ${entry.finalMetrics.averageWaitTime.toFixed(2)}s</p>
-              <p><strong>Congestion Index:</strong> ${(entry.finalMetrics.congestionIndex * 100).toFixed(1)}%</p>
-              <p><strong>Completed Trips:</strong> ${entry.finalMetrics.completedTrips}</p>
-              <p><strong>Total Stops:</strong> ${entry.finalMetrics.totalStops}</p>
-            </div>
+    console.log('Showing details for analytics entry:', entry.name);
+
+    // Create a benchmark results dialog similar to the one in SimulationPageComponent
+    let dialog = document.getElementById('analytics-details-dialog');
+    const visualizationContainerId = 'analytics-kpi-visualization-container';
+    
+    if (!dialog) {
+      console.log('Creating new analytics details dialog');
+      dialog = document.createElement('div');
+      dialog.id = 'analytics-details-dialog';
+      dialog.className = 'dialog benchmark-dialog';
+      
+      dialog.innerHTML = `
+        <div class="dialog-content" style="max-width: 95vw; max-height: 90vh; width: 1400px;">
+          <div class="dialog-header">
+            <h3>📊 KPI Benchmark Results</h3>
+            <button class="close-btn" style="font-size: 24px;">&times;</button>
+          </div>
+          <div class="dialog-body" style="max-height: calc(90vh - 100px); overflow-y: auto;">
+            <div id="${visualizationContainerId}"></div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary modal-close">Close</button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-    modal.style.display = 'block';
-
-    // Add close handlers
-    modal.querySelectorAll('.modal-close').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.body.removeChild(modal);
+      `;
+      
+      document.body.appendChild(dialog);
+      
+      // Add close button events
+      const closeButtons = dialog.querySelectorAll('.close-btn');
+      closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          console.log('Closing analytics details dialog');
+          dialog!.style.display = 'none';
+          
+          // Clean up the KPI visualization component
+          const container = document.getElementById(visualizationContainerId);
+          if (container) {
+            console.log('Cleaning up visualization container');
+            container.innerHTML = '';
+          }
+        });
       });
-    });
-
-    // Close on backdrop click
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        document.body.removeChild(modal);
+    }
+    
+    // Show dialog
+    dialog.style.display = 'block';
+    
+    // Convert analytics entry to benchmark run format
+    const benchmarkRun: BenchmarkRun = {
+      id: entry.id,
+      name: entry.name,
+      timestamp: entry.timestamp,
+      finalMetrics: entry.finalMetrics,
+      samples: entry.samples,
+      settings: entry.settings,
+      validation: entry.validation
+    };
+    
+    console.log('Created benchmark run object:', benchmarkRun.name);
+    
+    // Initialize KPI visualization component
+    const container = document.getElementById(visualizationContainerId)!;
+    if (!container) {
+      console.error('Visualization container not found:', visualizationContainerId);
+      return;
+    }
+    
+    console.log('Clearing previous visualization content');
+    container.innerHTML = ''; // Clear previous content
+    
+    try {
+      console.log('Creating new KPI visualization component');
+      // Create new visualization component and display the results
+      const kpiVisualization = new KPIVisualizationComponent(container);
+      kpiVisualization.displayBenchmarkResults(benchmarkRun);
+      
+      console.log('KPI visualization displayed successfully');
+      
+      // Hide the "Add to Analytics" button since we're already in the analytics page
+      const addToAnalyticsBtn = container.querySelector('#add-to-analytics-btn') as HTMLButtonElement;
+      if (addToAnalyticsBtn) {
+        console.log('Hiding Add to Analytics button');
+        addToAnalyticsBtn.style.display = 'none';
       }
-    });
+    } catch (error) {
+      console.error('Error displaying KPI visualization:', error);
+    }
   }
 
   private startAutoRefresh(): void {

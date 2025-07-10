@@ -84,7 +84,6 @@ export class KPIVisualizationComponent {
             </button>
             <button id="export-csv-btn" class="btn btn-success btn-sm">📄 Export CSV</button>
             <button id="export-json-btn" class="btn btn-info btn-sm">📋 Export JSON</button>
-            <button id="compare-runs-btn" class="btn btn-warning btn-sm">📊 Compare Runs</button>
             <button id="validate-data-btn" class="btn btn-secondary btn-sm">✓ Validate Data</button>
           </div>
         </div>
@@ -415,7 +414,6 @@ export class KPIVisualizationComponent {
     // Export buttons
     document.getElementById('export-csv-btn')?.addEventListener('click', () => this.exportCSV());
     document.getElementById('export-json-btn')?.addEventListener('click', () => this.exportJSON());
-    document.getElementById('compare-runs-btn')?.addEventListener('click', () => this.showComparisonPanel());
     document.getElementById('validate-data-btn')?.addEventListener('click', () => this.showValidationPanel());
 
     // Table search and sort
