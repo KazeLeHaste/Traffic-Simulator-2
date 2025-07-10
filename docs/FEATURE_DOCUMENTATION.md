@@ -78,11 +78,7 @@ The modular traffic control strategy pattern allows for flexible, interchangeabl
 - **Best for**: Variable traffic patterns, handling unexpected peaks
 - **Implementation**: `src/model/traffic-control/AdaptiveTimingStrategy.ts`
 
-#### All-Red Flashing Strategy
-- **Description**: Flashing red lights for all directions (4-way stop)
-- **Parameters**: None
-- **Best for**: Low traffic situations, power outage simulation
-- **Implementation**: `src/model/traffic-control/AllRedFlashingStrategy.ts`
+#### Traffic Enforcer Strategy
 
 #### Traffic Enforcer Strategy
 - **Description**: Simulates human traffic director making real-time decisions

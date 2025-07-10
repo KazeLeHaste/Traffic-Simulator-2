@@ -97,12 +97,6 @@ The Road Traffic Simulator is a powerful tool for designing, testing, and analyz
 - **Best For**: Variable traffic with peak periods
 - **Usage**: The system will automatically adjust timing based on queue lengths
 
-#### All-Red Flashing Strategy
-- **Description**: All directions have flashing red (like 4-way stop)
-- **Configuration**: No special configuration needed
-- **Best For**: Low-traffic intersections, power outage simulation
-- **Usage**: Select this strategy to simulate four-way stops
-
 #### Traffic Enforcer Strategy
 - **Description**: Simulates a human directing traffic
 - **Configuration**: Set decision frequency and priority rules

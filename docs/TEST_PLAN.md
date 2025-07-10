@@ -55,10 +55,6 @@ src/model/traffic-control/tests/KPICollectorTest.ts
 - `test_phase_adjustment`: Verify timing adjusts to traffic conditions
 - `test_minimum_maximum_constraints`: Test timing constraints are respected
 
-#### All Red Flashing Strategy
-- `test_red_flashing_state`: Verify all signals flash red
-- `test_vehicle_behavior`: Test vehicle stop/go decision making
-
 #### Traffic Enforcer Strategy
 - `test_priority_determination`: Verify direction prioritization
 - `test_decision_timing`: Test decision frequency
@@ -68,7 +64,6 @@ src/model/traffic-control/tests/KPICollectorTest.ts
 ```
 src/model/traffic-control/tests/FixedTimingStrategyTest.ts
 src/model/traffic-control/tests/AdaptiveTimingStrategyTest.ts
-src/model/traffic-control/tests/AllRedFlashingStrategyTest.ts
 src/model/traffic-control/tests/TrafficEnforcerStrategyTest.ts
 src/model/traffic-control/tests/TrafficControlStrategyManagerTest.ts
 ```

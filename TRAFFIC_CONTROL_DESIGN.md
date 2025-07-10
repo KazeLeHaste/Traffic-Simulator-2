@@ -53,9 +53,9 @@
  *       |                                   |                      ▲
  *       | uses                              | extends              |
  *       ▼                                   |                      | extends
- * +------------------------------+  +-------+------------+  +------+-------------+
- * | TrafficControlStrategyManager|  |AllRedFlashingStrategy|  | (Other Strategies..)|
- * +------------------------------+  +--------------------+  +----------------------+
+ * +------------------------------+  +----------------------+  +----------------------+
+ * | TrafficControlStrategyManager|  | (Traffic Strategies...) |  | (Other Strategies..)|
+ * +------------------------------+  +----------------------+  +----------------------+
  * | -strategies: Map             |  |+strategyType       |  |                      |
  * | -selectedStrategyType: string|  |+displayName        |  |                      |
  * |                              |  |+description        |  |                      |
@@ -109,7 +109,7 @@
  * 
  * 2. **AdaptiveTimingStrategy**: Adjusts signal timings based on traffic conditions like queue lengths and wait times.
  * 
- * 3. **AllRedFlashingStrategy**: Emergency mode with all signals flashing red.
+ * 3. **TrafficEnforcerStrategy**: Simulates a human traffic enforcer making real-time decisions.
  * 
  * ## Potential Future Strategies:
  * 

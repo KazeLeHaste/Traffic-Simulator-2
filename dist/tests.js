@@ -5949,6 +5949,15 @@ class KPICollector {
         this.intersectionThroughput = {}; // intersectionId -> count
         this.intersectionWaitTimes = {}; // intersectionId -> waitTimes array
         this.intersectionQueueHistory = {}; // intersectionId -> queueLengths array
+        // New comprehensive KPI tracking
+        this.vehicleJourneyTimes = {};
+        this.vehicleStopCounts = {};
+        this.vehicleEmissions = {};
+        this.totalEmissions = { co2Emissions: 0, fuelConsumption: 0, noxEmissions: 0, pmEmissions: 0, totalEmissions: 0 };
+        this.intersectionUtilizationTracking = {};
+        this.densityMeasurements = {};
+        this.queueLengthHistory = {};
+        this.delayMeasurements = [];
         // Settings
         this.sampleInterval = 0.5; // How often to sample speed (in simulation seconds)
         this.lastSampleTime = 0;
@@ -5999,6 +6008,15 @@ class KPICollector {
         this.intersectionThroughput = {};
         this.intersectionWaitTimes = {};
         this.intersectionQueueHistory = {};
+        // Reset new comprehensive KPI tracking
+        this.vehicleJourneyTimes = {};
+        this.vehicleStopCounts = {};
+        this.vehicleEmissions = {};
+        this.totalEmissions = { co2Emissions: 0, fuelConsumption: 0, noxEmissions: 0, pmEmissions: 0, totalEmissions: 0 };
+        this.intersectionUtilizationTracking = {};
+        this.densityMeasurements = {};
+        this.queueLengthHistory = {};
+        this.delayMeasurements = [];
         if (this.cleanupTimeout !== null) {
             clearTimeout(this.cleanupTimeout);
             this.cleanupTimeout = null;
@@ -6013,6 +6031,21 @@ class KPICollector {
             return;
         // Add to active vehicles set
         this.activeVehicles.add(vehicle.id);
+        // Initialize journey tracking
+        this.vehicleJourneyTimes[vehicle.id] = {
+            startTime: time,
+            totalDelay: 0
+        };
+        // Initialize stop count
+        this.vehicleStopCounts[vehicle.id] = 0;
+        // Initialize emissions tracking
+        this.vehicleEmissions[vehicle.id] = {
+            co2Emissions: 0,
+            fuelConsumption: 0,
+            noxEmissions: 0,
+            pmEmissions: 0,
+            totalEmissions: 0
+        };
         // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
@@ -6030,6 +6063,10 @@ class KPICollector {
             return;
         // Remove from active vehicles set
         this.activeVehicles.delete(vehicle.id);
+        // Complete journey tracking
+        if (this.vehicleJourneyTimes[vehicle.id]) {
+            this.vehicleJourneyTimes[vehicle.id].endTime = time;
+        }
         // Increment completed trips counter
         this.completedTrips++;
         // Record the vehicle event
@@ -6051,6 +6088,10 @@ class KPICollector {
         this.stoppedVehicles.add(vehicle.id);
         // Record stop timestamp for duration calculation later
         this.stoppedTimestamps[vehicle.id] = time;
+        // Increment stop count for this vehicle
+        if (this.vehicleStopCounts[vehicle.id] !== undefined) {
+            this.vehicleStopCounts[vehicle.id]++;
+        }
         // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
@@ -6074,6 +6115,12 @@ class KPICollector {
             delete this.stoppedTimestamps[vehicle.id];
             // Record wait time for statistics
             this.waitTimes.push(duration);
+            // Add to delay measurements
+            this.delayMeasurements.push(duration);
+            // Add to vehicle's total delay
+            if (this.vehicleJourneyTimes[vehicle.id]) {
+                this.vehicleJourneyTimes[vehicle.id].totalDelay += duration;
+            }
         }
         // Record the vehicle event
         this.vehicleMetrics.push({
@@ -6454,11 +6501,21 @@ class KPICollector {
             intersectionUtilization,
             roadUtilization,
             simulationTime: currentTime - this.simulationStartTime,
-            // New expanded metrics
+            // Enhanced KPIs
             laneMetrics: this.calculateLaneMetrics(),
             intersectionMetrics: this.calculateIntersectionMetrics(),
             globalThroughput: this.calculateGlobalThroughput(),
-            congestionIndex: this.calculateCongestionIndex()
+            congestionIndex: this.calculateCongestionIndex(),
+            // New comprehensive KPIs
+            averageVehicleDelay: this.calculateAverageVehicleDelay(),
+            averageTravelTime: this.calculateAverageTravelTime(),
+            averageStopFrequency: this.calculateAverageStopFrequency(),
+            totalEmissions: this.totalEmissions,
+            averageEmissionsPerVehicle: this.calculateAverageEmissionsPerVehicle(),
+            intersectionUtilizationRate: this.calculateIntersectionUtilizationRates(currentTime),
+            vehicleDensity: this.calculateVehicleDensityMetrics(),
+            levelOfService: this.calculateLevelOfServiceMetrics(),
+            queueMetrics: this.calculateQueueMetrics()
         };
     }
     /**
@@ -6659,15 +6716,49 @@ class KPICollector {
         csv += `Global Throughput (vehicles/min),${metrics.globalThroughput.toFixed(2)}\n`;
         csv += `Global Congestion Index,${metrics.congestionIndex.toFixed(2)}\n`;
         csv += `Simulation Time (s),${metrics.simulationTime.toFixed(2)}\n\n`;
+        // New comprehensive KPIs
+        csv += '# Enhanced KPI Metrics\n';
+        csv += `Average Vehicle Delay (s),${metrics.averageVehicleDelay.toFixed(2)}\n`;
+        csv += `Average Travel Time (s),${metrics.averageTravelTime.toFixed(2)}\n`;
+        csv += `Average Stop Frequency,${metrics.averageStopFrequency.toFixed(2)}\n`;
+        csv += `Total CO2 Emissions (kg),${metrics.totalEmissions.co2Emissions.toFixed(3)}\n`;
+        csv += `Total Fuel Consumption (L),${metrics.totalEmissions.fuelConsumption.toFixed(3)}\n`;
+        csv += `Total NOx Emissions (kg),${metrics.totalEmissions.noxEmissions.toFixed(3)}\n`;
+        csv += `Total PM Emissions (kg),${metrics.totalEmissions.pmEmissions.toFixed(3)}\n`;
+        csv += `Average CO2 per Vehicle (kg),${metrics.averageEmissionsPerVehicle.co2Emissions.toFixed(3)}\n`;
+        csv += `Average Fuel per Vehicle (L),${metrics.averageEmissionsPerVehicle.fuelConsumption.toFixed(3)}\n`;
+        csv += `Global Max Queue Length,${metrics.queueMetrics.globalMaxQueueLength}\n`;
+        csv += `Global Average Queue Length,${metrics.queueMetrics.globalAverageQueueLength.toFixed(2)}\n\n`;
+        // Intersection utilization rates
+        csv += '# Intersection Utilization Rates\n';
+        csv += 'Intersection ID,Utilization Rate (%),Active Time (s),Idle Time (s)\n';
+        Object.entries(metrics.intersectionUtilizationRate).forEach(([id, util]) => {
+            csv += `${id},${util.utilizationRate.toFixed(2)},${util.activeTime.toFixed(2)},${util.idleTime.toFixed(2)}\n`;
+        });
+        csv += '\n';
+        // Vehicle density metrics
+        csv += '# Vehicle Density Metrics\n';
+        csv += 'Road ID,Average Density (veh/km),Max Density (veh/km),Time Above Threshold (%)\n';
+        Object.entries(metrics.vehicleDensity).forEach(([roadId, density]) => {
+            csv += `${roadId},${density.averageDensity.toFixed(2)},${density.maxDensity.toFixed(2)},${(density.timeAboveThreshold * 100).toFixed(2)}\n`;
+        });
+        csv += '\n';
+        // Level of Service metrics
+        csv += '# Level of Service Metrics\n';
+        csv += 'Segment ID,LOS Grade,Average Delay (s),Quality Score,Description\n';
+        Object.entries(metrics.levelOfService).forEach(([segmentId, los]) => {
+            csv += `${segmentId},${los.los},${los.averageDelay.toFixed(2)},${los.qualityScore},${los.description}\n`;
+        });
+        csv += '\n';
         // Lane metrics
-        csv += '# Lane Metrics\n';
+        csv += '# Lane Performance Metrics\n';
         csv += 'Lane ID,Average Speed,Vehicle Count,Max Vehicle Count,Average Vehicle Count,Congestion Rate,Throughput,Total Vehicles Passed,Average Wait Time,Queue Length\n';
         Object.values(metrics.laneMetrics).forEach(lane => {
             csv += `${lane.laneId},${lane.averageSpeed.toFixed(2)},${lane.vehicleCount},${lane.maxVehicleCount},`;
             csv += `${lane.averageVehicleCount.toFixed(2)},${lane.congestionRate.toFixed(2)},${lane.throughput.toFixed(2)},`;
             csv += `${lane.totalVehiclesPassed},${lane.averageWaitTime.toFixed(2)},${lane.queueLength}\n`;
         });
-        csv += '\n# Intersection Metrics\n';
+        csv += '\n# Intersection Performance Metrics\n';
         csv += 'Intersection ID,Throughput,Average Wait Time,Max Wait Time,Average Queue Length,Max Queue Length,Total Vehicles Passed,Congestion Rate\n';
         Object.values(metrics.intersectionMetrics).forEach(intersection => {
             csv += `${intersection.intersectionId},${intersection.throughput.toFixed(2)},${intersection.averageWaitTime.toFixed(2)},`;
@@ -6711,14 +6802,30 @@ class KPICollector {
                 congestionIndex: metrics.congestionIndex,
                 simulationTime: metrics.simulationTime
             },
+            enhancedKPIs: {
+                averageVehicleDelay: metrics.averageVehicleDelay,
+                averageTravelTime: metrics.averageTravelTime,
+                averageStopFrequency: metrics.averageStopFrequency,
+                totalEmissions: metrics.totalEmissions,
+                averageEmissionsPerVehicle: metrics.averageEmissionsPerVehicle,
+                queueMetrics: metrics.queueMetrics
+            },
             laneMetrics: metrics.laneMetrics,
             intersectionMetrics: metrics.intersectionMetrics,
             intersectionUtilization: metrics.intersectionUtilization,
+            intersectionUtilizationRate: metrics.intersectionUtilizationRate,
             roadUtilization: metrics.roadUtilization,
+            vehicleDensity: metrics.vehicleDensity,
+            levelOfService: metrics.levelOfService,
             rawData: {
                 vehicleEvents: this.vehicleMetrics,
                 intersectionEvents: this.intersectionMetrics,
-                laneEvents: this.laneMetrics
+                laneEvents: this.laneMetrics,
+                vehicleJourneyTimes: this.vehicleJourneyTimes,
+                vehicleStopCounts: this.vehicleStopCounts,
+                vehicleEmissions: this.vehicleEmissions,
+                densityMeasurements: this.densityMeasurements,
+                queueLengthHistory: this.queueLengthHistory
             }
         };
         return JSON.stringify(exportData, null, 2);
@@ -6943,6 +7050,337 @@ class KPICollector {
         html += `<tr><td>Total event records</td><td>${this.vehicleMetrics.length}</td></tr>`;
         html += '</table></div>';
         return html;
+    }
+    /**
+     * Calculate emissions based on vehicle speed, acceleration, and driving behavior
+     * Uses a simplified but realistic model based on VSP (Vehicle Specific Power)
+     */
+    updateVehicleEmissions(vehicle, time, acceleration, delta) {
+        if (!this.isRecording || !this.vehicleEmissions[vehicle.id])
+            return;
+        const speed = vehicle.speed; // m/s
+        const mass = 1500; // Assume average car mass of 1500 kg
+        // Calculate Vehicle Specific Power (VSP) in kW/ton
+        // VSP = (v * (a + g * sin(grade) + CR * g) + 0.5 * CdA * rho * v^3) / (1000 * mass)
+        // Simplified for flat roads: VSP ≈ (v * a + drag_term) / 1000
+        const dragCoeff = 0.0003; // Simplified drag coefficient
+        const vsp = (speed * acceleration + dragCoeff * Math.pow(speed, 3)) / 1000;
+        // Base emission factors (g/s at different driving modes)
+        let co2Rate = 0; // kg/s
+        let fuelRate = 0; // L/s
+        let noxRate = 0; // kg/s
+        let pmRate = 0; // kg/s
+        if (speed < 0.1) {
+            // Idling
+            co2Rate = 0.0008; // Higher emissions when idling
+            fuelRate = 0.0003;
+            noxRate = 0.00001;
+            pmRate = 0.000005;
+        }
+        else if (acceleration > 0.5) {
+            // Accelerating
+            co2Rate = 0.002 + Math.max(0, vsp * 0.0001);
+            fuelRate = 0.0007 + Math.max(0, vsp * 0.00004);
+            noxRate = 0.00003;
+            pmRate = 0.00001;
+        }
+        else if (acceleration < -0.5) {
+            // Decelerating (lower emissions due to engine braking)
+            co2Rate = 0.0005;
+            fuelRate = 0.0002;
+            noxRate = 0.00001;
+            pmRate = 0.000003;
+        }
+        else {
+            // Cruising - emissions vary with speed
+            const speedFactor = Math.min(2.0, 0.5 + speed / 15); // Optimal around 15 m/s
+            co2Rate = 0.001 * speedFactor;
+            fuelRate = 0.0004 * speedFactor;
+            noxRate = 0.00002 * speedFactor;
+            pmRate = 0.000007 * speedFactor;
+        }
+        // Calculate emissions for this time step
+        const emissions = this.vehicleEmissions[vehicle.id];
+        const co2Increment = co2Rate * delta;
+        const fuelIncrement = fuelRate * delta;
+        const noxIncrement = noxRate * delta;
+        const pmIncrement = pmRate * delta;
+        // Update vehicle emissions
+        emissions.co2Emissions += co2Increment;
+        emissions.fuelConsumption += fuelIncrement;
+        emissions.noxEmissions += noxIncrement;
+        emissions.pmEmissions += pmIncrement;
+        emissions.totalEmissions += (co2Increment + noxIncrement * 20 + pmIncrement * 50); // Weighted environmental impact
+        // Update total emissions
+        this.totalEmissions.co2Emissions += co2Increment;
+        this.totalEmissions.fuelConsumption += fuelIncrement;
+        this.totalEmissions.noxEmissions += noxIncrement;
+        this.totalEmissions.pmEmissions += pmIncrement;
+        this.totalEmissions.totalEmissions += (co2Increment + noxIncrement * 20 + pmIncrement * 50);
+    }
+    /**
+     * Record intersection utilization when vehicles enter/exit
+     */
+    recordIntersectionUtilization(intersectionId, time, hasVehicles) {
+        if (!this.isRecording)
+            return;
+        if (!this.intersectionUtilizationTracking[intersectionId]) {
+            this.intersectionUtilizationTracking[intersectionId] = {
+                activeTime: 0,
+                totalTime: 0,
+                lastVehicleTime: 0
+            };
+        }
+        const tracking = this.intersectionUtilizationTracking[intersectionId];
+        if (hasVehicles) {
+            tracking.lastVehicleTime = time;
+        }
+        // This method should be called regularly to update total time
+        tracking.totalTime = time - this.simulationStartTime;
+    }
+    /**
+     * Sample vehicle density on roads
+     */
+    sampleVehicleDensity(roadId, vehicleCount, roadLength) {
+        if (!this.isRecording || roadLength <= 0)
+            return;
+        const density = (vehicleCount / roadLength) * 1000; // vehicles per km
+        if (!this.densityMeasurements[roadId]) {
+            this.densityMeasurements[roadId] = [];
+        }
+        this.densityMeasurements[roadId].push(density);
+    }
+    /**
+     * Record queue lengths for detailed tracking
+     */
+    recordQueueLength(locationId, queueLength, isIntersection = false) {
+        if (!this.isRecording)
+            return;
+        const key = `${isIntersection ? 'intersection' : 'lane'}_${locationId}`;
+        if (!this.queueLengthHistory[key]) {
+            this.queueLengthHistory[key] = [];
+        }
+        this.queueLengthHistory[key].push(queueLength);
+    }
+    /**
+     * Calculate Level of Service (LOS) based on HCM standards
+     */
+    calculateLevelOfService(averageDelay, averageSpeed, density) {
+        let los = 'F';
+        let qualityScore = 0;
+        let description = '';
+        // LOS calculation based on average delay (seconds) for urban streets
+        if (averageDelay <= 10) {
+            los = 'A';
+            qualityScore = 95;
+            description = 'Free flow conditions with minimal delays';
+        }
+        else if (averageDelay <= 20) {
+            los = 'B';
+            qualityScore = 85;
+            description = 'Stable flow with acceptable delays';
+        }
+        else if (averageDelay <= 35) {
+            los = 'C';
+            qualityScore = 75;
+            description = 'Stable flow with noticeable delays';
+        }
+        else if (averageDelay <= 55) {
+            los = 'D';
+            qualityScore = 65;
+            description = 'Approaching unstable flow with longer delays';
+        }
+        else if (averageDelay <= 80) {
+            los = 'E';
+            qualityScore = 45;
+            description = 'Unstable flow with significant delays';
+        }
+        else {
+            los = 'F';
+            qualityScore = 25;
+            description = 'Forced flow with excessive delays and congestion';
+        }
+        // Adjust score based on speed and density
+        if (averageSpeed < 5)
+            qualityScore -= 10;
+        if (density > 50)
+            qualityScore -= 10; // More than 50 vehicles per km
+        qualityScore = Math.max(0, Math.min(100, qualityScore));
+        return {
+            los,
+            averageDelay,
+            averageSpeed,
+            densityScore: density,
+            qualityScore,
+            description
+        };
+    }
+    /**
+     * Calculate average vehicle delay across all vehicles
+     */
+    calculateAverageVehicleDelay() {
+        if (this.delayMeasurements.length === 0)
+            return 0;
+        return this.delayMeasurements.reduce((sum, delay) => sum + delay, 0) / this.delayMeasurements.length;
+    }
+    /**
+     * Calculate average travel time for completed journeys
+     */
+    calculateAverageTravelTime() {
+        const completedJourneys = Object.values(this.vehicleJourneyTimes).filter(journey => journey.endTime !== undefined);
+        if (completedJourneys.length === 0)
+            return 0;
+        const totalTravelTime = completedJourneys.reduce((sum, journey) => {
+            return sum + (journey.endTime - journey.startTime);
+        }, 0);
+        return totalTravelTime / completedJourneys.length;
+    }
+    /**
+     * Calculate average stop frequency per vehicle
+     */
+    calculateAverageStopFrequency() {
+        const stopCounts = Object.values(this.vehicleStopCounts);
+        if (stopCounts.length === 0)
+            return 0;
+        return stopCounts.reduce((sum, count) => sum + count, 0) / stopCounts.length;
+    }
+    /**
+     * Calculate average emissions per vehicle
+     */
+    calculateAverageEmissionsPerVehicle() {
+        const vehicleEmissions = Object.values(this.vehicleEmissions);
+        if (vehicleEmissions.length === 0) {
+            return { co2Emissions: 0, fuelConsumption: 0, noxEmissions: 0, pmEmissions: 0, totalEmissions: 0 };
+        }
+        const totals = vehicleEmissions.reduce((sum, emissions) => ({
+            co2Emissions: sum.co2Emissions + emissions.co2Emissions,
+            fuelConsumption: sum.fuelConsumption + emissions.fuelConsumption,
+            noxEmissions: sum.noxEmissions + emissions.noxEmissions,
+            pmEmissions: sum.pmEmissions + emissions.pmEmissions,
+            totalEmissions: sum.totalEmissions + emissions.totalEmissions
+        }), { co2Emissions: 0, fuelConsumption: 0, noxEmissions: 0, pmEmissions: 0, totalEmissions: 0 });
+        const count = vehicleEmissions.length;
+        return {
+            co2Emissions: totals.co2Emissions / count,
+            fuelConsumption: totals.fuelConsumption / count,
+            noxEmissions: totals.noxEmissions / count,
+            pmEmissions: totals.pmEmissions / count,
+            totalEmissions: totals.totalEmissions / count
+        };
+    }
+    /**
+     * Calculate intersection utilization rates
+     */
+    calculateIntersectionUtilizationRates(currentTime) {
+        const results = {};
+        for (const [intersectionId, tracking] of Object.entries(this.intersectionUtilizationTracking)) {
+            const totalTime = currentTime - this.simulationStartTime;
+            const activeTime = Math.min(tracking.activeTime, totalTime);
+            const utilizationRate = totalTime > 0 ? (activeTime / totalTime) * 100 : 0;
+            results[intersectionId] = {
+                activeTime,
+                totalTime,
+                utilizationRate,
+                idleTime: totalTime - activeTime,
+                peakUtilization: utilizationRate // Simplified - could track peak over time
+            };
+        }
+        return results;
+    }
+    /**
+     * Calculate vehicle density metrics for all roads
+     */
+    calculateVehicleDensityMetrics() {
+        const results = {};
+        for (const [roadId, densities] of Object.entries(this.densityMeasurements)) {
+            if (densities.length === 0)
+                continue;
+            const averageDensity = densities.reduce((sum, d) => sum + d, 0) / densities.length;
+            const maxDensity = Math.max(...densities);
+            const variance = densities.reduce((sum, d) => sum + Math.pow(d - averageDensity, 2), 0) / densities.length;
+            const congestionThreshold = 25; // vehicles per km
+            const timeAboveThreshold = densities.filter(d => d > congestionThreshold).length / densities.length;
+            results[roadId] = {
+                averageDensity,
+                maxDensity,
+                densityVariance: variance,
+                congestionThreshold,
+                timeAboveThreshold
+            };
+        }
+        return results;
+    }
+    /**
+     * Calculate Level of Service metrics for all segments
+     */
+    calculateLevelOfServiceMetrics() {
+        const results = {};
+        // Calculate LOS for lanes
+        for (const [laneId, waitTimes] of Object.entries(this.laneWaitTimes)) {
+            if (waitTimes.length === 0)
+                continue;
+            const avgDelay = waitTimes.reduce((sum, time) => sum + time, 0) / waitTimes.length;
+            const avgSpeed = this.laneTotalSpeeds[laneId]
+                ? this.laneTotalSpeeds[laneId].total / this.laneTotalSpeeds[laneId].count
+                : 0;
+            const density = this.densityMeasurements[laneId]
+                ? this.densityMeasurements[laneId].reduce((sum, d) => sum + d, 0) / this.densityMeasurements[laneId].length
+                : 0;
+            results[`lane_${laneId}`] = this.calculateLevelOfService(avgDelay, avgSpeed, density);
+        }
+        // Calculate LOS for intersections
+        for (const [intersectionId, waitTimes] of Object.entries(this.intersectionWaitTimes)) {
+            if (waitTimes.length === 0)
+                continue;
+            const avgDelay = waitTimes.reduce((sum, time) => sum + time, 0) / waitTimes.length;
+            const queueHistory = this.intersectionQueueHistory[intersectionId] || [];
+            const avgQueue = queueHistory.length > 0
+                ? queueHistory.reduce((sum, q) => sum + q, 0) / queueHistory.length
+                : 0;
+            results[`intersection_${intersectionId}`] = this.calculateLevelOfService(avgDelay, 0, avgQueue);
+        }
+        return results;
+    }
+    /**
+     * Calculate comprehensive queue metrics
+     */
+    calculateQueueMetrics() {
+        const allQueueLengths = [];
+        const queuesByIntersection = {};
+        const queuesByLane = {};
+        // Process intersection queues
+        for (const [intersectionId, queueHistory] of Object.entries(this.intersectionQueueHistory)) {
+            allQueueLengths.push(...queueHistory);
+            queuesByIntersection[intersectionId] = {
+                maxQueueLength: queueHistory.length > 0 ? Math.max(...queueHistory) : 0,
+                averageQueueLength: queueHistory.length > 0 ? queueHistory.reduce((sum, q) => sum + q, 0) / queueHistory.length : 0,
+                totalQueueTime: queueHistory.reduce((sum, q) => sum + q, 0),
+                queueFormationEvents: queueHistory.filter((q, i) => i > 0 && queueHistory[i - 1] === 0 && q > 0).length,
+                queueDissipationEvents: queueHistory.filter((q, i) => i > 0 && queueHistory[i - 1] > 0 && q === 0).length
+            };
+        }
+        // Process lane queues from history
+        for (const [key, queueHistory] of Object.entries(this.queueLengthHistory)) {
+            if (key.startsWith('lane_')) {
+                const laneId = key.substring(5);
+                allQueueLengths.push(...queueHistory);
+                queuesByLane[laneId] = {
+                    maxQueueLength: queueHistory.length > 0 ? Math.max(...queueHistory) : 0,
+                    averageQueueLength: queueHistory.length > 0 ? queueHistory.reduce((sum, q) => sum + q, 0) / queueHistory.length : 0,
+                    totalQueueTime: queueHistory.reduce((sum, q) => sum + q, 0),
+                    queueFormationEvents: queueHistory.filter((q, i) => i > 0 && queueHistory[i - 1] === 0 && q > 0).length,
+                    queueDissipationEvents: queueHistory.filter((q, i) => i > 0 && queueHistory[i - 1] > 0 && q === 0).length
+                };
+            }
+        }
+        return {
+            globalMaxQueueLength: allQueueLengths.length > 0 ? Math.max(...allQueueLengths) : 0,
+            globalAverageQueueLength: allQueueLengths.length > 0 ? allQueueLengths.reduce((sum, q) => sum + q, 0) / allQueueLengths.length : 0,
+            totalQueueTime: allQueueLengths.reduce((sum, q) => sum + q, 0),
+            averageQueueTime: allQueueLengths.length > 0 ? allQueueLengths.reduce((sum, q) => sum + q, 0) / allQueueLengths.length : 0,
+            queuesByIntersection,
+            queuesByLane
+        };
     }
 }
 exports.KPICollector = KPICollector;
@@ -7965,147 +8403,6 @@ exports.AdaptiveTimingStrategy = AdaptiveTimingStrategy;
 
 /***/ }),
 
-/***/ "./src/model/traffic-control/AllRedFlashingStrategy.ts":
-/*!*************************************************************!*\
-  !*** ./src/model/traffic-control/AllRedFlashingStrategy.ts ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-/**
- * AllRedFlashingStrategy
- *
- * A special traffic control strategy that simulates an emergency mode where all
- * signals flash red, requiring vehicles to treat the intersection as an all-way stop.
- */
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AllRedFlashingStrategy = void 0;
-const AbstractTrafficControlStrategy_1 = __webpack_require__(/*! ./AbstractTrafficControlStrategy */ "./src/model/traffic-control/AbstractTrafficControlStrategy.ts");
-/**
- * All-Red Flashing Strategy
- * Simulates emergency conditions or power outage at intersection
- */
-class AllRedFlashingStrategy extends AbstractTrafficControlStrategy_1.AbstractTrafficControlStrategy {
-    constructor() {
-        super();
-        this.strategyType = 'all-red-flashing';
-        this.displayName = 'All-Red Flashing';
-        this.description = 'All approaches flash red - simulates emergency conditions';
-        // Track whether signals are currently visible or not (for flashing effect)
-        this.signalsVisible = true;
-        // Flashing interval in seconds
-        this.flashInterval = 1.0; // 1 second on, 1 second off
-        this.timeInFlashState = 0;
-        this.totalPhases = 1; // Only one phase (all red)
-        this.configOptions = {
-            flashInterval: this.flashInterval
-        };
-    }
-    /**
-     * Update the traffic signals with flashing behavior
-     */
-    update(delta, trafficStates) {
-        // Update flash timing
-        this.timeInFlashState += delta;
-        if (this.timeInFlashState >= this.flashInterval) {
-            this.timeInFlashState = 0;
-            this.signalsVisible = !this.signalsVisible;
-        }
-        // Return the signal state
-        return this.getSignalStates();
-    }
-    /**
-     * Update configuration options
-     */
-    updateConfig(options) {
-        super.updateConfig(options);
-        if (options.flashInterval !== undefined) {
-            this.flashInterval = options.flashInterval;
-        }
-    }
-    /**
-     * Get the current signal states - all red or all off depending on flash state
-     */
-    getSignalStates() {
-        // If not visible in current flash state, return all off
-        if (!this.signalsVisible) {
-            return [
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0]
-            ];
-        }
-        // Otherwise, all approaches are red (no movements allowed)
-        return [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
-        ];
-    }
-    /**
-     * Create from JSON (static method)
-     */
-    static fromJSON(data, intersection) {
-        const strategy = new AllRedFlashingStrategy();
-        // Restore state from saved data
-        strategy.flashInterval = data.flashInterval || strategy.flashInterval;
-        strategy.signalsVisible = data.signalsVisible !== undefined ? data.signalsVisible : true;
-        strategy.timeInFlashState = data.timeInFlashState || 0;
-        // Apply configuration options
-        if (data.configOptions) {
-            strategy.updateConfig(data.configOptions);
-        }
-        strategy.initialize(intersection);
-        return strategy;
-    }
-    /**
-     * Create from JSON (instance method)
-     */
-    fromJSON(data, intersection) {
-        // Initialize with the intersection
-        this.initialize(intersection);
-        // Restore state from saved data
-        if (data.flashInterval !== undefined) {
-            this.flashInterval = data.flashInterval;
-        }
-        if (data.signalsVisible !== undefined) {
-            this.signalsVisible = data.signalsVisible;
-        }
-        if (data.timeInFlashState !== undefined) {
-            this.timeInFlashState = data.timeInFlashState;
-        }
-        // Restore common properties
-        if (data.currentPhase !== undefined) {
-            this.currentPhase = data.currentPhase;
-        }
-        if (data.timeInPhase !== undefined) {
-            this.timeInPhase = data.timeInPhase;
-        }
-        // Apply configuration options
-        if (data.configOptions) {
-            this.configOptions = { ...this.configOptions, ...data.configOptions };
-        }
-        return this;
-    }
-    /**
-     * Convert to JSON
-     */
-    toJSON() {
-        return {
-            ...super.toJSON(),
-            flashInterval: this.flashInterval,
-            signalsVisible: this.signalsVisible,
-            timeInFlashState: this.timeInFlashState
-        };
-    }
-}
-exports.AllRedFlashingStrategy = AllRedFlashingStrategy;
-
-
-/***/ }),
-
 /***/ "./src/model/traffic-control/FixedTimingStrategy.ts":
 /*!**********************************************************!*\
   !*** ./src/model/traffic-control/FixedTimingStrategy.ts ***!
@@ -8445,7 +8742,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.trafficControlStrategyManager = exports.TrafficControlStrategyManager = void 0;
 const FixedTimingStrategy_1 = __webpack_require__(/*! ./FixedTimingStrategy */ "./src/model/traffic-control/FixedTimingStrategy.ts");
 const AdaptiveTimingStrategy_1 = __webpack_require__(/*! ./AdaptiveTimingStrategy */ "./src/model/traffic-control/AdaptiveTimingStrategy.ts");
-const AllRedFlashingStrategy_1 = __webpack_require__(/*! ./AllRedFlashingStrategy */ "./src/model/traffic-control/AllRedFlashingStrategy.ts");
 const TrafficEnforcerStrategy_1 = __webpack_require__(/*! ./TrafficEnforcerStrategy */ "./src/model/traffic-control/TrafficEnforcerStrategy.ts");
 /**
  * Manages traffic control strategies in the simulation
@@ -8464,7 +8760,6 @@ class TrafficControlStrategyManager {
         // Register all available strategies
         this.registerStrategy('fixed-timing', FixedTimingStrategy_1.FixedTimingStrategy);
         this.registerStrategy('adaptive-timing', AdaptiveTimingStrategy_1.AdaptiveTimingStrategy);
-        this.registerStrategy('all-red-flashing', AllRedFlashingStrategy_1.AllRedFlashingStrategy);
         this.registerStrategy('traffic-enforcer', TrafficEnforcerStrategy_1.TrafficEnforcerStrategy);
         // Initialize default strategy settings
         this.initializeDefaultSettings();
@@ -8484,9 +8779,6 @@ class TrafficControlStrategyManager {
             yellowTime: 3,
             vehicleWeightFactor: 1.0,
             waitTimeWeightFactor: 0.5,
-        });
-        this.strategySettings.set('all-red-flashing', {
-            flashInterval: 1.0, // Flash interval in seconds
         });
         this.strategySettings.set('traffic-enforcer', {
             decisionInterval: 5,

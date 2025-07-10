@@ -18,7 +18,6 @@ The Road Traffic Simulator is an advanced web-based simulation tool for modeling
 - Multiple implemented strategies:
   - Fixed Timing Strategy
   - Adaptive Timing Strategy
-  - All-Red Flashing Strategy
   - Traffic Enforcer Strategy
 - Real-time strategy switching during simulation
 - Configurable parameters for each strategy

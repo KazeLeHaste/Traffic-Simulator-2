@@ -6,7 +6,7 @@ This document provides instructions for integrating the new modular traffic cont
 
 The new traffic control system provides a flexible, modular approach to controlling traffic signals at intersections. Key features include:
 
-- Multiple traffic control strategies (Fixed Timing, Adaptive, All-Red Flashing)
+- Multiple traffic control strategies (Fixed Timing, Adaptive, Traffic Enforcer)
 - Extensible design for adding new strategies
 - Configuration options for fine-tuning each strategy
 - Backward compatibility with existing code

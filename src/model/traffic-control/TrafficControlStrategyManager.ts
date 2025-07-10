@@ -9,7 +9,6 @@ import Intersection = require('../intersection');
 import { ITrafficControlStrategy } from './ITrafficControlStrategy';
 import { FixedTimingStrategy } from './FixedTimingStrategy';
 import { AdaptiveTimingStrategy } from './AdaptiveTimingStrategy';
-import { AllRedFlashingStrategy } from './AllRedFlashingStrategy';
 import { TrafficEnforcerStrategy } from './TrafficEnforcerStrategy';
 
 /**
@@ -39,7 +38,6 @@ export class TrafficControlStrategyManager {
     // Register all available strategies
     this.registerStrategy('fixed-timing', FixedTimingStrategy);
     this.registerStrategy('adaptive-timing', AdaptiveTimingStrategy);
-    this.registerStrategy('all-red-flashing', AllRedFlashingStrategy);
     this.registerStrategy('traffic-enforcer', TrafficEnforcerStrategy);
     
     // Initialize default strategy settings
@@ -62,10 +60,6 @@ export class TrafficControlStrategyManager {
       yellowTime: 3,
       vehicleWeightFactor: 1.0,
       waitTimeWeightFactor: 0.5,
-    });
-    
-    this.strategySettings.set('all-red-flashing', {
-      flashInterval: 1.0, // Flash interval in seconds
     });
     
     this.strategySettings.set('traffic-enforcer', {

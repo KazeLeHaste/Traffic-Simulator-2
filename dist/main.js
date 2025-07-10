@@ -18934,7 +18934,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/**
   border: 1px solid #444;
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-  max-width: 600px;
+  max-width: 450px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
@@ -18998,6 +18998,30 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/**
   margin-top: 4px;
 }
 
+/* Current settings list */
+.benchmark-config-dialog .current-settings-list {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  list-style-type: none;
+}
+
+.benchmark-config-dialog .current-settings-list li {
+  margin: 5px 0;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.benchmark-config-dialog .current-settings-list li:last-child {
+  border-bottom: none;
+}
+
+.benchmark-config-dialog .current-settings-list strong {
+  color: #66b0ff;
+  margin-right: 5px;
+}
+
 /* Dialog footer */
 .benchmark-config-dialog .dialog-footer {
   padding: 15px 20px;
@@ -19026,7 +19050,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/**
     transform: translateY(0);
   }
 }
-`, "",{"version":3,"sources":["webpack://./css/benchmark-configuration.css"],"names":[],"mappings":"AAAA;;;;EAIE;;AAEF,mBAAmB;AACnB;EACE,eAAe;EACf,MAAM;EACN,OAAO;EACP,WAAW;EACX,YAAY;EACZ,oCAAoC;EACpC,aAAa;EACb,aAAa;EACb,uBAAuB;EACvB,mBAAmB;EACnB,+BAA+B;AACjC;;AAEA,mBAAmB;AACnB;EACE,yBAAyB;EACzB,cAAc;EACd,sBAAsB;EACtB,kBAAkB;EAClB,yCAAyC;EACzC,gBAAgB;EAChB,WAAW;EACX,gBAAgB;EAChB,gBAAgB;EAChB,gCAAgC;AAClC;;AAEA,kBAAkB;AAClB;EACE,aAAa;EACb,8BAA8B;EAC9B,mBAAmB;EACnB,kBAAkB;EAClB,6BAA6B;EAC7B,sBAAsB;EACtB,2BAA2B;EAC3B,4BAA4B;AAC9B;;AAEA,iBAAiB;AACjB;EACE,gBAAgB;EAChB,YAAY;EACZ,eAAe;EACf,eAAe;EACf,WAAW;AACb;;AAEA;EACE,WAAW;AACb;;AAEA,gBAAgB;AAChB;EACE,aAAa;AACf;;AAEA,gBAAgB;AAChB;EACE,mBAAmB;AACrB;;AAEA;EACE,cAAc;EACd,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;EACE,WAAW;EACX,iBAAiB;EACjB,eAAe;EACf,sBAAsB;EACtB,kBAAkB;EAClB,yBAAyB;EACzB,cAAc;AAChB;;AAEA;EACE,eAAe;EACf,WAAW;EACX,eAAe;AACjB;;AAEA,kBAAkB;AAClB;EACE,kBAAkB;EAClB,0BAA0B;EAC1B,sBAAsB;EACtB,aAAa;EACb,yBAAyB;EACzB,SAAS;EACT,8BAA8B;EAC9B,+BAA+B;AACjC;;AAEA,wBAAwB;AACxB;EACE,OAAO,UAAU,EAAE;EACnB,KAAK,UAAU,EAAE;AACnB;;AAEA;EACE;IACE,UAAU;IACV,4BAA4B;EAC9B;EACA;IACE,UAAU;IACV,wBAAwB;EAC1B;AACF","sourcesContent":["/**\r\n * Benchmark Configuration Component Styles\r\n * \r\n * This file contains styles for the benchmark configuration modal\r\n */\r\n\r\n/* Dialog overlay */\r\n.benchmark-config-dialog {\r\n  position: fixed;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background-color: rgba(0, 0, 0, 0.7);\r\n  z-index: 1000;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  animation: fadeIn 0.2s ease-out;\r\n}\r\n\r\n/* Dialog content */\r\n.benchmark-config-dialog .dialog-content {\r\n  background-color: #2b2b2b;\r\n  color: #e9e9e9;\r\n  border: 1px solid #444;\r\n  border-radius: 8px;\r\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);\r\n  max-width: 600px;\r\n  width: 100%;\r\n  max-height: 90vh;\r\n  overflow-y: auto;\r\n  animation: slideIn 0.3s ease-out;\r\n}\r\n\r\n/* Dialog header */\r\n.benchmark-config-dialog .dialog-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  padding: 15px 20px;\r\n  border-bottom: 1px solid #444;\r\n  background-color: #333;\r\n  border-top-left-radius: 8px;\r\n  border-top-right-radius: 8px;\r\n}\r\n\r\n/* Close button */\r\n.benchmark-config-dialog .close-btn {\r\n  background: none;\r\n  border: none;\r\n  font-size: 24px;\r\n  cursor: pointer;\r\n  color: #999;\r\n}\r\n\r\n.benchmark-config-dialog .close-btn:hover {\r\n  color: #fff;\r\n}\r\n\r\n/* Dialog body */\r\n.benchmark-config-dialog .dialog-body {\r\n  padding: 20px;\r\n}\r\n\r\n/* Form groups */\r\n.benchmark-config-dialog .form-group {\r\n  margin-bottom: 20px;\r\n}\r\n\r\n.benchmark-config-dialog label {\r\n  display: block;\r\n  margin-bottom: 6px;\r\n  font-weight: 500;\r\n}\r\n\r\n.benchmark-config-dialog .form-control {\r\n  width: 100%;\r\n  padding: 8px 12px;\r\n  font-size: 14px;\r\n  border: 1px solid #555;\r\n  border-radius: 4px;\r\n  background-color: #3a3a3a;\r\n  color: #e9e9e9;\r\n}\r\n\r\n.benchmark-config-dialog .form-text {\r\n  font-size: 12px;\r\n  color: #aaa;\r\n  margin-top: 4px;\r\n}\r\n\r\n/* Dialog footer */\r\n.benchmark-config-dialog .dialog-footer {\r\n  padding: 15px 20px;\r\n  border-top: 1px solid #444;\r\n  background-color: #333;\r\n  display: flex;\r\n  justify-content: flex-end;\r\n  gap: 10px;\r\n  border-bottom-left-radius: 8px;\r\n  border-bottom-right-radius: 8px;\r\n}\r\n\r\n/* Animation keyframes */\r\n@keyframes fadeIn {\r\n  from { opacity: 0; }\r\n  to { opacity: 1; }\r\n}\r\n\r\n@keyframes slideIn {\r\n  from { \r\n    opacity: 0;\r\n    transform: translateY(-20px);\r\n  }\r\n  to { \r\n    opacity: 1;\r\n    transform: translateY(0);\r\n  }\r\n}\r\n"],"sourceRoot":""}]);
+`, "",{"version":3,"sources":["webpack://./css/benchmark-configuration.css"],"names":[],"mappings":"AAAA;;;;EAIE;;AAEF,mBAAmB;AACnB;EACE,eAAe;EACf,MAAM;EACN,OAAO;EACP,WAAW;EACX,YAAY;EACZ,oCAAoC;EACpC,aAAa;EACb,aAAa;EACb,uBAAuB;EACvB,mBAAmB;EACnB,+BAA+B;AACjC;;AAEA,mBAAmB;AACnB;EACE,yBAAyB;EACzB,cAAc;EACd,sBAAsB;EACtB,kBAAkB;EAClB,yCAAyC;EACzC,gBAAgB;EAChB,WAAW;EACX,gBAAgB;EAChB,gBAAgB;EAChB,gCAAgC;AAClC;;AAEA,kBAAkB;AAClB;EACE,aAAa;EACb,8BAA8B;EAC9B,mBAAmB;EACnB,kBAAkB;EAClB,6BAA6B;EAC7B,sBAAsB;EACtB,2BAA2B;EAC3B,4BAA4B;AAC9B;;AAEA,iBAAiB;AACjB;EACE,gBAAgB;EAChB,YAAY;EACZ,eAAe;EACf,eAAe;EACf,WAAW;AACb;;AAEA;EACE,WAAW;AACb;;AAEA,gBAAgB;AAChB;EACE,aAAa;AACf;;AAEA,gBAAgB;AAChB;EACE,mBAAmB;AACrB;;AAEA;EACE,cAAc;EACd,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;EACE,WAAW;EACX,iBAAiB;EACjB,eAAe;EACf,sBAAsB;EACtB,kBAAkB;EAClB,yBAAyB;EACzB,cAAc;AAChB;;AAEA;EACE,eAAe;EACf,WAAW;EACX,eAAe;AACjB;;AAEA,0BAA0B;AAC1B;EACE,oCAAoC;EACpC,kBAAkB;EAClB,kBAAkB;EAClB,mBAAmB;EACnB,qBAAqB;AACvB;;AAEA;EACE,aAAa;EACb,cAAc;EACd,iDAAiD;AACnD;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,cAAc;EACd,iBAAiB;AACnB;;AAEA,kBAAkB;AAClB;EACE,kBAAkB;EAClB,0BAA0B;EAC1B,sBAAsB;EACtB,aAAa;EACb,yBAAyB;EACzB,SAAS;EACT,8BAA8B;EAC9B,+BAA+B;AACjC;;AAEA,wBAAwB;AACxB;EACE,OAAO,UAAU,EAAE;EACnB,KAAK,UAAU,EAAE;AACnB;;AAEA;EACE;IACE,UAAU;IACV,4BAA4B;EAC9B;EACA;IACE,UAAU;IACV,wBAAwB;EAC1B;AACF","sourcesContent":["/**\r\n * Benchmark Configuration Component Styles\r\n * \r\n * This file contains styles for the benchmark configuration modal\r\n */\r\n\r\n/* Dialog overlay */\r\n.benchmark-config-dialog {\r\n  position: fixed;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background-color: rgba(0, 0, 0, 0.7);\r\n  z-index: 1000;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  animation: fadeIn 0.2s ease-out;\r\n}\r\n\r\n/* Dialog content */\r\n.benchmark-config-dialog .dialog-content {\r\n  background-color: #2b2b2b;\r\n  color: #e9e9e9;\r\n  border: 1px solid #444;\r\n  border-radius: 8px;\r\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);\r\n  max-width: 450px;\r\n  width: 100%;\r\n  max-height: 90vh;\r\n  overflow-y: auto;\r\n  animation: slideIn 0.3s ease-out;\r\n}\r\n\r\n/* Dialog header */\r\n.benchmark-config-dialog .dialog-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  padding: 15px 20px;\r\n  border-bottom: 1px solid #444;\r\n  background-color: #333;\r\n  border-top-left-radius: 8px;\r\n  border-top-right-radius: 8px;\r\n}\r\n\r\n/* Close button */\r\n.benchmark-config-dialog .close-btn {\r\n  background: none;\r\n  border: none;\r\n  font-size: 24px;\r\n  cursor: pointer;\r\n  color: #999;\r\n}\r\n\r\n.benchmark-config-dialog .close-btn:hover {\r\n  color: #fff;\r\n}\r\n\r\n/* Dialog body */\r\n.benchmark-config-dialog .dialog-body {\r\n  padding: 20px;\r\n}\r\n\r\n/* Form groups */\r\n.benchmark-config-dialog .form-group {\r\n  margin-bottom: 20px;\r\n}\r\n\r\n.benchmark-config-dialog label {\r\n  display: block;\r\n  margin-bottom: 6px;\r\n  font-weight: 500;\r\n}\r\n\r\n.benchmark-config-dialog .form-control {\r\n  width: 100%;\r\n  padding: 8px 12px;\r\n  font-size: 14px;\r\n  border: 1px solid #555;\r\n  border-radius: 4px;\r\n  background-color: #3a3a3a;\r\n  color: #e9e9e9;\r\n}\r\n\r\n.benchmark-config-dialog .form-text {\r\n  font-size: 12px;\r\n  color: #aaa;\r\n  margin-top: 4px;\r\n}\r\n\r\n/* Current settings list */\r\n.benchmark-config-dialog .current-settings-list {\r\n  background-color: rgba(0, 0, 0, 0.2);\r\n  border-radius: 4px;\r\n  padding: 10px 15px;\r\n  margin-bottom: 15px;\r\n  list-style-type: none;\r\n}\r\n\r\n.benchmark-config-dialog .current-settings-list li {\r\n  margin: 5px 0;\r\n  padding: 3px 0;\r\n  border-bottom: 1px solid rgba(255, 255, 255, 0.1);\r\n}\r\n\r\n.benchmark-config-dialog .current-settings-list li:last-child {\r\n  border-bottom: none;\r\n}\r\n\r\n.benchmark-config-dialog .current-settings-list strong {\r\n  color: #66b0ff;\r\n  margin-right: 5px;\r\n}\r\n\r\n/* Dialog footer */\r\n.benchmark-config-dialog .dialog-footer {\r\n  padding: 15px 20px;\r\n  border-top: 1px solid #444;\r\n  background-color: #333;\r\n  display: flex;\r\n  justify-content: flex-end;\r\n  gap: 10px;\r\n  border-bottom-left-radius: 8px;\r\n  border-bottom-right-radius: 8px;\r\n}\r\n\r\n/* Animation keyframes */\r\n@keyframes fadeIn {\r\n  from { opacity: 0; }\r\n  to { opacity: 1; }\r\n}\r\n\r\n@keyframes slideIn {\r\n  from { \r\n    opacity: 0;\r\n    transform: translateY(-20px);\r\n  }\r\n  to { \r\n    opacity: 1;\r\n    transform: translateY(0);\r\n  }\r\n}\r\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -19875,22 +19899,269 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* KPI Visualization Component Styles 
   text-align: center;
 }
 
-/* Responsive design */
+/* Enhanced KPI Styles */
+.enhanced-kpi-table td:first-child {
+  font-weight: 600;
+  color: #4CAF50;
+}
+
+.emissions-table td:first-child {
+  font-weight: 600;
+  color: #FF9800;
+}
+
+/* Level of Service Indicators */
+.los-grade {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
+  min-width: 30px;
+}
+
+.los-A { background-color: #4CAF50; color: white; }
+.los-B { background-color: #8BC34A; color: white; }
+.los-C { background-color: #FFEB3B; color: black; }
+.los-D { background-color: #FF9800; color: white; }
+.los-E { background-color: #FF5722; color: white; }
+.los-F { background-color: #F44336; color: white; }
+
+/* Utilization Indicators */
+.utilization-indicator {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: white;
+  font-weight: bold;
+  min-width: 50px;
+  text-align: center;
+}
+
+.density-indicator {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: white;
+  font-weight: bold;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* Enhanced Table Sections */
+.table-section {
+  margin-bottom: 32px;
+  background: #252525;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.table-section h4 {
+  margin: 0 0 16px 0;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 2px solid #4CAF50;
+  padding-bottom: 8px;
+}
+
+/* Enhanced Table Controls */
+.table-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.table-controls .form-control {
+  background: #1a1a1a;
+  border: 1px solid #404040;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.table-controls .form-control:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.table-controls .form-control::placeholder {
+  color: #888;
+}
+
+/* Enhanced Interactive Tables */
+.interactive-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1a1a1a;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.interactive-table th {
+  background: #333333;
+  color: #ffffff;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 2px solid #4CAF50;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.interactive-table th:hover {
+  background: #404040;
+}
+
+.interactive-table th[data-sort]:hover::after {
+  content: ' ↕';
+  color: #4CAF50;
+}
+
+.interactive-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #404040;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.interactive-table tbody tr:hover {
+  background: #2a2a2a;
+}
+
+.interactive-table tbody tr:nth-child(even) {
+  background: #222222;
+}
+
+.interactive-table tbody tr:nth-child(even):hover {
+  background: #2a2a2a;
+}
+
+/* Enhanced Summary Grid */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #2C2C2C 0%, #1F1F1F 100%);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #404040;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800);
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  border-color: #4CAF50;
+}
+
+.card-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #4CAF50;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.card-label {
+  font-size: 14px;
+  color: #CCCCCC;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.card-change {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card-change.positive {
+  color: #4CAF50;
+}
+
+.card-change.negative {
+  color: #F44336;
+}
+
+.card-change.neutral {
+  color: #9E9E9E;
+}
+
+/* Enhanced Chart Containers */
+.chart-section {
+  margin-bottom: 32px;
+  background: #252525;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.chart-section h4 {
+  margin: 0 0 20px 0;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  border-bottom: 2px solid #2196F3;
+  padding-bottom: 8px;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.chart-container {
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 16px;
+  border: 1px solid #404040;
+  height: 300px;
+  position: relative;
+}
+
+.chart-container canvas {
+  max-height: 100%;
+  max-width: 100%;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .kpi-header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
+    align-items: stretch;
   }
   
   .kpi-controls {
-    width: 100%;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    justify-content: center;
   }
   
   .summary-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
   }
   
@@ -19905,16 +20176,14 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* KPI Visualization Component Styles 
   
   .table-controls {
     flex-direction: column;
-    align-items: stretch;
   }
   
   .table-wrapper {
     overflow-x: auto;
   }
   
-  .comparison-controls {
-    flex-direction: column;
-    align-items: stretch;
+  .interactive-table {
+    min-width: 600px;
   }
 }
 
@@ -19977,7 +20246,143 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* KPI Visualization Component Styles 
 .validation-formatted::-webkit-scrollbar-thumb:hover {
   background: #555555;
 }
-`, "",{"version":3,"sources":["webpack://./css/kpi-visualization.css"],"names":[],"mappings":"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","sourcesContent":["/* KPI Visualization Component Styles */\r\n\r\n.kpi-visualization {\r\n  padding: 20px;\r\n  background: #1a1a1a;\r\n  color: #ffffff;\r\n  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\r\n}\r\n\r\n/* Header */\r\n.kpi-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 24px;\r\n  padding-bottom: 16px;\r\n  border-bottom: 1px solid #404040;\r\n}\r\n\r\n.kpi-header h3 {\r\n  margin: 0;\r\n  color: #ffffff;\r\n  font-size: 24px;\r\n  font-weight: 600;\r\n}\r\n\r\n.kpi-controls {\r\n  display: flex;\r\n  gap: 8px;\r\n}\r\n\r\n.kpi-controls .btn {\r\n  padding: 6px 12px;\r\n  font-size: 12px;\r\n  border-radius: 4px;\r\n  border: none;\r\n  cursor: pointer;\r\n  transition: all 0.2s ease;\r\n}\r\n\r\n.kpi-controls .btn:hover {\r\n  opacity: 0.8;\r\n  transform: translateY(-1px);\r\n}\r\n\r\n/* Summary Cards */\r\n.kpi-summary {\r\n  margin-bottom: 32px;\r\n}\r\n\r\n.summary-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\r\n  gap: 16px;\r\n  margin-bottom: 24px;\r\n}\r\n\r\n.summary-card {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  text-align: center;\r\n  transition: all 0.2s ease;\r\n}\r\n\r\n.summary-card:hover {\r\n  border-color: #2196F3;\r\n  transform: translateY(-2px);\r\n  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);\r\n}\r\n\r\n.summary-card .card-value {\r\n  font-size: 32px;\r\n  font-weight: 700;\r\n  color: #2196F3;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.summary-card .card-label {\r\n  font-size: 14px;\r\n  color: #cccccc;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n.summary-card .card-change {\r\n  font-size: 12px;\r\n  font-weight: 500;\r\n}\r\n\r\n.summary-card .card-change.positive {\r\n  color: #4CAF50;\r\n}\r\n\r\n.summary-card .card-change.negative {\r\n  color: #F44336;\r\n}\r\n\r\n.summary-card .card-change.neutral {\r\n  color: #999999;\r\n}\r\n\r\n/* Charts */\r\n.kpi-charts {\r\n  margin-bottom: 32px;\r\n}\r\n\r\n.chart-section h4 {\r\n  margin-bottom: 20px;\r\n  color: #ffffff;\r\n  font-size: 20px;\r\n  font-weight: 600;\r\n}\r\n\r\n.chart-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));\r\n  gap: 20px;\r\n}\r\n\r\n.chart-container {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  padding: 16px;\r\n  height: 300px;\r\n  position: relative;\r\n}\r\n\r\n.chart-container canvas {\r\n  width: 100% !important;\r\n  height: 100% !important;\r\n}\r\n\r\n/* Tables */\r\n.kpi-tables {\r\n  margin-bottom: 32px;\r\n}\r\n\r\n.table-section {\r\n  margin-bottom: 32px;\r\n}\r\n\r\n.table-section h4 {\r\n  margin-bottom: 16px;\r\n  color: #ffffff;\r\n  font-size: 18px;\r\n  font-weight: 600;\r\n}\r\n\r\n.table-controls {\r\n  display: flex;\r\n  gap: 12px;\r\n  margin-bottom: 16px;\r\n  align-items: center;\r\n}\r\n\r\n.table-controls .form-control {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 4px;\r\n  padding: 8px 12px;\r\n  color: #ffffff;\r\n  font-size: 14px;\r\n}\r\n\r\n.table-controls .form-control:focus {\r\n  outline: none;\r\n  border-color: #2196F3;\r\n  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);\r\n}\r\n\r\n.table-controls input.form-control {\r\n  flex: 1;\r\n  max-width: 300px;\r\n}\r\n\r\n.table-controls select.form-control {\r\n  min-width: 150px;\r\n}\r\n\r\n.table-wrapper {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  overflow: hidden;\r\n}\r\n\r\n.interactive-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n  background: transparent;\r\n}\r\n\r\n.interactive-table thead {\r\n  background: #404040;\r\n}\r\n\r\n.interactive-table th {\r\n  padding: 12px 16px;\r\n  text-align: left;\r\n  font-weight: 600;\r\n  color: #ffffff;\r\n  border-bottom: 1px solid #555555;\r\n  cursor: pointer;\r\n  transition: background-color 0.2s ease;\r\n  position: relative;\r\n}\r\n\r\n.interactive-table th:hover {\r\n  background: #4a4a4a;\r\n}\r\n\r\n.interactive-table th[data-sort]::after {\r\n  content: '↕';\r\n  position: absolute;\r\n  right: 8px;\r\n  opacity: 0.6;\r\n  font-size: 12px;\r\n}\r\n\r\n.interactive-table th[data-sort]:hover::after {\r\n  opacity: 1;\r\n}\r\n\r\n.interactive-table td {\r\n  padding: 12px 16px;\r\n  border-bottom: 1px solid #404040;\r\n  color: #cccccc;\r\n  font-size: 14px;\r\n}\r\n\r\n.interactive-table tbody tr:hover {\r\n  background: rgba(33, 150, 243, 0.1);\r\n}\r\n\r\n.interactive-table tbody tr:nth-child(even) {\r\n  background: rgba(255, 255, 255, 0.02);\r\n}\r\n\r\n.interactive-table tbody tr:nth-child(even):hover {\r\n  background: rgba(33, 150, 243, 0.1);\r\n}\r\n\r\n/* Congestion indicators */\r\n.congestion-indicator {\r\n  display: inline-block;\r\n  padding: 4px 8px;\r\n  border-radius: 12px;\r\n  color: #ffffff;\r\n  font-weight: 500;\r\n  font-size: 12px;\r\n  min-width: 50px;\r\n  text-align: center;\r\n}\r\n\r\n/* Comparison Panel */\r\n.comparison-panel {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  margin-bottom: 24px;\r\n}\r\n\r\n.comparison-panel h4 {\r\n  margin-bottom: 16px;\r\n  color: #ffffff;\r\n  font-size: 18px;\r\n  font-weight: 600;\r\n}\r\n\r\n.comparison-controls {\r\n  display: flex;\r\n  gap: 12px;\r\n  margin-bottom: 20px;\r\n  align-items: center;\r\n}\r\n\r\n.comparison-controls .form-control {\r\n  background: #1a1a1a;\r\n  border: 1px solid #404040;\r\n  border-radius: 4px;\r\n  padding: 8px 12px;\r\n  color: #ffffff;\r\n  font-size: 14px;\r\n  flex: 1;\r\n  max-width: 300px;\r\n}\r\n\r\n.comparison-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n  background: #1a1a1a;\r\n  border-radius: 6px;\r\n  overflow: hidden;\r\n}\r\n\r\n.comparison-table th,\r\n.comparison-table td {\r\n  padding: 12px 16px;\r\n  text-align: left;\r\n  border-bottom: 1px solid #404040;\r\n}\r\n\r\n.comparison-table th {\r\n  background: #404040;\r\n  font-weight: 600;\r\n  color: #ffffff;\r\n}\r\n\r\n.comparison-table td {\r\n  color: #cccccc;\r\n}\r\n\r\n.comparison-table .diff-positive {\r\n  color: #4CAF50;\r\n  font-weight: 600;\r\n}\r\n\r\n.comparison-table .diff-negative {\r\n  color: #F44336;\r\n  font-weight: 600;\r\n}\r\n\r\n.comparison-table .diff-neutral {\r\n  color: #999999;\r\n}\r\n\r\n/* Validation Panel */\r\n.validation-panel {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  margin-bottom: 24px;\r\n}\r\n\r\n.validation-panel h4 {\r\n  margin-bottom: 16px;\r\n  color: #ffffff;\r\n  font-size: 18px;\r\n  font-weight: 600;\r\n}\r\n\r\n.validation-formatted {\r\n  background: #1a1a1a;\r\n  border: 1px solid #404040;\r\n  border-radius: 6px;\r\n  padding: 16px;\r\n  max-height: 400px;\r\n  overflow-y: auto;\r\n}\r\n\r\n.validation-section {\r\n  margin-bottom: 24px;\r\n  padding-bottom: 16px;\r\n  border-bottom: 1px solid #404040;\r\n}\r\n\r\n.validation-section:last-child {\r\n  border-bottom: none;\r\n  margin-bottom: 0;\r\n}\r\n\r\n.validation-section h4 {\r\n  color: #2196F3;\r\n  margin-bottom: 12px;\r\n  font-size: 16px;\r\n}\r\n\r\n.validation-section h5 {\r\n  color: #ffffff;\r\n  margin-bottom: 8px;\r\n  font-size: 14px;\r\n}\r\n\r\n.export-validation-summary {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 4px;\r\n  padding: 12px;\r\n  margin-bottom: 16px;\r\n}\r\n\r\n.export-validation-summary p {\r\n  margin: 0;\r\n  color: #cccccc;\r\n}\r\n\r\n.validation-discrepancies {\r\n  background: rgba(244, 67, 54, 0.1);\r\n  border: 1px solid #F44336;\r\n  border-radius: 4px;\r\n  padding: 12px;\r\n}\r\n\r\n.validation-discrepancies ul {\r\n  margin: 8px 0 0 0;\r\n  padding-left: 20px;\r\n}\r\n\r\n.validation-discrepancies li {\r\n  color: #F44336;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n.validation-success {\r\n  background: rgba(76, 175, 80, 0.1);\r\n  border: 1px solid #4CAF50;\r\n  border-radius: 4px;\r\n  padding: 12px;\r\n}\r\n\r\n.validation-success p {\r\n  margin: 4px 0;\r\n  color: #4CAF50;\r\n}\r\n\r\n.validation-formatted .validation-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n}\r\n\r\n.validation-formatted .validation-table th,\r\n.validation-formatted .validation-table td {\r\n  padding: 8px 12px;\r\n  text-align: left;\r\n  border-bottom: 1px solid #404040;\r\n  color: #cccccc;\r\n}\r\n\r\n.validation-formatted .validation-table th {\r\n  background: #404040;\r\n  font-weight: 600;\r\n  color: #ffffff;\r\n}\r\n\r\n.validation-formatted .validation-error {\r\n  background: rgba(244, 67, 54, 0.1);\r\n  color: #F44336;\r\n}\r\n\r\n.validation-formatted .validation-success {\r\n  background: rgba(76, 175, 80, 0.1);\r\n  color: #4CAF50;\r\n}\r\n\r\n/* Messages */\r\n.kpi-message {\r\n  text-align: center;\r\n  padding: 40px 20px;\r\n  color: #999999;\r\n  font-size: 16px;\r\n}\r\n\r\n.validation-message {\r\n  text-align: center;\r\n  padding: 20px;\r\n  color: #999999;\r\n  font-style: italic;\r\n}\r\n\r\n/* Toast notifications */\r\n.toast {\r\n  display: block;\r\n  opacity: 1;\r\n  min-width: 200px;\r\n  text-align: center;\r\n}\r\n\r\n/* Responsive design */\r\n@media (max-width: 768px) {\r\n  .kpi-header {\r\n    flex-direction: column;\r\n    align-items: flex-start;\r\n    gap: 16px;\r\n  }\r\n  \r\n  .kpi-controls {\r\n    width: 100%;\r\n    justify-content: flex-start;\r\n    flex-wrap: wrap;\r\n  }\r\n  \r\n  .summary-grid {\r\n    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));\r\n    gap: 12px;\r\n  }\r\n  \r\n  .chart-grid {\r\n    grid-template-columns: 1fr;\r\n    gap: 16px;\r\n  }\r\n  \r\n  .chart-container {\r\n    height: 250px;\r\n  }\r\n  \r\n  .table-controls {\r\n    flex-direction: column;\r\n    align-items: stretch;\r\n  }\r\n  \r\n  .table-wrapper {\r\n    overflow-x: auto;\r\n  }\r\n  \r\n  .comparison-controls {\r\n    flex-direction: column;\r\n    align-items: stretch;\r\n  }\r\n}\r\n\r\n@media (max-width: 480px) {\r\n  .kpi-visualization {\r\n    padding: 12px;\r\n  }\r\n  \r\n  .summary-grid {\r\n    grid-template-columns: 1fr;\r\n  }\r\n  \r\n  .interactive-table th,\r\n  .interactive-table td {\r\n    padding: 8px 12px;\r\n    font-size: 12px;\r\n  }\r\n  \r\n  .chart-container {\r\n    height: 200px;\r\n    padding: 12px;\r\n  }\r\n}\r\n\r\n/* Animation for chart updates */\r\n@keyframes chartFadeIn {\r\n  from {\r\n    opacity: 0;\r\n    transform: translateY(20px);\r\n  }\r\n  to {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n  }\r\n}\r\n\r\n.chart-container {\r\n  animation: chartFadeIn 0.5s ease-out;\r\n}\r\n\r\n/* Scrollbar styling for dark theme */\r\n.table-wrapper::-webkit-scrollbar,\r\n.validation-formatted::-webkit-scrollbar {\r\n  width: 8px;\r\n  height: 8px;\r\n}\r\n\r\n.table-wrapper::-webkit-scrollbar-track,\r\n.validation-formatted::-webkit-scrollbar-track {\r\n  background: #1a1a1a;\r\n}\r\n\r\n.table-wrapper::-webkit-scrollbar-thumb,\r\n.validation-formatted::-webkit-scrollbar-thumb {\r\n  background: #404040;\r\n  border-radius: 4px;\r\n}\r\n\r\n.table-wrapper::-webkit-scrollbar-thumb:hover,\r\n.validation-formatted::-webkit-scrollbar-thumb:hover {\r\n  background: #555555;\r\n}\r\n"],"sourceRoot":""}]);
+
+/* Loading States */
+.kpi-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #888;
+  font-size: 16px;
+}
+
+.kpi-loading::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #404040;
+  border-top: 2px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.kpi-error {
+  background: #FFEBEE;
+  border: 1px solid #F44336;
+  color: #B71C1C;
+  padding: 16px;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+.kpi-success {
+  background: #E8F5E8;
+  border: 1px solid #4CAF50;
+  color: #1B5E20;
+  padding: 16px;
+  border-radius: 4px;
+  margin: 16px 0;
+}
+
+/* Validation Panel */
+.validation-panel {
+  background: #252525;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  border: 1px solid #404040;
+}
+
+.validation-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.validation-table th,
+.validation-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #404040;
+}
+
+.validation-table th {
+  background: #333;
+  font-weight: 600;
+}
+
+.validation-error {
+  background: rgba(244, 67, 54, 0.1);
+  color: #F44336;
+}
+
+.validation-success {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+/* Comparison Panel */
+.comparison-panel {
+  background: #252525;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  border: 1px solid #404040;
+}
+
+.comparison-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.comparison-controls select {
+  flex: 1;
+  background: #1a1a1a;
+  border: 1px solid #404040;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+/* Accessibility */
+.interactive-table th:focus,
+.form-control:focus,
+.btn:focus {
+  outline: 2px solid #4CAF50;
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .kpi-visualization {
+    background: white;
+    color: black;
+  }
+  
+  .kpi-controls {
+    display: none;
+  }
+  
+  .summary-card {
+    break-inside: avoid;
+    border: 1px solid #ccc;
+  }
+  
+  .chart-container {
+    break-inside: avoid;
+  }
+}
+`, "",{"version":3,"sources":["webpack://./css/kpi-visualization.css"],"names":[],"mappings":"AAAA,uCAAuC;;AAEvC;EACE,aAAa;EACb,mBAAmB;EACnB,cAAc;EACd,yGAAyG;AAC3G;;AAEA,WAAW;AACX;EACE,aAAa;EACb,8BAA8B;EAC9B,mBAAmB;EACnB,mBAAmB;EACnB,oBAAoB;EACpB,gCAAgC;AAClC;;AAEA;EACE,SAAS;EACT,cAAc;EACd,eAAe;EACf,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb,QAAQ;AACV;;AAEA;EACE,iBAAiB;EACjB,eAAe;EACf,kBAAkB;EAClB,YAAY;EACZ,eAAe;EACf,yBAAyB;AAC3B;;AAEA;EACE,YAAY;EACZ,2BAA2B;AAC7B;;AAEA,kBAAkB;AAClB;EACE,mBAAmB;AACrB;;AAEA;EACE,aAAa;EACb,2DAA2D;EAC3D,SAAS;EACT,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,aAAa;EACb,kBAAkB;EAClB,yBAAyB;AAC3B;;AAEA;EACE,qBAAqB;EACrB,2BAA2B;EAC3B,8CAA8C;AAChD;;AAEA;EACE,eAAe;EACf,gBAAgB;EAChB,cAAc;EACd,kBAAkB;AACpB;;AAEA;EACE,eAAe;EACf,cAAc;EACd,kBAAkB;AACpB;;AAEA;EACE,eAAe;EACf,gBAAgB;AAClB;;AAEA;EACE,cAAc;AAChB;;AAEA;EACE,cAAc;AAChB;;AAEA;EACE,cAAc;AAChB;;AAEA,WAAW;AACX;EACE,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;EACnB,cAAc;EACd,eAAe;EACf,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb,2DAA2D;EAC3D,SAAS;AACX;;AAEA;EACE,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,aAAa;EACb,aAAa;EACb,kBAAkB;AACpB;;AAEA;EACE,sBAAsB;EACtB,uBAAuB;AACzB;;AAEA,WAAW;AACX;EACE,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;EACnB,cAAc;EACd,eAAe;EACf,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb,SAAS;EACT,mBAAmB;EACnB,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,iBAAiB;EACjB,cAAc;EACd,eAAe;AACjB;;AAEA;EACE,aAAa;EACb,qBAAqB;EACrB,6CAA6C;AAC/C;;AAEA;EACE,OAAO;EACP,gBAAgB;AAClB;;AAEA;EACE,gBAAgB;AAClB;;AAEA;EACE,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;EACE,WAAW;EACX,yBAAyB;EACzB,uBAAuB;AACzB;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,kBAAkB;EAClB,gBAAgB;EAChB,gBAAgB;EAChB,cAAc;EACd,gCAAgC;EAChC,eAAe;EACf,sCAAsC;EACtC,kBAAkB;AACpB;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,YAAY;EACZ,kBAAkB;EAClB,UAAU;EACV,YAAY;EACZ,eAAe;AACjB;;AAEA;EACE,UAAU;AACZ;;AAEA;EACE,kBAAkB;EAClB,gCAAgC;EAChC,cAAc;EACd,eAAe;AACjB;;AAEA;EACE,mCAAmC;AACrC;;AAEA;EACE,qCAAqC;AACvC;;AAEA;EACE,mCAAmC;AACrC;;AAEA,0BAA0B;AAC1B;EACE,qBAAqB;EACrB,gBAAgB;EAChB,mBAAmB;EACnB,cAAc;EACd,gBAAgB;EAChB,eAAe;EACf,eAAe;EACf,kBAAkB;AACpB;;AAEA,qBAAqB;AACrB;EACE,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;EACnB,cAAc;EACd,eAAe;EACf,gBAAgB;AAClB;;AAEA;EACE,aAAa;EACb,SAAS;EACT,mBAAmB;EACnB,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,iBAAiB;EACjB,cAAc;EACd,eAAe;EACf,OAAO;EACP,gBAAgB;AAClB;;AAEA;EACE,WAAW;EACX,yBAAyB;EACzB,mBAAmB;EACnB,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;;EAEE,kBAAkB;EAClB,gBAAgB;EAChB,gCAAgC;AAClC;;AAEA;EACE,mBAAmB;EACnB,gBAAgB;EAChB,cAAc;AAChB;;AAEA;EACE,cAAc;AAChB;;AAEA;EACE,cAAc;EACd,gBAAgB;AAClB;;AAEA;EACE,cAAc;EACd,gBAAgB;AAClB;;AAEA;EACE,cAAc;AAChB;;AAEA,qBAAqB;AACrB;EACE,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;EACnB,cAAc;EACd,eAAe;EACf,gBAAgB;AAClB;;AAEA;EACE,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,aAAa;EACb,iBAAiB;EACjB,gBAAgB;AAClB;;AAEA;EACE,mBAAmB;EACnB,oBAAoB;EACpB,gCAAgC;AAClC;;AAEA;EACE,mBAAmB;EACnB,gBAAgB;AAClB;;AAEA;EACE,cAAc;EACd,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,cAAc;EACd,kBAAkB;EAClB,eAAe;AACjB;;AAEA;EACE,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,aAAa;EACb,mBAAmB;AACrB;;AAEA;EACE,SAAS;EACT,cAAc;AAChB;;AAEA;EACE,kCAAkC;EAClC,yBAAyB;EACzB,kBAAkB;EAClB,aAAa;AACf;;AAEA;EACE,iBAAiB;EACjB,kBAAkB;AACpB;;AAEA;EACE,cAAc;EACd,kBAAkB;AACpB;;AAEA;EACE,kCAAkC;EAClC,yBAAyB;EACzB,kBAAkB;EAClB,aAAa;AACf;;AAEA;EACE,aAAa;EACb,cAAc;AAChB;;AAEA;EACE,WAAW;EACX,yBAAyB;AAC3B;;AAEA;;EAEE,iBAAiB;EACjB,gBAAgB;EAChB,gCAAgC;EAChC,cAAc;AAChB;;AAEA;EACE,mBAAmB;EACnB,gBAAgB;EAChB,cAAc;AAChB;;AAEA;EACE,kCAAkC;EAClC,cAAc;AAChB;;AAEA;EACE,kCAAkC;EAClC,cAAc;AAChB;;AAEA,aAAa;AACb;EACE,kBAAkB;EAClB,kBAAkB;EAClB,cAAc;EACd,eAAe;AACjB;;AAEA;EACE,kBAAkB;EAClB,aAAa;EACb,cAAc;EACd,kBAAkB;AACpB;;AAEA,wBAAwB;AACxB;EACE,cAAc;EACd,UAAU;EACV,gBAAgB;EAChB,kBAAkB;AACpB;;AAEA,wBAAwB;AACxB;EACE,gBAAgB;EAChB,cAAc;AAChB;;AAEA;EACE,gBAAgB;EAChB,cAAc;AAChB;;AAEA,gCAAgC;AAChC;EACE,qBAAqB;EACrB,gBAAgB;EAChB,kBAAkB;EAClB,iBAAiB;EACjB,kBAAkB;EAClB,eAAe;AACjB;;AAEA,SAAS,yBAAyB,EAAE,YAAY,EAAE;AAClD,SAAS,yBAAyB,EAAE,YAAY,EAAE;AAClD,SAAS,yBAAyB,EAAE,YAAY,EAAE;AAClD,SAAS,yBAAyB,EAAE,YAAY,EAAE;AAClD,SAAS,yBAAyB,EAAE,YAAY,EAAE;AAClD,SAAS,yBAAyB,EAAE,YAAY,EAAE;;AAElD,2BAA2B;AAC3B;EACE,qBAAqB;EACrB,gBAAgB;EAChB,kBAAkB;EAClB,YAAY;EACZ,iBAAiB;EACjB,eAAe;EACf,kBAAkB;AACpB;;AAEA;EACE,qBAAqB;EACrB,gBAAgB;EAChB,kBAAkB;EAClB,YAAY;EACZ,iBAAiB;EACjB,eAAe;EACf,kBAAkB;AACpB;;AAEA,4BAA4B;AAC5B;EACE,mBAAmB;EACnB,mBAAmB;EACnB,kBAAkB;EAClB,aAAa;EACb,qCAAqC;AACvC;;AAEA;EACE,kBAAkB;EAClB,cAAc;EACd,eAAe;EACf,gBAAgB;EAChB,gCAAgC;EAChC,mBAAmB;AACrB;;AAEA,4BAA4B;AAC5B;EACE,aAAa;EACb,SAAS;EACT,mBAAmB;EACnB,eAAe;AACjB;;AAEA;EACE,mBAAmB;EACnB,yBAAyB;EACzB,cAAc;EACd,iBAAiB;EACjB,kBAAkB;EAClB,eAAe;AACjB;;AAEA;EACE,aAAa;EACb,qBAAqB;EACrB,4CAA4C;AAC9C;;AAEA;EACE,WAAW;AACb;;AAEA,gCAAgC;AAChC;EACE,WAAW;EACX,yBAAyB;EACzB,mBAAmB;EACnB,kBAAkB;EAClB,gBAAgB;EAChB,qCAAqC;AACvC;;AAEA;EACE,mBAAmB;EACnB,cAAc;EACd,kBAAkB;EAClB,gBAAgB;EAChB,gBAAgB;EAChB,eAAe;EACf,gCAAgC;EAChC,eAAe;EACf,sCAAsC;AACxC;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,aAAa;EACb,cAAc;AAChB;;AAEA;EACE,kBAAkB;EAClB,gCAAgC;EAChC,eAAe;EACf,cAAc;AAChB;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;AACrB;;AAEA,0BAA0B;AAC1B;EACE,aAAa;EACb,2DAA2D;EAC3D,SAAS;EACT,mBAAmB;AACrB;;AAEA;EACE,6DAA6D;EAC7D,kBAAkB;EAClB,aAAa;EACb,kBAAkB;EAClB,yBAAyB;EACzB,yBAAyB;EACzB,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;EACE,WAAW;EACX,kBAAkB;EAClB,MAAM;EACN,OAAO;EACP,QAAQ;EACR,WAAW;EACX,6DAA6D;AAC/D;;AAEA;EACE,2BAA2B;EAC3B,sCAAsC;EACtC,qBAAqB;AACvB;;AAEA;EACE,eAAe;EACf,gBAAgB;EAChB,cAAc;EACd,kBAAkB;EAClB,cAAc;AAChB;;AAEA;EACE,eAAe;EACf,cAAc;EACd,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;EACE,eAAe;EACf,gBAAgB;AAClB;;AAEA;EACE,cAAc;AAChB;;AAEA;EACE,cAAc;AAChB;;AAEA;EACE,cAAc;AAChB;;AAEA,8BAA8B;AAC9B;EACE,mBAAmB;EACnB,mBAAmB;EACnB,kBAAkB;EAClB,aAAa;EACb,qCAAqC;AACvC;;AAEA;EACE,kBAAkB;EAClB,cAAc;EACd,eAAe;EACf,gBAAgB;EAChB,gCAAgC;EAChC,mBAAmB;AACrB;;AAEA;EACE,aAAa;EACb,2DAA2D;EAC3D,SAAS;AACX;;AAEA;EACE,mBAAmB;EACnB,kBAAkB;EAClB,aAAa;EACb,yBAAyB;EACzB,aAAa;EACb,kBAAkB;AACpB;;AAEA;EACE,gBAAgB;EAChB,eAAe;AACjB;;AAEA,sBAAsB;AACtB;EACE;IACE,sBAAsB;IACtB,SAAS;IACT,oBAAoB;EACtB;;EAEA;IACE,uBAAuB;EACzB;;EAEA;IACE,2DAA2D;IAC3D,SAAS;EACX;;EAEA;IACE,0BAA0B;IAC1B,SAAS;EACX;;EAEA;IACE,aAAa;EACf;;EAEA;IACE,sBAAsB;EACxB;;EAEA;IACE,gBAAgB;EAClB;;EAEA;IACE,gBAAgB;EAClB;AACF;;AAEA;EACE;IACE,aAAa;EACf;;EAEA;IACE,0BAA0B;EAC5B;;EAEA;;IAEE,iBAAiB;IACjB,eAAe;EACjB;;EAEA;IACE,aAAa;IACb,aAAa;EACf;AACF;;AAEA,gCAAgC;AAChC;EACE;IACE,UAAU;IACV,2BAA2B;EAC7B;EACA;IACE,UAAU;IACV,wBAAwB;EAC1B;AACF;;AAEA;EACE,oCAAoC;AACtC;;AAEA,qCAAqC;AACrC;;EAEE,UAAU;EACV,WAAW;AACb;;AAEA;;EAEE,mBAAmB;AACrB;;AAEA;;EAEE,mBAAmB;EACnB,kBAAkB;AACpB;;AAEA;;EAEE,mBAAmB;AACrB;;AAEA,mBAAmB;AACnB;EACE,aAAa;EACb,uBAAuB;EACvB,mBAAmB;EACnB,aAAa;EACb,WAAW;EACX,eAAe;AACjB;;AAEA;EACE,WAAW;EACX,WAAW;EACX,YAAY;EACZ,yBAAyB;EACzB,6BAA6B;EAC7B,kBAAkB;EAClB,kCAAkC;EAClC,kBAAkB;AACpB;;AAEA;EACE,KAAK,uBAAuB,EAAE;EAC9B,OAAO,yBAAyB,EAAE;AACpC;;AAEA,iBAAiB;AACjB;EACE,mBAAmB;EACnB,yBAAyB;EACzB,cAAc;EACd,aAAa;EACb,kBAAkB;EAClB,cAAc;AAChB;;AAEA;EACE,mBAAmB;EACnB,yBAAyB;EACzB,cAAc;EACd,aAAa;EACb,kBAAkB;EAClB,cAAc;AAChB;;AAEA,qBAAqB;AACrB;EACE,mBAAmB;EACnB,kBAAkB;EAClB,aAAa;EACb,gBAAgB;EAChB,yBAAyB;AAC3B;;AAEA;EACE,WAAW;EACX,yBAAyB;EACzB,gBAAgB;AAClB;;AAEA;;EAEE,iBAAiB;EACjB,gBAAgB;EAChB,gCAAgC;AAClC;;AAEA;EACE,gBAAgB;EAChB,gBAAgB;AAClB;;AAEA;EACE,kCAAkC;EAClC,cAAc;AAChB;;AAEA;EACE,kCAAkC;EAClC,cAAc;AAChB;;AAEA,qBAAqB;AACrB;EACE,mBAAmB;EACnB,kBAAkB;EAClB,aAAa;EACb,gBAAgB;EAChB,yBAAyB;AAC3B;;AAEA;EACE,aAAa;EACb,SAAS;EACT,mBAAmB;EACnB,mBAAmB;AACrB;;AAEA;EACE,OAAO;EACP,mBAAmB;EACnB,yBAAyB;EACzB,cAAc;EACd,iBAAiB;EACjB,kBAAkB;AACpB;;AAEA,kBAAkB;AAClB;;;EAGE,0BAA0B;EAC1B,mBAAmB;AACrB;;AAEA,iBAAiB;AACjB;EACE;IACE,iBAAiB;IACjB,YAAY;EACd;;EAEA;IACE,aAAa;EACf;;EAEA;IACE,mBAAmB;IACnB,sBAAsB;EACxB;;EAEA;IACE,mBAAmB;EACrB;AACF","sourcesContent":["/* KPI Visualization Component Styles */\r\n\r\n.kpi-visualization {\r\n  padding: 20px;\r\n  background: #1a1a1a;\r\n  color: #ffffff;\r\n  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\r\n}\r\n\r\n/* Header */\r\n.kpi-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 24px;\r\n  padding-bottom: 16px;\r\n  border-bottom: 1px solid #404040;\r\n}\r\n\r\n.kpi-header h3 {\r\n  margin: 0;\r\n  color: #ffffff;\r\n  font-size: 24px;\r\n  font-weight: 600;\r\n}\r\n\r\n.kpi-controls {\r\n  display: flex;\r\n  gap: 8px;\r\n}\r\n\r\n.kpi-controls .btn {\r\n  padding: 6px 12px;\r\n  font-size: 12px;\r\n  border-radius: 4px;\r\n  border: none;\r\n  cursor: pointer;\r\n  transition: all 0.2s ease;\r\n}\r\n\r\n.kpi-controls .btn:hover {\r\n  opacity: 0.8;\r\n  transform: translateY(-1px);\r\n}\r\n\r\n/* Summary Cards */\r\n.kpi-summary {\r\n  margin-bottom: 32px;\r\n}\r\n\r\n.summary-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\r\n  gap: 16px;\r\n  margin-bottom: 24px;\r\n}\r\n\r\n.summary-card {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  text-align: center;\r\n  transition: all 0.2s ease;\r\n}\r\n\r\n.summary-card:hover {\r\n  border-color: #2196F3;\r\n  transform: translateY(-2px);\r\n  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);\r\n}\r\n\r\n.summary-card .card-value {\r\n  font-size: 32px;\r\n  font-weight: 700;\r\n  color: #2196F3;\r\n  margin-bottom: 8px;\r\n}\r\n\r\n.summary-card .card-label {\r\n  font-size: 14px;\r\n  color: #cccccc;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n.summary-card .card-change {\r\n  font-size: 12px;\r\n  font-weight: 500;\r\n}\r\n\r\n.summary-card .card-change.positive {\r\n  color: #4CAF50;\r\n}\r\n\r\n.summary-card .card-change.negative {\r\n  color: #F44336;\r\n}\r\n\r\n.summary-card .card-change.neutral {\r\n  color: #999999;\r\n}\r\n\r\n/* Charts */\r\n.kpi-charts {\r\n  margin-bottom: 32px;\r\n}\r\n\r\n.chart-section h4 {\r\n  margin-bottom: 20px;\r\n  color: #ffffff;\r\n  font-size: 20px;\r\n  font-weight: 600;\r\n}\r\n\r\n.chart-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));\r\n  gap: 20px;\r\n}\r\n\r\n.chart-container {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  padding: 16px;\r\n  height: 300px;\r\n  position: relative;\r\n}\r\n\r\n.chart-container canvas {\r\n  width: 100% !important;\r\n  height: 100% !important;\r\n}\r\n\r\n/* Tables */\r\n.kpi-tables {\r\n  margin-bottom: 32px;\r\n}\r\n\r\n.table-section {\r\n  margin-bottom: 32px;\r\n}\r\n\r\n.table-section h4 {\r\n  margin-bottom: 16px;\r\n  color: #ffffff;\r\n  font-size: 18px;\r\n  font-weight: 600;\r\n}\r\n\r\n.table-controls {\r\n  display: flex;\r\n  gap: 12px;\r\n  margin-bottom: 16px;\r\n  align-items: center;\r\n}\r\n\r\n.table-controls .form-control {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 4px;\r\n  padding: 8px 12px;\r\n  color: #ffffff;\r\n  font-size: 14px;\r\n}\r\n\r\n.table-controls .form-control:focus {\r\n  outline: none;\r\n  border-color: #2196F3;\r\n  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);\r\n}\r\n\r\n.table-controls input.form-control {\r\n  flex: 1;\r\n  max-width: 300px;\r\n}\r\n\r\n.table-controls select.form-control {\r\n  min-width: 150px;\r\n}\r\n\r\n.table-wrapper {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  overflow: hidden;\r\n}\r\n\r\n.interactive-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n  background: transparent;\r\n}\r\n\r\n.interactive-table thead {\r\n  background: #404040;\r\n}\r\n\r\n.interactive-table th {\r\n  padding: 12px 16px;\r\n  text-align: left;\r\n  font-weight: 600;\r\n  color: #ffffff;\r\n  border-bottom: 1px solid #555555;\r\n  cursor: pointer;\r\n  transition: background-color 0.2s ease;\r\n  position: relative;\r\n}\r\n\r\n.interactive-table th:hover {\r\n  background: #4a4a4a;\r\n}\r\n\r\n.interactive-table th[data-sort]::after {\r\n  content: '↕';\r\n  position: absolute;\r\n  right: 8px;\r\n  opacity: 0.6;\r\n  font-size: 12px;\r\n}\r\n\r\n.interactive-table th[data-sort]:hover::after {\r\n  opacity: 1;\r\n}\r\n\r\n.interactive-table td {\r\n  padding: 12px 16px;\r\n  border-bottom: 1px solid #404040;\r\n  color: #cccccc;\r\n  font-size: 14px;\r\n}\r\n\r\n.interactive-table tbody tr:hover {\r\n  background: rgba(33, 150, 243, 0.1);\r\n}\r\n\r\n.interactive-table tbody tr:nth-child(even) {\r\n  background: rgba(255, 255, 255, 0.02);\r\n}\r\n\r\n.interactive-table tbody tr:nth-child(even):hover {\r\n  background: rgba(33, 150, 243, 0.1);\r\n}\r\n\r\n/* Congestion indicators */\r\n.congestion-indicator {\r\n  display: inline-block;\r\n  padding: 4px 8px;\r\n  border-radius: 12px;\r\n  color: #ffffff;\r\n  font-weight: 500;\r\n  font-size: 12px;\r\n  min-width: 50px;\r\n  text-align: center;\r\n}\r\n\r\n/* Comparison Panel */\r\n.comparison-panel {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  margin-bottom: 24px;\r\n}\r\n\r\n.comparison-panel h4 {\r\n  margin-bottom: 16px;\r\n  color: #ffffff;\r\n  font-size: 18px;\r\n  font-weight: 600;\r\n}\r\n\r\n.comparison-controls {\r\n  display: flex;\r\n  gap: 12px;\r\n  margin-bottom: 20px;\r\n  align-items: center;\r\n}\r\n\r\n.comparison-controls .form-control {\r\n  background: #1a1a1a;\r\n  border: 1px solid #404040;\r\n  border-radius: 4px;\r\n  padding: 8px 12px;\r\n  color: #ffffff;\r\n  font-size: 14px;\r\n  flex: 1;\r\n  max-width: 300px;\r\n}\r\n\r\n.comparison-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n  background: #1a1a1a;\r\n  border-radius: 6px;\r\n  overflow: hidden;\r\n}\r\n\r\n.comparison-table th,\r\n.comparison-table td {\r\n  padding: 12px 16px;\r\n  text-align: left;\r\n  border-bottom: 1px solid #404040;\r\n}\r\n\r\n.comparison-table th {\r\n  background: #404040;\r\n  font-weight: 600;\r\n  color: #ffffff;\r\n}\r\n\r\n.comparison-table td {\r\n  color: #cccccc;\r\n}\r\n\r\n.comparison-table .diff-positive {\r\n  color: #4CAF50;\r\n  font-weight: 600;\r\n}\r\n\r\n.comparison-table .diff-negative {\r\n  color: #F44336;\r\n  font-weight: 600;\r\n}\r\n\r\n.comparison-table .diff-neutral {\r\n  color: #999999;\r\n}\r\n\r\n/* Validation Panel */\r\n.validation-panel {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  margin-bottom: 24px;\r\n}\r\n\r\n.validation-panel h4 {\r\n  margin-bottom: 16px;\r\n  color: #ffffff;\r\n  font-size: 18px;\r\n  font-weight: 600;\r\n}\r\n\r\n.validation-formatted {\r\n  background: #1a1a1a;\r\n  border: 1px solid #404040;\r\n  border-radius: 6px;\r\n  padding: 16px;\r\n  max-height: 400px;\r\n  overflow-y: auto;\r\n}\r\n\r\n.validation-section {\r\n  margin-bottom: 24px;\r\n  padding-bottom: 16px;\r\n  border-bottom: 1px solid #404040;\r\n}\r\n\r\n.validation-section:last-child {\r\n  border-bottom: none;\r\n  margin-bottom: 0;\r\n}\r\n\r\n.validation-section h4 {\r\n  color: #2196F3;\r\n  margin-bottom: 12px;\r\n  font-size: 16px;\r\n}\r\n\r\n.validation-section h5 {\r\n  color: #ffffff;\r\n  margin-bottom: 8px;\r\n  font-size: 14px;\r\n}\r\n\r\n.export-validation-summary {\r\n  background: #2d2d2d;\r\n  border: 1px solid #404040;\r\n  border-radius: 4px;\r\n  padding: 12px;\r\n  margin-bottom: 16px;\r\n}\r\n\r\n.export-validation-summary p {\r\n  margin: 0;\r\n  color: #cccccc;\r\n}\r\n\r\n.validation-discrepancies {\r\n  background: rgba(244, 67, 54, 0.1);\r\n  border: 1px solid #F44336;\r\n  border-radius: 4px;\r\n  padding: 12px;\r\n}\r\n\r\n.validation-discrepancies ul {\r\n  margin: 8px 0 0 0;\r\n  padding-left: 20px;\r\n}\r\n\r\n.validation-discrepancies li {\r\n  color: #F44336;\r\n  margin-bottom: 4px;\r\n}\r\n\r\n.validation-success {\r\n  background: rgba(76, 175, 80, 0.1);\r\n  border: 1px solid #4CAF50;\r\n  border-radius: 4px;\r\n  padding: 12px;\r\n}\r\n\r\n.validation-success p {\r\n  margin: 4px 0;\r\n  color: #4CAF50;\r\n}\r\n\r\n.validation-formatted .validation-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n}\r\n\r\n.validation-formatted .validation-table th,\r\n.validation-formatted .validation-table td {\r\n  padding: 8px 12px;\r\n  text-align: left;\r\n  border-bottom: 1px solid #404040;\r\n  color: #cccccc;\r\n}\r\n\r\n.validation-formatted .validation-table th {\r\n  background: #404040;\r\n  font-weight: 600;\r\n  color: #ffffff;\r\n}\r\n\r\n.validation-formatted .validation-error {\r\n  background: rgba(244, 67, 54, 0.1);\r\n  color: #F44336;\r\n}\r\n\r\n.validation-formatted .validation-success {\r\n  background: rgba(76, 175, 80, 0.1);\r\n  color: #4CAF50;\r\n}\r\n\r\n/* Messages */\r\n.kpi-message {\r\n  text-align: center;\r\n  padding: 40px 20px;\r\n  color: #999999;\r\n  font-size: 16px;\r\n}\r\n\r\n.validation-message {\r\n  text-align: center;\r\n  padding: 20px;\r\n  color: #999999;\r\n  font-style: italic;\r\n}\r\n\r\n/* Toast notifications */\r\n.toast {\r\n  display: block;\r\n  opacity: 1;\r\n  min-width: 200px;\r\n  text-align: center;\r\n}\r\n\r\n/* Enhanced KPI Styles */\r\n.enhanced-kpi-table td:first-child {\r\n  font-weight: 600;\r\n  color: #4CAF50;\r\n}\r\n\r\n.emissions-table td:first-child {\r\n  font-weight: 600;\r\n  color: #FF9800;\r\n}\r\n\r\n/* Level of Service Indicators */\r\n.los-grade {\r\n  display: inline-block;\r\n  padding: 4px 8px;\r\n  border-radius: 4px;\r\n  font-weight: bold;\r\n  text-align: center;\r\n  min-width: 30px;\r\n}\r\n\r\n.los-A { background-color: #4CAF50; color: white; }\r\n.los-B { background-color: #8BC34A; color: white; }\r\n.los-C { background-color: #FFEB3B; color: black; }\r\n.los-D { background-color: #FF9800; color: white; }\r\n.los-E { background-color: #FF5722; color: white; }\r\n.los-F { background-color: #F44336; color: white; }\r\n\r\n/* Utilization Indicators */\r\n.utilization-indicator {\r\n  display: inline-block;\r\n  padding: 2px 6px;\r\n  border-radius: 3px;\r\n  color: white;\r\n  font-weight: bold;\r\n  min-width: 50px;\r\n  text-align: center;\r\n}\r\n\r\n.density-indicator {\r\n  display: inline-block;\r\n  padding: 2px 6px;\r\n  border-radius: 3px;\r\n  color: white;\r\n  font-weight: bold;\r\n  min-width: 50px;\r\n  text-align: center;\r\n}\r\n\r\n/* Enhanced Table Sections */\r\n.table-section {\r\n  margin-bottom: 32px;\r\n  background: #252525;\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  box-shadow: 0 2px 8px rgba(0,0,0,0.3);\r\n}\r\n\r\n.table-section h4 {\r\n  margin: 0 0 16px 0;\r\n  color: #ffffff;\r\n  font-size: 18px;\r\n  font-weight: 600;\r\n  border-bottom: 2px solid #4CAF50;\r\n  padding-bottom: 8px;\r\n}\r\n\r\n/* Enhanced Table Controls */\r\n.table-controls {\r\n  display: flex;\r\n  gap: 12px;\r\n  margin-bottom: 16px;\r\n  flex-wrap: wrap;\r\n}\r\n\r\n.table-controls .form-control {\r\n  background: #1a1a1a;\r\n  border: 1px solid #404040;\r\n  color: #ffffff;\r\n  padding: 8px 12px;\r\n  border-radius: 4px;\r\n  font-size: 14px;\r\n}\r\n\r\n.table-controls .form-control:focus {\r\n  outline: none;\r\n  border-color: #4CAF50;\r\n  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);\r\n}\r\n\r\n.table-controls .form-control::placeholder {\r\n  color: #888;\r\n}\r\n\r\n/* Enhanced Interactive Tables */\r\n.interactive-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n  background: #1a1a1a;\r\n  border-radius: 6px;\r\n  overflow: hidden;\r\n  box-shadow: 0 1px 3px rgba(0,0,0,0.2);\r\n}\r\n\r\n.interactive-table th {\r\n  background: #333333;\r\n  color: #ffffff;\r\n  padding: 12px 16px;\r\n  text-align: left;\r\n  font-weight: 600;\r\n  font-size: 14px;\r\n  border-bottom: 2px solid #4CAF50;\r\n  cursor: pointer;\r\n  transition: background-color 0.2s ease;\r\n}\r\n\r\n.interactive-table th:hover {\r\n  background: #404040;\r\n}\r\n\r\n.interactive-table th[data-sort]:hover::after {\r\n  content: ' ↕';\r\n  color: #4CAF50;\r\n}\r\n\r\n.interactive-table td {\r\n  padding: 10px 16px;\r\n  border-bottom: 1px solid #404040;\r\n  font-size: 13px;\r\n  color: #ffffff;\r\n}\r\n\r\n.interactive-table tbody tr:hover {\r\n  background: #2a2a2a;\r\n}\r\n\r\n.interactive-table tbody tr:nth-child(even) {\r\n  background: #222222;\r\n}\r\n\r\n.interactive-table tbody tr:nth-child(even):hover {\r\n  background: #2a2a2a;\r\n}\r\n\r\n/* Enhanced Summary Grid */\r\n.summary-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\r\n  gap: 16px;\r\n  margin-bottom: 24px;\r\n}\r\n\r\n.summary-card {\r\n  background: linear-gradient(135deg, #2C2C2C 0%, #1F1F1F 100%);\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  text-align: center;\r\n  border: 1px solid #404040;\r\n  transition: all 0.3s ease;\r\n  position: relative;\r\n  overflow: hidden;\r\n}\r\n\r\n.summary-card::before {\r\n  content: '';\r\n  position: absolute;\r\n  top: 0;\r\n  left: 0;\r\n  right: 0;\r\n  height: 3px;\r\n  background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800);\r\n}\r\n\r\n.summary-card:hover {\r\n  transform: translateY(-4px);\r\n  box-shadow: 0 8px 24px rgba(0,0,0,0.3);\r\n  border-color: #4CAF50;\r\n}\r\n\r\n.card-value {\r\n  font-size: 28px;\r\n  font-weight: 700;\r\n  color: #4CAF50;\r\n  margin-bottom: 8px;\r\n  line-height: 1;\r\n}\r\n\r\n.card-label {\r\n  font-size: 14px;\r\n  color: #CCCCCC;\r\n  margin-bottom: 4px;\r\n  font-weight: 500;\r\n}\r\n\r\n.card-change {\r\n  font-size: 12px;\r\n  font-weight: 600;\r\n}\r\n\r\n.card-change.positive {\r\n  color: #4CAF50;\r\n}\r\n\r\n.card-change.negative {\r\n  color: #F44336;\r\n}\r\n\r\n.card-change.neutral {\r\n  color: #9E9E9E;\r\n}\r\n\r\n/* Enhanced Chart Containers */\r\n.chart-section {\r\n  margin-bottom: 32px;\r\n  background: #252525;\r\n  border-radius: 8px;\r\n  padding: 24px;\r\n  box-shadow: 0 2px 8px rgba(0,0,0,0.3);\r\n}\r\n\r\n.chart-section h4 {\r\n  margin: 0 0 20px 0;\r\n  color: #ffffff;\r\n  font-size: 20px;\r\n  font-weight: 600;\r\n  border-bottom: 2px solid #2196F3;\r\n  padding-bottom: 8px;\r\n}\r\n\r\n.chart-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));\r\n  gap: 20px;\r\n}\r\n\r\n.chart-container {\r\n  background: #1a1a1a;\r\n  border-radius: 6px;\r\n  padding: 16px;\r\n  border: 1px solid #404040;\r\n  height: 300px;\r\n  position: relative;\r\n}\r\n\r\n.chart-container canvas {\r\n  max-height: 100%;\r\n  max-width: 100%;\r\n}\r\n\r\n/* Responsive Design */\r\n@media (max-width: 768px) {\r\n  .kpi-header {\r\n    flex-direction: column;\r\n    gap: 12px;\r\n    align-items: stretch;\r\n  }\r\n  \r\n  .kpi-controls {\r\n    justify-content: center;\r\n  }\r\n  \r\n  .summary-grid {\r\n    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\r\n    gap: 12px;\r\n  }\r\n  \r\n  .chart-grid {\r\n    grid-template-columns: 1fr;\r\n    gap: 16px;\r\n  }\r\n  \r\n  .chart-container {\r\n    height: 250px;\r\n  }\r\n  \r\n  .table-controls {\r\n    flex-direction: column;\r\n  }\r\n  \r\n  .table-wrapper {\r\n    overflow-x: auto;\r\n  }\r\n  \r\n  .interactive-table {\r\n    min-width: 600px;\r\n  }\r\n}\r\n\r\n@media (max-width: 480px) {\r\n  .kpi-visualization {\r\n    padding: 12px;\r\n  }\r\n  \r\n  .summary-grid {\r\n    grid-template-columns: 1fr;\r\n  }\r\n  \r\n  .interactive-table th,\r\n  .interactive-table td {\r\n    padding: 8px 12px;\r\n    font-size: 12px;\r\n  }\r\n  \r\n  .chart-container {\r\n    height: 200px;\r\n    padding: 12px;\r\n  }\r\n}\r\n\r\n/* Animation for chart updates */\r\n@keyframes chartFadeIn {\r\n  from {\r\n    opacity: 0;\r\n    transform: translateY(20px);\r\n  }\r\n  to {\r\n    opacity: 1;\r\n    transform: translateY(0);\r\n  }\r\n}\r\n\r\n.chart-container {\r\n  animation: chartFadeIn 0.5s ease-out;\r\n}\r\n\r\n/* Scrollbar styling for dark theme */\r\n.table-wrapper::-webkit-scrollbar,\r\n.validation-formatted::-webkit-scrollbar {\r\n  width: 8px;\r\n  height: 8px;\r\n}\r\n\r\n.table-wrapper::-webkit-scrollbar-track,\r\n.validation-formatted::-webkit-scrollbar-track {\r\n  background: #1a1a1a;\r\n}\r\n\r\n.table-wrapper::-webkit-scrollbar-thumb,\r\n.validation-formatted::-webkit-scrollbar-thumb {\r\n  background: #404040;\r\n  border-radius: 4px;\r\n}\r\n\r\n.table-wrapper::-webkit-scrollbar-thumb:hover,\r\n.validation-formatted::-webkit-scrollbar-thumb:hover {\r\n  background: #555555;\r\n}\r\n\r\n/* Loading States */\r\n.kpi-loading {\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  height: 200px;\r\n  color: #888;\r\n  font-size: 16px;\r\n}\r\n\r\n.kpi-loading::before {\r\n  content: '';\r\n  width: 20px;\r\n  height: 20px;\r\n  border: 2px solid #404040;\r\n  border-top: 2px solid #4CAF50;\r\n  border-radius: 50%;\r\n  animation: spin 1s linear infinite;\r\n  margin-right: 10px;\r\n}\r\n\r\n@keyframes spin {\r\n  0% { transform: rotate(0deg); }\r\n  100% { transform: rotate(360deg); }\r\n}\r\n\r\n/* Error States */\r\n.kpi-error {\r\n  background: #FFEBEE;\r\n  border: 1px solid #F44336;\r\n  color: #B71C1C;\r\n  padding: 16px;\r\n  border-radius: 4px;\r\n  margin: 16px 0;\r\n}\r\n\r\n.kpi-success {\r\n  background: #E8F5E8;\r\n  border: 1px solid #4CAF50;\r\n  color: #1B5E20;\r\n  padding: 16px;\r\n  border-radius: 4px;\r\n  margin: 16px 0;\r\n}\r\n\r\n/* Validation Panel */\r\n.validation-panel {\r\n  background: #252525;\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  margin-top: 20px;\r\n  border: 1px solid #404040;\r\n}\r\n\r\n.validation-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n  margin-top: 12px;\r\n}\r\n\r\n.validation-table th,\r\n.validation-table td {\r\n  padding: 8px 12px;\r\n  text-align: left;\r\n  border-bottom: 1px solid #404040;\r\n}\r\n\r\n.validation-table th {\r\n  background: #333;\r\n  font-weight: 600;\r\n}\r\n\r\n.validation-error {\r\n  background: rgba(244, 67, 54, 0.1);\r\n  color: #F44336;\r\n}\r\n\r\n.validation-success {\r\n  background: rgba(76, 175, 80, 0.1);\r\n  color: #4CAF50;\r\n}\r\n\r\n/* Comparison Panel */\r\n.comparison-panel {\r\n  background: #252525;\r\n  border-radius: 8px;\r\n  padding: 20px;\r\n  margin-top: 20px;\r\n  border: 1px solid #404040;\r\n}\r\n\r\n.comparison-controls {\r\n  display: flex;\r\n  gap: 12px;\r\n  margin-bottom: 20px;\r\n  align-items: center;\r\n}\r\n\r\n.comparison-controls select {\r\n  flex: 1;\r\n  background: #1a1a1a;\r\n  border: 1px solid #404040;\r\n  color: #ffffff;\r\n  padding: 8px 12px;\r\n  border-radius: 4px;\r\n}\r\n\r\n/* Accessibility */\r\n.interactive-table th:focus,\r\n.form-control:focus,\r\n.btn:focus {\r\n  outline: 2px solid #4CAF50;\r\n  outline-offset: 2px;\r\n}\r\n\r\n/* Print Styles */\r\n@media print {\r\n  .kpi-visualization {\r\n    background: white;\r\n    color: black;\r\n  }\r\n  \r\n  .kpi-controls {\r\n    display: none;\r\n  }\r\n  \r\n  .summary-card {\r\n    break-inside: avoid;\r\n    border: 1px solid #ccc;\r\n  }\r\n  \r\n  .chart-container {\r\n    break-inside: avoid;\r\n  }\r\n}\r\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -37420,50 +37825,36 @@ $(() => {
 /*!***********************************************************!*\
   !*** ./src/components/BenchmarkConfigurationComponent.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 /**
- * BenchmarkConfigurationComponent - Creates and manages a modal window f        <div class="dialog-header">
-          <h3>📊 KPI Benchmark Configuration</h3>
-          <button class="close-btn" style="font-size: 24px;">&times;</button>
-        </div>onfiguring benchmarks
+ * BenchmarkConfigurationComponent - Creates and manages a modal window for configuring benchmark duration
  *
  * This component provides:
- * - A modal window for configuring benchmark parameters
- * - Layout selection
- * - Traffic control model selection
- * - Simulation duration configuration
- * - Number of cars configuration
- * - Time factor configuration
+ * - A modal window for configuring benchmark simulation duration
+ * - All other settings are taken from the current simulation state
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BenchmarkConfigurationComponent = void 0;
-const TrafficControlStrategyManager_1 = __webpack_require__(/*! ../model/traffic-control/TrafficControlStrategyManager */ "./src/model/traffic-control/TrafficControlStrategyManager.ts");
 class BenchmarkConfigurationComponent {
     /**
      * Constructor for the benchmark configuration component
      * @param container - The HTML element to append the configuration modal to
-     * @param layouts - Array of available layouts
      * @param currentSettings - Current simulation settings
      * @param callback - Callback function called when configuration is complete
      */
-    constructor(container, layouts, currentSettings, callback) {
-        this.layouts = [];
+    constructor(container, currentSettings, callback) {
         this.container = container;
-        this.layouts = layouts;
+        this.currentSettings = currentSettings;
         this.callback = callback;
-        console.log('📊 BenchmarkConfigurationComponent initialized with:', {
-            layoutsCount: layouts.length,
-            layouts: layouts.map(l => ({ id: l.id, name: l.name })),
-            currentSettings
-        });
+        console.log('📊 BenchmarkConfigurationComponent initialized with current settings:', currentSettings);
         // Create modal
         this.createModal(currentSettings);
     }
     /**
-     * Create the modal window with benchmark configuration options
+     * Create the modal window with only simulation duration input
      * @param currentSettings - Current simulation settings
      */
     createModal(currentSettings) {
@@ -37472,58 +37863,25 @@ class BenchmarkConfigurationComponent {
         const modalContainer = document.createElement('div');
         modalContainer.id = 'benchmark-config-modal';
         modalContainer.className = 'dialog benchmark-config-dialog';
-        const availableStrategyTypes = TrafficControlStrategyManager_1.trafficControlStrategyManager.getAvailableStrategyTypes();
-        const trafficControlModels = [];
-        // Create a temporary strategy instance to get display names
-        for (const strategyType of availableStrategyTypes) {
-            TrafficControlStrategyManager_1.trafficControlStrategyManager.selectStrategy(strategyType);
-            const strategy = TrafficControlStrategyManager_1.trafficControlStrategyManager.createStrategy();
-            trafficControlModels.push({
-                id: strategyType,
-                name: strategy.displayName
-            });
-        }
-        // Reset to default strategy
-        TrafficControlStrategyManager_1.trafficControlStrategyManager.selectStrategy('fixed-timing');
-        // Set the HTML content for the modal
+        // Set the HTML content for the modal - simplified to only show duration
         modalContainer.innerHTML = `
       <div class="dialog-content">
         <div class="dialog-header">
-          <h3>� KPI Benchmark Configuration</h3>
+          <h3>📊 KPI Benchmark Duration</h3>
           <button class="close-btn" style="font-size: 24px;">&times;</button>
         </div>
         <div class="dialog-body">
-          <div class="form-group">
-            <label for="benchmark-layout">Layout:</label>
-            <select id="benchmark-layout" class="form-control">
-              ${this.layouts.length > 0
-            ? this.layouts.map(layout => `<option value="${layout.id}" ${currentSettings.layoutId === layout.id ? 'selected' : ''}>${layout.name || 'Unnamed Layout'}</option>`).join('')
-            : '<option value="default">Default Layout</option>'}
-            </select>
-            ${this.layouts.length === 0 ? '<small class="form-text text-warning">No custom layouts available. Using default layout.</small>' : ''}
-          </div>
-          
-          <div class="form-group">
-            <label for="benchmark-traffic-control">Traffic Control Model:</label>
-            <select id="benchmark-traffic-control" class="form-control">
-              ${trafficControlModels.map(model => `<option value="${model.id}" ${currentSettings.trafficControlModel === model.id ? 'selected' : ''}>${model.name}</option>`).join('')}
-            </select>
-          </div>
+          <p>The benchmark will use your current simulation settings:</p>
+          <ul class="current-settings-list">
+            <li><strong>Layout:</strong> ${currentSettings.layoutName || 'Current Layout'}</li>
+            <li><strong>Traffic Control:</strong> ${currentSettings.trafficControlModelName || currentSettings.trafficControlModel}</li>
+            <li><strong>Cars:</strong> ${currentSettings.carsNumber}</li>
+            <li><strong>Time Factor:</strong> ${currentSettings.timeFactor}x</li>
+          </ul>
           
           <div class="form-group">
             <label for="benchmark-duration">Simulation Duration (seconds):</label>
             <input type="number" id="benchmark-duration" class="form-control" min="10" max="600" value="${currentSettings.duration || 60}">
-          </div>
-          
-          <div class="form-group">
-            <label for="benchmark-cars">Number of Cars:</label>
-            <input type="number" id="benchmark-cars" class="form-control" min="5" max="1000" value="${currentSettings.carsNumber || 50}">
-          </div>
-          
-          <div class="form-group">
-            <label for="benchmark-time-factor">Time Factor:</label>
-            <input type="number" id="benchmark-time-factor" class="form-control" min="0.1" max="10" step="0.1" value="${currentSettings.timeFactor || 1.0}">
-            <small class="form-text text-muted">Higher values make the simulation run faster</small>
           </div>
         </div>
         <div class="dialog-footer">
@@ -37556,59 +37914,19 @@ class BenchmarkConfigurationComponent {
         this.callback(null);
     }
     /**
-     * Start the benchmark with the configured settings
+     * Start the benchmark with the configured duration
      */
     startBenchmark() {
-        // Get configuration values from inputs
-        const layoutSelect = document.getElementById('benchmark-layout');
-        const layoutId = layoutSelect.value;
-        const trafficControlModel = document.getElementById('benchmark-traffic-control').value;
+        // Get simulation duration from input
         const simulationDuration = parseInt(document.getElementById('benchmark-duration').value);
-        const carsNumber = parseInt(document.getElementById('benchmark-cars').value);
-        const timeFactor = parseFloat(document.getElementById('benchmark-time-factor').value);
-        // Debug log the layout state
-        console.log('Layout validation check:', {
-            layoutId,
-            layoutSelectValue: layoutSelect.value,
-            selectedIndex: layoutSelect.selectedIndex,
-            options: Array.from(layoutSelect.options).map(o => ({ value: o.value, text: o.text }))
-        });
-        // Skip layout validation entirely - the select box will always have something selected
-        // We'll let the SimulationPageComponent handle layout loading
         if (isNaN(simulationDuration) || simulationDuration < 10 || simulationDuration > 600) {
             alert('Please enter a valid simulation duration between 10 and 600 seconds');
             return;
         }
-        if (isNaN(carsNumber) || carsNumber < 5 || carsNumber > 1000) {
-            alert('Please enter a valid number of cars between 5 and 1000');
-            return;
-        }
-        if (isNaN(timeFactor) || timeFactor < 0.1 || timeFactor > 10) {
-            alert('Please enter a valid time factor between 0.1 and 10');
-            return;
-        }
-        const selectedLayoutName = layoutSelect.selectedIndex >= 0
-            ? layoutSelect.options[layoutSelect.selectedIndex].text
-            : 'Unknown';
-        console.log('📊 Starting benchmark with configuration:', {
-            layoutId,
-            layoutName: selectedLayoutName,
-            selectedIndex: layoutSelect.selectedIndex,
-            availableLayouts: this.layouts.map(l => `${l.id}: ${l.name || 'Unnamed'}`),
-            trafficControlModel,
-            simulationDuration,
-            carsNumber,
-            timeFactor
-        });
-        // Ensure layout ID is valid
-        const finalLayoutId = layoutId || (this.layouts.length > 0 ? this.layouts[0].id : 'default');
-        // Create the configuration object
+        console.log('📊 Starting benchmark with duration:', simulationDuration);
+        // Create the configuration object - now with just the duration
         const config = {
-            layoutId: finalLayoutId,
-            trafficControlModel,
-            simulationDuration,
-            carsNumber,
-            timeFactor
+            simulationDuration
         };
         // Close the modal
         const modal = document.getElementById('benchmark-config-modal');
@@ -37621,13 +37939,12 @@ class BenchmarkConfigurationComponent {
     /**
      * Show the benchmark configuration modal
      * @param container - Container element to attach the modal to
-     * @param layouts - Available layouts for selection
      * @param currentSettings - Current simulation settings
      * @returns Promise resolving to the selected configuration or null if cancelled
      */
-    static show(container, layouts, currentSettings) {
+    static show(container, currentSettings) {
         return new Promise((resolve) => {
-            new BenchmarkConfigurationComponent(container, layouts, currentSettings, resolve);
+            new BenchmarkConfigurationComponent(container, currentSettings, resolve);
         });
     }
 }
@@ -37725,6 +38042,111 @@ class KPIVisualizationComponent {
 
         <!-- Interactive Tables -->
         <div class="kpi-tables">
+          <!-- Enhanced KPI Summary Table -->
+          <div class="table-section">
+            <h4>Enhanced KPI Summary</h4>
+            <div class="table-wrapper">
+              <table id="enhanced-kpi-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                    <th>Unit</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Emissions and Fuel Table -->
+          <div class="table-section">
+            <h4>Emissions and Fuel Consumption</h4>
+            <div class="table-wrapper">
+              <table id="emissions-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th>Emission Type</th>
+                    <th>Total</th>
+                    <th>Per Vehicle Average</th>
+                    <th>Unit</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Level of Service Table -->
+          <div class="table-section">
+            <h4>Level of Service (LOS) Assessment</h4>
+            <div class="table-controls">
+              <input type="text" id="los-search" placeholder="Search segments..." class="form-control">
+              <select id="los-filter" class="form-control">
+                <option value="">All LOS Grades</option>
+                <option value="A">Grade A</option>
+                <option value="B">Grade B</option>
+                <option value="C">Grade C</option>
+                <option value="D">Grade D</option>
+                <option value="E">Grade E</option>
+                <option value="F">Grade F</option>
+              </select>
+            </div>
+            <div class="table-wrapper">
+              <table id="los-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th data-sort="segmentId">Segment ID</th>
+                    <th data-sort="los">LOS Grade</th>
+                    <th data-sort="averageDelay">Avg Delay (s)</th>
+                    <th data-sort="qualityScore">Quality Score</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Intersection Utilization Table -->
+          <div class="table-section">
+            <h4>Intersection Utilization Rates</h4>
+            <div class="table-wrapper">
+              <table id="utilization-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th data-sort="intersectionId">Intersection ID</th>
+                    <th data-sort="utilizationRate">Utilization Rate (%)</th>
+                    <th data-sort="activeTime">Active Time (s)</th>
+                    <th data-sort="idleTime">Idle Time (s)</th>
+                    <th data-sort="peakUtilization">Peak Utilization (%)</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Vehicle Density Table -->
+          <div class="table-section">
+            <h4>Vehicle Density Metrics</h4>
+            <div class="table-wrapper">
+              <table id="density-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th data-sort="roadId">Road ID</th>
+                    <th data-sort="averageDensity">Avg Density (veh/km)</th>
+                    <th data-sort="maxDensity">Max Density (veh/km)</th>
+                    <th data-sort="timeAboveThreshold">Time Above Threshold (%)</th>
+                    <th data-sort="congestionThreshold">Congestion Threshold</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- Lane Metrics Table -->
           <div class="table-section">
             <h4>Lane Performance Metrics</h4>
@@ -37853,6 +38275,36 @@ class KPIVisualizationComponent {
           <div class="card-label">Completed Trips</div>
           <div class="card-change">-</div>
         </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.averageVehicleDelay.toFixed(1)}</div>
+          <div class="card-label">Avg Vehicle Delay (s)</div>
+          <div class="card-change ${this.getChangeClass('delay')}">${this.getChangeText('delay')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.averageTravelTime.toFixed(1)}</div>
+          <div class="card-label">Avg Travel Time (s)</div>
+          <div class="card-change ${this.getChangeClass('travelTime')}">${this.getChangeText('travelTime')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.averageStopFrequency.toFixed(1)}</div>
+          <div class="card-label">Avg Stop Frequency</div>
+          <div class="card-change ${this.getChangeClass('stops')}">${this.getChangeText('stops')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.totalEmissions.co2Emissions.toFixed(2)}</div>
+          <div class="card-label">Total CO₂ (kg)</div>
+          <div class="card-change ${this.getChangeClass('emissions')}">${this.getChangeText('emissions')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.totalEmissions.fuelConsumption.toFixed(2)}</div>
+          <div class="card-label">Total Fuel (L)</div>
+          <div class="card-change ${this.getChangeClass('fuel')}">${this.getChangeText('fuel')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.queueMetrics.globalMaxQueueLength}</div>
+          <div class="card-label">Max Queue Length</div>
+          <div class="card-change ${this.getChangeClass('queue')}">${this.getChangeText('queue')}</div>
+        </div>
       </div>
     `;
     }
@@ -37874,7 +38326,7 @@ class KPIVisualizationComponent {
      * Initialize event listeners for interactive elements
      */
     initializeEventListeners() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
         // Export buttons
         (_a = document.getElementById('export-csv-btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.exportCSV());
         (_b = document.getElementById('export-json-btn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.exportJSON());
@@ -37883,26 +38335,28 @@ class KPIVisualizationComponent {
         // Table search and sort
         (_e = document.getElementById('lane-search')) === null || _e === void 0 ? void 0 : _e.addEventListener('input', (e) => this.filterTable('lane-metrics-table', e.target.value));
         (_f = document.getElementById('intersection-search')) === null || _f === void 0 ? void 0 : _f.addEventListener('input', (e) => this.filterTable('intersection-metrics-table', e.target.value));
-        (_g = document.getElementById('lane-sort')) === null || _g === void 0 ? void 0 : _g.addEventListener('change', (e) => this.sortTable('lane-metrics-table', e.target.value));
-        (_h = document.getElementById('intersection-sort')) === null || _h === void 0 ? void 0 : _h.addEventListener('change', (e) => this.sortTable('intersection-metrics-table', e.target.value));
-        // Table header sorting
-        document.querySelectorAll('#lane-metrics-table th[data-sort]').forEach(th => {
-            th.addEventListener('click', () => {
-                const sortKey = th.getAttribute('data-sort');
-                this.sortTable('lane-metrics-table', sortKey);
-            });
-        });
-        document.querySelectorAll('#intersection-metrics-table th[data-sort]').forEach(th => {
-            th.addEventListener('click', () => {
-                const sortKey = th.getAttribute('data-sort');
-                this.sortTable('intersection-metrics-table', sortKey);
+        (_g = document.getElementById('los-search')) === null || _g === void 0 ? void 0 : _g.addEventListener('input', (e) => this.filterTable('los-table', e.target.value));
+        (_h = document.getElementById('lane-sort')) === null || _h === void 0 ? void 0 : _h.addEventListener('change', (e) => this.sortTable('lane-metrics-table', e.target.value));
+        (_j = document.getElementById('intersection-sort')) === null || _j === void 0 ? void 0 : _j.addEventListener('change', (e) => this.sortTable('intersection-metrics-table', e.target.value));
+        (_k = document.getElementById('los-filter')) === null || _k === void 0 ? void 0 : _k.addEventListener('change', (e) => this.filterTableByValue('los-table', 1, e.target.value));
+        // Table header sorting for all tables
+        const sortableTables = [
+            'enhanced-kpi-table', 'emissions-table', 'los-table',
+            'utilization-table', 'density-table', 'lane-metrics-table', 'intersection-metrics-table'
+        ];
+        sortableTables.forEach(tableId => {
+            document.querySelectorAll(`#${tableId} th[data-sort]`).forEach(th => {
+                th.addEventListener('click', () => {
+                    const sortKey = th.getAttribute('data-sort');
+                    this.sortTable(tableId, sortKey);
+                });
             });
         });
         // Comparison panel
-        (_j = document.getElementById('close-comparison')) === null || _j === void 0 ? void 0 : _j.addEventListener('click', () => {
+        (_l = document.getElementById('close-comparison')) === null || _l === void 0 ? void 0 : _l.addEventListener('click', () => {
             document.getElementById('comparison-panel').style.display = 'none';
         });
-        (_k = document.getElementById('comparison-benchmark')) === null || _k === void 0 ? void 0 : _k.addEventListener('change', (e) => {
+        (_m = document.getElementById('comparison-benchmark')) === null || _m === void 0 ? void 0 : _m.addEventListener('change', (e) => {
             const selectedId = e.target.value;
             if (selectedId) {
                 this.showComparison(selectedId);
@@ -37913,6 +38367,11 @@ class KPIVisualizationComponent {
      * Populate interactive tables with data
      */
     populateTables() {
+        this.populateEnhancedKPITable();
+        this.populateEmissionsTable();
+        this.populateLevelOfServiceTable();
+        this.populateUtilizationTable();
+        this.populateDensityTable();
         this.populateLaneTable();
         this.populateIntersectionTable();
     }
@@ -37961,6 +38420,139 @@ class KPIVisualizationComponent {
         });
     }
     /**
+     * Populate enhanced KPI summary table
+     */
+    populateEnhancedKPITable() {
+        const tbody = document.querySelector('#enhanced-kpi-table tbody');
+        const metrics = this.currentBenchmark.finalMetrics;
+        tbody.innerHTML = '';
+        const kpiData = [
+            { metric: 'Average Vehicle Delay', value: metrics.averageVehicleDelay.toFixed(2), unit: 'seconds', description: 'Average time vehicles spend delayed due to traffic conditions' },
+            { metric: 'Average Travel Time', value: metrics.averageTravelTime.toFixed(2), unit: 'seconds', description: 'Average complete journey time from origin to destination' },
+            { metric: 'Average Stop Frequency', value: metrics.averageStopFrequency.toFixed(2), unit: 'stops/vehicle', description: 'Average number of stops made by each vehicle during its journey' },
+            { metric: 'Global Max Queue Length', value: metrics.queueMetrics.globalMaxQueueLength.toString(), unit: 'vehicles', description: 'Maximum queue length observed across all intersections and lanes' },
+            { metric: 'Global Average Queue Length', value: metrics.queueMetrics.globalAverageQueueLength.toFixed(2), unit: 'vehicles', description: 'Average queue length across all intersections and lanes' },
+            { metric: 'Total Queue Time', value: (metrics.queueMetrics.totalQueueTime / 60).toFixed(2), unit: 'vehicle-minutes', description: 'Total time all vehicles spent waiting in queues' }
+        ];
+        kpiData.forEach(kpi => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+        <td><strong>${kpi.metric}</strong></td>
+        <td>${kpi.value}</td>
+        <td>${kpi.unit}</td>
+        <td>${kpi.description}</td>
+      `;
+            tbody.appendChild(row);
+        });
+    }
+    /**
+     * Populate emissions and fuel consumption table
+     */
+    populateEmissionsTable() {
+        const tbody = document.querySelector('#emissions-table tbody');
+        const metrics = this.currentBenchmark.finalMetrics;
+        tbody.innerHTML = '';
+        const emissionData = [
+            {
+                type: 'CO₂ Emissions',
+                total: metrics.totalEmissions.co2Emissions.toFixed(3),
+                average: metrics.averageEmissionsPerVehicle.co2Emissions.toFixed(3),
+                unit: 'kg'
+            },
+            {
+                type: 'Fuel Consumption',
+                total: metrics.totalEmissions.fuelConsumption.toFixed(3),
+                average: metrics.averageEmissionsPerVehicle.fuelConsumption.toFixed(3),
+                unit: 'liters'
+            },
+            {
+                type: 'NOx Emissions',
+                total: metrics.totalEmissions.noxEmissions.toFixed(3),
+                average: metrics.averageEmissionsPerVehicle.noxEmissions.toFixed(3),
+                unit: 'kg'
+            },
+            {
+                type: 'PM Emissions',
+                total: metrics.totalEmissions.pmEmissions.toFixed(3),
+                average: metrics.averageEmissionsPerVehicle.pmEmissions.toFixed(3),
+                unit: 'kg'
+            },
+            {
+                type: 'Total Environmental Impact',
+                total: metrics.totalEmissions.totalEmissions.toFixed(3),
+                average: metrics.averageEmissionsPerVehicle.totalEmissions.toFixed(3),
+                unit: 'impact units'
+            }
+        ];
+        emissionData.forEach(emission => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+        <td><strong>${emission.type}</strong></td>
+        <td>${emission.total}</td>
+        <td>${emission.average}</td>
+        <td>${emission.unit}</td>
+      `;
+            tbody.appendChild(row);
+        });
+    }
+    /**
+     * Populate Level of Service table
+     */
+    populateLevelOfServiceTable() {
+        const tbody = document.querySelector('#los-table tbody');
+        const metrics = this.currentBenchmark.finalMetrics;
+        tbody.innerHTML = '';
+        Object.entries(metrics.levelOfService).forEach(([segmentId, los]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+        <td>${segmentId}</td>
+        <td><span class="los-grade los-${los.los}">${los.los}</span></td>
+        <td>${los.averageDelay.toFixed(2)}</td>
+        <td>${los.qualityScore}</td>
+        <td>${los.description}</td>
+      `;
+            tbody.appendChild(row);
+        });
+    }
+    /**
+     * Populate intersection utilization table
+     */
+    populateUtilizationTable() {
+        const tbody = document.querySelector('#utilization-table tbody');
+        const metrics = this.currentBenchmark.finalMetrics;
+        tbody.innerHTML = '';
+        Object.entries(metrics.intersectionUtilizationRate).forEach(([intersectionId, util]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+        <td>${intersectionId}</td>
+        <td><span class="utilization-indicator" style="background-color: ${this.getUtilizationColor(util.utilizationRate)}">${util.utilizationRate.toFixed(1)}%</span></td>
+        <td>${util.activeTime.toFixed(1)}</td>
+        <td>${util.idleTime.toFixed(1)}</td>
+        <td>${util.peakUtilization.toFixed(1)}%</td>
+      `;
+            tbody.appendChild(row);
+        });
+    }
+    /**
+     * Populate vehicle density table
+     */
+    populateDensityTable() {
+        const tbody = document.querySelector('#density-table tbody');
+        const metrics = this.currentBenchmark.finalMetrics;
+        tbody.innerHTML = '';
+        Object.entries(metrics.vehicleDensity).forEach(([roadId, density]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+        <td>${roadId}</td>
+        <td>${density.averageDensity.toFixed(2)}</td>
+        <td>${density.maxDensity.toFixed(2)}</td>
+        <td><span class="density-indicator" style="background-color: ${this.getDensityColor(density.timeAboveThreshold)}">${(density.timeAboveThreshold * 100).toFixed(1)}%</span></td>
+        <td>${density.congestionThreshold}</td>
+      `;
+            tbody.appendChild(row);
+        });
+    }
+    /**
      * Get color for congestion rate visualization
      */
     getCongestionColor(rate) {
@@ -37969,6 +38561,28 @@ class KPIVisualizationComponent {
         if (rate < 0.6)
             return '#FF9800'; // Orange
         return '#F44336'; // Red
+    }
+    /**
+     * Get color for utilization rate visualization
+     */
+    getUtilizationColor(rate) {
+        if (rate < 30)
+            return '#FFC107'; // Yellow - low utilization
+        if (rate < 70)
+            return '#4CAF50'; // Green - good utilization
+        if (rate < 90)
+            return '#FF9800'; // Orange - high utilization
+        return '#F44336'; // Red - overutilization
+    }
+    /**
+     * Get color for density visualization
+     */
+    getDensityColor(timeAboveThreshold) {
+        if (timeAboveThreshold < 0.2)
+            return '#4CAF50'; // Green - rarely congested
+        if (timeAboveThreshold < 0.5)
+            return '#FF9800'; // Orange - sometimes congested
+        return '#F44336'; // Red - frequently congested
     }
     /**
      * Filter table based on search term
@@ -37980,6 +38594,29 @@ class KPIVisualizationComponent {
             var _a;
             const text = ((_a = row.textContent) === null || _a === void 0 ? void 0 : _a.toLowerCase()) || '';
             if (text.includes(searchTerm.toLowerCase())) {
+                row.style.display = '';
+            }
+            else {
+                row.style.display = 'none';
+            }
+        });
+    }
+    /**
+     * Filter table by value in specific column
+     */
+    filterTableByValue(tableId, columnIndex, filterValue) {
+        if (!filterValue) {
+            // Show all rows if no filter
+            this.filterTable(tableId, '');
+            return;
+        }
+        const table = document.getElementById(tableId);
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            var _a;
+            const cell = row.children[columnIndex];
+            const cellValue = ((_a = cell === null || cell === void 0 ? void 0 : cell.textContent) === null || _a === void 0 ? void 0 : _a.trim()) || '';
+            if (cellValue === filterValue) {
                 row.style.display = '';
             }
             else {
@@ -38016,7 +38653,10 @@ class KPIVisualizationComponent {
         return [
             'averageSpeed', 'vehicleCount', 'throughput', 'congestionRate',
             'queueLength', 'averageWaitTime', 'totalVehiclesPassed',
-            'maxWaitTime', 'averageQueueLength', 'maxQueueLength'
+            'maxWaitTime', 'averageQueueLength', 'maxQueueLength',
+            'utilizationRate', 'activeTime', 'idleTime', 'peakUtilization',
+            'averageDensity', 'maxDensity', 'timeAboveThreshold', 'congestionThreshold',
+            'averageDelay', 'qualityScore', 'value'
         ].includes(sortKey);
     }
     /**
@@ -39446,6 +40086,8 @@ class Car {
         const previousSpeed = this._speed;
         // Update speed based on acceleration
         this.speed += acceleration * delta;
+        // Update vehicle emissions based on current driving behavior
+        kpi_collector_1.kpiCollector.updateVehicleEmissions(this, Car.worldTime, acceleration, delta);
         // Check for stop/start events for KPI collection
         if (previousSpeed > 0.1 && this._speed <= 0.1) {
             // Vehicle has stopped
@@ -39945,6 +40587,15 @@ class KPICollector {
         this.intersectionThroughput = {}; // intersectionId -> count
         this.intersectionWaitTimes = {}; // intersectionId -> waitTimes array
         this.intersectionQueueHistory = {}; // intersectionId -> queueLengths array
+        // New comprehensive KPI tracking
+        this.vehicleJourneyTimes = {};
+        this.vehicleStopCounts = {};
+        this.vehicleEmissions = {};
+        this.totalEmissions = { co2Emissions: 0, fuelConsumption: 0, noxEmissions: 0, pmEmissions: 0, totalEmissions: 0 };
+        this.intersectionUtilizationTracking = {};
+        this.densityMeasurements = {};
+        this.queueLengthHistory = {};
+        this.delayMeasurements = [];
         // Settings
         this.sampleInterval = 0.5; // How often to sample speed (in simulation seconds)
         this.lastSampleTime = 0;
@@ -39995,6 +40646,15 @@ class KPICollector {
         this.intersectionThroughput = {};
         this.intersectionWaitTimes = {};
         this.intersectionQueueHistory = {};
+        // Reset new comprehensive KPI tracking
+        this.vehicleJourneyTimes = {};
+        this.vehicleStopCounts = {};
+        this.vehicleEmissions = {};
+        this.totalEmissions = { co2Emissions: 0, fuelConsumption: 0, noxEmissions: 0, pmEmissions: 0, totalEmissions: 0 };
+        this.intersectionUtilizationTracking = {};
+        this.densityMeasurements = {};
+        this.queueLengthHistory = {};
+        this.delayMeasurements = [];
         if (this.cleanupTimeout !== null) {
             clearTimeout(this.cleanupTimeout);
             this.cleanupTimeout = null;
@@ -40009,6 +40669,21 @@ class KPICollector {
             return;
         // Add to active vehicles set
         this.activeVehicles.add(vehicle.id);
+        // Initialize journey tracking
+        this.vehicleJourneyTimes[vehicle.id] = {
+            startTime: time,
+            totalDelay: 0
+        };
+        // Initialize stop count
+        this.vehicleStopCounts[vehicle.id] = 0;
+        // Initialize emissions tracking
+        this.vehicleEmissions[vehicle.id] = {
+            co2Emissions: 0,
+            fuelConsumption: 0,
+            noxEmissions: 0,
+            pmEmissions: 0,
+            totalEmissions: 0
+        };
         // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
@@ -40026,6 +40701,10 @@ class KPICollector {
             return;
         // Remove from active vehicles set
         this.activeVehicles.delete(vehicle.id);
+        // Complete journey tracking
+        if (this.vehicleJourneyTimes[vehicle.id]) {
+            this.vehicleJourneyTimes[vehicle.id].endTime = time;
+        }
         // Increment completed trips counter
         this.completedTrips++;
         // Record the vehicle event
@@ -40047,6 +40726,10 @@ class KPICollector {
         this.stoppedVehicles.add(vehicle.id);
         // Record stop timestamp for duration calculation later
         this.stoppedTimestamps[vehicle.id] = time;
+        // Increment stop count for this vehicle
+        if (this.vehicleStopCounts[vehicle.id] !== undefined) {
+            this.vehicleStopCounts[vehicle.id]++;
+        }
         // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
@@ -40070,6 +40753,12 @@ class KPICollector {
             delete this.stoppedTimestamps[vehicle.id];
             // Record wait time for statistics
             this.waitTimes.push(duration);
+            // Add to delay measurements
+            this.delayMeasurements.push(duration);
+            // Add to vehicle's total delay
+            if (this.vehicleJourneyTimes[vehicle.id]) {
+                this.vehicleJourneyTimes[vehicle.id].totalDelay += duration;
+            }
         }
         // Record the vehicle event
         this.vehicleMetrics.push({
@@ -40450,11 +41139,21 @@ class KPICollector {
             intersectionUtilization,
             roadUtilization,
             simulationTime: currentTime - this.simulationStartTime,
-            // New expanded metrics
+            // Enhanced KPIs
             laneMetrics: this.calculateLaneMetrics(),
             intersectionMetrics: this.calculateIntersectionMetrics(),
             globalThroughput: this.calculateGlobalThroughput(),
-            congestionIndex: this.calculateCongestionIndex()
+            congestionIndex: this.calculateCongestionIndex(),
+            // New comprehensive KPIs
+            averageVehicleDelay: this.calculateAverageVehicleDelay(),
+            averageTravelTime: this.calculateAverageTravelTime(),
+            averageStopFrequency: this.calculateAverageStopFrequency(),
+            totalEmissions: this.totalEmissions,
+            averageEmissionsPerVehicle: this.calculateAverageEmissionsPerVehicle(),
+            intersectionUtilizationRate: this.calculateIntersectionUtilizationRates(currentTime),
+            vehicleDensity: this.calculateVehicleDensityMetrics(),
+            levelOfService: this.calculateLevelOfServiceMetrics(),
+            queueMetrics: this.calculateQueueMetrics()
         };
     }
     /**
@@ -40655,15 +41354,49 @@ class KPICollector {
         csv += `Global Throughput (vehicles/min),${metrics.globalThroughput.toFixed(2)}\n`;
         csv += `Global Congestion Index,${metrics.congestionIndex.toFixed(2)}\n`;
         csv += `Simulation Time (s),${metrics.simulationTime.toFixed(2)}\n\n`;
+        // New comprehensive KPIs
+        csv += '# Enhanced KPI Metrics\n';
+        csv += `Average Vehicle Delay (s),${metrics.averageVehicleDelay.toFixed(2)}\n`;
+        csv += `Average Travel Time (s),${metrics.averageTravelTime.toFixed(2)}\n`;
+        csv += `Average Stop Frequency,${metrics.averageStopFrequency.toFixed(2)}\n`;
+        csv += `Total CO2 Emissions (kg),${metrics.totalEmissions.co2Emissions.toFixed(3)}\n`;
+        csv += `Total Fuel Consumption (L),${metrics.totalEmissions.fuelConsumption.toFixed(3)}\n`;
+        csv += `Total NOx Emissions (kg),${metrics.totalEmissions.noxEmissions.toFixed(3)}\n`;
+        csv += `Total PM Emissions (kg),${metrics.totalEmissions.pmEmissions.toFixed(3)}\n`;
+        csv += `Average CO2 per Vehicle (kg),${metrics.averageEmissionsPerVehicle.co2Emissions.toFixed(3)}\n`;
+        csv += `Average Fuel per Vehicle (L),${metrics.averageEmissionsPerVehicle.fuelConsumption.toFixed(3)}\n`;
+        csv += `Global Max Queue Length,${metrics.queueMetrics.globalMaxQueueLength}\n`;
+        csv += `Global Average Queue Length,${metrics.queueMetrics.globalAverageQueueLength.toFixed(2)}\n\n`;
+        // Intersection utilization rates
+        csv += '# Intersection Utilization Rates\n';
+        csv += 'Intersection ID,Utilization Rate (%),Active Time (s),Idle Time (s)\n';
+        Object.entries(metrics.intersectionUtilizationRate).forEach(([id, util]) => {
+            csv += `${id},${util.utilizationRate.toFixed(2)},${util.activeTime.toFixed(2)},${util.idleTime.toFixed(2)}\n`;
+        });
+        csv += '\n';
+        // Vehicle density metrics
+        csv += '# Vehicle Density Metrics\n';
+        csv += 'Road ID,Average Density (veh/km),Max Density (veh/km),Time Above Threshold (%)\n';
+        Object.entries(metrics.vehicleDensity).forEach(([roadId, density]) => {
+            csv += `${roadId},${density.averageDensity.toFixed(2)},${density.maxDensity.toFixed(2)},${(density.timeAboveThreshold * 100).toFixed(2)}\n`;
+        });
+        csv += '\n';
+        // Level of Service metrics
+        csv += '# Level of Service Metrics\n';
+        csv += 'Segment ID,LOS Grade,Average Delay (s),Quality Score,Description\n';
+        Object.entries(metrics.levelOfService).forEach(([segmentId, los]) => {
+            csv += `${segmentId},${los.los},${los.averageDelay.toFixed(2)},${los.qualityScore},${los.description}\n`;
+        });
+        csv += '\n';
         // Lane metrics
-        csv += '# Lane Metrics\n';
+        csv += '# Lane Performance Metrics\n';
         csv += 'Lane ID,Average Speed,Vehicle Count,Max Vehicle Count,Average Vehicle Count,Congestion Rate,Throughput,Total Vehicles Passed,Average Wait Time,Queue Length\n';
         Object.values(metrics.laneMetrics).forEach(lane => {
             csv += `${lane.laneId},${lane.averageSpeed.toFixed(2)},${lane.vehicleCount},${lane.maxVehicleCount},`;
             csv += `${lane.averageVehicleCount.toFixed(2)},${lane.congestionRate.toFixed(2)},${lane.throughput.toFixed(2)},`;
             csv += `${lane.totalVehiclesPassed},${lane.averageWaitTime.toFixed(2)},${lane.queueLength}\n`;
         });
-        csv += '\n# Intersection Metrics\n';
+        csv += '\n# Intersection Performance Metrics\n';
         csv += 'Intersection ID,Throughput,Average Wait Time,Max Wait Time,Average Queue Length,Max Queue Length,Total Vehicles Passed,Congestion Rate\n';
         Object.values(metrics.intersectionMetrics).forEach(intersection => {
             csv += `${intersection.intersectionId},${intersection.throughput.toFixed(2)},${intersection.averageWaitTime.toFixed(2)},`;
@@ -40707,14 +41440,30 @@ class KPICollector {
                 congestionIndex: metrics.congestionIndex,
                 simulationTime: metrics.simulationTime
             },
+            enhancedKPIs: {
+                averageVehicleDelay: metrics.averageVehicleDelay,
+                averageTravelTime: metrics.averageTravelTime,
+                averageStopFrequency: metrics.averageStopFrequency,
+                totalEmissions: metrics.totalEmissions,
+                averageEmissionsPerVehicle: metrics.averageEmissionsPerVehicle,
+                queueMetrics: metrics.queueMetrics
+            },
             laneMetrics: metrics.laneMetrics,
             intersectionMetrics: metrics.intersectionMetrics,
             intersectionUtilization: metrics.intersectionUtilization,
+            intersectionUtilizationRate: metrics.intersectionUtilizationRate,
             roadUtilization: metrics.roadUtilization,
+            vehicleDensity: metrics.vehicleDensity,
+            levelOfService: metrics.levelOfService,
             rawData: {
                 vehicleEvents: this.vehicleMetrics,
                 intersectionEvents: this.intersectionMetrics,
-                laneEvents: this.laneMetrics
+                laneEvents: this.laneMetrics,
+                vehicleJourneyTimes: this.vehicleJourneyTimes,
+                vehicleStopCounts: this.vehicleStopCounts,
+                vehicleEmissions: this.vehicleEmissions,
+                densityMeasurements: this.densityMeasurements,
+                queueLengthHistory: this.queueLengthHistory
             }
         };
         return JSON.stringify(exportData, null, 2);
@@ -40939,6 +41688,337 @@ class KPICollector {
         html += `<tr><td>Total event records</td><td>${this.vehicleMetrics.length}</td></tr>`;
         html += '</table></div>';
         return html;
+    }
+    /**
+     * Calculate emissions based on vehicle speed, acceleration, and driving behavior
+     * Uses a simplified but realistic model based on VSP (Vehicle Specific Power)
+     */
+    updateVehicleEmissions(vehicle, time, acceleration, delta) {
+        if (!this.isRecording || !this.vehicleEmissions[vehicle.id])
+            return;
+        const speed = vehicle.speed; // m/s
+        const mass = 1500; // Assume average car mass of 1500 kg
+        // Calculate Vehicle Specific Power (VSP) in kW/ton
+        // VSP = (v * (a + g * sin(grade) + CR * g) + 0.5 * CdA * rho * v^3) / (1000 * mass)
+        // Simplified for flat roads: VSP ≈ (v * a + drag_term) / 1000
+        const dragCoeff = 0.0003; // Simplified drag coefficient
+        const vsp = (speed * acceleration + dragCoeff * Math.pow(speed, 3)) / 1000;
+        // Base emission factors (g/s at different driving modes)
+        let co2Rate = 0; // kg/s
+        let fuelRate = 0; // L/s
+        let noxRate = 0; // kg/s
+        let pmRate = 0; // kg/s
+        if (speed < 0.1) {
+            // Idling
+            co2Rate = 0.0008; // Higher emissions when idling
+            fuelRate = 0.0003;
+            noxRate = 0.00001;
+            pmRate = 0.000005;
+        }
+        else if (acceleration > 0.5) {
+            // Accelerating
+            co2Rate = 0.002 + Math.max(0, vsp * 0.0001);
+            fuelRate = 0.0007 + Math.max(0, vsp * 0.00004);
+            noxRate = 0.00003;
+            pmRate = 0.00001;
+        }
+        else if (acceleration < -0.5) {
+            // Decelerating (lower emissions due to engine braking)
+            co2Rate = 0.0005;
+            fuelRate = 0.0002;
+            noxRate = 0.00001;
+            pmRate = 0.000003;
+        }
+        else {
+            // Cruising - emissions vary with speed
+            const speedFactor = Math.min(2.0, 0.5 + speed / 15); // Optimal around 15 m/s
+            co2Rate = 0.001 * speedFactor;
+            fuelRate = 0.0004 * speedFactor;
+            noxRate = 0.00002 * speedFactor;
+            pmRate = 0.000007 * speedFactor;
+        }
+        // Calculate emissions for this time step
+        const emissions = this.vehicleEmissions[vehicle.id];
+        const co2Increment = co2Rate * delta;
+        const fuelIncrement = fuelRate * delta;
+        const noxIncrement = noxRate * delta;
+        const pmIncrement = pmRate * delta;
+        // Update vehicle emissions
+        emissions.co2Emissions += co2Increment;
+        emissions.fuelConsumption += fuelIncrement;
+        emissions.noxEmissions += noxIncrement;
+        emissions.pmEmissions += pmIncrement;
+        emissions.totalEmissions += (co2Increment + noxIncrement * 20 + pmIncrement * 50); // Weighted environmental impact
+        // Update total emissions
+        this.totalEmissions.co2Emissions += co2Increment;
+        this.totalEmissions.fuelConsumption += fuelIncrement;
+        this.totalEmissions.noxEmissions += noxIncrement;
+        this.totalEmissions.pmEmissions += pmIncrement;
+        this.totalEmissions.totalEmissions += (co2Increment + noxIncrement * 20 + pmIncrement * 50);
+    }
+    /**
+     * Record intersection utilization when vehicles enter/exit
+     */
+    recordIntersectionUtilization(intersectionId, time, hasVehicles) {
+        if (!this.isRecording)
+            return;
+        if (!this.intersectionUtilizationTracking[intersectionId]) {
+            this.intersectionUtilizationTracking[intersectionId] = {
+                activeTime: 0,
+                totalTime: 0,
+                lastVehicleTime: 0
+            };
+        }
+        const tracking = this.intersectionUtilizationTracking[intersectionId];
+        if (hasVehicles) {
+            tracking.lastVehicleTime = time;
+        }
+        // This method should be called regularly to update total time
+        tracking.totalTime = time - this.simulationStartTime;
+    }
+    /**
+     * Sample vehicle density on roads
+     */
+    sampleVehicleDensity(roadId, vehicleCount, roadLength) {
+        if (!this.isRecording || roadLength <= 0)
+            return;
+        const density = (vehicleCount / roadLength) * 1000; // vehicles per km
+        if (!this.densityMeasurements[roadId]) {
+            this.densityMeasurements[roadId] = [];
+        }
+        this.densityMeasurements[roadId].push(density);
+    }
+    /**
+     * Record queue lengths for detailed tracking
+     */
+    recordQueueLength(locationId, queueLength, isIntersection = false) {
+        if (!this.isRecording)
+            return;
+        const key = `${isIntersection ? 'intersection' : 'lane'}_${locationId}`;
+        if (!this.queueLengthHistory[key]) {
+            this.queueLengthHistory[key] = [];
+        }
+        this.queueLengthHistory[key].push(queueLength);
+    }
+    /**
+     * Calculate Level of Service (LOS) based on HCM standards
+     */
+    calculateLevelOfService(averageDelay, averageSpeed, density) {
+        let los = 'F';
+        let qualityScore = 0;
+        let description = '';
+        // LOS calculation based on average delay (seconds) for urban streets
+        if (averageDelay <= 10) {
+            los = 'A';
+            qualityScore = 95;
+            description = 'Free flow conditions with minimal delays';
+        }
+        else if (averageDelay <= 20) {
+            los = 'B';
+            qualityScore = 85;
+            description = 'Stable flow with acceptable delays';
+        }
+        else if (averageDelay <= 35) {
+            los = 'C';
+            qualityScore = 75;
+            description = 'Stable flow with noticeable delays';
+        }
+        else if (averageDelay <= 55) {
+            los = 'D';
+            qualityScore = 65;
+            description = 'Approaching unstable flow with longer delays';
+        }
+        else if (averageDelay <= 80) {
+            los = 'E';
+            qualityScore = 45;
+            description = 'Unstable flow with significant delays';
+        }
+        else {
+            los = 'F';
+            qualityScore = 25;
+            description = 'Forced flow with excessive delays and congestion';
+        }
+        // Adjust score based on speed and density
+        if (averageSpeed < 5)
+            qualityScore -= 10;
+        if (density > 50)
+            qualityScore -= 10; // More than 50 vehicles per km
+        qualityScore = Math.max(0, Math.min(100, qualityScore));
+        return {
+            los,
+            averageDelay,
+            averageSpeed,
+            densityScore: density,
+            qualityScore,
+            description
+        };
+    }
+    /**
+     * Calculate average vehicle delay across all vehicles
+     */
+    calculateAverageVehicleDelay() {
+        if (this.delayMeasurements.length === 0)
+            return 0;
+        return this.delayMeasurements.reduce((sum, delay) => sum + delay, 0) / this.delayMeasurements.length;
+    }
+    /**
+     * Calculate average travel time for completed journeys
+     */
+    calculateAverageTravelTime() {
+        const completedJourneys = Object.values(this.vehicleJourneyTimes).filter(journey => journey.endTime !== undefined);
+        if (completedJourneys.length === 0)
+            return 0;
+        const totalTravelTime = completedJourneys.reduce((sum, journey) => {
+            return sum + (journey.endTime - journey.startTime);
+        }, 0);
+        return totalTravelTime / completedJourneys.length;
+    }
+    /**
+     * Calculate average stop frequency per vehicle
+     */
+    calculateAverageStopFrequency() {
+        const stopCounts = Object.values(this.vehicleStopCounts);
+        if (stopCounts.length === 0)
+            return 0;
+        return stopCounts.reduce((sum, count) => sum + count, 0) / stopCounts.length;
+    }
+    /**
+     * Calculate average emissions per vehicle
+     */
+    calculateAverageEmissionsPerVehicle() {
+        const vehicleEmissions = Object.values(this.vehicleEmissions);
+        if (vehicleEmissions.length === 0) {
+            return { co2Emissions: 0, fuelConsumption: 0, noxEmissions: 0, pmEmissions: 0, totalEmissions: 0 };
+        }
+        const totals = vehicleEmissions.reduce((sum, emissions) => ({
+            co2Emissions: sum.co2Emissions + emissions.co2Emissions,
+            fuelConsumption: sum.fuelConsumption + emissions.fuelConsumption,
+            noxEmissions: sum.noxEmissions + emissions.noxEmissions,
+            pmEmissions: sum.pmEmissions + emissions.pmEmissions,
+            totalEmissions: sum.totalEmissions + emissions.totalEmissions
+        }), { co2Emissions: 0, fuelConsumption: 0, noxEmissions: 0, pmEmissions: 0, totalEmissions: 0 });
+        const count = vehicleEmissions.length;
+        return {
+            co2Emissions: totals.co2Emissions / count,
+            fuelConsumption: totals.fuelConsumption / count,
+            noxEmissions: totals.noxEmissions / count,
+            pmEmissions: totals.pmEmissions / count,
+            totalEmissions: totals.totalEmissions / count
+        };
+    }
+    /**
+     * Calculate intersection utilization rates
+     */
+    calculateIntersectionUtilizationRates(currentTime) {
+        const results = {};
+        for (const [intersectionId, tracking] of Object.entries(this.intersectionUtilizationTracking)) {
+            const totalTime = currentTime - this.simulationStartTime;
+            const activeTime = Math.min(tracking.activeTime, totalTime);
+            const utilizationRate = totalTime > 0 ? (activeTime / totalTime) * 100 : 0;
+            results[intersectionId] = {
+                activeTime,
+                totalTime,
+                utilizationRate,
+                idleTime: totalTime - activeTime,
+                peakUtilization: utilizationRate // Simplified - could track peak over time
+            };
+        }
+        return results;
+    }
+    /**
+     * Calculate vehicle density metrics for all roads
+     */
+    calculateVehicleDensityMetrics() {
+        const results = {};
+        for (const [roadId, densities] of Object.entries(this.densityMeasurements)) {
+            if (densities.length === 0)
+                continue;
+            const averageDensity = densities.reduce((sum, d) => sum + d, 0) / densities.length;
+            const maxDensity = Math.max(...densities);
+            const variance = densities.reduce((sum, d) => sum + Math.pow(d - averageDensity, 2), 0) / densities.length;
+            const congestionThreshold = 25; // vehicles per km
+            const timeAboveThreshold = densities.filter(d => d > congestionThreshold).length / densities.length;
+            results[roadId] = {
+                averageDensity,
+                maxDensity,
+                densityVariance: variance,
+                congestionThreshold,
+                timeAboveThreshold
+            };
+        }
+        return results;
+    }
+    /**
+     * Calculate Level of Service metrics for all segments
+     */
+    calculateLevelOfServiceMetrics() {
+        const results = {};
+        // Calculate LOS for lanes
+        for (const [laneId, waitTimes] of Object.entries(this.laneWaitTimes)) {
+            if (waitTimes.length === 0)
+                continue;
+            const avgDelay = waitTimes.reduce((sum, time) => sum + time, 0) / waitTimes.length;
+            const avgSpeed = this.laneTotalSpeeds[laneId]
+                ? this.laneTotalSpeeds[laneId].total / this.laneTotalSpeeds[laneId].count
+                : 0;
+            const density = this.densityMeasurements[laneId]
+                ? this.densityMeasurements[laneId].reduce((sum, d) => sum + d, 0) / this.densityMeasurements[laneId].length
+                : 0;
+            results[`lane_${laneId}`] = this.calculateLevelOfService(avgDelay, avgSpeed, density);
+        }
+        // Calculate LOS for intersections
+        for (const [intersectionId, waitTimes] of Object.entries(this.intersectionWaitTimes)) {
+            if (waitTimes.length === 0)
+                continue;
+            const avgDelay = waitTimes.reduce((sum, time) => sum + time, 0) / waitTimes.length;
+            const queueHistory = this.intersectionQueueHistory[intersectionId] || [];
+            const avgQueue = queueHistory.length > 0
+                ? queueHistory.reduce((sum, q) => sum + q, 0) / queueHistory.length
+                : 0;
+            results[`intersection_${intersectionId}`] = this.calculateLevelOfService(avgDelay, 0, avgQueue);
+        }
+        return results;
+    }
+    /**
+     * Calculate comprehensive queue metrics
+     */
+    calculateQueueMetrics() {
+        const allQueueLengths = [];
+        const queuesByIntersection = {};
+        const queuesByLane = {};
+        // Process intersection queues
+        for (const [intersectionId, queueHistory] of Object.entries(this.intersectionQueueHistory)) {
+            allQueueLengths.push(...queueHistory);
+            queuesByIntersection[intersectionId] = {
+                maxQueueLength: queueHistory.length > 0 ? Math.max(...queueHistory) : 0,
+                averageQueueLength: queueHistory.length > 0 ? queueHistory.reduce((sum, q) => sum + q, 0) / queueHistory.length : 0,
+                totalQueueTime: queueHistory.reduce((sum, q) => sum + q, 0),
+                queueFormationEvents: queueHistory.filter((q, i) => i > 0 && queueHistory[i - 1] === 0 && q > 0).length,
+                queueDissipationEvents: queueHistory.filter((q, i) => i > 0 && queueHistory[i - 1] > 0 && q === 0).length
+            };
+        }
+        // Process lane queues from history
+        for (const [key, queueHistory] of Object.entries(this.queueLengthHistory)) {
+            if (key.startsWith('lane_')) {
+                const laneId = key.substring(5);
+                allQueueLengths.push(...queueHistory);
+                queuesByLane[laneId] = {
+                    maxQueueLength: queueHistory.length > 0 ? Math.max(...queueHistory) : 0,
+                    averageQueueLength: queueHistory.length > 0 ? queueHistory.reduce((sum, q) => sum + q, 0) / queueHistory.length : 0,
+                    totalQueueTime: queueHistory.reduce((sum, q) => sum + q, 0),
+                    queueFormationEvents: queueHistory.filter((q, i) => i > 0 && queueHistory[i - 1] === 0 && q > 0).length,
+                    queueDissipationEvents: queueHistory.filter((q, i) => i > 0 && queueHistory[i - 1] > 0 && q === 0).length
+                };
+            }
+        }
+        return {
+            globalMaxQueueLength: allQueueLengths.length > 0 ? Math.max(...allQueueLengths) : 0,
+            globalAverageQueueLength: allQueueLengths.length > 0 ? allQueueLengths.reduce((sum, q) => sum + q, 0) / allQueueLengths.length : 0,
+            totalQueueTime: allQueueLengths.reduce((sum, q) => sum + q, 0),
+            averageQueueTime: allQueueLengths.length > 0 ? allQueueLengths.reduce((sum, q) => sum + q, 0) / allQueueLengths.length : 0,
+            queuesByIntersection,
+            queuesByLane
+        };
     }
 }
 exports.KPICollector = KPICollector;
@@ -42355,148 +43435,6 @@ exports.AdaptiveTimingStrategy = AdaptiveTimingStrategy;
 
 /***/ }),
 
-/***/ "./src/model/traffic-control/AllRedFlashingStrategy.ts":
-/*!*************************************************************!*\
-  !*** ./src/model/traffic-control/AllRedFlashingStrategy.ts ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-/**
- * AllRedFlashingStrategy
- *
- * A special traffic control strategy that simulates an emergency mode where all
- * signals flash red, requiring vehicles to treat the intersection as an all-way stop.
- */
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AllRedFlashingStrategy = void 0;
-const AbstractTrafficControlStrategy_1 = __webpack_require__(/*! ./AbstractTrafficControlStrategy */ "./src/model/traffic-control/AbstractTrafficControlStrategy.ts");
-/**
- * All-Red Flashing Strategy
- * Simulates emergency conditions or power outage at intersection
- */
-class AllRedFlashingStrategy extends AbstractTrafficControlStrategy_1.AbstractTrafficControlStrategy {
-    constructor() {
-        super();
-        this.strategyType = 'all-red-flashing';
-        this.displayName = 'All-Red Flashing';
-        this.description = 'All approaches flash red - simulates emergency conditions';
-        // Track whether signals are currently visible or not (for flashing effect)
-        this.signalsVisible = true;
-        // Flashing interval in seconds
-        this.flashInterval = 1.0; // 1 second on, 1 second off
-        this.timeInFlashState = 0;
-        this.totalPhases = 1; // Only one phase (all red)
-        this.configOptions = {
-            flashInterval: this.flashInterval
-        };
-    }
-    /**
-     * Update the traffic signals with flashing behavior
-     */
-    update(delta, trafficStates) {
-        // Update flash timing
-        this.timeInFlashState += delta;
-        if (this.timeInFlashState >= this.flashInterval) {
-            this.timeInFlashState = 0;
-            this.signalsVisible = !this.signalsVisible;
-        }
-        // Return the signal state
-        return this.getSignalStates();
-    }
-    /**
-     * Update configuration options
-     */
-    updateConfig(options) {
-        super.updateConfig(options);
-        if (options.flashInterval !== undefined) {
-            this.flashInterval = options.flashInterval;
-        }
-    }
-    /**
-     * Get the current signal states - all red or all off depending on flash state
-     */
-    getSignalStates() {
-        // If not visible in current flash state, return all off
-        if (!this.signalsVisible) {
-            return [
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0]
-            ];
-        }
-        // Otherwise, all approaches are red (no movements allowed)
-        return [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
-        ];
-    }
-    /**
-     * Create from JSON (static method)
-     */
-    static fromJSON(data, intersection) {
-        const strategy = new AllRedFlashingStrategy();
-        // Restore state from saved data
-        strategy.flashInterval = data.flashInterval || strategy.flashInterval;
-        strategy.signalsVisible = data.signalsVisible !== undefined ? data.signalsVisible : true;
-        strategy.timeInFlashState = data.timeInFlashState || 0;
-        // Apply configuration options
-        if (data.configOptions) {
-            strategy.updateConfig(data.configOptions);
-        }
-        strategy.initialize(intersection);
-        return strategy;
-    }
-    /**
-     * Create from JSON (instance method)
-     */
-    fromJSON(data, intersection) {
-        // Initialize with the intersection
-        this.initialize(intersection);
-        // Restore state from saved data
-        if (data.flashInterval !== undefined) {
-            this.flashInterval = data.flashInterval;
-        }
-        if (data.signalsVisible !== undefined) {
-            this.signalsVisible = data.signalsVisible;
-        }
-        if (data.timeInFlashState !== undefined) {
-            this.timeInFlashState = data.timeInFlashState;
-        }
-        // Restore common properties
-        if (data.currentPhase !== undefined) {
-            this.currentPhase = data.currentPhase;
-        }
-        if (data.timeInPhase !== undefined) {
-            this.timeInPhase = data.timeInPhase;
-        }
-        // Apply configuration options
-        if (data.configOptions) {
-            this.configOptions = { ...this.configOptions, ...data.configOptions };
-        }
-        return this;
-    }
-    /**
-     * Convert to JSON
-     */
-    toJSON() {
-        return {
-            ...super.toJSON(),
-            flashInterval: this.flashInterval,
-            signalsVisible: this.signalsVisible,
-            timeInFlashState: this.timeInFlashState
-        };
-    }
-}
-exports.AllRedFlashingStrategy = AllRedFlashingStrategy;
-
-
-/***/ }),
-
 /***/ "./src/model/traffic-control/FixedTimingStrategy.ts":
 /*!**********************************************************!*\
   !*** ./src/model/traffic-control/FixedTimingStrategy.ts ***!
@@ -42838,7 +43776,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.trafficControlStrategyManager = exports.TrafficControlStrategyManager = void 0;
 const FixedTimingStrategy_1 = __webpack_require__(/*! ./FixedTimingStrategy */ "./src/model/traffic-control/FixedTimingStrategy.ts");
 const AdaptiveTimingStrategy_1 = __webpack_require__(/*! ./AdaptiveTimingStrategy */ "./src/model/traffic-control/AdaptiveTimingStrategy.ts");
-const AllRedFlashingStrategy_1 = __webpack_require__(/*! ./AllRedFlashingStrategy */ "./src/model/traffic-control/AllRedFlashingStrategy.ts");
 const TrafficEnforcerStrategy_1 = __webpack_require__(/*! ./TrafficEnforcerStrategy */ "./src/model/traffic-control/TrafficEnforcerStrategy.ts");
 /**
  * Manages traffic control strategies in the simulation
@@ -42857,7 +43794,6 @@ class TrafficControlStrategyManager {
         // Register all available strategies
         this.registerStrategy('fixed-timing', FixedTimingStrategy_1.FixedTimingStrategy);
         this.registerStrategy('adaptive-timing', AdaptiveTimingStrategy_1.AdaptiveTimingStrategy);
-        this.registerStrategy('all-red-flashing', AllRedFlashingStrategy_1.AllRedFlashingStrategy);
         this.registerStrategy('traffic-enforcer', TrafficEnforcerStrategy_1.TrafficEnforcerStrategy);
         // Initialize default strategy settings
         this.initializeDefaultSettings();
@@ -42877,9 +43813,6 @@ class TrafficControlStrategyManager {
             yellowTime: 3,
             vehicleWeightFactor: 1.0,
             waitTimeWeightFactor: 0.5,
-        });
-        this.strategySettings.set('all-red-flashing', {
-            flashInterval: 1.0, // Flash interval in seconds
         });
         this.strategySettings.set('traffic-enforcer', {
             decisionInterval: 5,
@@ -46050,6 +46983,30 @@ class World {
                 for (const lane of road.lanes) {
                     kpi_collector_1.kpiCollector.sampleLaneState(lane, this.time);
                 }
+                // Sample vehicle density for this road
+                const vehicleCount = Object.values(this.cars.all()).filter(car => {
+                    return car.trajectory && car.trajectory.current && car.trajectory.current.lane &&
+                        car.trajectory.current.lane.road && car.trajectory.current.lane.road.id === roadId;
+                }).length;
+                if (road.length) {
+                    kpi_collector_1.kpiCollector.sampleVehicleDensity(roadId, vehicleCount, road.length);
+                }
+            }
+        }
+        // Sample intersection utilization
+        for (const intersectionId in this.intersections.all()) {
+            const intersection = this.intersections.all()[intersectionId];
+            if (intersection) {
+                // Count vehicles currently in or approaching this intersection
+                const vehiclesAtIntersection = Object.values(this.cars.all()).filter(car => {
+                    // Check if car is near this intersection (simplified check)
+                    return car.trajectory && car.trajectory.nextIntersection &&
+                        car.trajectory.nextIntersection.id === intersectionId &&
+                        car.trajectory.distanceToStopLine < 50; // Within 50 meters
+                }).length;
+                kpi_collector_1.kpiCollector.recordIntersectionUtilization(intersectionId, this.time, vehiclesAtIntersection > 0);
+                // Record current queue length at intersection
+                kpi_collector_1.kpiCollector.recordQueueLength(intersectionId, vehiclesAtIntersection, true);
             }
         }
     }
@@ -47782,6 +48739,7 @@ const AppState_1 = __webpack_require__(/*! ../core/AppState */ "./src/core/AppSt
 const World = __webpack_require__(/*! ../model/world */ "./src/model/world.ts");
 const Visualizer = __webpack_require__(/*! ../visualizer/visualizer */ "./src/visualizer/visualizer.ts");
 const kpi_collector_1 = __webpack_require__(/*! ../model/kpi-collector */ "./src/model/kpi-collector.ts");
+const TrafficControlStrategyManager_1 = __webpack_require__(/*! ../model/traffic-control/TrafficControlStrategyManager */ "./src/model/traffic-control/TrafficControlStrategyManager.ts");
 const KPIVisualizationComponent_1 = __webpack_require__(/*! ../components/KPIVisualizationComponent */ "./src/components/KPIVisualizationComponent.ts");
 const BenchmarkConfigurationComponent_1 = __webpack_require__(/*! ../components/BenchmarkConfigurationComponent */ "./src/components/BenchmarkConfigurationComponent.ts");
 /**
@@ -47944,7 +48902,6 @@ class SimulationPageComponent {
                   <option value="fixed-timing">Fixed Timing</option>
                   <option value="adaptive-timing">Adaptive Timing</option>
                   <option value="traffic-enforcer">Traffic Enforcer</option>
-                  <option value="all-red-flashing">All Red Flashing</option>
                 </select>
               </div>
               
@@ -48162,7 +49119,6 @@ class SimulationPageComponent {
                   <option value="fixed-timing">Fixed Timing</option>
                   <option value="adaptive-timing">Adaptive Timing</option>
                   <option value="traffic-enforcer">Traffic Enforcer</option>
-                  <option value="all-red-flashing">All Red Flashing</option>
                 </select>
                 <small class="setting-description">Traffic control model to test during benchmark</small>
               </div>
@@ -48780,9 +49736,6 @@ class SimulationPageComponent {
             case 'traffic-enforcer':
                 modelName = 'Traffic Enforcer';
                 break;
-            case 'all-red-flashing':
-                modelName = 'All Red Flashing';
-                break;
         }
         indicator.textContent = modelName;
     }
@@ -49122,127 +50075,110 @@ class SimulationPageComponent {
             this.showNotification('Benchmark already running', 'warning');
             return;
         }
-        // First ensure layouts are loaded
-        if (this.layouts.length === 0) {
-            console.log('🔄 Loading layouts before showing benchmark dialog');
-            await this.loadLayouts();
-            console.log('✅ Loaded layouts:', this.layouts.length);
-        }
-        if (this.layouts.length === 0) {
-            this.showNotification('No layouts available. Please create a layout in the Builder first.', 'warning');
+        // Validate that we have necessary settings to run a benchmark
+        if (!this.world) {
+            this.showNotification('No active simulation world. Please load a layout first.', 'warning');
             return;
         }
-        // Get the current layout ID if any is loaded, otherwise use the first one
-        const currentLayoutId = this.world && this.world.layoutId ? this.world.layoutId : (this.layouts.length > 0 ? this.layouts[0].id : '');
-        console.log('📊 Current settings for benchmark dialog:', {
-            layoutId: currentLayoutId,
-            availableLayouts: this.layouts.map(l => `${l.id} (${l.name})`)
-        });
-        // Prepare current settings for configuration modal
+        // Check if we have a valid traffic control model
+        if (!this.selectedTrafficControlModel) {
+            this.showNotification('No traffic control model selected.', 'warning');
+            return;
+        }
+        // Get the current layout info
+        let currentLayoutName = "Current Layout";
+        const currentLayoutId = this.world.layoutId;
+        // If we have a layout ID, try to get its name
+        if (currentLayoutId) {
+            const layout = this.layouts.find(l => l.id === currentLayoutId);
+            if (layout && layout.name) {
+                currentLayoutName = layout.name;
+            }
+        }
+        // Get current traffic control model name
+        let trafficControlModelName = this.selectedTrafficControlModel;
+        try {
+            TrafficControlStrategyManager_1.trafficControlStrategyManager.selectStrategy(this.selectedTrafficControlModel);
+            const strategy = TrafficControlStrategyManager_1.trafficControlStrategyManager.createStrategy();
+            if (strategy && strategy.displayName) {
+                trafficControlModelName = strategy.displayName;
+            }
+        }
+        catch (error) {
+            console.error('Error getting traffic control model name:', error);
+        }
+        // Get current simulation settings for display in the dialog
+        const currentTimeFactor = parseFloat(document.getElementById('time-factor-range').value);
+        // Prepare current settings for configuration modal (now just showing existing settings)
         const currentSettings = {
             layoutId: currentLayoutId,
+            layoutName: currentLayoutName,
             duration: this.benchmarkDuration,
             carsNumber: this.world.carsNumber,
-            timeFactor: parseFloat(document.getElementById('time-factor-range').value),
-            trafficControlModel: this.selectedTrafficControlModel
+            timeFactor: currentTimeFactor,
+            trafficControlModel: this.selectedTrafficControlModel,
+            trafficControlModelName: trafficControlModelName
         };
-        // Show the benchmark configuration modal
-        const config = await BenchmarkConfigurationComponent_1.BenchmarkConfigurationComponent.show(this.container, this.layouts, currentSettings);
+        console.log('📊 Current settings for benchmark dialog:', currentSettings);
+        // Show the simplified benchmark configuration modal (just duration)
+        const config = await BenchmarkConfigurationComponent_1.BenchmarkConfigurationComponent.show(this.container, currentSettings);
         // If user cancelled, exit
         if (!config) {
             console.log('📊 Benchmark cancelled by user');
             return;
         }
         console.log('📊 Benchmark configuration received:', config);
-        // Reset simulation first
+        // We'll use current settings but with the configured duration
+        const benchmarkDuration = config.simulationDuration;
+        console.log(`� Using current settings with ${benchmarkDuration} seconds duration`);
+        // Reset simulation first (preserves car count and time factor)
         this.resetSimulation();
-        // Load selected layout with configured car number
-        try {
-            console.log('🔄 Loading layout with ID:', config.layoutId, `and ${config.carsNumber} cars`);
-            console.log('🔄 Available layouts:', this.layouts.map(l => `${l.id} (${l.name})`));
-            const selectedLayout = this.layouts.find(layout => layout.id === config.layoutId);
-            if (selectedLayout) {
-                console.log('🔄 Found layout:', selectedLayout.name);
-                try {
-                    // Pass the configured car number when loading the layout
-                    await this.loadLayoutById(selectedLayout.id, config.carsNumber);
-                    console.log('✅ Layout loaded successfully with', config.carsNumber, 'cars');
-                }
-                catch (error) {
-                    console.error('❌ Error loading layout:', error);
-                    this.showNotification('Error loading layout. Using default.', 'error');
-                }
-            }
-            else if (this.layouts.length > 0) {
-                // If the specified layout is not found but we have layouts, use the first one
-                console.log('⚠️ Layout not found with ID:', config.layoutId, '. Using first available layout instead.');
-                await this.loadLayoutById(this.layouts[0].id, config.carsNumber);
-            }
-            else {
-                console.error('❌ No layouts available');
-                this.showNotification('No layouts available. Creating a default layout.', 'warning');
-                // If no layouts are available, just continue with an empty world
-                // The simulation will run on whatever is currently displayed
-                this.world.carsNumber = config.carsNumber;
-            }
-        }
-        catch (error) {
-            console.error('❌ Error in layout loading process:', error);
-        }
-        // Set traffic control model
-        if (config.trafficControlModel !== this.selectedTrafficControlModel) {
-            this.selectedTrafficControlModel = config.trafficControlModel;
-            this.updateTrafficControlModel();
-        }
-        // Double-check the car number is set correctly after layout load
-        console.log(`🚗 Verifying car number is set to ${config.carsNumber}`);
-        if (this.world.carsNumber !== config.carsNumber) {
-            console.log(`🚗 Car number mismatch: ${this.world.carsNumber} !== ${config.carsNumber}, fixing...`);
-            this.world.carsNumber = config.carsNumber;
-        }
-        // Update UI to reflect the car number
+        // Make sure we are using the current traffic control model
+        this.updateTrafficControlModel();
+        // Update the car count slider display if needed
         const carsDisplay = document.getElementById('cars-value');
         if (carsDisplay) {
-            carsDisplay.textContent = config.carsNumber.toString();
+            carsDisplay.textContent = this.world.carsNumber.toString();
         }
         const carsRange = document.getElementById('cars-range');
         if (carsRange) {
-            carsRange.value = config.carsNumber.toString();
-        }
-        // Set time factor - always set it regardless of comparison
-        const timeFactorRange = document.getElementById('time-factor-range');
-        timeFactorRange.value = config.timeFactor.toString();
-        const timeFactorValue = document.getElementById('time-factor-value');
-        if (timeFactorValue) {
-            timeFactorValue.textContent = config.timeFactor.toFixed(1);
+            carsRange.value = this.world.carsNumber.toString();
         }
         // Make sure the visualizer has the correct time factor
-        if (this.visualizer) {
-            console.log(`🕒 Setting time factor to ${config.timeFactor}`);
-            this.visualizer.timeFactor = config.timeFactor; // Direct property set
+        const timeFactorRange = document.getElementById('time-factor-range');
+        const timeFactorValue = document.getElementById('time-factor-value');
+        if (this.visualizer && timeFactorRange) {
+            const timeFactor = parseFloat(timeFactorRange.value);
+            console.log(`🕒 Using time factor: ${timeFactor}`);
+            this.visualizer.timeFactor = timeFactor; // Direct property set
             // Also call the method if it exists
             if (typeof this.visualizer.setTimeFactor === 'function') {
-                this.visualizer.setTimeFactor(config.timeFactor);
+                this.visualizer.setTimeFactor(timeFactor);
+            }
+            // Update the display
+            if (timeFactorValue) {
+                timeFactorValue.textContent = timeFactor.toFixed(1);
             }
         }
-        // Force update the world with the new car number and refresh the simulation immediately
+        // Ensure cars are correctly initialized
         if (this.world) {
-            console.log(`🔄 Forcing world update with ${config.carsNumber} cars`);
-            // Use the new forceRefreshCars method to immediately adjust the car count
+            console.log(`🔄 Forcing world update with ${this.world.carsNumber} cars`);
+            // Use the forceRefreshCars method to immediately adjust the car count
             this.world.forceRefreshCars();
         }
         // Store benchmark settings
         this.benchmarkDuration = config.simulationDuration;
-        // Find the layout name
-        const layoutForSettings = this.layouts.find(l => l.id === config.layoutId);
-        const layoutName = layoutForSettings ? layoutForSettings.name : 'Default Layout';
+        // Find the layout name for the current layout (using existing variables)
+        let settingsLayoutName = currentLayoutName;
+        const settingsLayoutId = currentLayoutId;
+        // Store all current settings for the benchmark
         this.benchmarkSettings = {
-            layoutId: config.layoutId,
-            layoutName: layoutName,
+            layoutId: settingsLayoutId,
+            layoutName: settingsLayoutName,
             duration: config.simulationDuration,
-            carsNumber: config.carsNumber,
-            timeFactor: config.timeFactor,
-            trafficControlModel: config.trafficControlModel,
+            carsNumber: this.world.carsNumber,
+            timeFactor: this.visualizer ? this.visualizer.timeFactor : 1.0,
+            trafficControlModel: this.selectedTrafficControlModel,
             startTime: new Date().toISOString()
         };
         // Show notification
@@ -49459,7 +50395,6 @@ class SimulationPageComponent {
             case 'fixed-timing': return 'Fixed Timing';
             case 'adaptive-timing': return 'Adaptive Timing';
             case 'traffic-enforcer': return 'Traffic Enforcer';
-            case 'all-red-flashing': return 'All Red Flashing';
             default: return modelType;
         }
     }

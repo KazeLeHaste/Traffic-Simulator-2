@@ -15,7 +15,13 @@
 
 ## Architecture Overview
 
-The Road Traffic Simulator is built using TypeScript and follows a component-based architecture with clear separation of concerns. The system is organized into several key modules:
+The Road Tr  container.innerHTML = `
+    <select id="strategy-selector">
+      <option value="fixed-timing">Fixed Timing</option>
+      <option value="adaptive">Adaptive Timing</option>
+      <option value="traffic-enforcer">Traffic Enforcer</option>
+      <option value="my-new-strategy">My New Strategy</option>
+    </select>`;mulator is built using TypeScript and follows a component-based architecture with clear separation of concerns. The system is organized into several key modules:
 
 - **Core Simulation Engine**: Handles the physics and logic of vehicle movement and interaction
 - **Model Layer**: Contains the data structures and domain objects
@@ -650,7 +656,6 @@ private createStrategySelectionUI(): HTMLElement {
     <select id="strategy-selector">
       <option value="fixed-timing">Fixed Timing</option>
       <option value="adaptive">Adaptive Timing</option>
-      <option value="all-red-flashing">All Red Flashing</option>
       <option value="traffic-enforcer">Traffic Enforcer</option>
       <option value="my-new-strategy">My New Strategy</option>
     </select>

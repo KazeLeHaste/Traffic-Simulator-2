@@ -184,7 +184,6 @@ export class SimulationPageComponent {
                   <option value="fixed-timing">Fixed Timing</option>
                   <option value="adaptive-timing">Adaptive Timing</option>
                   <option value="traffic-enforcer">Traffic Enforcer</option>
-                  <option value="all-red-flashing">All Red Flashing</option>
                 </select>
               </div>
               
@@ -402,7 +401,6 @@ export class SimulationPageComponent {
                   <option value="fixed-timing">Fixed Timing</option>
                   <option value="adaptive-timing">Adaptive Timing</option>
                   <option value="traffic-enforcer">Traffic Enforcer</option>
-                  <option value="all-red-flashing">All Red Flashing</option>
                 </select>
                 <small class="setting-description">Traffic control model to test during benchmark</small>
               </div>
@@ -1102,9 +1100,6 @@ export class SimulationPageComponent {
         break;
       case 'traffic-enforcer':
         modelName = 'Traffic Enforcer';
-        break;
-      case 'all-red-flashing':
-        modelName = 'All Red Flashing';
         break;
     }
     
@@ -1883,7 +1878,6 @@ export class SimulationPageComponent {
       case 'fixed-timing': return 'Fixed Timing';
       case 'adaptive-timing': return 'Adaptive Timing';
       case 'traffic-enforcer': return 'Traffic Enforcer';
-      case 'all-red-flashing': return 'All Red Flashing';
       default: return modelType;
     }
   }

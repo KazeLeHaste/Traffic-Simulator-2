@@ -65,7 +65,6 @@ The traffic control system uses a strategy pattern for flexible, interchangeable
 - `src/model/traffic-control/AbstractTrafficControlStrategy.ts`: Base functionality
 - `src/model/traffic-control/FixedTimingStrategy.ts`: Fixed timing implementation
 - `src/model/traffic-control/AdaptiveTimingStrategy.ts`: Adaptive timing implementation
-- `src/model/traffic-control/AllRedFlashingStrategy.ts`: All-red flashing implementation
 - `src/model/traffic-control/TrafficEnforcerStrategy.ts`: Traffic enforcer implementation
 - `src/model/traffic-control/TrafficControlStrategyManager.ts`: Strategy factory/registry
 - `src/model/traffic-control/integration.ts`: Integration with simulation system
@@ -84,13 +83,7 @@ The traffic control system uses a strategy pattern for flexible, interchangeable
    - **Features**: Responds to traffic conditions in real-time
    - **Performance**: More efficient for variable traffic patterns
 
-3. **All-Red Flashing Strategy**
-   - **Algorithm**: All directions show flashing red (4-way stop)
-   - **Parameters**: Flash rate
-   - **Features**: Simulates power outage or low-traffic conditions
-   - **Performance**: Good for low volume, poor for high volume
-
-4. **Traffic Enforcer Strategy**
+3. **Traffic Enforcer Strategy**
    - **Algorithm**: Simulated human directing traffic based on waiting times
    - **Parameters**: Decision frequency, priority thresholds
    - **Features**: Prioritizes directions with longest queues
