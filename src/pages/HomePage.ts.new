@@ -105,87 +105,6 @@ export class HomePage {
       });
     });
     
-    // Modal popup functionality for Learn More buttons
-    console.log('Setting up modal popup functionality');
-    const learnMoreButtons = document.querySelectorAll('.learn-more-btn');
-    const modalOverlay = document.getElementById('modal-overlay');
-    const modalBody = document.getElementById('modal-body');
-    const closeModal = document.querySelector('.close-modal');
-    
-    if (modalOverlay && modalBody && closeModal) {
-      // Close modal when clicking the X
-      closeModal.addEventListener('click', () => {
-        modalOverlay.style.display = 'none';
-        document.body.classList.remove('modal-open');
-      });
-      
-      // Close modal when clicking outside the modal content
-      modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-          modalOverlay.style.display = 'none';
-          document.body.classList.remove('modal-open');
-        }
-      });
-      
-      // Set up each Learn More button to open the modal with appropriate content
-      learnMoreButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const modalId = btn.getAttribute('data-modal-id');
-          if (!modalId) return;
-          
-          const modalData = document.getElementById(modalId);
-          if (modalData) {
-            // Copy content from hidden modal-data to modal body
-            modalBody.innerHTML = modalData.innerHTML;
-            
-            // Show the modal
-            modalOverlay.style.display = 'flex';
-            document.body.classList.add('modal-open');
-            
-            console.log(`Opened modal: ${modalId}`);
-          } else {
-            console.error(`Modal data not found for ID: ${modalId}`);
-          }
-        });
-      });
-      
-      console.log(`Set up ${learnMoreButtons.length} modal trigger buttons`);
-    } else {
-      console.error('Modal elements not found in the DOM');
-    }
-    
-    // Traffic control model tabs
-    console.log('Setting up traffic control model tabs');
-    const modelTabButtons = document.querySelectorAll('.tab-btn');
-    
-    modelTabButtons.forEach(tab => {
-      tab.addEventListener('click', () => {
-        // Get the target content id
-        const targetId = tab.getAttribute('data-target');
-        if (!targetId) return;
-        
-        console.log(`Tab clicked: ${targetId}`);
-        
-        // Hide all content sections
-        const allContents = document.querySelectorAll('.model-content');
-        allContents.forEach(content => {
-          content.classList.remove('active');
-        });
-        
-        // Deactivate all tabs
-        modelTabButtons.forEach(t => {
-          t.classList.remove('active');
-        });
-        
-        // Activate clicked tab and show corresponding content
-        tab.classList.add('active');
-        const targetContent = document.getElementById(targetId);
-        if (targetContent) {
-          targetContent.classList.add('active');
-        }
-      });
-    });
-    
     // Traffic control model tabs
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(tab => {
@@ -278,12 +197,52 @@ export class HomePage {
         <div class="hero-section">
           <div class="hero-content">
             <h1>Road Traffic Simulator</h1>
-            <p class="hero-subtitle">Design, Build, Simulate, and Analyze Traffic Flow.</p>
+            <p class="hero-subtitle">Professional Traffic Management & Analysis Tool for Traffic Management Offices</p>
+            
+            <div class="action-buttons-container">
+              <button class="btn btn-primary btn-lg" id="go-to-builder">
+                Build Network
+              </button>
+              <button class="btn btn-secondary btn-lg" id="go-to-simulation">
+                Run Simulation
+              </button>
             </div>
           </div>
         </div>
         
-
+        <!-- Recent Layouts Section -->
+        <div class="recent-section">
+          <div class="section-content">
+            <h2>Recent Layouts</h2>
+            
+            <div class="recent-layouts">
+              ${this.recentLayouts.length > 0 ? 
+                this.recentLayouts.map(layout => `
+                  <div class="layout-card">
+                    <div class="layout-info">
+                      <h4>${layout.name || 'Unnamed Layout'}</h4>
+                      <p>Last modified: ${new Date(layout.updatedAt || layout.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div class="layout-actions">
+                      <button class="btn btn-primary btn-sm" data-action="load-layout" data-layout-id="${layout.id}" data-target="builder">
+                        🏗️ Edit
+                      </button>
+                      <button class="btn btn-secondary btn-sm" data-action="load-layout" data-layout-id="${layout.id}" data-target="simulation">
+                        🚗 Simulate
+                      </button>
+                    </div>
+                  </div>
+                `).join('') 
+                : 
+                `<div class="empty-state">
+                  <div class="empty-icon">📄</div>
+                  <p>No layouts found</p>
+                  <small>Head to the Builder to create your first layout!</small>
+                </div>`
+              }
+            </div>
+          </div>
+        </div>
         
         <!-- Core System Modules -->
         <div class="modules-section">
