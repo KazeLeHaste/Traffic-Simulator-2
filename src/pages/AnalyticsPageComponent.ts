@@ -42,7 +42,7 @@ export class AnalyticsPageComponent {
         <!-- Header -->
         <div class="analytics-header">
           <div class="analytics-title">
-            <h1>📊 Traffic Analytics Dashboard</h1>
+            <h1>Traffic Analytics Dashboard</h1>
             <p class="analytics-subtitle">Session-based benchmark analysis and comparison</p>
           </div>
           <div class="analytics-session-info">
@@ -56,14 +56,7 @@ export class AnalyticsPageComponent {
           </div>
         </div>
 
-        <!-- Session Notice -->
-        <div class="session-notice">
-          <div class="notice-icon">⚠️</div>
-          <div class="notice-content">
-            <strong>Session-Volatile Data:</strong> Analytics data is temporary and will be cleared if you refresh this page, 
-            close the browser tab, or restart the server. Only benchmarks added during your current session are shown.
-          </div>
-        </div>
+
 
         <!-- Analytics Controls -->
         <div class="analytics-controls">

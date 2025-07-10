@@ -279,11 +279,8 @@ export class HomePage {
           <div class="hero-content">
             <h1>Road Traffic Simulator</h1>
             <p class="hero-subtitle">Design, Build, Simulate, and Analyze Traffic Flow.</p>
-            </div>
           </div>
         </div>
-        
-
         
         <!-- Core System Modules -->
         <div class="modules-section">
@@ -603,50 +600,6 @@ export class HomePage {
           </div>
         </div>
         
-        <!-- Additional Functionalities -->
-        <div class="features-section">
-          <div class="section-content">
-            <h2>Additional Functionalities</h2>
-            <div class="features-grid">
-              <div class="feature">
-                <div class="feature-icon">🔄</div>
-                <h4>Batch Simulation</h4>
-                <p>Run multiple simulation variations automatically to compare different traffic control strategies.</p>
-              </div>
-              
-              <div class="feature">
-                <div class="feature-icon">📱</div>
-                <h4>Responsive UI</h4>
-                <p>Manage your traffic simulations on any device with our fully responsive interface.</p>
-              </div>
-              
-              <div class="feature">
-                <div class="feature-icon">📊</div>
-                <h4>Data Export</h4>
-                <p>Export simulation results in CSV and JSON formats for external analysis and reporting.</p>
-              </div>
-              
-              <div class="feature">
-                <div class="feature-icon">🔧</div>
-                <h4>Parameter Tuning</h4>
-                <p>Fine-tune vehicle behavior, traffic patterns, and control strategies with detailed parameters.</p>
-              </div>
-              
-              <div class="feature">
-                <div class="feature-icon">🎮</div>
-                <h4>Manual Control</h4>
-                <p>Take direct control of traffic signals in real-time to test manual intervention scenarios.</p>
-              </div>
-              
-              <div class="feature">
-                <div class="feature-icon">📷</div>
-                <h4>Screenshot & Recording</h4>
-                <p>Capture simulation screenshots and record videos to document your findings.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
         <!-- Modal Popup -->
         <div id="modal-overlay" class="modal-overlay">
           <div class="modal-content">
@@ -654,6 +607,7 @@ export class HomePage {
             <div class="modal-body" id="modal-body"></div>
           </div>
         </div>
+      </div> <!-- End of home-page content -->
       
       <style>
         .home-page {
