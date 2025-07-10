@@ -38,6 +38,10 @@ export class NavigationComponent {
             <a href="/simulation" class="nav-link" data-route="/simulation">
               🚦 Simulation
             </a>
+            
+            <a href="/analytics" class="nav-link" data-route="/analytics">
+              📊 Analytics
+            </a>
           </div>
         </div>
       </nav>

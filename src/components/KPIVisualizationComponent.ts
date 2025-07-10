@@ -20,6 +20,7 @@ import {
   LevelOfServiceMetrics,
   QueueMetrics
 } from '../model/kpi-collector';
+import { sessionAnalyticsStorage } from '../lib/storage/SessionAnalyticsStorage';
 
 // Chart configuration type
 interface ChartConfig {
@@ -43,6 +44,7 @@ export class KPIVisualizationComponent {
   private charts: { [key: string]: Chart } = {};
   private currentBenchmark: BenchmarkRun | null = null;
   private benchmarkHistory: BenchmarkRun[] = [];
+  private isAddedToAnalytics: boolean = false;
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -55,6 +57,10 @@ export class KPIVisualizationComponent {
   public displayBenchmarkResults(benchmarkData: BenchmarkRun): void {
     this.currentBenchmark = benchmarkData;
     this.addToBenchmarkHistory(benchmarkData);
+    
+    // Check if this benchmark is already in analytics
+    this.isAddedToAnalytics = sessionAnalyticsStorage.isBenchmarkInAnalytics(benchmarkData.id);
+    
     this.render();
   }
 
@@ -73,6 +79,9 @@ export class KPIVisualizationComponent {
         <div class="kpi-header">
           <h3>KPI Benchmark Results</h3>
           <div class="kpi-controls">
+            <button id="add-to-analytics-btn" class="btn ${this.isAddedToAnalytics ? 'btn-success' : 'btn-primary'} btn-sm" ${this.isAddedToAnalytics ? 'disabled' : ''}>
+              ${this.isAddedToAnalytics ? '✅ Added to Analytics' : '📈 Add to Analytics'}
+            </button>
             <button id="export-csv-btn" class="btn btn-success btn-sm">📄 Export CSV</button>
             <button id="export-json-btn" class="btn btn-info btn-sm">📋 Export JSON</button>
             <button id="compare-runs-btn" class="btn btn-warning btn-sm">📊 Compare Runs</button>
@@ -400,6 +409,9 @@ export class KPIVisualizationComponent {
    * Initialize event listeners for interactive elements
    */
   private initializeEventListeners(): void {
+    // Add to analytics button
+    document.getElementById('add-to-analytics-btn')?.addEventListener('click', () => this.addToAnalytics());
+    
     // Export buttons
     document.getElementById('export-csv-btn')?.addEventListener('click', () => this.exportCSV());
     document.getElementById('export-json-btn')?.addEventListener('click', () => this.exportJSON());
@@ -1303,6 +1315,54 @@ export class KPIVisualizationComponent {
       toast.style.opacity = '0';
       setTimeout(() => toast.remove(), 300);
     }, 3000);
+  }
+
+  /**
+   * Add current benchmark to session analytics
+   */
+  private addToAnalytics(): void {
+    if (!this.currentBenchmark || this.isAddedToAnalytics) {
+      return;
+    }
+
+    try {
+      const analyticsEntry = sessionAnalyticsStorage.addBenchmarkToAnalytics(this.currentBenchmark);
+      this.isAddedToAnalytics = true;
+      
+      console.log('📈 [Analytics] Benchmark added to analytics:', {
+        analyticsId: analyticsEntry.analyticsId,
+        benchmarkName: analyticsEntry.name,
+        sessionId: analyticsEntry.sessionId
+      });
+
+      // Update the button state
+      const addToAnalyticsBtn = document.getElementById('add-to-analytics-btn') as HTMLButtonElement;
+      if (addToAnalyticsBtn) {
+        addToAnalyticsBtn.disabled = true;
+        addToAnalyticsBtn.className = 'btn btn-success btn-sm';
+        addToAnalyticsBtn.innerHTML = '✅ Added to Analytics';
+      }
+
+      // Show success notification
+      this.showToast('Benchmark added to Analytics successfully!', 'success');
+
+      // Show navigation option
+      setTimeout(() => {
+        if (confirm('Benchmark added to Analytics! Would you like to view the Analytics page now?')) {
+          // Navigate to analytics page
+          if ((window as any).router) {
+            (window as any).router.navigate('/analytics');
+          } else {
+            // Fallback: try to navigate directly
+            window.location.href = '/analytics';
+          }
+        }
+      }, 500);
+
+    } catch (error) {
+      console.error('📈 [Analytics] Failed to add benchmark to analytics:', error);
+      this.showToast('Failed to add benchmark to Analytics', 'error');
+    }
   }
 
   /**

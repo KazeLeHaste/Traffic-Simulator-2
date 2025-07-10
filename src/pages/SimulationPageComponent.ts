@@ -1369,12 +1369,23 @@ export class SimulationPageComponent {
       return;
     }
     
+    // Check if visualizer exists
+    if (!this.visualizer) {
+      this.showNotification('Cannot start simulation - visualizer not initialized', 'error');
+      return;
+    }
+    
     const toggleButton = document.getElementById('toggle-simulation')!;
     
     if (this.isRunning) {
       // Stop simulation
       this.isRunning = false;
-      this.visualizer.stop();
+      
+      // Safely call stop method on visualizer
+      if (typeof this.visualizer.stop === 'function') {
+        this.visualizer.stop();
+      }
+      
       toggleButton.textContent = '▶️ Start Simulation';
       toggleButton.classList.replace('btn-danger', 'btn-success');
       
@@ -1389,7 +1400,12 @@ export class SimulationPageComponent {
     } else {
       // Start simulation
       this.isRunning = true;
-      this.visualizer.start();
+      
+      // Safely call start method on visualizer
+      if (typeof this.visualizer.start === 'function') {
+        this.visualizer.start();
+      }
+      
       toggleButton.textContent = '⏸ Pause Simulation';
       toggleButton.classList.replace('btn-success', 'btn-danger');
       
@@ -1594,11 +1610,17 @@ export class SimulationPageComponent {
       const timeFactor = parseFloat(timeFactorRange.value);
       console.log(`🕒 Using time factor: ${timeFactor}`);
       
-      this.visualizer.timeFactor = timeFactor; // Direct property set
-      
-      // Also call the method if it exists
-      if (typeof this.visualizer.setTimeFactor === 'function') {
-        this.visualizer.setTimeFactor(timeFactor);
+      // Make sure visualizer exists
+      if (this.visualizer) {
+        // Set directly and via method if available
+        this.visualizer.timeFactor = timeFactor; // Direct property set
+        
+        // Also call the method if it exists
+        if (typeof this.visualizer.setTimeFactor === 'function') {
+          this.visualizer.setTimeFactor(timeFactor);
+        }
+      } else {
+        console.warn('Cannot set time factor - visualizer not initialized');
       }
       
       // Update the display
@@ -1648,10 +1670,21 @@ export class SimulationPageComponent {
     
     // Start simulation if not already running
     if (!this.isRunning) {
+      // Check if visualizer exists
+      if (!this.visualizer) {
+        this.showNotification('Cannot start benchmark - visualizer not initialized', 'error');
+        this.endBenchmark();
+        return;
+      }
+      
       // We can't use toggleSimulation because it blocks during benchmark
       // So instead we'll directly start the simulation
       this.isRunning = true;
-      this.visualizer.start();
+      
+      // Safely call start method on visualizer
+      if (typeof this.visualizer.start === 'function') {
+        this.visualizer.start();
+      }
       
       const toggleButton = document.getElementById('toggle-simulation')!;
       toggleButton.textContent = '⏸ Pause Simulation';
@@ -1670,10 +1703,11 @@ export class SimulationPageComponent {
     }, 1000);
     
     // Set timeout to end benchmark
+    const timeFactor = this.visualizer?.timeFactor || 1.0;
     this.benchmarkTimer = window.setTimeout(() => {
       clearInterval(sampleInterval);
       this.endBenchmark();
-    }, config.simulationDuration * 1000 / this.visualizer.timeFactor);
+    }, config.simulationDuration * 1000 / timeFactor);
   }
   
   // End the benchmark and collect results
@@ -1686,11 +1720,17 @@ export class SimulationPageComponent {
       // We can't use toggleSimulation because it blocks during benchmark
       // So instead we'll directly stop the simulation
       this.isRunning = false;
-      this.visualizer.stop();
       
-      const toggleButton = document.getElementById('toggle-simulation')!;
-      toggleButton.textContent = '▶️ Start Simulation';
-      toggleButton.classList.replace('btn-danger', 'btn-success');
+      // Safely stop the visualizer
+      if (this.visualizer && typeof this.visualizer.stop === 'function') {
+        this.visualizer.stop();
+      }
+      
+      const toggleButton = document.getElementById('toggle-simulation');
+      if (toggleButton) {
+        toggleButton.textContent = '▶️ Start Simulation';
+        toggleButton.classList.replace('btn-danger', 'btn-success');
+      }
       
       // Stop KPI collection
       kpiCollector.stopRecording();

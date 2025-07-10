@@ -1,6 +1,59 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./css/analytics.css":
+/*!***************************!*\
+  !*** ./css/analytics.css ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/styleDomAPI.js */ "./node_modules/style-loader/dist/runtime/styleDomAPI.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/insertBySelector.js */ "./node_modules/style-loader/dist/runtime/insertBySelector.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ "./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/insertStyleElement.js */ "./node_modules/style-loader/dist/runtime/insertStyleElement.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_analytics_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../node_modules/css-loader/dist/cjs.js!./analytics.css */ "./node_modules/css-loader/dist/cjs.js!./css/analytics.css");
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default());
+options.setAttributes = (_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default());
+options.insert = _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default().bind(null, "head");
+options.domAPI = (_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default());
+options.insertStyleElement = (_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default());
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_analytics_css__WEBPACK_IMPORTED_MODULE_6__["default"], options);
+
+
+
+
+       /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_analytics_css__WEBPACK_IMPORTED_MODULE_6__["default"] && _node_modules_css_loader_dist_cjs_js_analytics_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals ? _node_modules_css_loader_dist_cjs_js_analytics_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals : undefined);
+
+
+/***/ }),
+
 /***/ "./css/benchmark-configuration.css":
 /*!*****************************************!*\
   !*** ./css/benchmark-configuration.css ***!
@@ -18886,6 +18939,714 @@ exports.valueOrDefault = valueOrDefault;
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/dist/cjs.js!./css/analytics.css":
+/*!*****************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./css/analytics.css ***!
+  \*****************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../node_modules/css-loader/dist/runtime/sourceMaps.js */ "./node_modules/css-loader/dist/runtime/sourceMaps.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `/* Analytics Page Styles */
+.analytics-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  color: var(--text-color, #e0e0e0);
+  background: var(--background-color, #121212);
+}
+
+/* Header */
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--accent-color, #007bff);
+}
+
+.analytics-title h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #007bff, #28a745);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.analytics-subtitle {
+  margin: 0.5rem 0 0 0;
+  font-size: 1.1rem;
+  color: var(--text-muted, #888);
+}
+
+.analytics-session-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.session-badge, .storage-badge {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.session-badge {
+  background: rgba(0, 123, 255, 0.1);
+  border: 1px solid rgba(0, 123, 255, 0.3);
+  color: #007bff;
+}
+
+.storage-badge.storage-available {
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+  color: #28a745;
+}
+
+.storage-badge.storage-memory {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  color: #ffc107;
+}
+
+.session-label {
+  opacity: 0.8;
+}
+
+.session-id {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+/* Session Notice */
+.session-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+}
+
+.notice-icon {
+  font-size: 1.5rem;
+  margin-top: 0.2rem;
+}
+
+.notice-content {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.notice-content strong {
+  color: #ffc107;
+}
+
+/* Analytics Controls */
+.analytics-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--card-background, #1a1a1a);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 12px;
+}
+
+.analytics-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--accent-color, #007bff);
+  line-height: 1;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-muted, #888);
+  margin-top: 0.25rem;
+}
+
+.analytics-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Empty State */
+.analytics-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--card-background, #1a1a1a);
+  border: 2px dashed var(--border-color, #333);
+  border-radius: 12px;
+  margin: 2rem 0;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.analytics-empty h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.empty-instructions {
+  text-align: left;
+  display: inline-block;
+  margin: 1rem 0;
+  padding-left: 1rem;
+}
+
+.empty-instructions li {
+  margin: 0.5rem 0;
+  color: var(--text-muted, #888);
+}
+
+.empty-note {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 6px;
+  font-style: italic;
+}
+
+.empty-actions {
+  margin-top: 2rem;
+}
+
+/* Analytics Table */
+.analytics-table-container {
+  background: var(--card-background, #1a1a1a);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.analytics-table th {
+  background: var(--header-background, #2a2a2a);
+  color: var(--text-color, #e0e0e0);
+  padding: 1rem 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 2px solid var(--border-color, #333);
+}
+
+.analytics-table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid var(--border-color, #333);
+  vertical-align: middle;
+}
+
+.analytics-row:hover {
+  background: rgba(0, 123, 255, 0.05);
+}
+
+.analytics-row.selected {
+  background: rgba(0, 123, 255, 0.1);
+  border-left: 4px solid var(--accent-color, #007bff);
+}
+
+.select-column {
+  width: 40px;
+  text-align: center;
+}
+
+.benchmark-name .name-main {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.benchmark-name .name-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  font-family: 'Courier New', monospace;
+}
+
+.added-time .time-main {
+  font-weight: 500;
+}
+
+.added-time .time-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+}
+
+.control-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: rgba(0, 123, 255, 0.2);
+  color: #007bff;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.key-metrics {
+  font-size: 0.85rem;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.metric-label {
+  color: var(--text-muted, #888);
+}
+
+.metric-value {
+  font-weight: 500;
+}
+
+.metric-value.congestion-low {
+  color: #28a745;
+}
+
+.metric-value.congestion-medium {
+  color: #ffc107;
+}
+
+.metric-value.congestion-high {
+  color: #dc3545;
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+.btn-xs {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  margin-right: 0.25rem;
+}
+
+/* Comparison Panel */
+.analytics-comparison-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1050;
+  overflow-y: auto;
+}
+
+.comparison-content {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--card-background, #1a1a1a);
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #333);
+}
+
+.comparison-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, #333);
+}
+
+.comparison-header h3 {
+  margin: 0;
+  color: var(--accent-color, #007bff);
+}
+
+.comparison-overview {
+  margin-bottom: 2rem;
+}
+
+.comparison-entries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.comparison-entry-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 123, 255, 0.1);
+  border: 1px solid rgba(0, 123, 255, 0.3);
+  border-radius: 8px;
+}
+
+.badge-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-color, #007bff);
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.badge-name {
+  font-weight: 600;
+}
+
+.badge-date {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+}
+
+.comparison-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--border-color, #333);
+  border-radius: 8px;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.comparison-table th {
+  background: var(--header-background, #2a2a2a);
+  padding: 1rem 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 2px solid var(--border-color, #333);
+}
+
+.comparison-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color, #333);
+  text-align: center;
+}
+
+.comparison-table .metric-label {
+  text-align: left;
+  font-weight: 500;
+}
+
+.best-value {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  font-weight: 600;
+}
+
+.worst-value {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.range-value {
+  font-style: italic;
+  color: var(--text-muted, #888);
+}
+
+/* Modal Styles */
+.analytics-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1060;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  background: var(--card-background, #1a1a1a);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color, #333);
+  background: var(--header-background, #2a2a2a);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--accent-color, #007bff);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--text-color, #e0e0e0);
+}
+
+.modal-body {
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: calc(80vh - 140px);
+}
+
+.details-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.detail-section h4 {
+  margin: 0 0 1rem 0;
+  color: var(--accent-color, #007bff);
+  border-bottom: 1px solid var(--border-color, #333);
+  padding-bottom: 0.5rem;
+}
+
+.detail-section p {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.detail-section strong {
+  color: var(--text-color, #e0e0e0);
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color, #333);
+  background: var(--header-background, #2a2a2a);
+  text-align: right;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .analytics-controls {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .analytics-stats {
+    justify-content: center;
+  }
+
+  .analytics-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-page {
+    padding: 1rem;
+  }
+
+  .analytics-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .analytics-session-info {
+    align-items: flex-start;
+  }
+
+  .analytics-title h1 {
+    font-size: 2rem;
+  }
+
+  .analytics-table-container {
+    overflow-x: auto;
+  }
+
+  .analytics-table {
+    min-width: 800px;
+  }
+
+  .comparison-content {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .comparison-entries {
+    flex-direction: column;
+  }
+
+  .modal-content {
+    width: 95%;
+    margin: 1rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Dark theme overrides */
+body.dark-theme .analytics-page {
+  --background-color: #121212;
+  --card-background: #1a1a1a;
+  --header-background: #2a2a2a;
+  --text-color: #e0e0e0;
+  --text-muted: #888;
+  --border-color: #333;
+  --accent-color: #007bff;
+}
+
+/* Button styles consistency */
+.analytics-page .btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.analytics-page .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.analytics-page .btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.analytics-page .btn-primary:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.analytics-page .btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.analytics-page .btn-secondary:hover:not(:disabled) {
+  background: #545b62;
+}
+
+.analytics-page .btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.analytics-page .btn-danger:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.analytics-page .btn-info {
+  background: #17a2b8;
+  color: white;
+}
+
+.analytics-page .btn-info:hover:not(:disabled) {
+  background: #138496;
+}
+
+.analytics-page .btn-outline-secondary {
+  background: transparent;
+  color: #6c757d;
+  border: 1px solid #6c757d;
+}
+
+.analytics-page .btn-outline-secondary:hover:not(:disabled) {
+  background: #6c757d;
+  color: white;
+}
+
+/* Checkbox styles */
+.analytics-page input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color, #007bff);
+}
+
+/* Loading state (for future use) */
+.analytics-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-muted, #888);
+}
+
+.analytics-loading::before {
+  content: "⏳";
+  margin-right: 0.5rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+`, "",{"version":3,"sources":["webpack://./css/analytics.css"],"names":[],"mappings":"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","sourcesContent":["/* Analytics Page Styles */\r\n.analytics-page {\r\n  padding: 2rem;\r\n  max-width: 1400px;\r\n  margin: 0 auto;\r\n  color: var(--text-color, #e0e0e0);\r\n  background: var(--background-color, #121212);\r\n}\r\n\r\n/* Header */\r\n.analytics-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: flex-start;\r\n  margin-bottom: 2rem;\r\n  padding-bottom: 1rem;\r\n  border-bottom: 2px solid var(--accent-color, #007bff);\r\n}\r\n\r\n.analytics-title h1 {\r\n  margin: 0;\r\n  font-size: 2.5rem;\r\n  font-weight: 700;\r\n  background: linear-gradient(135deg, #007bff, #28a745);\r\n  -webkit-background-clip: text;\r\n  -webkit-text-fill-color: transparent;\r\n  background-clip: text;\r\n}\r\n\r\n.analytics-subtitle {\r\n  margin: 0.5rem 0 0 0;\r\n  font-size: 1.1rem;\r\n  color: var(--text-muted, #888);\r\n}\r\n\r\n.analytics-session-info {\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: 0.5rem;\r\n  align-items: flex-end;\r\n}\r\n\r\n.session-badge, .storage-badge {\r\n  padding: 0.4rem 1rem;\r\n  border-radius: 20px;\r\n  font-size: 0.9rem;\r\n  font-weight: 500;\r\n}\r\n\r\n.session-badge {\r\n  background: rgba(0, 123, 255, 0.1);\r\n  border: 1px solid rgba(0, 123, 255, 0.3);\r\n  color: #007bff;\r\n}\r\n\r\n.storage-badge.storage-available {\r\n  background: rgba(40, 167, 69, 0.1);\r\n  border: 1px solid rgba(40, 167, 69, 0.3);\r\n  color: #28a745;\r\n}\r\n\r\n.storage-badge.storage-memory {\r\n  background: rgba(255, 193, 7, 0.1);\r\n  border: 1px solid rgba(255, 193, 7, 0.3);\r\n  color: #ffc107;\r\n}\r\n\r\n.session-label {\r\n  opacity: 0.8;\r\n}\r\n\r\n.session-id {\r\n  font-family: 'Courier New', monospace;\r\n  font-weight: bold;\r\n}\r\n\r\n/* Session Notice */\r\n.session-notice {\r\n  display: flex;\r\n  align-items: flex-start;\r\n  gap: 1rem;\r\n  padding: 1rem;\r\n  margin-bottom: 2rem;\r\n  background: rgba(255, 193, 7, 0.1);\r\n  border: 1px solid rgba(255, 193, 7, 0.3);\r\n  border-radius: 8px;\r\n}\r\n\r\n.notice-icon {\r\n  font-size: 1.5rem;\r\n  margin-top: 0.2rem;\r\n}\r\n\r\n.notice-content {\r\n  flex: 1;\r\n  line-height: 1.5;\r\n}\r\n\r\n.notice-content strong {\r\n  color: #ffc107;\r\n}\r\n\r\n/* Analytics Controls */\r\n.analytics-controls {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 2rem;\r\n  padding: 1.5rem;\r\n  background: var(--card-background, #1a1a1a);\r\n  border: 1px solid var(--border-color, #333);\r\n  border-radius: 12px;\r\n}\r\n\r\n.analytics-stats {\r\n  display: flex;\r\n  gap: 2rem;\r\n}\r\n\r\n.stat-item {\r\n  text-align: center;\r\n}\r\n\r\n.stat-value {\r\n  display: block;\r\n  font-size: 2rem;\r\n  font-weight: bold;\r\n  color: var(--accent-color, #007bff);\r\n  line-height: 1;\r\n}\r\n\r\n.stat-label {\r\n  display: block;\r\n  font-size: 0.9rem;\r\n  color: var(--text-muted, #888);\r\n  margin-top: 0.25rem;\r\n}\r\n\r\n.analytics-actions {\r\n  display: flex;\r\n  gap: 0.75rem;\r\n}\r\n\r\n/* Empty State */\r\n.analytics-empty {\r\n  text-align: center;\r\n  padding: 4rem 2rem;\r\n  background: var(--card-background, #1a1a1a);\r\n  border: 2px dashed var(--border-color, #333);\r\n  border-radius: 12px;\r\n  margin: 2rem 0;\r\n}\r\n\r\n.empty-icon {\r\n  font-size: 4rem;\r\n  margin-bottom: 1rem;\r\n  opacity: 0.6;\r\n}\r\n\r\n.analytics-empty h3 {\r\n  margin: 0 0 1rem 0;\r\n  font-size: 1.5rem;\r\n}\r\n\r\n.empty-instructions {\r\n  text-align: left;\r\n  display: inline-block;\r\n  margin: 1rem 0;\r\n  padding-left: 1rem;\r\n}\r\n\r\n.empty-instructions li {\r\n  margin: 0.5rem 0;\r\n  color: var(--text-muted, #888);\r\n}\r\n\r\n.empty-note {\r\n  margin: 1.5rem 0;\r\n  padding: 1rem;\r\n  background: rgba(255, 193, 7, 0.1);\r\n  border-radius: 6px;\r\n  font-style: italic;\r\n}\r\n\r\n.empty-actions {\r\n  margin-top: 2rem;\r\n}\r\n\r\n/* Analytics Table */\r\n.analytics-table-container {\r\n  background: var(--card-background, #1a1a1a);\r\n  border: 1px solid var(--border-color, #333);\r\n  border-radius: 12px;\r\n  overflow: hidden;\r\n}\r\n\r\n.analytics-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n  font-size: 0.9rem;\r\n}\r\n\r\n.analytics-table th {\r\n  background: var(--header-background, #2a2a2a);\r\n  color: var(--text-color, #e0e0e0);\r\n  padding: 1rem 0.75rem;\r\n  font-weight: 600;\r\n  text-align: left;\r\n  border-bottom: 2px solid var(--border-color, #333);\r\n}\r\n\r\n.analytics-table td {\r\n  padding: 1rem 0.75rem;\r\n  border-bottom: 1px solid var(--border-color, #333);\r\n  vertical-align: middle;\r\n}\r\n\r\n.analytics-row:hover {\r\n  background: rgba(0, 123, 255, 0.05);\r\n}\r\n\r\n.analytics-row.selected {\r\n  background: rgba(0, 123, 255, 0.1);\r\n  border-left: 4px solid var(--accent-color, #007bff);\r\n}\r\n\r\n.select-column {\r\n  width: 40px;\r\n  text-align: center;\r\n}\r\n\r\n.benchmark-name .name-main {\r\n  font-weight: 600;\r\n  margin-bottom: 0.25rem;\r\n}\r\n\r\n.benchmark-name .name-meta {\r\n  font-size: 0.8rem;\r\n  color: var(--text-muted, #888);\r\n  font-family: 'Courier New', monospace;\r\n}\r\n\r\n.added-time .time-main {\r\n  font-weight: 500;\r\n}\r\n\r\n.added-time .time-sub {\r\n  font-size: 0.8rem;\r\n  color: var(--text-muted, #888);\r\n}\r\n\r\n.control-badge {\r\n  display: inline-block;\r\n  padding: 0.25rem 0.5rem;\r\n  background: rgba(0, 123, 255, 0.2);\r\n  color: #007bff;\r\n  border-radius: 4px;\r\n  font-size: 0.8rem;\r\n  font-weight: 500;\r\n}\r\n\r\n.key-metrics {\r\n  font-size: 0.85rem;\r\n}\r\n\r\n.metric-item {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  margin-bottom: 0.25rem;\r\n}\r\n\r\n.metric-label {\r\n  color: var(--text-muted, #888);\r\n}\r\n\r\n.metric-value {\r\n  font-weight: 500;\r\n}\r\n\r\n.metric-value.congestion-low {\r\n  color: #28a745;\r\n}\r\n\r\n.metric-value.congestion-medium {\r\n  color: #ffc107;\r\n}\r\n\r\n.metric-value.congestion-high {\r\n  color: #dc3545;\r\n}\r\n\r\n.actions {\r\n  white-space: nowrap;\r\n}\r\n\r\n.btn-xs {\r\n  padding: 0.25rem 0.5rem;\r\n  font-size: 0.75rem;\r\n  margin-right: 0.25rem;\r\n}\r\n\r\n/* Comparison Panel */\r\n.analytics-comparison-panel {\r\n  position: fixed;\r\n  top: 0;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  background: rgba(0, 0, 0, 0.8);\r\n  z-index: 1050;\r\n  overflow-y: auto;\r\n}\r\n\r\n.comparison-content {\r\n  max-width: 1200px;\r\n  margin: 2rem auto;\r\n  padding: 2rem;\r\n  background: var(--card-background, #1a1a1a);\r\n  border-radius: 12px;\r\n  border: 1px solid var(--border-color, #333);\r\n}\r\n\r\n.comparison-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  margin-bottom: 2rem;\r\n  padding-bottom: 1rem;\r\n  border-bottom: 1px solid var(--border-color, #333);\r\n}\r\n\r\n.comparison-header h3 {\r\n  margin: 0;\r\n  color: var(--accent-color, #007bff);\r\n}\r\n\r\n.comparison-overview {\r\n  margin-bottom: 2rem;\r\n}\r\n\r\n.comparison-entries {\r\n  display: flex;\r\n  flex-wrap: wrap;\r\n  gap: 1rem;\r\n  margin-top: 1rem;\r\n}\r\n\r\n.comparison-entry-badge {\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 0.5rem;\r\n  padding: 0.75rem 1rem;\r\n  background: rgba(0, 123, 255, 0.1);\r\n  border: 1px solid rgba(0, 123, 255, 0.3);\r\n  border-radius: 8px;\r\n}\r\n\r\n.badge-number {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  width: 24px;\r\n  height: 24px;\r\n  background: var(--accent-color, #007bff);\r\n  color: white;\r\n  border-radius: 50%;\r\n  font-weight: bold;\r\n  font-size: 0.8rem;\r\n}\r\n\r\n.badge-name {\r\n  font-weight: 600;\r\n}\r\n\r\n.badge-date {\r\n  font-size: 0.8rem;\r\n  color: var(--text-muted, #888);\r\n}\r\n\r\n.comparison-table-container {\r\n  overflow-x: auto;\r\n  border: 1px solid var(--border-color, #333);\r\n  border-radius: 8px;\r\n}\r\n\r\n.comparison-table {\r\n  width: 100%;\r\n  border-collapse: collapse;\r\n  font-size: 0.9rem;\r\n}\r\n\r\n.comparison-table th {\r\n  background: var(--header-background, #2a2a2a);\r\n  padding: 1rem 0.75rem;\r\n  font-weight: 600;\r\n  text-align: left;\r\n  border-bottom: 2px solid var(--border-color, #333);\r\n}\r\n\r\n.comparison-table td {\r\n  padding: 0.75rem;\r\n  border-bottom: 1px solid var(--border-color, #333);\r\n  text-align: center;\r\n}\r\n\r\n.comparison-table .metric-label {\r\n  text-align: left;\r\n  font-weight: 500;\r\n}\r\n\r\n.best-value {\r\n  background: rgba(40, 167, 69, 0.2);\r\n  color: #28a745;\r\n  font-weight: 600;\r\n}\r\n\r\n.worst-value {\r\n  background: rgba(220, 53, 69, 0.2);\r\n  color: #dc3545;\r\n  font-weight: 600;\r\n}\r\n\r\n.range-value {\r\n  font-style: italic;\r\n  color: var(--text-muted, #888);\r\n}\r\n\r\n/* Modal Styles */\r\n.analytics-modal {\r\n  position: fixed;\r\n  top: 0;\r\n  left: 0;\r\n  right: 0;\r\n  bottom: 0;\r\n  background: rgba(0, 0, 0, 0.8);\r\n  z-index: 1060;\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n}\r\n\r\n.modal-content {\r\n  max-width: 800px;\r\n  width: 90%;\r\n  max-height: 80vh;\r\n  background: var(--card-background, #1a1a1a);\r\n  border: 1px solid var(--border-color, #333);\r\n  border-radius: 12px;\r\n  overflow: hidden;\r\n}\r\n\r\n.modal-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  padding: 1.5rem;\r\n  border-bottom: 1px solid var(--border-color, #333);\r\n  background: var(--header-background, #2a2a2a);\r\n}\r\n\r\n.modal-header h3 {\r\n  margin: 0;\r\n  color: var(--accent-color, #007bff);\r\n}\r\n\r\n.modal-close {\r\n  background: none;\r\n  border: none;\r\n  font-size: 1.5rem;\r\n  color: var(--text-muted, #888);\r\n  cursor: pointer;\r\n  padding: 0.25rem;\r\n  line-height: 1;\r\n}\r\n\r\n.modal-close:hover {\r\n  color: var(--text-color, #e0e0e0);\r\n}\r\n\r\n.modal-body {\r\n  padding: 2rem;\r\n  overflow-y: auto;\r\n  max-height: calc(80vh - 140px);\r\n}\r\n\r\n.details-grid {\r\n  display: grid;\r\n  gap: 2rem;\r\n  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\r\n}\r\n\r\n.detail-section h4 {\r\n  margin: 0 0 1rem 0;\r\n  color: var(--accent-color, #007bff);\r\n  border-bottom: 1px solid var(--border-color, #333);\r\n  padding-bottom: 0.5rem;\r\n}\r\n\r\n.detail-section p {\r\n  margin: 0.5rem 0;\r\n  line-height: 1.5;\r\n}\r\n\r\n.detail-section strong {\r\n  color: var(--text-color, #e0e0e0);\r\n}\r\n\r\n.modal-footer {\r\n  padding: 1rem 1.5rem;\r\n  border-top: 1px solid var(--border-color, #333);\r\n  background: var(--header-background, #2a2a2a);\r\n  text-align: right;\r\n}\r\n\r\n/* Responsive Design */\r\n@media (max-width: 1200px) {\r\n  .analytics-controls {\r\n    flex-direction: column;\r\n    gap: 1rem;\r\n    align-items: stretch;\r\n  }\r\n\r\n  .analytics-stats {\r\n    justify-content: center;\r\n  }\r\n\r\n  .analytics-actions {\r\n    justify-content: center;\r\n  }\r\n}\r\n\r\n@media (max-width: 768px) {\r\n  .analytics-page {\r\n    padding: 1rem;\r\n  }\r\n\r\n  .analytics-header {\r\n    flex-direction: column;\r\n    gap: 1rem;\r\n    align-items: stretch;\r\n  }\r\n\r\n  .analytics-session-info {\r\n    align-items: flex-start;\r\n  }\r\n\r\n  .analytics-title h1 {\r\n    font-size: 2rem;\r\n  }\r\n\r\n  .analytics-table-container {\r\n    overflow-x: auto;\r\n  }\r\n\r\n  .analytics-table {\r\n    min-width: 800px;\r\n  }\r\n\r\n  .comparison-content {\r\n    margin: 1rem;\r\n    padding: 1rem;\r\n  }\r\n\r\n  .comparison-entries {\r\n    flex-direction: column;\r\n  }\r\n\r\n  .modal-content {\r\n    width: 95%;\r\n    margin: 1rem;\r\n  }\r\n\r\n  .modal-body {\r\n    padding: 1rem;\r\n  }\r\n\r\n  .details-grid {\r\n    grid-template-columns: 1fr;\r\n    gap: 1rem;\r\n  }\r\n}\r\n\r\n/* Dark theme overrides */\r\nbody.dark-theme .analytics-page {\r\n  --background-color: #121212;\r\n  --card-background: #1a1a1a;\r\n  --header-background: #2a2a2a;\r\n  --text-color: #e0e0e0;\r\n  --text-muted: #888;\r\n  --border-color: #333;\r\n  --accent-color: #007bff;\r\n}\r\n\r\n/* Button styles consistency */\r\n.analytics-page .btn {\r\n  border: none;\r\n  border-radius: 6px;\r\n  padding: 0.5rem 1rem;\r\n  font-weight: 500;\r\n  transition: all 0.2s ease;\r\n  cursor: pointer;\r\n}\r\n\r\n.analytics-page .btn:disabled {\r\n  opacity: 0.6;\r\n  cursor: not-allowed;\r\n}\r\n\r\n.analytics-page .btn-primary {\r\n  background: #007bff;\r\n  color: white;\r\n}\r\n\r\n.analytics-page .btn-primary:hover:not(:disabled) {\r\n  background: #0056b3;\r\n}\r\n\r\n.analytics-page .btn-secondary {\r\n  background: #6c757d;\r\n  color: white;\r\n}\r\n\r\n.analytics-page .btn-secondary:hover:not(:disabled) {\r\n  background: #545b62;\r\n}\r\n\r\n.analytics-page .btn-danger {\r\n  background: #dc3545;\r\n  color: white;\r\n}\r\n\r\n.analytics-page .btn-danger:hover:not(:disabled) {\r\n  background: #c82333;\r\n}\r\n\r\n.analytics-page .btn-info {\r\n  background: #17a2b8;\r\n  color: white;\r\n}\r\n\r\n.analytics-page .btn-info:hover:not(:disabled) {\r\n  background: #138496;\r\n}\r\n\r\n.analytics-page .btn-outline-secondary {\r\n  background: transparent;\r\n  color: #6c757d;\r\n  border: 1px solid #6c757d;\r\n}\r\n\r\n.analytics-page .btn-outline-secondary:hover:not(:disabled) {\r\n  background: #6c757d;\r\n  color: white;\r\n}\r\n\r\n/* Checkbox styles */\r\n.analytics-page input[type=\"checkbox\"] {\r\n  width: 18px;\r\n  height: 18px;\r\n  accent-color: var(--accent-color, #007bff);\r\n}\r\n\r\n/* Loading state (for future use) */\r\n.analytics-loading {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: center;\r\n  padding: 2rem;\r\n  color: var(--text-muted, #888);\r\n}\r\n\r\n.analytics-loading::before {\r\n  content: \"⏳\";\r\n  margin-right: 0.5rem;\r\n  animation: spin 1s linear infinite;\r\n}\r\n\r\n@keyframes spin {\r\n  from { transform: rotate(0deg); }\r\n  to { transform: rotate(360deg); }\r\n}\r\n"],"sourceRoot":""}]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/cjs.js!./css/benchmark-configuration.css":
 /*!*******************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js!./css/benchmark-configuration.css ***!
@@ -37703,6 +38464,7 @@ __webpack_require__(/*! ../css/dat-gui.css */ "./css/dat-gui.css");
 __webpack_require__(/*! ../css/dark-theme.css */ "./css/dark-theme.css"); // This theme will override other styles
 __webpack_require__(/*! ../css/kpi-visualization.css */ "./css/kpi-visualization.css"); // KPI visualization component styles
 __webpack_require__(/*! ../css/benchmark-configuration.css */ "./css/benchmark-configuration.css"); // Benchmark configuration component styles
+__webpack_require__(/*! ../css/analytics.css */ "./css/analytics.css"); // Analytics page styles
 const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 __webpack_require__(/*! jquery-mousewheel */ "./node_modules/jquery-mousewheel/jquery.mousewheel.js");
 // Import the new architecture components
@@ -37712,6 +38474,7 @@ const NavigationComponent_1 = __webpack_require__(/*! ./components/NavigationCom
 const HomePage_1 = __webpack_require__(/*! ./pages/HomePage */ "./src/pages/HomePage.ts");
 const BuilderPageComponent_1 = __webpack_require__(/*! ./pages/BuilderPageComponent */ "./src/pages/BuilderPageComponent.ts");
 const SimulationPageComponent_1 = __webpack_require__(/*! ./pages/SimulationPageComponent */ "./src/pages/SimulationPageComponent.ts");
+const AnalyticsPageComponent_1 = __webpack_require__(/*! ./pages/AnalyticsPageComponent */ "./src/pages/AnalyticsPageComponent.ts");
 // Import tests in development mode
 __webpack_require__(/*! ./model/traffic-control/tests */ "./src/model/traffic-control/tests/index.ts");
 // Initialize the modernized application
@@ -37738,6 +38501,7 @@ $(() => {
         let homePage = null;
         let builderPage = null;
         let simulationPage = null;
+        let analyticsPage = null;
         // Add routes
         router.addRoute('/', () => {
             console.log('🏠 Navigating to Home page');
@@ -37749,6 +38513,10 @@ $(() => {
             if (simulationPage) {
                 simulationPage.destroy();
                 simulationPage = null;
+            }
+            if (analyticsPage) {
+                analyticsPage.destroy();
+                analyticsPage = null;
             }
             // Allow scrolling on home page
             document.body.classList.remove('no-scroll');
@@ -37766,6 +38534,10 @@ $(() => {
             if (simulationPage) {
                 simulationPage.destroy();
                 simulationPage = null;
+            }
+            if (analyticsPage) {
+                analyticsPage.destroy();
+                analyticsPage = null;
             }
             if (builderPage) {
                 builderPage.destroy();
@@ -37792,6 +38564,10 @@ $(() => {
                 simulationPage.destroy();
                 simulationPage = null;
             }
+            if (analyticsPage) {
+                analyticsPage.destroy();
+                analyticsPage = null;
+            }
             // Prevent scrolling on simulation page
             document.body.classList.remove('allow-scroll');
             document.body.classList.add('no-scroll');
@@ -37799,22 +38575,50 @@ $(() => {
             mainContent.innerHTML = '';
             simulationPage = new SimulationPageComponent_1.SimulationPageComponent(mainContent);
         });
+        router.addRoute('/analytics', () => {
+            console.log('📊 Navigating to Analytics page');
+            // Properly destroy any existing pages
+            if (homePage) {
+                homePage = null;
+            }
+            if (builderPage) {
+                builderPage.destroy();
+                builderPage = null;
+            }
+            if (simulationPage) {
+                simulationPage.destroy();
+                simulationPage = null;
+            }
+            if (analyticsPage) {
+                analyticsPage.destroy();
+                analyticsPage = null;
+            }
+            // Allow scrolling on analytics page
+            document.body.classList.remove('no-scroll');
+            document.body.classList.add('allow-scroll');
+            // Clear content and create fresh analytics page
+            mainContent.innerHTML = '';
+            analyticsPage = new AnalyticsPageComponent_1.AnalyticsPageComponent(mainContent);
+        });
         // Start the router (which will trigger the initial route)
         router.start();
         console.log('🚀 Modern application ready');
         console.log('🏠 Home page: Welcome and navigation');
         console.log('📐 Builder mode: Create and edit road layouts');
         console.log('🏃 Simulation mode: Run traffic simulations on saved layouts');
+        console.log('📊 Analytics mode: View and compare session-based benchmark results');
         // Expose useful debugging functions
         window.appState = AppState_1.appState;
         window.router = router;
         window.getBuilderPage = () => builderPage;
         window.getSimulationPage = () => simulationPage;
+        window.getAnalyticsPage = () => analyticsPage;
         // Navigation helper functions for debugging
         window.goToHome = () => router.navigate('/');
         window.goToBuilder = () => router.navigate('/builder');
         window.goToSimulation = () => router.navigate('/simulation');
-        console.log('🛠️ Debug functions available: appState, router, getBuilderPage(), getSimulationPage(), goToHome(), goToBuilder(), goToSimulation()');
+        window.goToAnalytics = () => router.navigate('/analytics');
+        console.log('🛠️ Debug functions available: appState, router, getBuilderPage(), getSimulationPage(), getAnalyticsPage(), goToHome(), goToBuilder(), goToSimulation(), goToAnalytics()');
     }, 10);
 });
 
@@ -37977,11 +38781,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.KPIVisualizationComponent = void 0;
 // Import Chart.js with auto-registration of all components
 const auto_1 = __importDefault(__webpack_require__(/*! chart.js/auto */ "./node_modules/chart.js/auto/auto.cjs"));
+const SessionAnalyticsStorage_1 = __webpack_require__(/*! ../lib/storage/SessionAnalyticsStorage */ "./src/lib/storage/SessionAnalyticsStorage.ts");
 class KPIVisualizationComponent {
     constructor(container) {
         this.charts = {};
         this.currentBenchmark = null;
         this.benchmarkHistory = [];
+        this.isAddedToAnalytics = false;
         this.container = container;
         this.loadBenchmarkHistory();
     }
@@ -37991,6 +38797,8 @@ class KPIVisualizationComponent {
     displayBenchmarkResults(benchmarkData) {
         this.currentBenchmark = benchmarkData;
         this.addToBenchmarkHistory(benchmarkData);
+        // Check if this benchmark is already in analytics
+        this.isAddedToAnalytics = SessionAnalyticsStorage_1.sessionAnalyticsStorage.isBenchmarkInAnalytics(benchmarkData.id);
         this.render();
     }
     /**
@@ -38007,6 +38815,9 @@ class KPIVisualizationComponent {
         <div class="kpi-header">
           <h3>KPI Benchmark Results</h3>
           <div class="kpi-controls">
+            <button id="add-to-analytics-btn" class="btn ${this.isAddedToAnalytics ? 'btn-success' : 'btn-primary'} btn-sm" ${this.isAddedToAnalytics ? 'disabled' : ''}>
+              ${this.isAddedToAnalytics ? '✅ Added to Analytics' : '📈 Add to Analytics'}
+            </button>
             <button id="export-csv-btn" class="btn btn-success btn-sm">📄 Export CSV</button>
             <button id="export-json-btn" class="btn btn-info btn-sm">📋 Export JSON</button>
             <button id="compare-runs-btn" class="btn btn-warning btn-sm">📊 Compare Runs</button>
@@ -38326,19 +39137,21 @@ class KPIVisualizationComponent {
      * Initialize event listeners for interactive elements
      */
     initializeEventListeners() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+        // Add to analytics button
+        (_a = document.getElementById('add-to-analytics-btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.addToAnalytics());
         // Export buttons
-        (_a = document.getElementById('export-csv-btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.exportCSV());
-        (_b = document.getElementById('export-json-btn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.exportJSON());
-        (_c = document.getElementById('compare-runs-btn')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.showComparisonPanel());
-        (_d = document.getElementById('validate-data-btn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.showValidationPanel());
+        (_b = document.getElementById('export-csv-btn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.exportCSV());
+        (_c = document.getElementById('export-json-btn')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.exportJSON());
+        (_d = document.getElementById('compare-runs-btn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.showComparisonPanel());
+        (_e = document.getElementById('validate-data-btn')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => this.showValidationPanel());
         // Table search and sort
-        (_e = document.getElementById('lane-search')) === null || _e === void 0 ? void 0 : _e.addEventListener('input', (e) => this.filterTable('lane-metrics-table', e.target.value));
-        (_f = document.getElementById('intersection-search')) === null || _f === void 0 ? void 0 : _f.addEventListener('input', (e) => this.filterTable('intersection-metrics-table', e.target.value));
-        (_g = document.getElementById('los-search')) === null || _g === void 0 ? void 0 : _g.addEventListener('input', (e) => this.filterTable('los-table', e.target.value));
-        (_h = document.getElementById('lane-sort')) === null || _h === void 0 ? void 0 : _h.addEventListener('change', (e) => this.sortTable('lane-metrics-table', e.target.value));
-        (_j = document.getElementById('intersection-sort')) === null || _j === void 0 ? void 0 : _j.addEventListener('change', (e) => this.sortTable('intersection-metrics-table', e.target.value));
-        (_k = document.getElementById('los-filter')) === null || _k === void 0 ? void 0 : _k.addEventListener('change', (e) => this.filterTableByValue('los-table', 1, e.target.value));
+        (_f = document.getElementById('lane-search')) === null || _f === void 0 ? void 0 : _f.addEventListener('input', (e) => this.filterTable('lane-metrics-table', e.target.value));
+        (_g = document.getElementById('intersection-search')) === null || _g === void 0 ? void 0 : _g.addEventListener('input', (e) => this.filterTable('intersection-metrics-table', e.target.value));
+        (_h = document.getElementById('los-search')) === null || _h === void 0 ? void 0 : _h.addEventListener('input', (e) => this.filterTable('los-table', e.target.value));
+        (_j = document.getElementById('lane-sort')) === null || _j === void 0 ? void 0 : _j.addEventListener('change', (e) => this.sortTable('lane-metrics-table', e.target.value));
+        (_k = document.getElementById('intersection-sort')) === null || _k === void 0 ? void 0 : _k.addEventListener('change', (e) => this.sortTable('intersection-metrics-table', e.target.value));
+        (_l = document.getElementById('los-filter')) === null || _l === void 0 ? void 0 : _l.addEventListener('change', (e) => this.filterTableByValue('los-table', 1, e.target.value));
         // Table header sorting for all tables
         const sortableTables = [
             'enhanced-kpi-table', 'emissions-table', 'los-table',
@@ -38353,10 +39166,10 @@ class KPIVisualizationComponent {
             });
         });
         // Comparison panel
-        (_l = document.getElementById('close-comparison')) === null || _l === void 0 ? void 0 : _l.addEventListener('click', () => {
+        (_m = document.getElementById('close-comparison')) === null || _m === void 0 ? void 0 : _m.addEventListener('click', () => {
             document.getElementById('comparison-panel').style.display = 'none';
         });
-        (_m = document.getElementById('comparison-benchmark')) === null || _m === void 0 ? void 0 : _m.addEventListener('change', (e) => {
+        (_o = document.getElementById('comparison-benchmark')) === null || _o === void 0 ? void 0 : _o.addEventListener('change', (e) => {
             const selectedId = e.target.value;
             if (selectedId) {
                 this.showComparison(selectedId);
@@ -39151,6 +39964,49 @@ class KPIVisualizationComponent {
         }, 3000);
     }
     /**
+     * Add current benchmark to session analytics
+     */
+    addToAnalytics() {
+        if (!this.currentBenchmark || this.isAddedToAnalytics) {
+            return;
+        }
+        try {
+            const analyticsEntry = SessionAnalyticsStorage_1.sessionAnalyticsStorage.addBenchmarkToAnalytics(this.currentBenchmark);
+            this.isAddedToAnalytics = true;
+            console.log('📈 [Analytics] Benchmark added to analytics:', {
+                analyticsId: analyticsEntry.analyticsId,
+                benchmarkName: analyticsEntry.name,
+                sessionId: analyticsEntry.sessionId
+            });
+            // Update the button state
+            const addToAnalyticsBtn = document.getElementById('add-to-analytics-btn');
+            if (addToAnalyticsBtn) {
+                addToAnalyticsBtn.disabled = true;
+                addToAnalyticsBtn.className = 'btn btn-success btn-sm';
+                addToAnalyticsBtn.innerHTML = '✅ Added to Analytics';
+            }
+            // Show success notification
+            this.showToast('Benchmark added to Analytics successfully!', 'success');
+            // Show navigation option
+            setTimeout(() => {
+                if (confirm('Benchmark added to Analytics! Would you like to view the Analytics page now?')) {
+                    // Navigate to analytics page
+                    if (window.router) {
+                        window.router.navigate('/analytics');
+                    }
+                    else {
+                        // Fallback: try to navigate directly
+                        window.location.href = '/analytics';
+                    }
+                }
+            }, 500);
+        }
+        catch (error) {
+            console.error('📈 [Analytics] Failed to add benchmark to analytics:', error);
+            this.showToast('Failed to add benchmark to Analytics', 'error');
+        }
+    }
+    /**
      * Destroy the component and clean up resources
      */
     destroy() {
@@ -39209,6 +40065,10 @@ class NavigationComponent {
             
             <a href="/simulation" class="nav-link" data-route="/simulation">
               🚦 Simulation
+            </a>
+            
+            <a href="/analytics" class="nav-link" data-route="/analytics">
+              📊 Analytics
             </a>
           </div>
         </div>
@@ -39964,6 +40824,186 @@ class LocalStorage {
     }
 }
 exports.LocalStorage = LocalStorage;
+
+
+/***/ }),
+
+/***/ "./src/lib/storage/SessionAnalyticsStorage.ts":
+/*!****************************************************!*\
+  !*** ./src/lib/storage/SessionAnalyticsStorage.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/**
+ * Session-only Analytics Storage System
+ *
+ * This storage system manages analytics data that persists only for the current browser session.
+ * Data is lost when the page is refreshed, tab is closed, or browser session ends.
+ *
+ * Design Philosophy:
+ * - Uses sessionStorage for temporary persistence during current session
+ * - Falls back to in-memory storage if sessionStorage is unavailable
+ * - Preserves exact data format from KPI Benchmark Results
+ * - No data transformation or loss during storage/retrieval
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.sessionAnalyticsStorage = exports.SessionAnalyticsStorage = void 0;
+class SessionAnalyticsStorage {
+    constructor() {
+        this.memoryStorage = []; // Fallback if sessionStorage unavailable
+        this.isSessionStorageAvailable = this.checkSessionStorageAvailability();
+        this.sessionId = this.initializeSessionId();
+        this.cleanupOldSessions();
+    }
+    static getInstance() {
+        if (!SessionAnalyticsStorage.instance) {
+            SessionAnalyticsStorage.instance = new SessionAnalyticsStorage();
+        }
+        return SessionAnalyticsStorage.instance;
+    }
+    /**
+     * Add a benchmark result to session analytics
+     * Preserves exact data format from KPI Benchmark Result
+     */
+    addBenchmarkToAnalytics(benchmarkRun) {
+        const analyticsEntry = {
+            ...benchmarkRun,
+            analyticsId: `analytics_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            addedTimestamp: new Date().toISOString(),
+            sessionId: this.sessionId
+        };
+        const currentEntries = this.getAllAnalyticsEntries();
+        currentEntries.push(analyticsEntry);
+        this.saveAnalyticsEntries(currentEntries);
+        console.log('📊 [Analytics] Added benchmark to session analytics:', {
+            analyticsId: analyticsEntry.analyticsId,
+            benchmarkName: analyticsEntry.name,
+            originalId: analyticsEntry.id,
+            sessionId: this.sessionId,
+            totalEntries: currentEntries.length
+        });
+        return analyticsEntry;
+    }
+    /**
+     * Get all analytics entries for the current session
+     */
+    getAllAnalyticsEntries() {
+        if (this.isSessionStorageAvailable) {
+            try {
+                const stored = sessionStorage.getItem(SessionAnalyticsStorage.STORAGE_KEY);
+                if (stored) {
+                    const entries = JSON.parse(stored);
+                    // Filter to only current session entries (safety check)
+                    return entries.filter(entry => entry.sessionId === this.sessionId);
+                }
+            }
+            catch (error) {
+                console.warn('📊 [Analytics] Failed to load from sessionStorage, using memory fallback:', error);
+                return this.memoryStorage;
+            }
+        }
+        return this.memoryStorage;
+    }
+    /**
+     * Remove a specific analytics entry
+     */
+    removeAnalyticsEntry(analyticsId) {
+        const currentEntries = this.getAllAnalyticsEntries();
+        const initialLength = currentEntries.length;
+        const filteredEntries = currentEntries.filter(entry => entry.analyticsId !== analyticsId);
+        if (filteredEntries.length < initialLength) {
+            this.saveAnalyticsEntries(filteredEntries);
+            console.log('📊 [Analytics] Removed analytics entry:', analyticsId);
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Clear all analytics entries for current session
+     */
+    clearAllAnalyticsEntries() {
+        this.saveAnalyticsEntries([]);
+        console.log('📊 [Analytics] Cleared all analytics entries for session:', this.sessionId);
+    }
+    /**
+     * Get analytics entry by ID
+     */
+    getAnalyticsEntry(analyticsId) {
+        const entries = this.getAllAnalyticsEntries();
+        return entries.find(entry => entry.analyticsId === analyticsId) || null;
+    }
+    /**
+     * Check if a benchmark has already been added to analytics
+     */
+    isBenchmarkInAnalytics(benchmarkId) {
+        const entries = this.getAllAnalyticsEntries();
+        return entries.some(entry => entry.id === benchmarkId);
+    }
+    /**
+     * Get session information
+     */
+    getSessionInfo() {
+        return {
+            sessionId: this.sessionId,
+            entryCount: this.getAllAnalyticsEntries().length,
+            isSessionStorageAvailable: this.isSessionStorageAvailable
+        };
+    }
+    checkSessionStorageAvailability() {
+        try {
+            const testKey = '__test_session_storage__';
+            sessionStorage.setItem(testKey, 'test');
+            sessionStorage.removeItem(testKey);
+            return true;
+        }
+        catch (error) {
+            console.warn('📊 [Analytics] sessionStorage not available, using memory storage:', error);
+            return false;
+        }
+    }
+    initializeSessionId() {
+        if (this.isSessionStorageAvailable) {
+            try {
+                let sessionId = sessionStorage.getItem(SessionAnalyticsStorage.SESSION_ID_KEY);
+                if (!sessionId) {
+                    sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    sessionStorage.setItem(SessionAnalyticsStorage.SESSION_ID_KEY, sessionId);
+                }
+                return sessionId;
+            }
+            catch (error) {
+                console.warn('📊 [Analytics] Failed to initialize session ID in sessionStorage:', error);
+            }
+        }
+        // Fallback to memory-based session ID
+        return `memory_session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    saveAnalyticsEntries(entries) {
+        if (this.isSessionStorageAvailable) {
+            try {
+                sessionStorage.setItem(SessionAnalyticsStorage.STORAGE_KEY, JSON.stringify(entries));
+                return;
+            }
+            catch (error) {
+                console.warn('📊 [Analytics] Failed to save to sessionStorage, using memory fallback:', error);
+            }
+        }
+        // Fallback to memory storage
+        this.memoryStorage = entries;
+    }
+    cleanupOldSessions() {
+        // Since we're using sessionStorage, cleanup happens automatically
+        // when the session ends. This method is for future extensibility.
+        console.log('📊 [Analytics] Session analytics storage initialized for session:', this.sessionId);
+    }
+}
+exports.SessionAnalyticsStorage = SessionAnalyticsStorage;
+SessionAnalyticsStorage.STORAGE_KEY = 'traffic_simulator_session_analytics';
+SessionAnalyticsStorage.SESSION_ID_KEY = 'traffic_simulator_session_id';
+// Export singleton instance
+exports.sessionAnalyticsStorage = SessionAnalyticsStorage.getInstance();
 
 
 /***/ }),
@@ -47160,6 +48200,521 @@ module.exports = World;
 
 /***/ }),
 
+/***/ "./src/pages/AnalyticsPageComponent.ts":
+/*!*********************************************!*\
+  !*** ./src/pages/AnalyticsPageComponent.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AnalyticsPageComponent = void 0;
+const SessionAnalyticsStorage_1 = __webpack_require__(/*! ../lib/storage/SessionAnalyticsStorage */ "./src/lib/storage/SessionAnalyticsStorage.ts");
+/**
+ * Analytics Page Component
+ *
+ * Displays session-volatile analytics data from KPI benchmark runs.
+ * Data is only shown for the current browsing session and is lost
+ * when the page is refreshed or the session ends.
+ */
+class AnalyticsPageComponent {
+    constructor(container) {
+        this.selectedEntries = new Set();
+        this.refreshInterval = null;
+        this.container = container;
+        this.init();
+    }
+    init() {
+        this.render();
+        this.addEventListeners();
+        this.startAutoRefresh();
+    }
+    destroy() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
+        this.selectedEntries.clear();
+    }
+    render() {
+        const sessionInfo = SessionAnalyticsStorage_1.sessionAnalyticsStorage.getSessionInfo();
+        const analyticsEntries = SessionAnalyticsStorage_1.sessionAnalyticsStorage.getAllAnalyticsEntries();
+        this.container.innerHTML = `
+      <div class="analytics-page">
+        <!-- Header -->
+        <div class="analytics-header">
+          <div class="analytics-title">
+            <h1>📊 Traffic Analytics Dashboard</h1>
+            <p class="analytics-subtitle">Session-based benchmark analysis and comparison</p>
+          </div>
+          <div class="analytics-session-info">
+            <div class="session-badge">
+              <span class="session-label">Session:</span>
+              <span class="session-id">${sessionInfo.sessionId.substring(0, 12)}...</span>
+            </div>
+            <div class="storage-badge ${sessionInfo.isSessionStorageAvailable ? 'storage-available' : 'storage-memory'}">
+              ${sessionInfo.isSessionStorageAvailable ? '💾 Session Storage' : '🧠 Memory Storage'}
+            </div>
+          </div>
+        </div>
+
+        <!-- Session Notice -->
+        <div class="session-notice">
+          <div class="notice-icon">⚠️</div>
+          <div class="notice-content">
+            <strong>Session-Volatile Data:</strong> Analytics data is temporary and will be cleared if you refresh this page, 
+            close the browser tab, or restart the server. Only benchmarks added during your current session are shown.
+          </div>
+        </div>
+
+        <!-- Analytics Controls -->
+        <div class="analytics-controls">
+          <div class="analytics-stats">
+            <div class="stat-item">
+              <span class="stat-value">${analyticsEntries.length}</span>
+              <span class="stat-label">Benchmark Entries</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">${this.selectedEntries.size}</span>
+              <span class="stat-label">Selected for Comparison</span>
+            </div>
+          </div>
+          <div class="analytics-actions">
+            <button id="select-all-btn" class="btn btn-secondary btn-sm">
+              ${this.selectedEntries.size === analyticsEntries.length ? 'Deselect All' : 'Select All'}
+            </button>
+            <button id="compare-selected-btn" class="btn btn-primary btn-sm" ${this.selectedEntries.size < 2 ? 'disabled' : ''}>
+              📈 Compare Selected (${this.selectedEntries.size})
+            </button>
+            <button id="clear-all-btn" class="btn btn-danger btn-sm" ${analyticsEntries.length === 0 ? 'disabled' : ''}>
+              🗑️ Clear All Analytics
+            </button>
+          </div>
+        </div>
+
+        <!-- Analytics Content -->
+        <div class="analytics-content">
+          ${analyticsEntries.length === 0 ? this.renderEmptyState() : this.renderAnalyticsTable(analyticsEntries)}
+        </div>
+
+        <!-- Comparison Panel (hidden by default) -->
+        <div id="comparison-panel" class="analytics-comparison-panel" style="display: none;">
+          <div class="comparison-header">
+            <h3>📊 Benchmark Comparison</h3>
+            <button id="close-comparison-btn" class="btn btn-outline-secondary btn-sm">✕ Close</button>
+          </div>
+          <div id="comparison-content" class="comparison-content">
+            <!-- Comparison content will be populated here -->
+          </div>
+        </div>
+      </div>
+    `;
+    }
+    renderEmptyState() {
+        return `
+      <div class="analytics-empty">
+        <div class="empty-icon">📈</div>
+        <h3>No Analytics Data Available</h3>
+        <p>Analytics entries will appear here after you:</p>
+        <ol class="empty-instructions">
+          <li>Navigate to the <strong>Simulation</strong> page</li>
+          <li>Run a KPI Benchmark test</li>
+          <li>Click <strong>"Add to Analytics"</strong> in the results dialog</li>
+        </ol>
+        <p class="empty-note">
+          <strong>Note:</strong> Analytics data is session-volatile and will be lost if you refresh the page or close the browser.
+        </p>
+        <div class="empty-actions">
+          <a href="/simulation" class="btn btn-primary">Go to Simulation Page</a>
+        </div>
+      </div>
+    `;
+    }
+    renderAnalyticsTable(entries) {
+        const sortedEntries = entries.sort((a, b) => new Date(b.addedTimestamp).getTime() - new Date(a.addedTimestamp).getTime());
+        return `
+      <div class="analytics-table-container">
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th class="select-column">
+                <input type="checkbox" id="select-all-checkbox" ${this.selectedEntries.size === entries.length && entries.length > 0 ? 'checked' : ''}>
+              </th>
+              <th>Benchmark Name</th>
+              <th>Added to Analytics</th>
+              <th>Duration</th>
+              <th>Traffic Control</th>
+              <th>Vehicles</th>
+              <th>Key Metrics</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sortedEntries.map(entry => this.renderAnalyticsRow(entry)).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    }
+    renderAnalyticsRow(entry) {
+        var _a, _b, _c;
+        const addedDate = new Date(entry.addedTimestamp);
+        const isSelected = this.selectedEntries.has(entry.analyticsId);
+        const metrics = entry.finalMetrics;
+        return `
+      <tr class="analytics-row ${isSelected ? 'selected' : ''}" data-analytics-id="${entry.analyticsId}">
+        <td class="select-column">
+          <input type="checkbox" class="entry-checkbox" data-analytics-id="${entry.analyticsId}" ${isSelected ? 'checked' : ''}>
+        </td>
+        <td class="benchmark-name">
+          <div class="name-main">${entry.name}</div>
+          <div class="name-meta">ID: ${entry.id.substring(0, 16)}...</div>
+        </td>
+        <td class="added-time">
+          <div class="time-main">${addedDate.toLocaleDateString()}</div>
+          <div class="time-sub">${addedDate.toLocaleTimeString()}</div>
+        </td>
+        <td class="duration">
+          ${(((_a = entry.settings) === null || _a === void 0 ? void 0 : _a.duration) || 0)}s
+        </td>
+        <td class="traffic-control">
+          <span class="control-badge">${((_b = entry.settings) === null || _b === void 0 ? void 0 : _b.trafficControlModel) || 'Unknown'}</span>
+        </td>
+        <td class="vehicle-count">
+          ${((_c = entry.settings) === null || _c === void 0 ? void 0 : _c.carsNumber) || 'N/A'}
+        </td>
+        <td class="key-metrics">
+          <div class="metric-item">
+            <span class="metric-label">Speed:</span>
+            <span class="metric-value">${metrics.averageSpeed.toFixed(1)} m/s</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Throughput:</span>
+            <span class="metric-value">${metrics.globalThroughput.toFixed(1)} veh/min</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Congestion:</span>
+            <span class="metric-value congestion-${this.getCongestionLevel(metrics.congestionIndex)}">${(metrics.congestionIndex * 100).toFixed(1)}%</span>
+          </div>
+        </td>
+        <td class="actions">
+          <button class="btn btn-info btn-xs view-details-btn" data-analytics-id="${entry.analyticsId}">
+            👁️ View
+          </button>
+          <button class="btn btn-danger btn-xs remove-entry-btn" data-analytics-id="${entry.analyticsId}">
+            🗑️
+          </button>
+        </td>
+      </tr>
+    `;
+    }
+    getCongestionLevel(congestionIndex) {
+        if (congestionIndex < 0.3)
+            return 'low';
+        if (congestionIndex < 0.6)
+            return 'medium';
+        return 'high';
+    }
+    addEventListeners() {
+        // Select all checkbox
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', () => {
+                const entries = SessionAnalyticsStorage_1.sessionAnalyticsStorage.getAllAnalyticsEntries();
+                if (selectAllCheckbox.checked) {
+                    entries.forEach(entry => this.selectedEntries.add(entry.analyticsId));
+                }
+                else {
+                    this.selectedEntries.clear();
+                }
+                this.updateUI();
+            });
+        }
+        // Individual entry checkboxes
+        document.querySelectorAll('.entry-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const target = e.target;
+                const analyticsId = target.dataset.analyticsId;
+                if (target.checked) {
+                    this.selectedEntries.add(analyticsId);
+                }
+                else {
+                    this.selectedEntries.delete(analyticsId);
+                }
+                this.updateUI();
+            });
+        });
+        // Select all button
+        const selectAllBtn = document.getElementById('select-all-btn');
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', () => {
+                const entries = SessionAnalyticsStorage_1.sessionAnalyticsStorage.getAllAnalyticsEntries();
+                if (this.selectedEntries.size === entries.length) {
+                    this.selectedEntries.clear();
+                }
+                else {
+                    entries.forEach(entry => this.selectedEntries.add(entry.analyticsId));
+                }
+                this.updateUI();
+            });
+        }
+        // Compare selected button
+        const compareBtn = document.getElementById('compare-selected-btn');
+        if (compareBtn) {
+            compareBtn.addEventListener('click', () => {
+                this.showComparison();
+            });
+        }
+        // Clear all button
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all analytics data? This action cannot be undone.')) {
+                    SessionAnalyticsStorage_1.sessionAnalyticsStorage.clearAllAnalyticsEntries();
+                    this.selectedEntries.clear();
+                    this.render();
+                    this.addEventListeners();
+                }
+            });
+        }
+        // View details buttons
+        document.querySelectorAll('.view-details-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const analyticsId = e.target.dataset.analyticsId;
+                this.viewEntryDetails(analyticsId);
+            });
+        });
+        // Remove entry buttons
+        document.querySelectorAll('.remove-entry-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const analyticsId = e.target.dataset.analyticsId;
+                if (confirm('Remove this analytics entry?')) {
+                    SessionAnalyticsStorage_1.sessionAnalyticsStorage.removeAnalyticsEntry(analyticsId);
+                    this.selectedEntries.delete(analyticsId);
+                    this.render();
+                    this.addEventListeners();
+                }
+            });
+        });
+        // Close comparison panel
+        const closeComparisonBtn = document.getElementById('close-comparison-btn');
+        if (closeComparisonBtn) {
+            closeComparisonBtn.addEventListener('click', () => {
+                document.getElementById('comparison-panel').style.display = 'none';
+            });
+        }
+        // Navigation link handler
+        document.querySelectorAll('a[href="/simulation"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                var _a;
+                e.preventDefault();
+                (_a = window.router) === null || _a === void 0 ? void 0 : _a.navigate('/simulation');
+            });
+        });
+    }
+    updateUI() {
+        // Update controls
+        const selectAllBtn = document.getElementById('select-all-btn');
+        const compareBtn = document.getElementById('compare-selected-btn');
+        const entries = SessionAnalyticsStorage_1.sessionAnalyticsStorage.getAllAnalyticsEntries();
+        if (selectAllBtn) {
+            selectAllBtn.textContent = this.selectedEntries.size === entries.length ? 'Deselect All' : 'Select All';
+        }
+        if (compareBtn) {
+            compareBtn.disabled = this.selectedEntries.size < 2;
+            compareBtn.textContent = `📈 Compare Selected (${this.selectedEntries.size})`;
+        }
+        // Update row selection styles
+        document.querySelectorAll('.analytics-row').forEach(row => {
+            const analyticsId = row.getAttribute('data-analytics-id');
+            if (this.selectedEntries.has(analyticsId)) {
+                row.classList.add('selected');
+            }
+            else {
+                row.classList.remove('selected');
+            }
+        });
+        // Update checkboxes
+        document.querySelectorAll('.entry-checkbox').forEach(checkbox => {
+            const cb = checkbox;
+            const analyticsId = cb.dataset.analyticsId;
+            cb.checked = this.selectedEntries.has(analyticsId);
+        });
+        // Update select all checkbox
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = this.selectedEntries.size === entries.length && entries.length > 0;
+            selectAllCheckbox.indeterminate = this.selectedEntries.size > 0 && this.selectedEntries.size < entries.length;
+        }
+        // Update stats
+        const statsContainer = document.querySelector('.analytics-stats');
+        if (statsContainer) {
+            statsContainer.innerHTML = `
+        <div class="stat-item">
+          <span class="stat-value">${entries.length}</span>
+          <span class="stat-label">Benchmark Entries</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">${this.selectedEntries.size}</span>
+          <span class="stat-label">Selected for Comparison</span>
+        </div>
+      `;
+        }
+    }
+    showComparison() {
+        if (this.selectedEntries.size < 2)
+            return;
+        const selectedAnalyticsEntries = Array.from(this.selectedEntries)
+            .map(id => SessionAnalyticsStorage_1.sessionAnalyticsStorage.getAnalyticsEntry(id))
+            .filter(entry => entry !== null);
+        const comparisonPanel = document.getElementById('comparison-panel');
+        const comparisonContent = document.getElementById('comparison-content');
+        comparisonContent.innerHTML = this.renderComparisonContent(selectedAnalyticsEntries);
+        comparisonPanel.style.display = 'block';
+    }
+    renderComparisonContent(entries) {
+        const metrics = ['averageSpeed', 'globalThroughput', 'averageWaitTime', 'congestionIndex', 'completedTrips', 'totalStops'];
+        return `
+      <div class="comparison-overview">
+        <h4>Comparing ${entries.length} Benchmark Runs</h4>
+        <div class="comparison-entries">
+          ${entries.map((entry, index) => `
+            <div class="comparison-entry-badge">
+              <span class="badge-number">${index + 1}</span>
+              <span class="badge-name">${entry.name}</span>
+              <span class="badge-date">${new Date(entry.addedTimestamp).toLocaleDateString()}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="comparison-table-container">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              ${entries.map((entry, index) => `<th>Run ${index + 1}</th>`).join('')}
+              <th>Best</th>
+              <th>Worst</th>
+              <th>Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${this.renderComparisonMetrics(entries)}
+          </tbody>
+        </table>
+      </div>
+    `;
+    }
+    renderComparisonMetrics(entries) {
+        const metricConfigs = [
+            { key: 'averageSpeed', label: 'Average Speed (m/s)', higherIsBetter: true, decimals: 2 },
+            { key: 'globalThroughput', label: 'Global Throughput (veh/min)', higherIsBetter: true, decimals: 2 },
+            { key: 'averageWaitTime', label: 'Average Wait Time (s)', higherIsBetter: false, decimals: 2 },
+            { key: 'congestionIndex', label: 'Congestion Index', higherIsBetter: false, decimals: 3 },
+            { key: 'completedTrips', label: 'Completed Trips', higherIsBetter: true, decimals: 0 },
+            { key: 'totalStops', label: 'Total Stops', higherIsBetter: false, decimals: 0 }
+        ];
+        return metricConfigs.map(config => {
+            const values = entries.map(entry => entry.finalMetrics[config.key]);
+            const bestValue = config.higherIsBetter ? Math.max(...values) : Math.min(...values);
+            const worstValue = config.higherIsBetter ? Math.min(...values) : Math.max(...values);
+            const range = Math.abs(bestValue - worstValue);
+            return `
+        <tr>
+          <td class="metric-label">${config.label}</td>
+          ${values.map(value => `
+            <td class="metric-value ${value === bestValue ? 'best-value' : value === worstValue ? 'worst-value' : ''}">
+              ${value.toFixed(config.decimals)}
+            </td>
+          `).join('')}
+          <td class="best-value">${bestValue.toFixed(config.decimals)}</td>
+          <td class="worst-value">${worstValue.toFixed(config.decimals)}</td>
+          <td class="range-value">${range.toFixed(config.decimals)}</td>
+        </tr>
+      `;
+        }).join('');
+    }
+    viewEntryDetails(analyticsId) {
+        var _a, _b, _c;
+        const entry = SessionAnalyticsStorage_1.sessionAnalyticsStorage.getAnalyticsEntry(analyticsId);
+        if (!entry)
+            return;
+        // Create a modal dialog to show entry details
+        const modal = document.createElement('div');
+        modal.className = 'analytics-modal';
+        modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>📊 Benchmark Details</h3>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="details-grid">
+            <div class="detail-section">
+              <h4>General Information</h4>
+              <p><strong>Name:</strong> ${entry.name}</p>
+              <p><strong>Original ID:</strong> ${entry.id}</p>
+              <p><strong>Analytics ID:</strong> ${entry.analyticsId}</p>
+              <p><strong>Added to Analytics:</strong> ${new Date(entry.addedTimestamp).toLocaleString()}</p>
+              <p><strong>Original Timestamp:</strong> ${new Date(entry.timestamp).toLocaleString()}</p>
+            </div>
+            <div class="detail-section">
+              <h4>Settings</h4>
+              <p><strong>Duration:</strong> ${((_a = entry.settings) === null || _a === void 0 ? void 0 : _a.duration) || 'N/A'}s</p>
+              <p><strong>Traffic Control:</strong> ${((_b = entry.settings) === null || _b === void 0 ? void 0 : _b.trafficControlModel) || 'N/A'}</p>
+              <p><strong>Vehicle Count:</strong> ${((_c = entry.settings) === null || _c === void 0 ? void 0 : _c.carsNumber) || 'N/A'}</p>
+            </div>
+            <div class="detail-section">
+              <h4>Key Metrics</h4>
+              <p><strong>Average Speed:</strong> ${entry.finalMetrics.averageSpeed.toFixed(2)} m/s</p>
+              <p><strong>Global Throughput:</strong> ${entry.finalMetrics.globalThroughput.toFixed(2)} veh/min</p>
+              <p><strong>Average Wait Time:</strong> ${entry.finalMetrics.averageWaitTime.toFixed(2)}s</p>
+              <p><strong>Congestion Index:</strong> ${(entry.finalMetrics.congestionIndex * 100).toFixed(1)}%</p>
+              <p><strong>Completed Trips:</strong> ${entry.finalMetrics.completedTrips}</p>
+              <p><strong>Total Stops:</strong> ${entry.finalMetrics.totalStops}</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary modal-close">Close</button>
+        </div>
+      </div>
+    `;
+        document.body.appendChild(modal);
+        modal.style.display = 'block';
+        // Add close handlers
+        modal.querySelectorAll('.modal-close').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+        });
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+    startAutoRefresh() {
+        // Refresh every 5 seconds to show any new analytics entries
+        this.refreshInterval = window.setInterval(() => {
+            const currentEntryCount = SessionAnalyticsStorage_1.sessionAnalyticsStorage.getAllAnalyticsEntries().length;
+            const displayedEntryCount = document.querySelectorAll('.analytics-row').length;
+            if (currentEntryCount !== displayedEntryCount) {
+                console.log('📊 [Analytics] Refreshing UI due to data changes');
+                this.render();
+                this.addEventListeners();
+            }
+        }, 5000);
+    }
+}
+exports.AnalyticsPageComponent = AnalyticsPageComponent;
+
+
+/***/ }),
+
 /***/ "./src/pages/BuilderPageComponent.ts":
 /*!*******************************************!*\
   !*** ./src/pages/BuilderPageComponent.ts ***!
@@ -49964,11 +51519,19 @@ class SimulationPageComponent {
             this.showNotification('Cannot toggle simulation during benchmark', 'warning');
             return;
         }
+        // Check if visualizer exists
+        if (!this.visualizer) {
+            this.showNotification('Cannot start simulation - visualizer not initialized', 'error');
+            return;
+        }
         const toggleButton = document.getElementById('toggle-simulation');
         if (this.isRunning) {
             // Stop simulation
             this.isRunning = false;
-            this.visualizer.stop();
+            // Safely call stop method on visualizer
+            if (typeof this.visualizer.stop === 'function') {
+                this.visualizer.stop();
+            }
             toggleButton.textContent = '▶️ Start Simulation';
             toggleButton.classList.replace('btn-danger', 'btn-success');
             // Clear analytics interval
@@ -49982,7 +51545,10 @@ class SimulationPageComponent {
         else {
             // Start simulation
             this.isRunning = true;
-            this.visualizer.start();
+            // Safely call start method on visualizer
+            if (typeof this.visualizer.start === 'function') {
+                this.visualizer.start();
+            }
             toggleButton.textContent = '⏸ Pause Simulation';
             toggleButton.classList.replace('btn-success', 'btn-danger');
             // Start KPI collection
@@ -50070,6 +51636,7 @@ class SimulationPageComponent {
     }
     // Run a KPI benchmark
     async runBenchmark() {
+        var _a;
         // Don't start a benchmark if one is already running
         if (this.isBenchmarkRunning) {
             this.showNotification('Benchmark already running', 'warning');
@@ -50150,10 +51717,17 @@ class SimulationPageComponent {
         if (this.visualizer && timeFactorRange) {
             const timeFactor = parseFloat(timeFactorRange.value);
             console.log(`🕒 Using time factor: ${timeFactor}`);
-            this.visualizer.timeFactor = timeFactor; // Direct property set
-            // Also call the method if it exists
-            if (typeof this.visualizer.setTimeFactor === 'function') {
-                this.visualizer.setTimeFactor(timeFactor);
+            // Make sure visualizer exists
+            if (this.visualizer) {
+                // Set directly and via method if available
+                this.visualizer.timeFactor = timeFactor; // Direct property set
+                // Also call the method if it exists
+                if (typeof this.visualizer.setTimeFactor === 'function') {
+                    this.visualizer.setTimeFactor(timeFactor);
+                }
+            }
+            else {
+                console.warn('Cannot set time factor - visualizer not initialized');
             }
             // Update the display
             if (timeFactorValue) {
@@ -50194,10 +51768,19 @@ class SimulationPageComponent {
         benchmarkButton.disabled = true;
         // Start simulation if not already running
         if (!this.isRunning) {
+            // Check if visualizer exists
+            if (!this.visualizer) {
+                this.showNotification('Cannot start benchmark - visualizer not initialized', 'error');
+                this.endBenchmark();
+                return;
+            }
             // We can't use toggleSimulation because it blocks during benchmark
             // So instead we'll directly start the simulation
             this.isRunning = true;
-            this.visualizer.start();
+            // Safely call start method on visualizer
+            if (typeof this.visualizer.start === 'function') {
+                this.visualizer.start();
+            }
             const toggleButton = document.getElementById('toggle-simulation');
             toggleButton.textContent = '⏸ Pause Simulation';
             toggleButton.classList.replace('btn-success', 'btn-danger');
@@ -50211,10 +51794,11 @@ class SimulationPageComponent {
             this.benchmarkIntervalSamples.push(kpi_collector_1.kpiCollector.getMetrics(this.world.time));
         }, 1000);
         // Set timeout to end benchmark
+        const timeFactor = ((_a = this.visualizer) === null || _a === void 0 ? void 0 : _a.timeFactor) || 1.0;
         this.benchmarkTimer = window.setTimeout(() => {
             clearInterval(sampleInterval);
             this.endBenchmark();
-        }, config.simulationDuration * 1000 / this.visualizer.timeFactor);
+        }, config.simulationDuration * 1000 / timeFactor);
     }
     // End the benchmark and collect results
     endBenchmark() {
@@ -50225,10 +51809,15 @@ class SimulationPageComponent {
             // We can't use toggleSimulation because it blocks during benchmark
             // So instead we'll directly stop the simulation
             this.isRunning = false;
-            this.visualizer.stop();
+            // Safely stop the visualizer
+            if (this.visualizer && typeof this.visualizer.stop === 'function') {
+                this.visualizer.stop();
+            }
             const toggleButton = document.getElementById('toggle-simulation');
-            toggleButton.textContent = '▶️ Start Simulation';
-            toggleButton.classList.replace('btn-danger', 'btn-success');
+            if (toggleButton) {
+                toggleButton.textContent = '▶️ Start Simulation';
+                toggleButton.classList.replace('btn-danger', 'btn-success');
+            }
             // Stop KPI collection
             kpi_collector_1.kpiCollector.stopRecording();
             console.log('🛑 Simulation stopped at end of benchmark');
