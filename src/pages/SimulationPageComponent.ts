@@ -123,35 +123,6 @@ export class SimulationPageComponent {
               </div>
             </div>
             
-            <!-- Scenario Management Panel -->
-            <div class="panel">
-              <h3>Scenario Management</h3>
-              
-              <div class="control-group">
-                <button id="save-scenario" class="btn btn-primary btn-block">
-                  💾 Save Current Scenario
-                </button>
-              </div>
-              
-              <div class="control-group">
-                <button id="load-scenario" class="btn btn-info btn-block">
-                  📂 Load Scenario
-                </button>
-              </div>
-              
-              <div class="scenario-status">
-                <small class="text-muted">
-                  ${this.scenarios.length > 0 
-                    ? `${this.scenarios.length} saved scenario(s) available` 
-                    : 'No saved scenarios found.'
-                  }
-                </small>
-                ${this.currentScenario 
-                  ? `<div class="current-scenario-info">Current: ${this.currentScenario.name}</div>` 
-                  : ''
-                }
-              </div>
-            </div>
             
             <!-- Simulation Controls -->
             <div class="panel">
@@ -1142,13 +1113,13 @@ export class SimulationPageComponent {
             <button class="close-btn">&times;</button>
           </div>
           <div class="dialog-body">
-            <div id="layouts-list" class="list-container">
+            <p class="dialog-instruction">Select a layout to load:</p>
+            <div id="layouts-grid" class="layouts-grid">
               <div class="list-empty-message">No saved layouts found.</div>
             </div>
-            <div class="form-actions">
-              <button id="load-layout-confirm" class="btn btn-primary">Load</button>
-              <button class="btn btn-secondary close-dialog">Cancel</button>
-            </div>
+          </div>
+          <div class="dialog-footer">
+            <button class="btn btn-secondary close-dialog">Cancel</button>
           </div>
         </div>
       `;
@@ -1162,26 +1133,13 @@ export class SimulationPageComponent {
           dialog!.style.display = 'none';
         });
       });
-      
-      // Add load button event
-      const loadButton = dialog.querySelector('#load-layout-confirm');
-      loadButton?.addEventListener('click', () => {
-        const selectedItem = document.querySelector('.list-item.selected');
-        if (selectedItem) {
-          const layoutId = selectedItem.getAttribute('data-id')!;
-          this.loadLayoutById(layoutId);
-          dialog!.style.display = 'none';
-        } else {
-          this.showNotification('No layout selected', 'warning');
-        }
-      });
     }
     
     // Show dialog
     dialog.style.display = 'block';
     
-    // Populate layouts list
-    this.populateLayoutsListUI();
+    // Populate layouts grid
+    this.populateLayoutsGridUI();
   }
   
   // Populate the layouts list in the UI
@@ -1224,6 +1182,45 @@ export class SimulationPageComponent {
       });
       
       layoutsList.appendChild(layoutItem);
+    });
+  }
+  
+  // Populate the layouts grid in the UI
+  private populateLayoutsGridUI(): void {
+    const layoutsGrid = document.getElementById('layouts-grid')!;
+    
+    // Clear the grid
+    layoutsGrid.innerHTML = '';
+    
+    if (this.layouts.length === 0) {
+      layoutsGrid.innerHTML = '<div class="list-empty-message">No saved layouts found.</div>';
+      return;
+    }
+    
+    // Add each layout to the grid
+    this.layouts.forEach(layout => {
+      const layoutItem = document.createElement('div');
+      layoutItem.className = 'layout-item';
+      
+      const date = new Date(layout.createdAt).toLocaleDateString();
+      const time = new Date(layout.createdAt).toLocaleTimeString();
+      
+      layoutItem.innerHTML = `
+        <h4 class="layout-title">${layout.name}</h4>
+        <div class="layout-date">Created: ${date} ${time}</div>
+        <div class="layout-actions">
+          <button class="btn btn-primary load-btn">Load</button>
+        </div>
+      `;
+      
+      // Add click event to load the layout
+      const loadBtn = layoutItem.querySelector('.load-btn');
+      loadBtn?.addEventListener('click', () => {
+        this.loadLayoutById(layout.id);
+        document.getElementById('load-layout-dialog')!.style.display = 'none';
+      });
+      
+      layoutsGrid.appendChild(layoutItem);
     });
   }
   
@@ -1286,7 +1283,7 @@ export class SimulationPageComponent {
   private toggleSimulation(): void {
     // Don't allow toggling during benchmark
     if (this.isBenchmarkRunning) {
-      this.showNotification('Cannot toggle simulation during benchmark', 'warning');
+      this.showNotification('Benchmark already running', 'warning');
       return;
     }
     
@@ -2057,6 +2054,7 @@ export class SimulationPageComponent {
         display: inline-block;
         font-weight: 400;
         text-align: center;
+
         white-space: nowrap;
         vertical-align: middle;
         user-select: none;
@@ -2259,6 +2257,9 @@ export class SimulationPageComponent {
         max-width: 600px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         color: #fff;
+        align-self: center;
+        justify-self: center;
+        margin-top: 24px
       }
       
       .dialog-header {

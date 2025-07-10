@@ -8,6 +8,7 @@ import '../css/kpi-visualization.css'; // KPI visualization component styles
 import '../css/fullscreen-kpi.css'; // Fullscreen KPI visualization styles
 import '../css/benchmark-configuration.css'; // Benchmark configuration component styles
 import '../css/analytics.css'; // Analytics page styles
+import '../css/dialog.css'; // Dialog styling for load layout and other popups
 import $ = require('jquery');
 import 'jquery-mousewheel';
 

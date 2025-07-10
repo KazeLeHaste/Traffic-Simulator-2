@@ -213,6 +213,59 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
+/***/ "./css/fullscreen-kpi.css":
+/*!********************************!*\
+  !*** ./css/fullscreen-kpi.css ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/styleDomAPI.js */ "./node_modules/style-loader/dist/runtime/styleDomAPI.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/insertBySelector.js */ "./node_modules/style-loader/dist/runtime/insertBySelector.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ "./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/insertStyleElement.js */ "./node_modules/style-loader/dist/runtime/insertStyleElement.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_fullscreen_kpi_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../node_modules/css-loader/dist/cjs.js!./fullscreen-kpi.css */ "./node_modules/css-loader/dist/cjs.js!./css/fullscreen-kpi.css");
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default());
+options.setAttributes = (_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default());
+options.insert = _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default().bind(null, "head");
+options.domAPI = (_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default());
+options.insertStyleElement = (_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default());
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_fullscreen_kpi_css__WEBPACK_IMPORTED_MODULE_6__["default"], options);
+
+
+
+
+       /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_fullscreen_kpi_css__WEBPACK_IMPORTED_MODULE_6__["default"] && _node_modules_css_loader_dist_cjs_js_fullscreen_kpi_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals ? _node_modules_css_loader_dist_cjs_js_fullscreen_kpi_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals : undefined);
+
+
+/***/ }),
+
 /***/ "./css/kpi-visualization.css":
 /*!***********************************!*\
   !*** ./css/kpi-visualization.css ***!
@@ -20169,6 +20222,128 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* dat-gui overrides for single panel 
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/dist/cjs.js!./css/fullscreen-kpi.css":
+/*!**********************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./css/fullscreen-kpi.css ***!
+  \**********************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../node_modules/css-loader/dist/runtime/sourceMaps.js */ "./node_modules/css-loader/dist/runtime/sourceMaps.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `/* Fullscreen KPI Visualization Styles */
+
+/* Full-screen modal for KPI results */
+.fullscreen-modal {
+    position: fixed;
+    z-index: 1500; /* Ensure it's above all other UI elements */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #121212;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.fullscreen-modal-content {
+    background-color: #1a1a1a;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.fullscreen-modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1a1a1a;
+}
+
+.fullscreen-modal-header h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.fullscreen-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.fullscreen-modal-close {
+    color: #fff;
+    background: #333;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.fullscreen-modal-close:hover {
+    background: #555;
+}
+
+/* Adjust KPI visualization for fullscreen */
+.fullscreen-modal .kpi-visualization {
+    height: 100%;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.fullscreen-modal .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.fullscreen-modal .chart-container {
+    height: 300px;
+}
+
+/* Responsive adjustments for fullscreen */
+@media (max-width: 1200px) {
+    .fullscreen-modal .chart-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Ensure tables have more room in fullscreen */
+.fullscreen-modal .table-wrapper {
+    max-height: none;
+}
+`, "",{"version":3,"sources":["webpack://./css/fullscreen-kpi.css"],"names":[],"mappings":"AAAA,wCAAwC;;AAExC,sCAAsC;AACtC;IACI,eAAe;IACf,aAAa,EAAE,4CAA4C;IAC3D,OAAO;IACP,MAAM;IACN,WAAW;IACX,YAAY;IACZ,yBAAyB;IACzB,gBAAgB;IAChB,aAAa;IACb,sBAAsB;AAC1B;;AAEA;IACI,yBAAyB;IACzB,WAAW;IACX,YAAY;IACZ,aAAa;IACb,sBAAsB;IACtB,gBAAgB;IAChB,YAAY;IACZ,gBAAgB;IAChB,SAAS;IACT,gBAAgB;IAChB,eAAe;AACnB;;AAEA;IACI,kBAAkB;IAClB,6BAA6B;IAC7B,aAAa;IACb,8BAA8B;IAC9B,mBAAmB;IACnB,yBAAyB;AAC7B;;AAEA;IACI,SAAS;IACT,cAAc;IACd,eAAe;IACf,gBAAgB;AACpB;;AAEA;IACI,OAAO;IACP,gBAAgB;IAChB,UAAU;AACd;;AAEA;IACI,WAAW;IACX,gBAAgB;IAChB,YAAY;IACZ,kBAAkB;IAClB,iBAAiB;IACjB,eAAe;IACf,eAAe;IACf,2BAA2B;AAC/B;;AAEA;IACI,gBAAgB;AACpB;;AAEA,4CAA4C;AAC5C;IACI,YAAY;IACZ,aAAa;IACb,gBAAgB;AACpB;;AAEA;IACI,aAAa;IACb,qCAAqC;IACrC,SAAS;AACb;;AAEA;IACI,aAAa;AACjB;;AAEA,0CAA0C;AAC1C;IACI;QACI,0BAA0B;IAC9B;AACJ;;AAEA,+CAA+C;AAC/C;IACI,gBAAgB;AACpB","sourcesContent":["/* Fullscreen KPI Visualization Styles */\r\n\r\n/* Full-screen modal for KPI results */\r\n.fullscreen-modal {\r\n    position: fixed;\r\n    z-index: 1500; /* Ensure it's above all other UI elements */\r\n    left: 0;\r\n    top: 0;\r\n    width: 100%;\r\n    height: 100%;\r\n    background-color: #121212;\r\n    overflow: hidden;\r\n    display: flex;\r\n    flex-direction: column;\r\n}\r\n\r\n.fullscreen-modal-content {\r\n    background-color: #1a1a1a;\r\n    width: 100%;\r\n    height: 100%;\r\n    display: flex;\r\n    flex-direction: column;\r\n    overflow: hidden;\r\n    border: none;\r\n    border-radius: 0;\r\n    margin: 0;\r\n    max-height: 100%;\r\n    max-width: 100%;\r\n}\r\n\r\n.fullscreen-modal-header {\r\n    padding: 15px 20px;\r\n    border-bottom: 1px solid #333;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n    background-color: #1a1a1a;\r\n}\r\n\r\n.fullscreen-modal-header h3 {\r\n    margin: 0;\r\n    color: #ffffff;\r\n    font-size: 24px;\r\n    font-weight: 600;\r\n}\r\n\r\n.fullscreen-modal-body {\r\n    flex: 1;\r\n    overflow-y: auto;\r\n    padding: 0;\r\n}\r\n\r\n.fullscreen-modal-close {\r\n    color: #fff;\r\n    background: #333;\r\n    border: none;\r\n    border-radius: 4px;\r\n    padding: 8px 15px;\r\n    font-size: 14px;\r\n    cursor: pointer;\r\n    transition: background 0.2s;\r\n}\r\n\r\n.fullscreen-modal-close:hover {\r\n    background: #555;\r\n}\r\n\r\n/* Adjust KPI visualization for fullscreen */\r\n.fullscreen-modal .kpi-visualization {\r\n    height: 100%;\r\n    padding: 20px;\r\n    overflow-y: auto;\r\n}\r\n\r\n.fullscreen-modal .chart-grid {\r\n    display: grid;\r\n    grid-template-columns: repeat(2, 1fr);\r\n    gap: 20px;\r\n}\r\n\r\n.fullscreen-modal .chart-container {\r\n    height: 300px;\r\n}\r\n\r\n/* Responsive adjustments for fullscreen */\r\n@media (max-width: 1200px) {\r\n    .fullscreen-modal .chart-grid {\r\n        grid-template-columns: 1fr;\r\n    }\r\n}\r\n\r\n/* Ensure tables have more room in fullscreen */\r\n.fullscreen-modal .table-wrapper {\r\n    max-height: none;\r\n}\r\n"],"sourceRoot":""}]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/cjs.js!./css/kpi-visualization.css":
 /*!*************************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js!./css/kpi-visualization.css ***!
@@ -38463,6 +38638,7 @@ __webpack_require__(/*! ../css/style.css */ "./css/style.css");
 __webpack_require__(/*! ../css/dat-gui.css */ "./css/dat-gui.css");
 __webpack_require__(/*! ../css/dark-theme.css */ "./css/dark-theme.css"); // This theme will override other styles
 __webpack_require__(/*! ../css/kpi-visualization.css */ "./css/kpi-visualization.css"); // KPI visualization component styles
+__webpack_require__(/*! ../css/fullscreen-kpi.css */ "./css/fullscreen-kpi.css"); // Fullscreen KPI visualization styles
 __webpack_require__(/*! ../css/benchmark-configuration.css */ "./css/benchmark-configuration.css"); // Benchmark configuration component styles
 __webpack_require__(/*! ../css/analytics.css */ "./css/analytics.css"); // Analytics page styles
 const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
@@ -38809,20 +38985,38 @@ class KPIVisualizationComponent {
             this.container.innerHTML = '<div class="kpi-message">No benchmark data available</div>';
             return;
         }
+        // Clean up any existing fullscreen modals first
+        const existingModals = document.querySelectorAll('.fullscreen-modal');
+        existingModals.forEach(modal => {
+            var _a;
+            (_a = modal.parentElement) === null || _a === void 0 ? void 0 : _a.removeChild(modal);
+        });
+        // Hide any existing benchmark dialogs
+        const existingDialogs = document.querySelectorAll('.benchmark-dialog');
+        existingDialogs.forEach(dialog => {
+            dialog.style.display = 'none';
+        });
+        // Create fullscreen modal container
         this.container.innerHTML = `
-      <div class="kpi-visualization">
-        <!-- Header Controls -->
-        <div class="kpi-header">
-          <h3>KPI Benchmark Results</h3>
-          <div class="kpi-controls">
-            <button id="add-to-analytics-btn" class="btn ${this.isAddedToAnalytics ? 'btn-success' : 'btn-primary'} btn-sm" ${this.isAddedToAnalytics ? 'disabled' : ''}>
-              ${this.isAddedToAnalytics ? '✅ Added to Analytics' : '📈 Add to Analytics'}
-            </button>
-            <button id="export-csv-btn" class="btn btn-success btn-sm">📄 Export CSV</button>
-            <button id="export-json-btn" class="btn btn-info btn-sm">📋 Export JSON</button>
-            <button id="validate-data-btn" class="btn btn-secondary btn-sm">✓ Validate Data</button>
+      <div class="fullscreen-modal">
+        <div class="fullscreen-modal-content">
+          <!-- Fullscreen Header -->
+          <div class="fullscreen-modal-header">
+            <h3>KPI Benchmark Results</h3>
+            <div class="kpi-controls">
+              <button id="add-to-analytics-btn" class="btn ${this.isAddedToAnalytics ? 'btn-success' : 'btn-primary'} btn-sm" ${this.isAddedToAnalytics ? 'disabled' : ''}>
+                ${this.isAddedToAnalytics ? '✅ Added to Analytics' : '📈 Add to Analytics'}
+              </button>
+              <button id="export-csv-btn" class="btn btn-success btn-sm">📄 Export CSV</button>
+              <button id="export-json-btn" class="btn btn-info btn-sm">📋 Export JSON</button>
+              <button id="validate-data-btn" class="btn btn-secondary btn-sm">✓ Validate Data</button>
+              <button id="close-fullscreen-btn" class="fullscreen-modal-close">Close</button>
+            </div>
           </div>
-        </div>
+          
+          <!-- Fullscreen Body -->
+          <div class="fullscreen-modal-body">
+            <div class="kpi-visualization"
 
         <!-- Summary Cards -->
         <div class="kpi-summary">
@@ -39040,7 +39234,15 @@ class KPIVisualizationComponent {
           <div id="validation-content"></div>
         </div>
       </div>
+          </div>
+        </div>
+      </div>
     `;
+        // Clear any existing charts before creating new ones
+        Object.values(this.charts).forEach(chart => {
+            chart.destroy();
+        });
+        this.charts = {};
         // Initialize event listeners
         this.initializeEventListeners();
         // Populate tables
@@ -39136,20 +39338,22 @@ class KPIVisualizationComponent {
      * Initialize event listeners for interactive elements
      */
     initializeEventListeners() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
+        // Close fullscreen button
+        (_a = document.getElementById('close-fullscreen-btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.closeFullscreen());
         // Add to analytics button
-        (_a = document.getElementById('add-to-analytics-btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.addToAnalytics());
+        (_b = document.getElementById('add-to-analytics-btn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.addToAnalytics());
         // Export buttons
-        (_b = document.getElementById('export-csv-btn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.exportCSV());
-        (_c = document.getElementById('export-json-btn')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.exportJSON());
-        (_d = document.getElementById('validate-data-btn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.showValidationPanel());
+        (_c = document.getElementById('export-csv-btn')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.exportCSV());
+        (_d = document.getElementById('export-json-btn')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', () => this.exportJSON());
+        (_e = document.getElementById('validate-data-btn')) === null || _e === void 0 ? void 0 : _e.addEventListener('click', () => this.showValidationPanel());
         // Table search and sort
-        (_e = document.getElementById('lane-search')) === null || _e === void 0 ? void 0 : _e.addEventListener('input', (e) => this.filterTable('lane-metrics-table', e.target.value));
-        (_f = document.getElementById('intersection-search')) === null || _f === void 0 ? void 0 : _f.addEventListener('input', (e) => this.filterTable('intersection-metrics-table', e.target.value));
-        (_g = document.getElementById('los-search')) === null || _g === void 0 ? void 0 : _g.addEventListener('input', (e) => this.filterTable('los-table', e.target.value));
-        (_h = document.getElementById('lane-sort')) === null || _h === void 0 ? void 0 : _h.addEventListener('change', (e) => this.sortTable('lane-metrics-table', e.target.value));
-        (_j = document.getElementById('intersection-sort')) === null || _j === void 0 ? void 0 : _j.addEventListener('change', (e) => this.sortTable('intersection-metrics-table', e.target.value));
-        (_k = document.getElementById('los-filter')) === null || _k === void 0 ? void 0 : _k.addEventListener('change', (e) => this.filterTableByValue('los-table', 1, e.target.value));
+        (_f = document.getElementById('lane-search')) === null || _f === void 0 ? void 0 : _f.addEventListener('input', (e) => this.filterTable('lane-metrics-table', e.target.value));
+        (_g = document.getElementById('intersection-search')) === null || _g === void 0 ? void 0 : _g.addEventListener('input', (e) => this.filterTable('intersection-metrics-table', e.target.value));
+        (_h = document.getElementById('los-search')) === null || _h === void 0 ? void 0 : _h.addEventListener('input', (e) => this.filterTable('los-table', e.target.value));
+        (_j = document.getElementById('lane-sort')) === null || _j === void 0 ? void 0 : _j.addEventListener('change', (e) => this.sortTable('lane-metrics-table', e.target.value));
+        (_k = document.getElementById('intersection-sort')) === null || _k === void 0 ? void 0 : _k.addEventListener('change', (e) => this.sortTable('intersection-metrics-table', e.target.value));
+        (_l = document.getElementById('los-filter')) === null || _l === void 0 ? void 0 : _l.addEventListener('change', (e) => this.filterTableByValue('los-table', 1, e.target.value));
         // Table header sorting for all tables
         const sortableTables = [
             'enhanced-kpi-table', 'emissions-table', 'los-table',
@@ -39164,10 +39368,10 @@ class KPIVisualizationComponent {
             });
         });
         // Comparison panel
-        (_l = document.getElementById('close-comparison')) === null || _l === void 0 ? void 0 : _l.addEventListener('click', () => {
+        (_m = document.getElementById('close-comparison')) === null || _m === void 0 ? void 0 : _m.addEventListener('click', () => {
             document.getElementById('comparison-panel').style.display = 'none';
         });
-        (_m = document.getElementById('comparison-benchmark')) === null || _m === void 0 ? void 0 : _m.addEventListener('change', (e) => {
+        (_o = document.getElementById('comparison-benchmark')) === null || _o === void 0 ? void 0 : _o.addEventListener('change', (e) => {
             const selectedId = e.target.value;
             if (selectedId) {
                 this.showComparison(selectedId);
@@ -40002,6 +40206,41 @@ class KPIVisualizationComponent {
         catch (error) {
             console.error('📈 [Analytics] Failed to add benchmark to analytics:', error);
             this.showToast('Failed to add benchmark to Analytics', 'error');
+        }
+    }
+    /**
+     * Close the fullscreen KPI benchmark results dialog
+     */
+    closeFullscreen() {
+        // Destroy all charts to prevent memory leaks
+        Object.values(this.charts).forEach(chart => {
+            chart.destroy();
+        });
+        // Clear the charts collection
+        this.charts = {};
+        // Remove the KPI visualization from the DOM
+        if (this.container) {
+            this.container.innerHTML = '';
+        }
+        // Notify any parent components that might need to know the dialog was closed
+        const closeEvent = new CustomEvent('kpi-dialog-closed');
+        document.dispatchEvent(closeEvent);
+        // Find and remove any fullscreen modals
+        const existingModals = document.querySelectorAll('.fullscreen-modal');
+        existingModals.forEach(modal => {
+            var _a;
+            (_a = modal.parentElement) === null || _a === void 0 ? void 0 : _a.removeChild(modal);
+        });
+        // Remove any benchmark dialogs
+        const benchmarkDialogs = document.querySelectorAll('.benchmark-dialog');
+        benchmarkDialogs.forEach(dialog => {
+            var _a;
+            (_a = dialog.parentElement) === null || _a === void 0 ? void 0 : _a.removeChild(dialog);
+        });
+        // Also remove by ID to ensure complete cleanup
+        const dialogById = document.getElementById('benchmark-results-dialog');
+        if (dialogById && dialogById.parentElement) {
+            dialogById.parentElement.removeChild(dialogById);
         }
     }
     /**
@@ -42173,7 +42412,7 @@ class KPICollector {
             averageWaitTime: avgWaitTime,
             maxWaitTime: maxWaitTime,
             totalStops: totalStops,
-            stoppedVehicles: this.stoppedVehicles.size,
+            stoppedVehicles: this.getAccurateStoppedVehiclesCount(),
             intersectionUtilization,
             roadUtilization,
             simulationTime: currentTime - this.simulationStartTime,
@@ -42361,17 +42600,47 @@ class KPICollector {
      * Calculate global throughput (vehicles per minute)
      */
     calculateGlobalThroughput() {
-        return this.vehicleMetrics.length / (this.simulationStartTime + 1);
+        // Fix: Proper throughput is based on completed trips (exited vehicles) per minute
+        const completedTrips = this.vehicleMetrics.filter(m => m.event === VehicleEvent.EXIT_SIMULATION).length;
+        // Add 1 to avoid division by zero, and convert to per-minute metric
+        // Use simulation duration since start time
+        const simulationDuration = this.simulationStartTime > 0 ? (Date.now() / 1000) - this.simulationStartTime : 1;
+        const simulationMinutes = Math.max(1, simulationDuration / 60);
+        return completedTrips / simulationMinutes;
     }
     /**
      * Calculate congestion index (0-1)
      */
     calculateCongestionIndex() {
-        // Simple index based on average queue length across all intersections and lanes
-        const totalQueueLength = Object.values(this.calculateLaneMetrics()).reduce((sum, metric) => sum + metric.queueLength, 0) +
-            Object.values(this.calculateIntersectionMetrics()).reduce((sum, metric) => sum + metric.averageQueueLength, 0);
-        const maxPossibleQueueLength = (Object.keys(this.calculateLaneMetrics()).length + Object.keys(this.calculateIntersectionMetrics()).length) * 10; // Assume max 10 vehicles before congestion per lane/intersection
-        return Math.min(1, totalQueueLength / maxPossibleQueueLength);
+        // More accurate congestion index based on multiple factors:
+        // 1. Queue lengths (weighted)
+        // 2. Number of stopped vehicles
+        // 3. Average speed compared to max possible speed
+        // Get lane metrics and intersection metrics
+        const laneMetrics = this.calculateLaneMetrics();
+        const intersectionMetrics = this.calculateIntersectionMetrics();
+        // Fix: Handle empty metrics properly
+        let queueCongestion = 0;
+        let locationCount = Math.max(1, Object.keys(laneMetrics).length + Object.keys(intersectionMetrics).length);
+        try {
+            // Calculate queue-based congestion safely
+            const totalQueueLength = Object.values(laneMetrics).reduce((sum, metric) => sum + (metric.queueLength || 0), 0) +
+                Object.values(intersectionMetrics).reduce((sum, metric) => sum + (metric.averageQueueLength || 0), 0);
+            queueCongestion = Math.min(1, totalQueueLength / (locationCount * 5)); // Assume 5 vehicles per location is heavy congestion
+        }
+        catch (error) {
+            console.warn('Error calculating queue congestion:', error);
+            queueCongestion = 0;
+        }
+        // Stopped vehicles congestion factor (percentage of active vehicles that are stopped)
+        const stoppedVehicleRatio = this.activeVehicles.size > 0 ?
+            this.getAccurateStoppedVehiclesCount() / this.activeVehicles.size : 0;
+        // Speed-based congestion (how much slower are vehicles compared to ideal)
+        const maxSpeed = 10; // Maximum expected speed in m/s
+        const avgSpeed = this.speedMeasurements > 0 ? this.totalSpeed / this.speedMeasurements : 0;
+        const speedCongestion = Math.max(0, Math.min(1, 1 - (avgSpeed / maxSpeed)));
+        // Weighted average of the three factors
+        return 0.4 * queueCongestion + 0.3 * stoppedVehicleRatio + 0.3 * speedCongestion;
     }
     /**
      * Export metrics as CSV format
@@ -42726,6 +42995,21 @@ class KPICollector {
         html += `<tr><td>Total event records</td><td>${this.vehicleMetrics.length}</td></tr>`;
         html += '</table></div>';
         return html;
+    }
+    /**
+     * Fix: Calculate accurate stopped vehicles count
+     * This ensures we don't have phantom stopped vehicles that weren't properly tracked
+     */
+    getAccurateStoppedVehiclesCount() {
+        // Use only active vehicles that are actually in the stopped set
+        let count = 0;
+        // Only count vehicles as stopped if they're active
+        this.stoppedVehicles.forEach(id => {
+            if (this.activeVehicles.has(id)) {
+                count++;
+            }
+        });
+        return count;
     }
     /**
      * Calculate emissions based on vehicle speed, acceleration, and driving behavior
@@ -47343,6 +47627,9 @@ const Curve = __webpack_require__(/*! ../geom/curve */ "./src/geom/curve.ts");
 const kpi_collector_1 = __webpack_require__(/*! ./kpi-collector */ "./src/model/kpi-collector.ts");
 const Car_Class = __webpack_require__(/*! ./car */ "./src/model/car.ts"); // Import the actual Car class to access worldTime
 const { min, max } = Math;
+// Traffic signal state constants
+const SIGNAL_RED = 0;
+const SIGNAL_GREEN = 1;
 class Trajectory {
     constructor(car, lane, position) {
         this.car = car;
@@ -47431,8 +47718,11 @@ class Trajectory {
             // Get the turn direction and side ID
             const turnNumber = sourceLane.getTurnDirection(nextLane);
             const sideId = sourceLane.road.targetSideId;
-            // Check if the signal state allows entry
-            return intersection.controlSignals.state[sideId][turnNumber] === 1;
+            // Use the proper method to get signal states (works with all traffic control strategies)
+            // This handles both new TrafficLightController and legacy ControlSignals
+            const signalState = intersection.getSignalState();
+            // Check if the signal state allows entry (SIGNAL_GREEN = 1)
+            return signalState[sideId][turnNumber] === SIGNAL_GREEN;
         }
         catch (error) {
             // On error, prevent entry for safety
@@ -48244,7 +48534,7 @@ class AnalyticsPageComponent {
         <!-- Header -->
         <div class="analytics-header">
           <div class="analytics-title">
-            <h1>📊 Traffic Analytics Dashboard</h1>
+            <h1>Traffic Analytics Dashboard</h1>
             <p class="analytics-subtitle">Session-based benchmark analysis and comparison</p>
           </div>
           <div class="analytics-session-info">
@@ -48258,14 +48548,7 @@ class AnalyticsPageComponent {
           </div>
         </div>
 
-        <!-- Session Notice -->
-        <div class="session-notice">
-          <div class="notice-icon">⚠️</div>
-          <div class="notice-content">
-            <strong>Session-Volatile Data:</strong> Analytics data is temporary and will be cleared if you refresh this page, 
-            close the browser tab, or restart the server. Only benchmarks added during your current session are shown.
-          </div>
-        </div>
+
 
         <!-- Analytics Controls -->
         <div class="analytics-controls">
@@ -48727,6 +49010,49 @@ class AnalyticsPageComponent {
                 this.addEventListeners();
             }
         }, 5000);
+    }
+    viewAnalyticsEntry(entry) {
+        console.log('Viewing analytics entry:', entry);
+        // Generate a unique container ID for this visualization instance
+        const visualizationContainerId = `kpi-visualization-${Date.now()}`;
+        // Remove any existing benchmark results dialogs first
+        const existingDialogs = document.querySelectorAll('.benchmark-dialog, .fullscreen-modal');
+        existingDialogs.forEach(dialog => {
+            if (dialog.parentElement) {
+                dialog.parentElement.removeChild(dialog);
+            }
+        });
+        // Create a direct fullscreen container for KPI visualization
+        const kpiContainer = document.createElement('div');
+        kpiContainer.id = visualizationContainerId;
+        document.body.appendChild(kpiContainer);
+        // Convert analytics entry to benchmark run format
+        const benchmarkRun = {
+            id: entry.id,
+            name: entry.name,
+            timestamp: entry.timestamp,
+            finalMetrics: entry.finalMetrics,
+            samples: entry.samples,
+            settings: entry.settings,
+            validation: entry.validation || ''
+        };
+        console.log('Created benchmark run object:', benchmarkRun.name);
+        try {
+            console.log('Creating new KPI visualization component');
+            // Create new visualization component and display the results
+            const kpiVisualization = new KPIVisualizationComponent_1.KPIVisualizationComponent(kpiContainer);
+            kpiVisualization.displayBenchmarkResults(benchmarkRun);
+            console.log('KPI visualization displayed successfully');
+            // Listen for close events to clean up the container
+            document.addEventListener('kpi-dialog-closed', () => {
+                if (kpiContainer && kpiContainer.parentElement) {
+                    kpiContainer.parentElement.removeChild(kpiContainer);
+                }
+            }, { once: true });
+        }
+        catch (error) {
+            console.error('Error creating KPI visualization:', error);
+        }
     }
 }
 exports.AnalyticsPageComponent = AnalyticsPageComponent;
@@ -49809,6 +50135,150 @@ class HomePage {
                 }
             });
         });
+        // Modal popup functionality for Learn More buttons
+        console.log('Setting up modal popup functionality');
+        const learnMoreButtons = document.querySelectorAll('.learn-more-btn');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalBody = document.getElementById('modal-body');
+        const closeModal = document.querySelector('.close-modal');
+        if (modalOverlay && modalBody && closeModal) {
+            // Close modal when clicking the X
+            closeModal.addEventListener('click', () => {
+                modalOverlay.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            });
+            // Close modal when clicking outside the modal content
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    modalOverlay.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                }
+            });
+            // Set up each Learn More button to open the modal with appropriate content
+            learnMoreButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const modalId = btn.getAttribute('data-modal-id');
+                    if (!modalId)
+                        return;
+                    const modalData = document.getElementById(modalId);
+                    if (modalData) {
+                        // Copy content from hidden modal-data to modal body
+                        modalBody.innerHTML = modalData.innerHTML;
+                        // Show the modal
+                        modalOverlay.style.display = 'flex';
+                        document.body.classList.add('modal-open');
+                        console.log(`Opened modal: ${modalId}`);
+                    }
+                    else {
+                        console.error(`Modal data not found for ID: ${modalId}`);
+                    }
+                });
+            });
+            console.log(`Set up ${learnMoreButtons.length} modal trigger buttons`);
+        }
+        else {
+            console.error('Modal elements not found in the DOM');
+        }
+        // Traffic control model tabs
+        console.log('Setting up traffic control model tabs');
+        const modelTabButtons = document.querySelectorAll('.tab-btn');
+        modelTabButtons.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Get the target content id
+                const targetId = tab.getAttribute('data-target');
+                if (!targetId)
+                    return;
+                console.log(`Tab clicked: ${targetId}`);
+                // Hide all content sections
+                const allContents = document.querySelectorAll('.model-content');
+                allContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                // Deactivate all tabs
+                modelTabButtons.forEach(t => {
+                    t.classList.remove('active');
+                });
+                // Activate clicked tab and show corresponding content
+                tab.classList.add('active');
+                const targetContent = document.getElementById(targetId);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+        // Traffic control model tabs
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Get the target content id
+                const targetId = tab.getAttribute('data-target');
+                if (!targetId)
+                    return;
+                // Hide all content sections
+                const allContents = document.querySelectorAll('.model-content');
+                allContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                // Deactivate all tabs
+                tabButtons.forEach(t => {
+                    t.classList.remove('active');
+                });
+                // Activate clicked tab and show corresponding content
+                tab.classList.add('active');
+                const targetContent = document.getElementById(targetId);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+        // Modal popup functionality for "Learn More" buttons
+        this.setupModalPopups();
+    }
+    setupModalPopups() {
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalBody = document.getElementById('modal-body');
+        const closeModal = document.querySelector('.close-modal');
+        const learnMoreButtons = document.querySelectorAll('.learn-more-btn');
+        if (!modalOverlay || !modalBody || !closeModal) {
+            console.error('Modal elements not found in DOM');
+            return;
+        }
+        console.log(`Setting up ${learnMoreButtons.length} modal buttons`);
+        // Open modal when Learn More is clicked
+        learnMoreButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal-id');
+                if (!modalId)
+                    return;
+                const modalContent = document.getElementById(modalId);
+                if (modalContent) {
+                    // Copy content to modal
+                    modalBody.innerHTML = modalContent.innerHTML;
+                    // Show modal
+                    modalOverlay.style.display = 'flex';
+                    document.body.classList.add('modal-open');
+                }
+            });
+        });
+        // Close modal when X is clicked
+        closeModal.addEventListener('click', () => {
+            modalOverlay.style.display = 'none';
+            document.body.classList.remove('modal-open');
+        });
+        // Close modal when clicking outside content
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+        });
+        // Close modal with ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.style.display === 'flex') {
+                modalOverlay.style.display = 'none';
+                document.body.classList.remove('modal-open');
+            }
+        });
     }
     render() {
         this.container.innerHTML = `
@@ -49816,125 +50286,336 @@ class HomePage {
         <div class="hero-section">
           <div class="hero-content">
             <h1>Road Traffic Simulator</h1>
-            <p class="hero-subtitle">Design, build, and simulate traffic flow through custom road networks</p>
+            <p class="hero-subtitle">Design, Build, Simulate, and Analyze Traffic Flow.</p>
+          </div>
+        </div>
+        
+        <!-- Core System Modules -->
+        <div class="modules-section">
+          <div class="section-content">
+            <h2>Core System Modules</h2>
             
-            <div class="feature-cards">
-              <div class="feature-card">
-                <div class="feature-icon">🏗️</div>
-                <h3>Network Builder</h3>
-                <p>Create custom road networks with intersections, lanes, and traffic signals</p>
-                <button class="btn btn-primary" id="go-to-builder">
-                  Start Building
-                </button>
+            <div class="module-grid">
+              <div class="module-card">
+                <div class="module-icon">🧠</div>
+                <h3>Core Simulation Engine</h3>
+                <p>The brain of the system that drives realistic traffic behavior</p>
+                <button class="learn-more-btn" data-modal-id="simulation-engine-modal">Learn More</button>
               </div>
               
-              <div class="feature-card">
-                <div class="feature-icon">🚗</div>
-                <h3>Traffic Simulation</h3>
-                <p>Run realistic traffic simulations on your custom road networks</p>
-                <button class="btn btn-secondary" id="go-to-simulation">
-                  View Simulation
-                </button>
+              <div class="module-card">
+                <div class="module-icon">🚦</div>
+                <h3>Traffic Control Layer</h3>
+                <p>Intelligent traffic management strategies for optimal flow</p>
+                <button class="learn-more-btn" data-modal-id="traffic-control-modal">Learn More</button>
+              </div>
+              
+              <div class="module-card">
+                <div class="module-icon">📊</div>
+                <h3>Analytics Layer</h3>
+                <p>Comprehensive metrics tracking and performance analysis</p>
+                <button class="learn-more-btn" data-modal-id="analytics-modal">Learn More</button>
+              </div>
+              
+              <div class="module-card">
+                <div class="module-icon">🗂️</div>
+                <h3>Storage Layer</h3>
+                <p>Save, load, and share your traffic scenarios and results</p>
+                <button class="learn-more-btn" data-modal-id="storage-modal">Learn More</button>
+              </div>
+              
+              <!-- Hidden modal content that will be displayed in popups -->
+              <div id="simulation-engine-modal" class="modal-data" style="display: none;">
+                <h3>Core Simulation Engine</h3>
+                <p>The simulation engine models realistic vehicle behavior using:</p>
+                <ul>
+                  <li><strong>Physics-based Movement:</strong> Acceleration, deceleration, and turning dynamics</li>
+                  <li><strong>Vehicle Interaction:</strong> Collision avoidance and following behavior</li>
+                  <li><strong>Traffic Rules:</strong> Lane discipline, intersection protocols, and signal compliance</li>
+                </ul>
+                <p>The engine processes approximately 60 updates per second to ensure smooth simulation with accurate representation of traffic flow dynamics.</p>
+              </div>
+              
+              <div id="traffic-control-modal" class="modal-data" style="display: none;">
+                <h3>Traffic Control Layer</h3>
+                <p>The Traffic Control Layer implements three distinct strategies:</p>
+                <ul>
+                  <li><strong>Fixed Timing:</strong> Predictable, cyclic signal patterns</li>
+                  <li><strong>Adaptive Timing:</strong> Responsive to traffic conditions</li>
+                  <li><strong>Traffic Enforcer:</strong> AI-driven decision making</li>
+                </ul>
+                <p>Each strategy can be applied to individual intersections or globally across the network, allowing for mixed-mode operations that mirror real-world implementations.</p>
+              </div>
+              
+              <div id="analytics-modal" class="modal-data" style="display: none;">
+                <h3>Analytics Layer</h3>
+                <p>Our robust analytics system tracks key performance indicators including:</p>
+                <ul>
+                  <li><strong>Traffic Flow Metrics:</strong> Speed, throughput, wait times</li>
+                  <li><strong>Congestion Analysis:</strong> Queue lengths, density metrics</li>
+                  <li><strong>Environmental Impact:</strong> Emissions modeling and fuel consumption</li>
+                  <li><strong>Level of Service:</strong> Industry-standard A-F grading for road segments</li>
+                </ul>
+                <p>Data collection occurs in real-time without impacting simulation performance, providing accurate insights for optimization.</p>
+              </div>
+              
+              <div id="storage-modal" class="modal-data" style="display: none;">
+                <h3>Storage Layer</h3>
+                <p>The storage system provides versatile data management:</p>
+                <ul>
+                  <li><strong>Scenario Management:</strong> Save and load network layouts</li>
+                  <li><strong>Results Export:</strong> CSV and JSON export for analysis in external tools</li>
+                  <li><strong>Historical Comparison:</strong> Track improvements across iterations</li>
+                  <li><strong>Benchmark Storage:</strong> Save performance metrics for future reference</li>
+                </ul>
+                <p>All data is stored securely and can be easily transferred between users for collaborative work.</p>
               </div>
             </div>
           </div>
         </div>
         
-        <!-- Recent Layouts Section -->
-        <div class="recent-section">
+        <!-- Traffic Control Models -->
+        <div class="control-models-section">
           <div class="section-content">
-            <h2>Recent Layouts</h2>
+            <h2>Traffic Control Models</h2>
+            <p class="section-description">Understanding the three traffic control strategies available in the simulator</p>
             
-            <div class="recent-layouts">
-              ${this.recentLayouts.length > 0 ?
-            this.recentLayouts.map(layout => `
-                  <div class="layout-card">
-                    <div class="layout-info">
-                      <h4>${layout.name || 'Unnamed Layout'}</h4>
-                      <p>Last modified: ${new Date(layout.updatedAt || layout.createdAt).toLocaleString()}</p>
-                    </div>
-                    <div class="layout-actions">
-                      <button class="btn btn-primary btn-sm" data-action="load-layout" data-layout-id="${layout.id}" data-target="builder">
-                        🏗️ Edit
-                      </button>
-                      <button class="btn btn-secondary btn-sm" data-action="load-layout" data-layout-id="${layout.id}" data-target="simulation">
-                        🚗 Simulate
-                      </button>
+            <div class="control-model-container">
+              <div class="model-tabs">
+                <button class="tab-btn active" data-target="fixed-timing">Fixed Timing</button>
+                <button class="tab-btn" data-target="adaptive-timing">Adaptive Timing</button>
+                <button class="tab-btn" data-target="traffic-enforcer">Traffic Enforcer</button>
+              </div>
+              
+              <div class="model-content active" id="fixed-timing">
+                <h4>Fixed Timing Strategy</h4>
+                <div class="model-icon">⏱️</div>
+                <p>The Fixed Timing strategy uses predetermined signal cycles with consistent phase durations, similar to traditional traffic lights used in stable, predictable traffic environments.</p>
+                
+                <div class="model-details">
+                  <div class="detail-section">
+                    <h5>How It Works</h5>
+                    <ul>
+                      <li>Cycles through phases with predetermined timing intervals</li>
+                      <li>Configurable green, yellow, and red durations for each direction</li>
+                      <li>Consistent cycle lengths regardless of traffic conditions</li>
+                    </ul>
+                  </div>
+                  
+                  <div class="detail-section">
+                    <h5>Key Parameters</h5>
+                    <ul>
+                      <li><strong>Cycle Time:</strong> Total duration of all phases</li>
+                      <li><strong>Phase Duration:</strong> Time for each movement pattern</li>
+                      <li><strong>Phase Variation:</strong> Optional randomness in timing</li>
+                    </ul>
+                  </div>
+                  
+                  <div class="detail-section">
+                    <h5>Best For</h5>
+                    <ul>
+                      <li>Consistent traffic patterns throughout the day</li>
+                      <li>Balanced traffic flows from all directions</li>
+                      <li>Grid-like networks with predictable demand</li>
+                      <li>Situations requiring timing coordination between intersections</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="model-content" id="adaptive-timing">
+                <h4>Adaptive Timing Strategy</h4>
+                <div class="model-icon">🧠</div>
+                <p>The Adaptive Timing strategy dynamically adjusts signal timings based on real-time traffic conditions, optimizing flow through continuous monitoring and response.</p>
+                
+                <div class="model-details">
+                  <div class="detail-section">
+                    <h5>How It Works</h5>
+                    <ul>
+                      <li>Monitors queue lengths, wait times, and vehicle flows</li>
+                      <li>Extends green phases for directions with heavy traffic</li>
+                      <li>Shortens phases for directions with minimal demand</li>
+                      <li>Implements emergency interventions for critical congestion</li>
+                    </ul>
+                  </div>
+                  
+                  <div class="detail-section">
+                    <h5>Key Parameters</h5>
+                    <ul>
+                      <li><strong>Min/Max Phase Duration:</strong> Timing constraints</li>
+                      <li><strong>Traffic Sensitivity:</strong> Responsiveness to conditions</li>
+                      <li><strong>Queue Weight:</strong> Importance of queue length</li>
+                      <li><strong>Fairness Weight:</strong> Balance between efficiency and equity</li>
+                    </ul>
+                  </div>
+                  
+                  <div class="detail-section">
+                    <h5>Best For</h5>
+                    <ul>
+                      <li>Variable traffic patterns with peak periods</li>
+                      <li>Imbalanced approaches (busy main road, quiet side streets)</li>
+                      <li>Networks with unpredictable demand fluctuations</li>
+                      <li>Areas requiring rapid response to changing conditions</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="model-content" id="traffic-enforcer">
+                <h4>Traffic Enforcer Strategy</h4>
+                <div class="model-icon">👮</div>
+                <p>The Traffic Enforcer strategy simulates a human traffic officer making intelligent decisions in real-time, with the ability to handle complex scenarios and prioritize movements based on multiple factors.</p>
+                
+                <div class="model-details">
+                  <div class="detail-section">
+                    <h5>How It Works</h5>
+                    <ul>
+                      <li>Makes decisions at regular intervals based on comprehensive traffic state</li>
+                      <li>Evaluates conflict matrices to ensure safe movement combinations</li>
+                      <li>Prioritizes directions based on congestion scores and wait times</li>
+                      <li>Considers fairness to prevent perpetual starvation</li>
+                    </ul>
+                  </div>
+                  
+                  <div class="detail-section">
+                    <h5>Key Parameters</h5>
+                    <ul>
+                      <li><strong>Decision Interval:</strong> Frequency of control updates</li>
+                      <li><strong>Priority Threshold:</strong> When to prioritize congested approaches</li>
+                      <li><strong>Emergency Threshold:</strong> Critical congestion trigger point</li>
+                      <li><strong>Minimum Green Time:</strong> Safety constraint for movements</li>
+                    </ul>
+                  </div>
+                  
+                  <div class="detail-section">
+                    <h5>Best For</h5>
+                    <ul>
+                      <li>Complex or unusual intersection geometries</li>
+                      <li>Highly variable traffic with unpredictable patterns</li>
+                      <li>Special events or temporary conditions</li>
+                      <li>Situations requiring human-like judgment and flexibility</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Performance Metrics -->
+        <div class="kpi-section">
+          <div class="section-content">
+            <h2>Key Performance Metrics</h2>
+            <p class="section-description">Understanding traffic performance measurement in the simulator</p>
+            
+            <div class="kpi-categories">
+              <div class="kpi-category">
+                <h4>Traffic Flow Metrics</h4>
+                <div class="kpi-cards">
+                  <div class="kpi-card">
+                    <h5>Average Speed</h5>
+                    <div class="kpi-icon">🏎️</div>
+                    <p>The mean velocity of all vehicles in the network, measured in meters per second.</p>
+                    <div class="calculation-info">
+                      <strong>How it's calculated:</strong> Total of all vehicle speeds divided by the number of vehicles, sampled at regular intervals.
                     </div>
                   </div>
-                `).join('')
-            :
-                `<div class="empty-state">
-                  <div class="empty-icon">📄</div>
-                  <p>No layouts found</p>
-                  <small>Head to the Builder to create your first layout!</small>
-                </div>`}
+                  
+                  <div class="kpi-card">
+                    <h5>Throughput</h5>
+                    <div class="kpi-icon">🚶</div>
+                    <p>The number of vehicles that successfully complete their journey through the network per unit time.</p>
+                    <div class="calculation-info">
+                      <strong>How it's calculated:</strong> Count of vehicles exiting the simulation divided by elapsed simulation time (in minutes).
+                    </div>
+                  </div>
+                  
+                  <div class="kpi-card">
+                    <h5>Average Wait Time</h5>
+                    <div class="kpi-icon">⌛</div>
+                    <p>The average time vehicles spend stopped or moving below threshold speed.</p>
+                    <div class="calculation-info">
+                      <strong>How it's calculated:</strong> Total waiting time for all vehicles divided by the number of vehicles, with waiting defined as speed below 0.5 m/s.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="kpi-category">
+                <h4>Congestion Indicators</h4>
+                <div class="kpi-cards">
+                  <div class="kpi-card">
+                    <h5>Congestion Index</h5>
+                    <div class="kpi-icon">📈</div>
+                    <p>A composite score from 0 to 1 indicating overall network congestion severity.</p>
+                    <div class="calculation-info">
+                      <strong>How it's calculated:</strong> Weighted combination of queue lengths (40%), stopped vehicles ratio (30%), and speed reduction factor (30%).
+                    </div>
+                  </div>
+                  
+                  <div class="kpi-card">
+                    <h5>Queue Metrics</h5>
+                    <div class="kpi-icon">📏</div>
+                    <p>Measurements of vehicle queues at intersections and along road segments.</p>
+                    <div class="calculation-info">
+                      <strong>How it's calculated:</strong> Tracks maximum and average queue lengths, formation and dissipation events, and total queue time across all locations.
+                    </div>
+                  </div>
+                  
+                  <div class="kpi-card">
+                    <h5>Vehicle Density</h5>
+                    <div class="kpi-icon">🚗</div>
+                    <p>Number of vehicles per kilometer of road, indicating traffic concentration.</p>
+                    <div class="calculation-info">
+                      <strong>How it's calculated:</strong> Vehicle count on a road segment divided by segment length in kilometers, sampled at regular intervals.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="kpi-category">
+                <h4>Environmental & Service Quality</h4>
+                <div class="kpi-cards">
+                  <div class="kpi-card">
+                    <h5>Emissions</h5>
+                    <div class="kpi-icon">🌱</div>
+                    <p>Environmental impact measures including CO₂, NOx, and particulate matter.</p>
+                    <div class="calculation-info">
+                      <strong>How it's calculated:</strong> Vehicle Specific Power (VSP) model based on vehicle speed, acceleration, and time spent in different driving modes.
+                    </div>
+                  </div>
+                  
+                  <div class="kpi-card">
+                    <h5>Level of Service</h5>
+                    <div class="kpi-icon">🏆</div>
+                    <p>Industry-standard A-F grading of traffic quality based on Highway Capacity Manual standards.</p>
+                    <div class="calculation-info">
+                      <strong>How it's calculated:</strong> Letter grades assigned based on average delay times: A (≤10s), B (≤20s), C (≤35s), D (≤55s), E (≤80s), F (>80s).
+                    </div>
+                  </div>
+                  
+                  <div class="kpi-card">
+                    <h5>Stop Frequency</h5>
+                    <div class="kpi-icon">🛑</div>
+                    <p>Average number of stops per vehicle journey, indicating flow smoothness.</p>
+                    <div class="calculation-info">
+                      <strong>How it's calculated:</strong> Total stop events divided by the number of vehicles that have completed their journey.
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         
-        <div class="info-section">
-          <div class="section-content">
-            <h2>How to Use</h2>
-            <div class="steps">
-              <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                  <h4>Design Your Network</h4>
-                  <p>Use the Builder to create intersections (Shift+Click) and connect them with roads (Shift+Drag)</p>
-                </div>
-              </div>
-              
-              <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                  <h4>Save Your Layout</h4>
-                  <p>Save your road network designs to load them later or share with others</p>
-                </div>
-              </div>
-              
-              <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                  <h4>Run Simulations</h4>
-                  <p>Switch to Simulation mode to see how traffic flows through your network</p>
-                </div>
-              </div>
-            </div>
+        <!-- Modal Popup -->
+        <div id="modal-overlay" class="modal-overlay">
+          <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body" id="modal-body"></div>
           </div>
         </div>
-        
-        <div class="features-section">
-          <div class="section-content">
-            <h2>Key Features</h2>
-            <div class="features-grid">
-              <div class="feature">
-                <div class="feature-icon">🔄</div>
-                <h4>Real-time Simulation</h4>
-                <p>Watch vehicles navigate through your road network in real-time</p>
-              </div>
-              
-              <div class="feature">
-                <div class="feature-icon">📊</div>
-                <h4>Traffic Analytics</h4>
-                <p>Track vehicle counts, speeds, and other traffic metrics</p>
-              </div>
-              
-              <div class="feature">
-                <div class="feature-icon">💾</div>
-                <h4>Save & Load</h4>
-                <p>Store your designs and continue working on them later</p>
-              </div>
-              
-              <div class="feature">
-                <div class="feature-icon">🔍</div>
-                <h4>Detailed View</h4>
-                <p>Zoom and pan to examine any part of your network</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </div> <!-- End of home-page content -->
       
       <style>
         .home-page {
@@ -49961,11 +50642,19 @@ class HomePage {
           background-clip: text;
         }
         
-        .recent-section, .info-section, .features-section {
+        .recent-section, .modules-section, .control-models-section, .kpi-section, .features-section {
           padding: 50px 40px;
         }
         
-        .info-section {
+        .modules-section {
+          background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-models-section {
+          background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .kpi-section {
           background: rgba(0, 0, 0, 0.2);
         }
         
@@ -50050,6 +50739,232 @@ class HomePage {
           opacity: 0.6;
         }
         
+        /* Module Cards */
+        .module-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 30px;
+          margin-top: 20px;
+        }
+        
+        .module-card {
+          background: rgba(45, 45, 45, 0.8);
+          border-radius: 8px;
+          padding: 25px;
+          transition: transform 0.3s;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .module-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .module-icon {
+          font-size: 2.5rem;
+          margin-bottom: 15px;
+          text-align: center;
+        }
+        
+        .module-card h3 {
+          margin: 0 0 10px 0;
+          color: #ffffff;
+          text-align: center;
+        }
+        
+        .module-card p {
+          margin: 0 0 20px 0;
+          color: #b0b0b0;
+        }
+        
+        .learn-more-btn {
+          padding: 8px 16px;
+          background: linear-gradient(45deg, #375a7f, #4a6fa5);
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: block;
+          margin: 0 auto;
+          font-weight: 500;
+        }
+        
+        .learn-more-btn:hover {
+          background: linear-gradient(45deg, #4a6fa5, #375a7f);
+          transform: translateY(-2px);
+        }
+        
+        .modal-data {
+          display: none;
+        }
+        
+        /* Traffic Control Models */
+        .section-description {
+          text-align: center;
+          color: #cccccc;
+          margin: -15px auto 30px;
+          max-width: 700px;
+        }
+        
+        .control-model-container {
+          background: rgba(45, 45, 45, 0.8);
+          border-radius: 12px;
+          overflow: hidden;
+          margin-top: 30px;
+        }
+        
+        .model-tabs {
+          display: flex;
+          background: #2d2d2d;
+          border-bottom: 1px solid #404040;
+        }
+        
+        .tab-btn {
+          flex: 1;
+          padding: 15px 20px;
+          background: transparent;
+          border: none;
+          color: #cccccc;
+          cursor: pointer;
+          transition: all 0.3s;
+          font-size: 1rem;
+        }
+        
+        .tab-btn:hover {
+          background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .tab-btn.active {
+          background: rgba(55, 90, 127, 0.5);
+          color: white;
+          border-bottom: 3px solid #375a7f;
+        }
+        
+        .model-content {
+          padding: 30px;
+          display: none;
+        }
+        
+        .model-content.active {
+          display: block;
+        }
+        
+        .model-content h4 {
+          margin-top: 0;
+          font-size: 1.5rem;
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        
+        .model-icon {
+          text-align: center;
+          font-size: 2.5rem;
+          margin-bottom: 20px;
+        }
+        
+        .model-content > p {
+          text-align: center;
+          max-width: 700px;
+          margin: 0 auto 30px;
+          color: #cccccc;
+          line-height: 1.6;
+        }
+        
+        .model-details {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 30px;
+          margin-top: 30px;
+        }
+        
+        .detail-section {
+          background: rgba(35, 35, 35, 0.7);
+          border-radius: 8px;
+          padding: 20px;
+          border: 1px solid #404040;
+        }
+        
+        .detail-section h5 {
+          margin-top: 0;
+          margin-bottom: 15px;
+          color: #00bc8c;
+        }
+        
+        .detail-section ul {
+          margin: 0;
+          padding-left: 20px;
+        }
+        
+        .detail-section li {
+          margin-bottom: 8px;
+          color: #cccccc;
+        }
+        
+        /* KPI Section */
+        .kpi-categories {
+          display: flex;
+          flex-direction: column;
+          gap: 40px;
+        }
+        
+        .kpi-category h4 {
+          text-align: center;
+          margin-bottom: 25px;
+          color: #00bc8c;
+          font-size: 1.4rem;
+        }
+        
+        .kpi-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 30px;
+        }
+        
+        .kpi-card {
+          background: rgba(45, 45, 45, 0.8);
+          border-radius: 8px;
+          padding: 25px;
+          border: 1px solid #404040;
+          transition: transform 0.3s;
+        }
+        
+        .kpi-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .kpi-icon {
+          font-size: 2rem;
+          margin-bottom: 15px;
+          text-align: center;
+        }
+        
+        .kpi-card h5 {
+          margin: 0 0 15px 0;
+          font-size: 1.2rem;
+          color: #ffffff;
+          text-align: center;
+        }
+        
+        .kpi-card p {
+          color: #cccccc;
+          margin-bottom: 15px;
+          line-height: 1.5;
+        }
+        
+        .calculation-info {
+          background: rgba(35, 35, 35, 0.7);
+          padding: 12px;
+          border-radius: 6px;
+          font-size: 0.9rem;
+          color: #b0b0b0;
+          margin-top: 15px;
+          border-left: 3px solid #375a7f;
+        }
+        
         /* Features Grid */
         .features-grid {
           display: grid;
@@ -50086,6 +51001,97 @@ class HomePage {
           color: #b0b0b0;
         }
         
+        /* Modal Popup Styles */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.7);
+          display: none;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          backdrop-filter: blur(3px);
+        }
+        
+        .modal-content {
+          background: #2d2d2d;
+          color: #ffffff;
+          width: 80%;
+          max-width: 700px;
+          max-height: 80vh;
+          border-radius: 10px;
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+          overflow: auto;
+          position: relative;
+          animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .close-modal {
+          position: absolute;
+          top: 15px;
+          right: 20px;
+          font-size: 28px;
+          font-weight: bold;
+          color: #b0b0b0;
+          cursor: pointer;
+          transition: color 0.2s;
+        }
+        
+        .close-modal:hover {
+          color: #ffffff;
+        }
+        
+        .modal-body {
+          padding: 30px;
+        }
+        
+        .modal-body h3 {
+          margin-top: 0;
+          color: #ffffff;
+          margin-bottom: 20px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #404040;
+        }
+        
+        .modal-body p {
+          margin: 15px 0;
+          line-height: 1.6;
+          color: #cccccc;
+        }
+        
+        .modal-body ul {
+          margin: 15px 0;
+          padding-left: 20px;
+        }
+        
+        .modal-body li {
+          margin-bottom: 10px;
+          color: #cccccc;
+        }
+        
+        .modal-body strong {
+          color: #00bc8c;
+        }
+        
+        /* Custom CSS to remove white box borders */
+        .recent-section, .modules-section, .control-models-section, .kpi-section, .features-section {
+          border: none;
+          box-shadow: none;
+        }
+        
+        .section-content {
+          border: none;
+          box-shadow: none;
+        }
+        
         /* Media Queries */
         @media (max-width: 768px) {
           .hero-content h1 {
@@ -50100,15 +51106,15 @@ class HomePage {
             margin-bottom: 20px;
           }
           
-          .steps {
+          .model-tabs {
             flex-direction: column;
           }
           
-          .step {
-            margin-bottom: 30px;
+          .model-content {
+            padding: 20px 15px;
           }
           
-          .recent-section, .info-section, .features-section {
+          .recent-section, .modules-section, .control-models-section, .kpi-section, .features-section {
             padding: 40px 20px;
           }
         }
@@ -50120,103 +51126,6 @@ class HomePage {
           max-width: 600px;
           margin-left: auto;
           margin-right: auto;
-        }
-        
-        .feature-cards {
-          display: flex;
-          gap: 40px;
-          justify-content: center;
-          flex-wrap: wrap;
-          margin-top: 40px;
-        }
-        
-        .feature-card {
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 12px;
-          padding: 30px;
-          max-width: 300px;
-          text-align: center;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .feature-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        
-        .feature-icon {
-          font-size: 3rem;
-          margin-bottom: 20px;
-        }
-        
-        .feature-card h3 {
-          margin-bottom: 15px;
-          color: #ffffff;
-        }
-        
-        .feature-card p {
-          color: #cccccc;
-          margin-bottom: 25px;
-          line-height: 1.5;
-        }
-        
-        .info-section {
-          padding: 60px 40px;
-          background: rgba(0, 0, 0, 0.2);
-        }
-        
-        .info-content {
-          max-width: 800px;
-          margin: 0 auto;
-        }
-        
-        .info-content h2 {
-          text-align: center;
-          margin-bottom: 40px;
-          font-size: 2.5rem;
-          color: #ffffff;
-        }
-        
-        .steps {
-          display: flex;
-          flex-direction: column;
-          gap: 30px;
-        }
-        
-        .step {
-          display: flex;
-          align-items: flex-start;
-          gap: 20px;
-          padding: 20px;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .step-number {
-          background: #375a7f;
-          color: white;
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
-          font-size: 1.2rem;
-          flex-shrink: 0;
-        }
-        
-        .step-content h4 {
-          margin: 0 0 10px 0;
-          color: #ffffff;
-        }
-        
-        .step-content p {
-          margin: 0;
-          color: #cccccc;
-          line-height: 1.5;
         }
         
         .btn {
@@ -50275,20 +51184,9 @@ class HomePage {
           z-index: 100;
         }
         
-        @media (max-width: 768px) {
-          .hero-content h1 {
-            font-size: 2.5rem;
-          }
-          
-          .feature-cards {
-            flex-direction: column;
-            align-items: center;
-          }
-          
-          .hero-section,
-          .info-section {
-            padding: 40px 20px;
-          }
+        /* Extra body class when modal is open */
+        body.modal-open {
+          overflow: hidden;
         }
       </style>
     `;
@@ -50561,86 +51459,7 @@ class SimulationPageComponent {
                   </div>
                 </div>
                 
-                <div class="analytics-section">
-                  <h4>Network Stats</h4>
-                  
-                  <div class="metric">
-                    <span class="label">Intersections:</span>
-                    <span class="value" id="total-intersections">0</span>
-                  </div>
-                  
-                  <div class="metric">
-                    <span class="label">Roads:</span>
-                    <span class="value" id="total-roads">0</span>
-                  </div>
-                </div>
-                
-                <div class="analytics-section">
-                  <h4>Lane Metrics</h4>
-                  <button id="toggle-lane-metrics" class="btn btn-sm">Show/Hide Lane Metrics</button>
-                  
-                  <div id="lane-metrics-container" class="metrics-table-container" style="display: none;">
-                    <table class="metrics-table">
-                      <thead>
-                        <tr>
-                          <th>Lane ID</th>
-                          <th>Avg Speed</th>
-                          <th>Vehicles</th>
-                          <th>Congestion</th>
-                          <th>Throughput</th>
-                          <th>Total Passed</th>
-                          <th>Queue Length</th>
-                        </tr>
-                      </thead>
-                      <tbody id="lane-metrics-body">
-                        <!-- Lanes will be populated here -->
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                
-                <div class="analytics-section">
-                  <h4>Intersection Metrics</h4>
-                  <button id="toggle-intersection-metrics" class="btn btn-sm">Show/Hide Intersection Metrics</button>
-                  
-                  <div id="intersection-metrics-container" class="metrics-table-container" style="display: none;">
-                    <table class="metrics-table">
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>Throughput</th>
-                          <th>Avg Wait</th>
-                          <th>Max Wait</th>
-                          <th>Avg Queue</th>
-                          <th>Total Passed</th>
-                          <th>Congestion</th>
-                        </tr>
-                      </thead>
-                      <tbody id="intersection-metrics-body">
-                        <!-- Intersections will be populated here -->
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                
-                <div class="analytics-actions">
-                  <button id="export-metrics-csv" class="btn btn-sm btn-success">📄 Export CSV</button>
-                  <button id="export-metrics-json" class="btn btn-sm btn-info">📋 Export JSON</button>
-                  <button id="validate-metrics" class="btn btn-sm btn-secondary">✓ Validate Data</button>
-                </div>
-                
-                <!-- Developer Tools Section -->
-                <div class="analytics-section analytics-dev-tools">
-                  <h4>Developer Tools</h4>
-                  <button id="validate-kpis" class="btn btn-sm btn-secondary btn-block">
-                    🔍 Validate KPI Collection
-                  </button>
-                  <div class="validation-output" id="validation-output" style="display: none;">
-                    <div id="validation-html-results" class="validation-formatted"></div>
-                    <h4>Debug Log Output:</h4>
-                    <pre id="validation-results">No validation results yet.</pre>
-                  </div>
-                </div>
+                <!-- All metrics and buttons below Congestion Index are removed from the sidebar -->
               </div>
             </div>
             
@@ -51864,39 +52683,22 @@ class SimulationPageComponent {
     }
     // Show benchmark results dialog
     showBenchmarkResults() {
-        // Create dialog if it doesn't exist
-        let dialog = document.getElementById('benchmark-results-dialog');
-        if (!dialog) {
-            dialog = document.createElement('div');
-            dialog.id = 'benchmark-results-dialog';
-            dialog.className = 'dialog benchmark-dialog';
-            dialog.innerHTML = `
-        <div class="dialog-content" style="max-width: 95vw; max-height: 90vh; width: 1400px;">
-          <div class="dialog-header">
-            <h3>📊 KPI Benchmark Results</h3>
-            <button class="close-btn" style="font-size: 24px;">&times;</button>
-          </div>
-          <div class="dialog-body" style="max-height: calc(90vh - 100px); overflow-y: auto;">
-            <div id="kpi-visualization-container"></div>
-          </div>
-        </div>
-      `;
-            document.body.appendChild(dialog);
-            // Add close button events
-            const closeButtons = dialog.querySelectorAll('.close-btn');
-            closeButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    dialog.style.display = 'none';
-                    // Clean up KPI visualization
-                    if (this.kpiVisualization) {
-                        this.kpiVisualization.destroy();
-                        this.kpiVisualization = null;
-                    }
-                });
-            });
+        // Remove any existing benchmark results dialogs first
+        const existingDialogs = document.querySelectorAll('.benchmark-dialog, .fullscreen-modal');
+        existingDialogs.forEach(dialog => {
+            if (dialog.parentElement) {
+                dialog.parentElement.removeChild(dialog);
+            }
+        });
+        // Also remove any old containers
+        const existingContainers = document.getElementById('kpi-fullscreen-container');
+        if (existingContainers && existingContainers.parentElement) {
+            existingContainers.parentElement.removeChild(existingContainers);
         }
-        // Show dialog
-        dialog.style.display = 'block';
+        // Create a direct fullscreen container for KPI visualization
+        const kpiContainer = document.createElement('div');
+        kpiContainer.id = 'kpi-fullscreen-container';
+        document.body.appendChild(kpiContainer);
         // Create benchmark run data for the KPI visualization component
         const benchmarkRun = {
             id: `benchmark_${Date.now()}`,
@@ -51907,13 +52709,21 @@ class SimulationPageComponent {
             settings: this.benchmarkResults.settings,
             validation: this.benchmarkResults.validation
         };
-        // Initialize KPI visualization component
-        const container = document.getElementById('kpi-visualization-container');
+        // Clean up any existing KPI visualization
         if (this.kpiVisualization) {
             this.kpiVisualization.destroy();
+            this.kpiVisualization = null;
         }
-        this.kpiVisualization = new KPIVisualizationComponent_1.KPIVisualizationComponent(container);
+        // Initialize new KPI visualization component directly in fullscreen mode
+        this.kpiVisualization = new KPIVisualizationComponent_1.KPIVisualizationComponent(kpiContainer);
         this.kpiVisualization.displayBenchmarkResults(benchmarkRun);
+        // Listen for close events
+        document.addEventListener('kpi-dialog-closed', () => {
+            if (kpiContainer && kpiContainer.parentElement) {
+                kpiContainer.parentElement.removeChild(kpiContainer);
+            }
+            this.kpiVisualization = null;
+        }, { once: true });
     }
     // Populate benchmark results UI
     populateBenchmarkResultsUI() {
@@ -51988,6 +52798,14 @@ class SimulationPageComponent {
           <div class="metrics-label">Congestion Index:</div>
           <div class="metrics-value">${metrics.congestionIndex.toFixed(3)}</div>
         </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Intersections:</div>
+          <div class="metrics-value">${this.analytics.totalIntersections}</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Roads:</div>
+          <div class="metrics-value">${this.analytics.totalRoads}</div>
+        </div>
       </div>
     `;
         // Validation
@@ -52055,6 +52873,9 @@ class SimulationPageComponent {
         document.getElementById('avg-wait-time').textContent = kpiMetrics.averageWaitTime.toFixed(1) + 's';
         document.getElementById('max-wait-time').textContent = kpiMetrics.maxWaitTime.toFixed(1) + 's';
         document.getElementById('total-stops').textContent = kpiMetrics.totalStops.toString();
+        document.getElementById('stopped-vehicles').textContent = kpiMetrics.stoppedVehicles.toString();
+        document.getElementById('global-throughput').textContent = kpiMetrics.globalThroughput.toFixed(2) + ' veh/min';
+        document.getElementById('congestion-index').textContent = kpiMetrics.congestionIndex.toFixed(2);
     }
     // Save benchmark results
     async saveBenchmarkResults() {
