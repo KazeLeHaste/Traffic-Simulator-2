@@ -1766,44 +1766,24 @@ export class SimulationPageComponent {
   
   // Show benchmark results dialog
   private showBenchmarkResults(): void {
-    // Create dialog if it doesn't exist
-    let dialog = document.getElementById('benchmark-results-dialog');
+    // Remove any existing benchmark results dialogs first
+    const existingDialogs = document.querySelectorAll('.benchmark-dialog, .fullscreen-modal');
+    existingDialogs.forEach(dialog => {
+      if (dialog.parentElement) {
+        dialog.parentElement.removeChild(dialog);
+      }
+    });
     
-    if (!dialog) {
-      dialog = document.createElement('div');
-      dialog.id = 'benchmark-results-dialog';
-      dialog.className = 'dialog benchmark-dialog';
-      
-      dialog.innerHTML = `
-        <div class="dialog-content" style="max-width: 95vw; max-height: 90vh; width: 1400px;">
-          <div class="dialog-header">
-            <h3>📊 KPI Benchmark Results</h3>
-            <button class="close-btn" style="font-size: 24px;">&times;</button>
-          </div>
-          <div class="dialog-body" style="max-height: calc(90vh - 100px); overflow-y: auto;">
-            <div id="kpi-visualization-container"></div>
-          </div>
-        </div>
-      `;
-      
-      document.body.appendChild(dialog);
-      
-      // Add close button events
-      const closeButtons = dialog.querySelectorAll('.close-btn');
-      closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          dialog!.style.display = 'none';
-          // Clean up KPI visualization
-          if (this.kpiVisualization) {
-            this.kpiVisualization.destroy();
-            this.kpiVisualization = null;
-          }
-        });
-      });
+    // Also remove any old containers
+    const existingContainers = document.getElementById('kpi-fullscreen-container');
+    if (existingContainers && existingContainers.parentElement) {
+      existingContainers.parentElement.removeChild(existingContainers);
     }
     
-    // Show dialog
-    dialog.style.display = 'block';
+    // Create a direct fullscreen container for KPI visualization
+    const kpiContainer = document.createElement('div');
+    kpiContainer.id = 'kpi-fullscreen-container';
+    document.body.appendChild(kpiContainer);
     
     // Create benchmark run data for the KPI visualization component
     const benchmarkRun: BenchmarkRun = {
@@ -1816,13 +1796,23 @@ export class SimulationPageComponent {
       validation: this.benchmarkResults.validation
     };
     
-    // Initialize KPI visualization component
-    const container = document.getElementById('kpi-visualization-container')!;
+    // Clean up any existing KPI visualization
     if (this.kpiVisualization) {
       this.kpiVisualization.destroy();
+      this.kpiVisualization = null;
     }
-    this.kpiVisualization = new KPIVisualizationComponent(container);
+    
+    // Initialize new KPI visualization component directly in fullscreen mode
+    this.kpiVisualization = new KPIVisualizationComponent(kpiContainer);
     this.kpiVisualization.displayBenchmarkResults(benchmarkRun);
+    
+    // Listen for close events
+    document.addEventListener('kpi-dialog-closed', () => {
+      if (kpiContainer && kpiContainer.parentElement) {
+        kpiContainer.parentElement.removeChild(kpiContainer);
+      }
+      this.kpiVisualization = null;
+    }, { once: true });
   }
   
   // Populate benchmark results UI

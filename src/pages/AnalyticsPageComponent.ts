@@ -568,4 +568,56 @@ export class AnalyticsPageComponent {
       }
     }, 5000);
   }
+
+  private viewAnalyticsEntry(entry: any): void {
+    console.log('Viewing analytics entry:', entry);
+    
+    // Generate a unique container ID for this visualization instance
+    const visualizationContainerId = `kpi-visualization-${Date.now()}`;
+    
+    // Remove any existing benchmark results dialogs first
+    const existingDialogs = document.querySelectorAll('.benchmark-dialog, .fullscreen-modal');
+    existingDialogs.forEach(dialog => {
+      if (dialog.parentElement) {
+        dialog.parentElement.removeChild(dialog);
+      }
+    });
+    
+    // Create a direct fullscreen container for KPI visualization
+    const kpiContainer = document.createElement('div');
+    kpiContainer.id = visualizationContainerId;
+    document.body.appendChild(kpiContainer);
+    
+    // Convert analytics entry to benchmark run format
+    const benchmarkRun: BenchmarkRun = {
+      id: entry.id,
+      name: entry.name,
+      timestamp: entry.timestamp,
+      finalMetrics: entry.finalMetrics,
+      samples: entry.samples,
+      settings: entry.settings,
+      validation: entry.validation || ''
+    };
+    
+    console.log('Created benchmark run object:', benchmarkRun.name);
+    
+    try {
+      console.log('Creating new KPI visualization component');
+      // Create new visualization component and display the results
+      const kpiVisualization = new KPIVisualizationComponent(kpiContainer);
+      kpiVisualization.displayBenchmarkResults(benchmarkRun);
+      
+      console.log('KPI visualization displayed successfully');
+      
+      // Listen for close events to clean up the container
+      document.addEventListener('kpi-dialog-closed', () => {
+        if (kpiContainer && kpiContainer.parentElement) {
+          kpiContainer.parentElement.removeChild(kpiContainer);
+        }
+      }, { once: true });
+      
+    } catch (error) {
+      console.error('Error creating KPI visualization:', error);
+    }
+  }
 }

@@ -5,6 +5,7 @@ import '../css/style.css';
 import '../css/dat-gui.css';
 import '../css/dark-theme.css'; // This theme will override other styles
 import '../css/kpi-visualization.css'; // KPI visualization component styles
+import '../css/fullscreen-kpi.css'; // Fullscreen KPI visualization styles
 import '../css/benchmark-configuration.css'; // Benchmark configuration component styles
 import '../css/analytics.css'; // Analytics page styles
 import $ = require('jquery');

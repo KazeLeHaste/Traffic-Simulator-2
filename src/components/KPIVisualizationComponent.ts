@@ -73,20 +73,39 @@ export class KPIVisualizationComponent {
       return;
     }
 
+    // Clean up any existing fullscreen modals first
+    const existingModals = document.querySelectorAll('.fullscreen-modal');
+    existingModals.forEach(modal => {
+      modal.parentElement?.removeChild(modal);
+    });
+    
+    // Hide any existing benchmark dialogs
+    const existingDialogs = document.querySelectorAll('.benchmark-dialog');
+    existingDialogs.forEach(dialog => {
+      (dialog as HTMLElement).style.display = 'none';
+    });
+
+    // Create fullscreen modal container
     this.container.innerHTML = `
-      <div class="kpi-visualization">
-        <!-- Header Controls -->
-        <div class="kpi-header">
-          <h3>KPI Benchmark Results</h3>
-          <div class="kpi-controls">
-            <button id="add-to-analytics-btn" class="btn ${this.isAddedToAnalytics ? 'btn-success' : 'btn-primary'} btn-sm" ${this.isAddedToAnalytics ? 'disabled' : ''}>
-              ${this.isAddedToAnalytics ? '✅ Added to Analytics' : '📈 Add to Analytics'}
-            </button>
-            <button id="export-csv-btn" class="btn btn-success btn-sm">📄 Export CSV</button>
-            <button id="export-json-btn" class="btn btn-info btn-sm">📋 Export JSON</button>
-            <button id="validate-data-btn" class="btn btn-secondary btn-sm">✓ Validate Data</button>
+      <div class="fullscreen-modal">
+        <div class="fullscreen-modal-content">
+          <!-- Fullscreen Header -->
+          <div class="fullscreen-modal-header">
+            <h3>KPI Benchmark Results</h3>
+            <div class="kpi-controls">
+              <button id="add-to-analytics-btn" class="btn ${this.isAddedToAnalytics ? 'btn-success' : 'btn-primary'} btn-sm" ${this.isAddedToAnalytics ? 'disabled' : ''}>
+                ${this.isAddedToAnalytics ? '✅ Added to Analytics' : '📈 Add to Analytics'}
+              </button>
+              <button id="export-csv-btn" class="btn btn-success btn-sm">📄 Export CSV</button>
+              <button id="export-json-btn" class="btn btn-info btn-sm">📋 Export JSON</button>
+              <button id="validate-data-btn" class="btn btn-secondary btn-sm">✓ Validate Data</button>
+              <button id="close-fullscreen-btn" class="fullscreen-modal-close">Close</button>
+            </div>
           </div>
-        </div>
+          
+          <!-- Fullscreen Body -->
+          <div class="fullscreen-modal-body">
+            <div class="kpi-visualization"
 
         <!-- Summary Cards -->
         <div class="kpi-summary">
@@ -304,7 +323,16 @@ export class KPIVisualizationComponent {
           <div id="validation-content"></div>
         </div>
       </div>
+          </div>
+        </div>
+      </div>
     `;
+
+    // Clear any existing charts before creating new ones
+    Object.values(this.charts).forEach(chart => {
+      chart.destroy();
+    });
+    this.charts = {};
 
     // Initialize event listeners
     this.initializeEventListeners();
@@ -408,6 +436,9 @@ export class KPIVisualizationComponent {
    * Initialize event listeners for interactive elements
    */
   private initializeEventListeners(): void {
+    // Close fullscreen button
+    document.getElementById('close-fullscreen-btn')?.addEventListener('click', () => this.closeFullscreen());
+    
     // Add to analytics button
     document.getElementById('add-to-analytics-btn')?.addEventListener('click', () => this.addToAnalytics());
     
@@ -1360,6 +1391,46 @@ export class KPIVisualizationComponent {
     } catch (error) {
       console.error('📈 [Analytics] Failed to add benchmark to analytics:', error);
       this.showToast('Failed to add benchmark to Analytics', 'error');
+    }
+  }
+
+  /**
+   * Close the fullscreen KPI benchmark results dialog
+   */
+  private closeFullscreen(): void {
+    // Destroy all charts to prevent memory leaks
+    Object.values(this.charts).forEach(chart => {
+      chart.destroy();
+    });
+    
+    // Clear the charts collection
+    this.charts = {};
+    
+    // Remove the KPI visualization from the DOM
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
+    
+    // Notify any parent components that might need to know the dialog was closed
+    const closeEvent = new CustomEvent('kpi-dialog-closed');
+    document.dispatchEvent(closeEvent);
+    
+    // Find and remove any fullscreen modals
+    const existingModals = document.querySelectorAll('.fullscreen-modal');
+    existingModals.forEach(modal => {
+      modal.parentElement?.removeChild(modal);
+    });
+    
+    // Remove any benchmark dialogs
+    const benchmarkDialogs = document.querySelectorAll('.benchmark-dialog');
+    benchmarkDialogs.forEach(dialog => {
+      dialog.parentElement?.removeChild(dialog);
+    });
+    
+    // Also remove by ID to ensure complete cleanup
+    const dialogById = document.getElementById('benchmark-results-dialog');
+    if (dialogById && dialogById.parentElement) {
+      dialogById.parentElement.removeChild(dialogById);
     }
   }
 
