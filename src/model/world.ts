@@ -349,6 +349,35 @@ class World {
         for (const lane of road.lanes) {
           kpiCollector.sampleLaneState(lane, this.time);
         }
+        
+        // Sample vehicle density for this road
+        const vehicleCount = Object.values(this.cars.all()).filter(car => {
+          return car.trajectory && car.trajectory.current && car.trajectory.current.lane && 
+                 car.trajectory.current.lane.road && car.trajectory.current.lane.road.id === roadId;
+        }).length;
+        
+        if (road.length) {
+          kpiCollector.sampleVehicleDensity(roadId, vehicleCount, road.length);
+        }
+      }
+    }
+    
+    // Sample intersection utilization
+    for (const intersectionId in this.intersections.all()) {
+      const intersection = this.intersections.all()[intersectionId];
+      if (intersection) {
+        // Count vehicles currently in or approaching this intersection
+        const vehiclesAtIntersection = Object.values(this.cars.all()).filter(car => {
+          // Check if car is near this intersection (simplified check)
+          return car.trajectory && car.trajectory.nextIntersection && 
+                 car.trajectory.nextIntersection.id === intersectionId &&
+                 car.trajectory.distanceToStopLine < 50; // Within 50 meters
+        }).length;
+        
+        kpiCollector.recordIntersectionUtilization(intersectionId, this.time, vehiclesAtIntersection > 0);
+        
+        // Record current queue length at intersection
+        kpiCollector.recordQueueLength(intersectionId, vehiclesAtIntersection, true);
       }
     }
   }

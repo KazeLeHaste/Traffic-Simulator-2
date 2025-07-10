@@ -10,7 +10,16 @@
 
 // Import Chart.js with auto-registration of all components
 import Chart from 'chart.js/auto';
-import { SimulationMetrics, LaneDetailedMetrics, IntersectionDetailedMetrics } from '../model/kpi-collector';
+import { 
+  SimulationMetrics, 
+  LaneDetailedMetrics, 
+  IntersectionDetailedMetrics,
+  EmissionMetrics,
+  UtilizationMetrics,
+  DensityMetrics,
+  LevelOfServiceMetrics,
+  QueueMetrics
+} from '../model/kpi-collector';
 
 // Chart configuration type
 interface ChartConfig {
@@ -99,6 +108,111 @@ export class KPIVisualizationComponent {
 
         <!-- Interactive Tables -->
         <div class="kpi-tables">
+          <!-- Enhanced KPI Summary Table -->
+          <div class="table-section">
+            <h4>Enhanced KPI Summary</h4>
+            <div class="table-wrapper">
+              <table id="enhanced-kpi-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                    <th>Unit</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Emissions and Fuel Table -->
+          <div class="table-section">
+            <h4>Emissions and Fuel Consumption</h4>
+            <div class="table-wrapper">
+              <table id="emissions-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th>Emission Type</th>
+                    <th>Total</th>
+                    <th>Per Vehicle Average</th>
+                    <th>Unit</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Level of Service Table -->
+          <div class="table-section">
+            <h4>Level of Service (LOS) Assessment</h4>
+            <div class="table-controls">
+              <input type="text" id="los-search" placeholder="Search segments..." class="form-control">
+              <select id="los-filter" class="form-control">
+                <option value="">All LOS Grades</option>
+                <option value="A">Grade A</option>
+                <option value="B">Grade B</option>
+                <option value="C">Grade C</option>
+                <option value="D">Grade D</option>
+                <option value="E">Grade E</option>
+                <option value="F">Grade F</option>
+              </select>
+            </div>
+            <div class="table-wrapper">
+              <table id="los-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th data-sort="segmentId">Segment ID</th>
+                    <th data-sort="los">LOS Grade</th>
+                    <th data-sort="averageDelay">Avg Delay (s)</th>
+                    <th data-sort="qualityScore">Quality Score</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Intersection Utilization Table -->
+          <div class="table-section">
+            <h4>Intersection Utilization Rates</h4>
+            <div class="table-wrapper">
+              <table id="utilization-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th data-sort="intersectionId">Intersection ID</th>
+                    <th data-sort="utilizationRate">Utilization Rate (%)</th>
+                    <th data-sort="activeTime">Active Time (s)</th>
+                    <th data-sort="idleTime">Idle Time (s)</th>
+                    <th data-sort="peakUtilization">Peak Utilization (%)</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Vehicle Density Table -->
+          <div class="table-section">
+            <h4>Vehicle Density Metrics</h4>
+            <div class="table-wrapper">
+              <table id="density-table" class="interactive-table">
+                <thead>
+                  <tr>
+                    <th data-sort="roadId">Road ID</th>
+                    <th data-sort="averageDensity">Avg Density (veh/km)</th>
+                    <th data-sort="maxDensity">Max Density (veh/km)</th>
+                    <th data-sort="timeAboveThreshold">Time Above Threshold (%)</th>
+                    <th data-sort="congestionThreshold">Congestion Threshold</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- Lane Metrics Table -->
           <div class="table-section">
             <h4>Lane Performance Metrics</h4>
@@ -232,6 +346,36 @@ export class KPIVisualizationComponent {
           <div class="card-label">Completed Trips</div>
           <div class="card-change">-</div>
         </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.averageVehicleDelay.toFixed(1)}</div>
+          <div class="card-label">Avg Vehicle Delay (s)</div>
+          <div class="card-change ${this.getChangeClass('delay')}">${this.getChangeText('delay')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.averageTravelTime.toFixed(1)}</div>
+          <div class="card-label">Avg Travel Time (s)</div>
+          <div class="card-change ${this.getChangeClass('travelTime')}">${this.getChangeText('travelTime')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.averageStopFrequency.toFixed(1)}</div>
+          <div class="card-label">Avg Stop Frequency</div>
+          <div class="card-change ${this.getChangeClass('stops')}">${this.getChangeText('stops')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.totalEmissions.co2Emissions.toFixed(2)}</div>
+          <div class="card-label">Total CO₂ (kg)</div>
+          <div class="card-change ${this.getChangeClass('emissions')}">${this.getChangeText('emissions')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.totalEmissions.fuelConsumption.toFixed(2)}</div>
+          <div class="card-label">Total Fuel (L)</div>
+          <div class="card-change ${this.getChangeClass('fuel')}">${this.getChangeText('fuel')}</div>
+        </div>
+        <div class="summary-card">
+          <div class="card-value">${metrics.queueMetrics.globalMaxQueueLength}</div>
+          <div class="card-label">Max Queue Length</div>
+          <div class="card-change ${this.getChangeClass('queue')}">${this.getChangeText('queue')}</div>
+        </div>
       </div>
     `;
   }
@@ -267,24 +411,28 @@ export class KPIVisualizationComponent {
       this.filterTable('lane-metrics-table', (e.target as HTMLInputElement).value));
     document.getElementById('intersection-search')?.addEventListener('input', (e) => 
       this.filterTable('intersection-metrics-table', (e.target as HTMLInputElement).value));
+    document.getElementById('los-search')?.addEventListener('input', (e) => 
+      this.filterTable('los-table', (e.target as HTMLInputElement).value));
     
     document.getElementById('lane-sort')?.addEventListener('change', (e) => 
       this.sortTable('lane-metrics-table', (e.target as HTMLSelectElement).value));
     document.getElementById('intersection-sort')?.addEventListener('change', (e) => 
       this.sortTable('intersection-metrics-table', (e.target as HTMLSelectElement).value));
+    document.getElementById('los-filter')?.addEventListener('change', (e) => 
+      this.filterTableByValue('los-table', 1, (e.target as HTMLSelectElement).value));
 
-    // Table header sorting
-    document.querySelectorAll('#lane-metrics-table th[data-sort]').forEach(th => {
-      th.addEventListener('click', () => {
-        const sortKey = th.getAttribute('data-sort')!;
-        this.sortTable('lane-metrics-table', sortKey);
-      });
-    });
-
-    document.querySelectorAll('#intersection-metrics-table th[data-sort]').forEach(th => {
-      th.addEventListener('click', () => {
-        const sortKey = th.getAttribute('data-sort')!;
-        this.sortTable('intersection-metrics-table', sortKey);
+    // Table header sorting for all tables
+    const sortableTables = [
+      'enhanced-kpi-table', 'emissions-table', 'los-table', 
+      'utilization-table', 'density-table', 'lane-metrics-table', 'intersection-metrics-table'
+    ];
+    
+    sortableTables.forEach(tableId => {
+      document.querySelectorAll(`#${tableId} th[data-sort]`).forEach(th => {
+        th.addEventListener('click', () => {
+          const sortKey = th.getAttribute('data-sort')!;
+          this.sortTable(tableId, sortKey);
+        });
       });
     });
 
@@ -305,6 +453,11 @@ export class KPIVisualizationComponent {
    * Populate interactive tables with data
    */
   private populateTables(): void {
+    this.populateEnhancedKPITable();
+    this.populateEmissionsTable();
+    this.populateLevelOfServiceTable();
+    this.populateUtilizationTable();
+    this.populateDensityTable();
     this.populateLaneTable();
     this.populateIntersectionTable();
   }
@@ -360,12 +513,181 @@ export class KPIVisualizationComponent {
   }
 
   /**
+   * Populate enhanced KPI summary table
+   */
+  private populateEnhancedKPITable(): void {
+    const tbody = document.querySelector('#enhanced-kpi-table tbody')!;
+    const metrics = this.currentBenchmark!.finalMetrics;
+    
+    tbody.innerHTML = '';
+    
+    const kpiData = [
+      { metric: 'Average Vehicle Delay', value: metrics.averageVehicleDelay.toFixed(2), unit: 'seconds', description: 'Average time vehicles spend delayed due to traffic conditions' },
+      { metric: 'Average Travel Time', value: metrics.averageTravelTime.toFixed(2), unit: 'seconds', description: 'Average complete journey time from origin to destination' },
+      { metric: 'Average Stop Frequency', value: metrics.averageStopFrequency.toFixed(2), unit: 'stops/vehicle', description: 'Average number of stops made by each vehicle during its journey' },
+      { metric: 'Global Max Queue Length', value: metrics.queueMetrics.globalMaxQueueLength.toString(), unit: 'vehicles', description: 'Maximum queue length observed across all intersections and lanes' },
+      { metric: 'Global Average Queue Length', value: metrics.queueMetrics.globalAverageQueueLength.toFixed(2), unit: 'vehicles', description: 'Average queue length across all intersections and lanes' },
+      { metric: 'Total Queue Time', value: (metrics.queueMetrics.totalQueueTime / 60).toFixed(2), unit: 'vehicle-minutes', description: 'Total time all vehicles spent waiting in queues' }
+    ];
+    
+    kpiData.forEach(kpi => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><strong>${kpi.metric}</strong></td>
+        <td>${kpi.value}</td>
+        <td>${kpi.unit}</td>
+        <td>${kpi.description}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+  
+  /**
+   * Populate emissions and fuel consumption table
+   */
+  private populateEmissionsTable(): void {
+    const tbody = document.querySelector('#emissions-table tbody')!;
+    const metrics = this.currentBenchmark!.finalMetrics;
+    
+    tbody.innerHTML = '';
+    
+    const emissionData = [
+      { 
+        type: 'CO₂ Emissions', 
+        total: metrics.totalEmissions.co2Emissions.toFixed(3), 
+        average: metrics.averageEmissionsPerVehicle.co2Emissions.toFixed(3), 
+        unit: 'kg' 
+      },
+      { 
+        type: 'Fuel Consumption', 
+        total: metrics.totalEmissions.fuelConsumption.toFixed(3), 
+        average: metrics.averageEmissionsPerVehicle.fuelConsumption.toFixed(3), 
+        unit: 'liters' 
+      },
+      { 
+        type: 'NOx Emissions', 
+        total: metrics.totalEmissions.noxEmissions.toFixed(3), 
+        average: metrics.averageEmissionsPerVehicle.noxEmissions.toFixed(3), 
+        unit: 'kg' 
+      },
+      { 
+        type: 'PM Emissions', 
+        total: metrics.totalEmissions.pmEmissions.toFixed(3), 
+        average: metrics.averageEmissionsPerVehicle.pmEmissions.toFixed(3), 
+        unit: 'kg' 
+      },
+      { 
+        type: 'Total Environmental Impact', 
+        total: metrics.totalEmissions.totalEmissions.toFixed(3), 
+        average: metrics.averageEmissionsPerVehicle.totalEmissions.toFixed(3), 
+        unit: 'impact units' 
+      }
+    ];
+    
+    emissionData.forEach(emission => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><strong>${emission.type}</strong></td>
+        <td>${emission.total}</td>
+        <td>${emission.average}</td>
+        <td>${emission.unit}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+  
+  /**
+   * Populate Level of Service table
+   */
+  private populateLevelOfServiceTable(): void {
+    const tbody = document.querySelector('#los-table tbody')!;
+    const metrics = this.currentBenchmark!.finalMetrics;
+    
+    tbody.innerHTML = '';
+    
+    Object.entries(metrics.levelOfService).forEach(([segmentId, los]) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${segmentId}</td>
+        <td><span class="los-grade los-${los.los}">${los.los}</span></td>
+        <td>${los.averageDelay.toFixed(2)}</td>
+        <td>${los.qualityScore}</td>
+        <td>${los.description}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+  
+  /**
+   * Populate intersection utilization table
+   */
+  private populateUtilizationTable(): void {
+    const tbody = document.querySelector('#utilization-table tbody')!;
+    const metrics = this.currentBenchmark!.finalMetrics;
+    
+    tbody.innerHTML = '';
+    
+    Object.entries(metrics.intersectionUtilizationRate).forEach(([intersectionId, util]) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${intersectionId}</td>
+        <td><span class="utilization-indicator" style="background-color: ${this.getUtilizationColor(util.utilizationRate)}">${util.utilizationRate.toFixed(1)}%</span></td>
+        <td>${util.activeTime.toFixed(1)}</td>
+        <td>${util.idleTime.toFixed(1)}</td>
+        <td>${util.peakUtilization.toFixed(1)}%</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+  
+  /**
+   * Populate vehicle density table
+   */
+  private populateDensityTable(): void {
+    const tbody = document.querySelector('#density-table tbody')!;
+    const metrics = this.currentBenchmark!.finalMetrics;
+    
+    tbody.innerHTML = '';
+    
+    Object.entries(metrics.vehicleDensity).forEach(([roadId, density]) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${roadId}</td>
+        <td>${density.averageDensity.toFixed(2)}</td>
+        <td>${density.maxDensity.toFixed(2)}</td>
+        <td><span class="density-indicator" style="background-color: ${this.getDensityColor(density.timeAboveThreshold)}">${(density.timeAboveThreshold * 100).toFixed(1)}%</span></td>
+        <td>${density.congestionThreshold}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+  
+  /**
    * Get color for congestion rate visualization
    */
   private getCongestionColor(rate: number): string {
     if (rate < 0.3) return '#4CAF50'; // Green
     if (rate < 0.6) return '#FF9800'; // Orange
     return '#F44336'; // Red
+  }
+
+  /**
+   * Get color for utilization rate visualization
+   */
+  private getUtilizationColor(rate: number): string {
+    if (rate < 30) return '#FFC107'; // Yellow - low utilization
+    if (rate < 70) return '#4CAF50'; // Green - good utilization
+    if (rate < 90) return '#FF9800'; // Orange - high utilization
+    return '#F44336'; // Red - overutilization
+  }
+  
+  /**
+   * Get color for density visualization
+   */
+  private getDensityColor(timeAboveThreshold: number): string {
+    if (timeAboveThreshold < 0.2) return '#4CAF50'; // Green - rarely congested
+    if (timeAboveThreshold < 0.5) return '#FF9800'; // Orange - sometimes congested
+    return '#F44336'; // Red - frequently congested
   }
 
   /**
@@ -378,6 +700,31 @@ export class KPIVisualizationComponent {
     rows.forEach(row => {
       const text = row.textContent?.toLowerCase() || '';
       if (text.includes(searchTerm.toLowerCase())) {
+        (row as HTMLElement).style.display = '';
+      } else {
+        (row as HTMLElement).style.display = 'none';
+      }
+    });
+  }
+
+  /**
+   * Filter table by value in specific column
+   */
+  private filterTableByValue(tableId: string, columnIndex: number, filterValue: string): void {
+    if (!filterValue) {
+      // Show all rows if no filter
+      this.filterTable(tableId, '');
+      return;
+    }
+    
+    const table = document.getElementById(tableId)!;
+    const rows = table.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+      const cell = row.children[columnIndex];
+      const cellValue = cell?.textContent?.trim() || '';
+      
+      if (cellValue === filterValue) {
         (row as HTMLElement).style.display = '';
       } else {
         (row as HTMLElement).style.display = 'none';
@@ -418,7 +765,10 @@ export class KPIVisualizationComponent {
     return [
       'averageSpeed', 'vehicleCount', 'throughput', 'congestionRate', 
       'queueLength', 'averageWaitTime', 'totalVehiclesPassed',
-      'maxWaitTime', 'averageQueueLength', 'maxQueueLength'
+      'maxWaitTime', 'averageQueueLength', 'maxQueueLength',
+      'utilizationRate', 'activeTime', 'idleTime', 'peakUtilization',
+      'averageDensity', 'maxDensity', 'timeAboveThreshold', 'congestionThreshold',
+      'averageDelay', 'qualityScore', 'value'
     ].includes(sortKey);
   }
 

@@ -3,12 +3,14 @@
  * 
  * This file coordinates the execution of all test cases for the Road Traffic Simulator.
  * It focuses on unit and integration tests for:
- * - KPI tracking
+ * - KPI tracking and calculations
  * - Traffic control strategies
  * - Scenario management
+ * - Data validation
  */
 
-import { KPICollectorTest } from '../model/traffic-control/tests/KPICollectorTest';
+import { KPICollectorTest } from './KPICollectorTest';
+import { KPICollectorTest as TrafficControlKPITest } from '../model/traffic-control/tests/KPICollectorTest';
 // Import the other tests when they are available
 // import { FixedTimingStrategyTest } from '../model/traffic-control/tests/FixedTimingStrategyTest';
 // import { AdaptiveTimingStrategyTest } from '../model/traffic-control/tests/AdaptiveTimingStrategyTest';
@@ -124,19 +126,47 @@ class TestSuite {
   }
 }
 
-// Create test suite instance
-const testSuite = new TestSuite();
+// Create test suite and add to global scope for browser console access
+const runAllKPITests = (): boolean => {
+  console.log('🧪 Running All KPI Tests from Test Runner...\n');
+  
+  try {
+    const result = KPICollectorTest.runAllTests();
+    console.log(`\n📋 KPI Test Suite Result: ${result ? '✅ PASSED' : '❌ FAILED'}`);
+    return result;
+  } catch (error) {
+    console.error('❌ Test execution failed:', error);
+    return false;
+  }
+};
 
-// Add tests to the suite
-testSuite.addTest(KPICollectorTest);
-// Add other tests when they are available
-// testSuite.addTest(FixedTimingStrategyTest);
-// testSuite.addTest(AdaptiveTimingStrategyTest);
-// testSuite.addTest(TrafficEnforcerStrategyTest);
-// testSuite.addTest(TrafficControlStrategyManagerTest);
-// testSuite.addTest(StorageTest);
+// Make available globally for console access
+(window as any).runAllKPITests = runAllKPITests;
+(window as any).KPICollectorTest = KPICollectorTest;
 
-// Run the tests
-testSuite.runAll().catch(error => {
-  console.error('Test suite execution failed:', error);
-});
+// Also create a simple test function for integration testing
+const runSimpleKPITest = (): void => {
+  console.log('🧪 Running Simple KPI Integration Test...');
+  
+  // This test verifies that the KPI system integrates properly with the simulation
+  try {
+    // Test basic KPI recording
+    const testResult = KPICollectorTest.testVehicleTracking();
+    console.log(`Simple Integration Test: ${testResult ? '✅ PASSED' : '❌ FAILED'}`);
+    
+    if (testResult) {
+      console.log('✅ KPI system is ready for use in the simulation!');
+    } else {
+      console.log('❌ KPI system has issues that need to be resolved.');
+    }
+  } catch (error) {
+    console.error('❌ Simple test failed:', error);
+  }
+};
+
+(window as any).runSimpleKPITest = runSimpleKPITest;
+
+console.log('📋 Test functions loaded. Available commands:');
+console.log('  - runAllKPITests() - Run complete KPI test suite');
+console.log('  - runSimpleKPITest() - Run basic integration test');
+console.log('  - KPICollectorTest.runAllTests() - Direct access to KPI tests');

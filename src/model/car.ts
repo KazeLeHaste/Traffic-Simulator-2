@@ -178,6 +178,9 @@ class Car {
     // Update speed based on acceleration
     this.speed += acceleration * delta;
 
+    // Update vehicle emissions based on current driving behavior
+    kpiCollector.updateVehicleEmissions(this, Car.worldTime, acceleration, delta);
+
     // Check for stop/start events for KPI collection
     if (previousSpeed > 0.1 && this._speed <= 0.1) {
       // Vehicle has stopped
