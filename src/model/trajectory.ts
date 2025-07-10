@@ -8,6 +8,10 @@ import Car_Class = require('./car'); // Import the actual Car class to access wo
 
 const { min, max } = Math;
 
+// Traffic signal state constants
+const SIGNAL_RED = 0;
+const SIGNAL_GREEN = 1;
+
 class Trajectory {
   public car: Car;
   public current: LanePosition;
@@ -122,8 +126,12 @@ class Trajectory {
       const turnNumber = sourceLane.getTurnDirection(nextLane);
       const sideId = sourceLane.road.targetSideId;
       
-      // Check if the signal state allows entry
-      return intersection.controlSignals.state[sideId][turnNumber] === 1;
+      // Use the proper method to get signal states (works with all traffic control strategies)
+      // This handles both new TrafficLightController and legacy ControlSignals
+      const signalState = intersection.getSignalState();
+      
+      // Check if the signal state allows entry (SIGNAL_GREEN = 1)
+      return signalState[sideId][turnNumber] === SIGNAL_GREEN;
     } catch (error) {
       // On error, prevent entry for safety
       return false;
