@@ -849,7 +849,7 @@ export class KPICollector {
       averageWaitTime: avgWaitTime,
       maxWaitTime: maxWaitTime,
       totalStops: totalStops,
-      stoppedVehicles: this.stoppedVehicles.size,
+      stoppedVehicles: this.getAccurateStoppedVehiclesCount(),
       intersectionUtilization,
       roadUtilization,
       simulationTime: currentTime - this.simulationStartTime,
@@ -1067,21 +1067,60 @@ export class KPICollector {
    * Calculate global throughput (vehicles per minute)
    */
   private calculateGlobalThroughput(): number {
-    return this.vehicleMetrics.length / (this.simulationStartTime + 1);
+    // Fix: Proper throughput is based on completed trips (exited vehicles) per minute
+    const completedTrips = this.vehicleMetrics.filter(m => 
+      m.event === VehicleEvent.EXIT_SIMULATION
+    ).length;
+    
+    // Add 1 to avoid division by zero, and convert to per-minute metric
+    // Use simulation duration since start time
+    const simulationDuration = this.simulationStartTime > 0 ? (Date.now() / 1000) - this.simulationStartTime : 1;
+    const simulationMinutes = Math.max(1, simulationDuration / 60);
+    return completedTrips / simulationMinutes;
   }
 
   /**
    * Calculate congestion index (0-1)
    */
   private calculateCongestionIndex(): number {
-    // Simple index based on average queue length across all intersections and lanes
-    const totalQueueLength = Object.values(this.calculateLaneMetrics()).reduce((sum, metric) => sum + metric.queueLength, 0) +
-                             Object.values(this.calculateIntersectionMetrics()).reduce((sum, metric) => sum + metric.averageQueueLength, 0);
+    // More accurate congestion index based on multiple factors:
+    // 1. Queue lengths (weighted)
+    // 2. Number of stopped vehicles
+    // 3. Average speed compared to max possible speed
     
-    const maxPossibleQueueLength = (Object.keys(this.calculateLaneMetrics()).length + Object.keys(this.calculateIntersectionMetrics()).length) * 10; // Assume max 10 vehicles before congestion per lane/intersection
-    return Math.min(1, totalQueueLength / maxPossibleQueueLength);
+    // Get lane metrics and intersection metrics
+    const laneMetrics = this.calculateLaneMetrics();
+    const intersectionMetrics = this.calculateIntersectionMetrics();
+    
+    // Fix: Handle empty metrics properly
+    let queueCongestion = 0;
+    let locationCount = Math.max(1, Object.keys(laneMetrics).length + Object.keys(intersectionMetrics).length);
+    
+    try {
+      // Calculate queue-based congestion safely
+      const totalQueueLength = 
+        Object.values(laneMetrics).reduce((sum, metric) => sum + (metric.queueLength || 0), 0) +
+        Object.values(intersectionMetrics).reduce((sum, metric) => sum + (metric.averageQueueLength || 0), 0);
+      
+      queueCongestion = Math.min(1, totalQueueLength / (locationCount * 5)); // Assume 5 vehicles per location is heavy congestion
+    } catch (error) {
+      console.warn('Error calculating queue congestion:', error);
+      queueCongestion = 0;
+    }
+    
+    // Stopped vehicles congestion factor (percentage of active vehicles that are stopped)
+    const stoppedVehicleRatio = this.activeVehicles.size > 0 ? 
+      this.getAccurateStoppedVehiclesCount() / this.activeVehicles.size : 0;
+    
+    // Speed-based congestion (how much slower are vehicles compared to ideal)
+    const maxSpeed = 10; // Maximum expected speed in m/s
+    const avgSpeed = this.speedMeasurements > 0 ? this.totalSpeed / this.speedMeasurements : 0;
+    const speedCongestion = Math.max(0, Math.min(1, 1 - (avgSpeed / maxSpeed)));
+    
+    // Weighted average of the three factors
+    return 0.4 * queueCongestion + 0.3 * stoppedVehicleRatio + 0.3 * speedCongestion;
   }
-
+  
   /**
    * Export metrics as CSV format
    */
@@ -1488,6 +1527,24 @@ export class KPICollector {
     html += '</table></div>';
     
     return html;
+  }
+  
+  /**
+   * Fix: Calculate accurate stopped vehicles count
+   * This ensures we don't have phantom stopped vehicles that weren't properly tracked
+   */
+  private getAccurateStoppedVehiclesCount(): number {
+    // Use only active vehicles that are actually in the stopped set
+    let count = 0;
+    
+    // Only count vehicles as stopped if they're active
+    this.stoppedVehicles.forEach(id => {
+      if (this.activeVehicles.has(id)) {
+        count++;
+      }
+    });
+    
+    return count;
   }
   
   /**

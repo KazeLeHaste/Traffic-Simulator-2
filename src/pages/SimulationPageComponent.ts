@@ -269,86 +269,7 @@ export class SimulationPageComponent {
                   </div>
                 </div>
                 
-                <div class="analytics-section">
-                  <h4>Network Stats</h4>
-                  
-                  <div class="metric">
-                    <span class="label">Intersections:</span>
-                    <span class="value" id="total-intersections">0</span>
-                  </div>
-                  
-                  <div class="metric">
-                    <span class="label">Roads:</span>
-                    <span class="value" id="total-roads">0</span>
-                  </div>
-                </div>
-                
-                <div class="analytics-section">
-                  <h4>Lane Metrics</h4>
-                  <button id="toggle-lane-metrics" class="btn btn-sm">Show/Hide Lane Metrics</button>
-                  
-                  <div id="lane-metrics-container" class="metrics-table-container" style="display: none;">
-                    <table class="metrics-table">
-                      <thead>
-                        <tr>
-                          <th>Lane ID</th>
-                          <th>Avg Speed</th>
-                          <th>Vehicles</th>
-                          <th>Congestion</th>
-                          <th>Throughput</th>
-                          <th>Total Passed</th>
-                          <th>Queue Length</th>
-                        </tr>
-                      </thead>
-                      <tbody id="lane-metrics-body">
-                        <!-- Lanes will be populated here -->
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                
-                <div class="analytics-section">
-                  <h4>Intersection Metrics</h4>
-                  <button id="toggle-intersection-metrics" class="btn btn-sm">Show/Hide Intersection Metrics</button>
-                  
-                  <div id="intersection-metrics-container" class="metrics-table-container" style="display: none;">
-                    <table class="metrics-table">
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>Throughput</th>
-                          <th>Avg Wait</th>
-                          <th>Max Wait</th>
-                          <th>Avg Queue</th>
-                          <th>Total Passed</th>
-                          <th>Congestion</th>
-                        </tr>
-                      </thead>
-                      <tbody id="intersection-metrics-body">
-                        <!-- Intersections will be populated here -->
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                
-                <div class="analytics-actions">
-                  <button id="export-metrics-csv" class="btn btn-sm btn-success">📄 Export CSV</button>
-                  <button id="export-metrics-json" class="btn btn-sm btn-info">📋 Export JSON</button>
-                  <button id="validate-metrics" class="btn btn-sm btn-secondary">✓ Validate Data</button>
-                </div>
-                
-                <!-- Developer Tools Section -->
-                <div class="analytics-section analytics-dev-tools">
-                  <h4>Developer Tools</h4>
-                  <button id="validate-kpis" class="btn btn-sm btn-secondary btn-block">
-                    🔍 Validate KPI Collection
-                  </button>
-                  <div class="validation-output" id="validation-output" style="display: none;">
-                    <div id="validation-html-results" class="validation-formatted"></div>
-                    <h4>Debug Log Output:</h4>
-                    <pre id="validation-results">No validation results yet.</pre>
-                  </div>
-                </div>
+                <!-- All metrics and buttons below Congestion Index are removed from the sidebar -->
               </div>
             </div>
             
@@ -1891,6 +1812,14 @@ export class SimulationPageComponent {
           <div class="metrics-label">Congestion Index:</div>
           <div class="metrics-value">${metrics.congestionIndex.toFixed(3)}</div>
         </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Intersections:</div>
+          <div class="metrics-value">${this.analytics.totalIntersections}</div>
+        </div>
+        <div class="metrics-row">
+          <div class="metrics-label">Roads:</div>
+          <div class="metrics-value">${this.analytics.totalRoads}</div>
+        </div>
       </div>
     `;
     
@@ -1967,6 +1896,9 @@ export class SimulationPageComponent {
     document.getElementById('avg-wait-time')!.textContent = kpiMetrics.averageWaitTime.toFixed(1) + 's';
     document.getElementById('max-wait-time')!.textContent = kpiMetrics.maxWaitTime.toFixed(1) + 's';
     document.getElementById('total-stops')!.textContent = kpiMetrics.totalStops.toString();
+    document.getElementById('stopped-vehicles')!.textContent = kpiMetrics.stoppedVehicles.toString();
+    document.getElementById('global-throughput')!.textContent = kpiMetrics.globalThroughput.toFixed(2) + ' veh/min';
+    document.getElementById('congestion-index')!.textContent = kpiMetrics.congestionIndex.toFixed(2);
   }
   
   // Save benchmark results
