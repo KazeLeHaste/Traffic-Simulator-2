@@ -1,6 +1,7 @@
 import { Router } from '../core/Router';
 import { sessionAnalyticsStorage, AnalyticsEntry } from '../lib/storage/SessionAnalyticsStorage';
 import { BenchmarkRun, KPIVisualizationComponent } from '../components/KPIVisualizationComponent';
+import { generateBenchmarkRecommendation } from '../components/BenchmarkRecommender';
 
 /**
  * Analytics Page Component
@@ -387,6 +388,16 @@ export class AnalyticsPageComponent {
   private renderComparisonContent(entries: AnalyticsEntry[]): string {
     const metrics = ['averageSpeed', 'globalThroughput', 'averageWaitTime', 'congestionIndex', 'completedTrips', 'totalStops'];
     
+    // Generate recommendations if we have exactly two benchmark runs
+    let recommendationHtml = '';
+    if (entries.length === 2) {
+      const run1 = entries[0].finalMetrics;
+      const run2 = entries[1].finalMetrics;
+      const recommendation = generateBenchmarkRecommendation(run1, run2);
+      
+      recommendationHtml = this.renderRecommendationSection(recommendation, entries);
+    }
+    
     return `
       <div class="comparison-overview">
         <h4>Comparing ${entries.length} Benchmark Runs</h4>
@@ -417,6 +428,8 @@ export class AnalyticsPageComponent {
           </tbody>
         </table>
       </div>
+      
+      ${recommendationHtml}
     `;
   }
 
@@ -450,6 +463,37 @@ export class AnalyticsPageComponent {
         </tr>
       `;
     }).join('');
+  }
+
+  private renderRecommendationSection(recommendation: any, entries: AnalyticsEntry[]): string {
+    const { preferredRun, recommendationText, confidenceScore, significantAdvantages } = recommendation;
+    
+    let preferredLabel = '';
+    if (preferredRun === 1 || preferredRun === 2) {
+      const entryIndex = preferredRun - 1;
+      const entryName = entries[entryIndex].name;
+      preferredLabel = `<span class="recommendation-preferred">Run ${preferredRun}: ${entryName}</span>`;
+    }
+    
+    return `
+      <div class="recommendation-container">
+        <div class="recommendation-header">
+          <h5>Automated Recommendation</h5>
+          ${preferredLabel}
+        </div>
+        <div class="recommendation-content">
+          <p>${recommendationText}</p>
+          
+          ${significantAdvantages.length > 0 ? `
+            <div class="recommendation-metrics">
+              ${significantAdvantages.map((advantage: string) => `
+                <span class="metric-tag better">${advantage}</span>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
   }
 
   private viewEntryDetails(analyticsId: string): void {

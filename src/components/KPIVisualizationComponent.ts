@@ -21,6 +21,7 @@ import {
   QueueMetrics
 } from '../model/kpi-collector';
 import { sessionAnalyticsStorage } from '../lib/storage/SessionAnalyticsStorage';
+import { generateBenchmarkRecommendation } from './BenchmarkRecommender';
 
 // Chart configuration type
 interface ChartConfig {
@@ -1197,6 +1198,9 @@ export class KPIVisualizationComponent {
     const current = this.currentBenchmark.finalMetrics;
     const compare = compareRun.finalMetrics;
     
+    // Generate recommendation based on the comparison
+    const recommendation = generateBenchmarkRecommendation(current, compare);
+    
     content.innerHTML = `
       <div class="comparison-grid">
         <div class="comparison-section">
@@ -1220,6 +1224,8 @@ export class KPIVisualizationComponent {
             </tbody>
           </table>
         </div>
+        
+        ${this.renderRecommendationSection(recommendation, current, compare)}
       </div>
     `;
   }
@@ -1245,6 +1251,40 @@ export class KPIVisualizationComponent {
           ${diffSymbol}${diff.toFixed(2)} (${diffSymbol}${diffPercent.toFixed(1)}%)
         </td>
       </tr>
+    `;
+  }
+
+  /**
+   * Render recommendation section based on benchmark comparison
+   */
+  private renderRecommendationSection(recommendation: any, current: any, compare: any): string {
+    const { preferredRun, recommendationText, confidenceScore, significantAdvantages } = recommendation;
+    
+    let preferredLabel = '';
+    if (preferredRun === 1) {
+      preferredLabel = '<span class="recommendation-preferred">Current Run</span>';
+    } else if (preferredRun === 2) {
+      preferredLabel = '<span class="recommendation-preferred">Comparison Run</span>';
+    }
+    
+    return `
+      <div class="recommendation-container">
+        <div class="recommendation-header">
+          <h5>Automated Recommendation</h5>
+          ${preferredLabel}
+        </div>
+        <div class="recommendation-content">
+          <p>${recommendationText}</p>
+          
+          ${significantAdvantages.length > 0 ? `
+            <div class="recommendation-metrics">
+              ${significantAdvantages.map((advantage: string) => `
+                <span class="metric-tag better">${advantage}</span>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      </div>
     `;
   }
 
