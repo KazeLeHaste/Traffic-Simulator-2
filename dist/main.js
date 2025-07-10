@@ -1,6 +1,59 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./css/benchmark-configuration.css":
+/*!*****************************************!*\
+  !*** ./css/benchmark-configuration.css ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/styleDomAPI.js */ "./node_modules/style-loader/dist/runtime/styleDomAPI.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/insertBySelector.js */ "./node_modules/style-loader/dist/runtime/insertBySelector.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ "./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/insertStyleElement.js */ "./node_modules/style-loader/dist/runtime/insertStyleElement.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_benchmark_configuration_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../node_modules/css-loader/dist/cjs.js!./benchmark-configuration.css */ "./node_modules/css-loader/dist/cjs.js!./css/benchmark-configuration.css");
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default());
+options.setAttributes = (_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default());
+options.insert = _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default().bind(null, "head");
+options.domAPI = (_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default());
+options.insertStyleElement = (_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default());
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_benchmark_configuration_css__WEBPACK_IMPORTED_MODULE_6__["default"], options);
+
+
+
+
+       /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_benchmark_configuration_css__WEBPACK_IMPORTED_MODULE_6__["default"] && _node_modules_css_loader_dist_cjs_js_benchmark_configuration_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals ? _node_modules_css_loader_dist_cjs_js_benchmark_configuration_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals : undefined);
+
+
+/***/ }),
+
 /***/ "./css/dark-theme.css":
 /*!****************************!*\
   !*** ./css/dark-theme.css ***!
@@ -18833,6 +18886,153 @@ exports.valueOrDefault = valueOrDefault;
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/dist/cjs.js!./css/benchmark-configuration.css":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./css/benchmark-configuration.css ***!
+  \*******************************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../node_modules/css-loader/dist/runtime/sourceMaps.js */ "./node_modules/css-loader/dist/runtime/sourceMaps.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `/**
+ * Benchmark Configuration Component Styles
+ * 
+ * This file contains styles for the benchmark configuration modal
+ */
+
+/* Dialog overlay */
+.benchmark-config-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Dialog content */
+.benchmark-config-dialog .dialog-content {
+  background-color: #2b2b2b;
+  color: #e9e9e9;
+  border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Dialog header */
+.benchmark-config-dialog .dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #444;
+  background-color: #333;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Close button */
+.benchmark-config-dialog .close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+}
+
+.benchmark-config-dialog .close-btn:hover {
+  color: #fff;
+}
+
+/* Dialog body */
+.benchmark-config-dialog .dialog-body {
+  padding: 20px;
+}
+
+/* Form groups */
+.benchmark-config-dialog .form-group {
+  margin-bottom: 20px;
+}
+
+.benchmark-config-dialog label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.benchmark-config-dialog .form-control {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #3a3a3a;
+  color: #e9e9e9;
+}
+
+.benchmark-config-dialog .form-text {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+/* Dialog footer */
+.benchmark-config-dialog .dialog-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #444;
+  background-color: #333;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+`, "",{"version":3,"sources":["webpack://./css/benchmark-configuration.css"],"names":[],"mappings":"AAAA;;;;EAIE;;AAEF,mBAAmB;AACnB;EACE,eAAe;EACf,MAAM;EACN,OAAO;EACP,WAAW;EACX,YAAY;EACZ,oCAAoC;EACpC,aAAa;EACb,aAAa;EACb,uBAAuB;EACvB,mBAAmB;EACnB,+BAA+B;AACjC;;AAEA,mBAAmB;AACnB;EACE,yBAAyB;EACzB,cAAc;EACd,sBAAsB;EACtB,kBAAkB;EAClB,yCAAyC;EACzC,gBAAgB;EAChB,WAAW;EACX,gBAAgB;EAChB,gBAAgB;EAChB,gCAAgC;AAClC;;AAEA,kBAAkB;AAClB;EACE,aAAa;EACb,8BAA8B;EAC9B,mBAAmB;EACnB,kBAAkB;EAClB,6BAA6B;EAC7B,sBAAsB;EACtB,2BAA2B;EAC3B,4BAA4B;AAC9B;;AAEA,iBAAiB;AACjB;EACE,gBAAgB;EAChB,YAAY;EACZ,eAAe;EACf,eAAe;EACf,WAAW;AACb;;AAEA;EACE,WAAW;AACb;;AAEA,gBAAgB;AAChB;EACE,aAAa;AACf;;AAEA,gBAAgB;AAChB;EACE,mBAAmB;AACrB;;AAEA;EACE,cAAc;EACd,kBAAkB;EAClB,gBAAgB;AAClB;;AAEA;EACE,WAAW;EACX,iBAAiB;EACjB,eAAe;EACf,sBAAsB;EACtB,kBAAkB;EAClB,yBAAyB;EACzB,cAAc;AAChB;;AAEA;EACE,eAAe;EACf,WAAW;EACX,eAAe;AACjB;;AAEA,kBAAkB;AAClB;EACE,kBAAkB;EAClB,0BAA0B;EAC1B,sBAAsB;EACtB,aAAa;EACb,yBAAyB;EACzB,SAAS;EACT,8BAA8B;EAC9B,+BAA+B;AACjC;;AAEA,wBAAwB;AACxB;EACE,OAAO,UAAU,EAAE;EACnB,KAAK,UAAU,EAAE;AACnB;;AAEA;EACE;IACE,UAAU;IACV,4BAA4B;EAC9B;EACA;IACE,UAAU;IACV,wBAAwB;EAC1B;AACF","sourcesContent":["/**\r\n * Benchmark Configuration Component Styles\r\n * \r\n * This file contains styles for the benchmark configuration modal\r\n */\r\n\r\n/* Dialog overlay */\r\n.benchmark-config-dialog {\r\n  position: fixed;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background-color: rgba(0, 0, 0, 0.7);\r\n  z-index: 1000;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n  animation: fadeIn 0.2s ease-out;\r\n}\r\n\r\n/* Dialog content */\r\n.benchmark-config-dialog .dialog-content {\r\n  background-color: #2b2b2b;\r\n  color: #e9e9e9;\r\n  border: 1px solid #444;\r\n  border-radius: 8px;\r\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);\r\n  max-width: 600px;\r\n  width: 100%;\r\n  max-height: 90vh;\r\n  overflow-y: auto;\r\n  animation: slideIn 0.3s ease-out;\r\n}\r\n\r\n/* Dialog header */\r\n.benchmark-config-dialog .dialog-header {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  padding: 15px 20px;\r\n  border-bottom: 1px solid #444;\r\n  background-color: #333;\r\n  border-top-left-radius: 8px;\r\n  border-top-right-radius: 8px;\r\n}\r\n\r\n/* Close button */\r\n.benchmark-config-dialog .close-btn {\r\n  background: none;\r\n  border: none;\r\n  font-size: 24px;\r\n  cursor: pointer;\r\n  color: #999;\r\n}\r\n\r\n.benchmark-config-dialog .close-btn:hover {\r\n  color: #fff;\r\n}\r\n\r\n/* Dialog body */\r\n.benchmark-config-dialog .dialog-body {\r\n  padding: 20px;\r\n}\r\n\r\n/* Form groups */\r\n.benchmark-config-dialog .form-group {\r\n  margin-bottom: 20px;\r\n}\r\n\r\n.benchmark-config-dialog label {\r\n  display: block;\r\n  margin-bottom: 6px;\r\n  font-weight: 500;\r\n}\r\n\r\n.benchmark-config-dialog .form-control {\r\n  width: 100%;\r\n  padding: 8px 12px;\r\n  font-size: 14px;\r\n  border: 1px solid #555;\r\n  border-radius: 4px;\r\n  background-color: #3a3a3a;\r\n  color: #e9e9e9;\r\n}\r\n\r\n.benchmark-config-dialog .form-text {\r\n  font-size: 12px;\r\n  color: #aaa;\r\n  margin-top: 4px;\r\n}\r\n\r\n/* Dialog footer */\r\n.benchmark-config-dialog .dialog-footer {\r\n  padding: 15px 20px;\r\n  border-top: 1px solid #444;\r\n  background-color: #333;\r\n  display: flex;\r\n  justify-content: flex-end;\r\n  gap: 10px;\r\n  border-bottom-left-radius: 8px;\r\n  border-bottom-right-radius: 8px;\r\n}\r\n\r\n/* Animation keyframes */\r\n@keyframes fadeIn {\r\n  from { opacity: 0; }\r\n  to { opacity: 1; }\r\n}\r\n\r\n@keyframes slideIn {\r\n  from { \r\n    opacity: 0;\r\n    transform: translateY(-20px);\r\n  }\r\n  to { \r\n    opacity: 1;\r\n    transform: translateY(0);\r\n  }\r\n}\r\n"],"sourceRoot":""}]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/cjs.js!./css/dark-theme.css":
 /*!******************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js!./css/dark-theme.css ***!
@@ -37097,6 +37297,7 @@ __webpack_require__(/*! ../css/style.css */ "./css/style.css");
 __webpack_require__(/*! ../css/dat-gui.css */ "./css/dat-gui.css");
 __webpack_require__(/*! ../css/dark-theme.css */ "./css/dark-theme.css"); // This theme will override other styles
 __webpack_require__(/*! ../css/kpi-visualization.css */ "./css/kpi-visualization.css"); // KPI visualization component styles
+__webpack_require__(/*! ../css/benchmark-configuration.css */ "./css/benchmark-configuration.css"); // Benchmark configuration component styles
 const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 __webpack_require__(/*! jquery-mousewheel */ "./node_modules/jquery-mousewheel/jquery.mousewheel.js");
 // Import the new architecture components
@@ -37211,6 +37412,226 @@ $(() => {
         console.log('🛠️ Debug functions available: appState, router, getBuilderPage(), getSimulationPage(), goToHome(), goToBuilder(), goToSimulation()');
     }, 10);
 });
+
+
+/***/ }),
+
+/***/ "./src/components/BenchmarkConfigurationComponent.ts":
+/*!***********************************************************!*\
+  !*** ./src/components/BenchmarkConfigurationComponent.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * BenchmarkConfigurationComponent - Creates and manages a modal window f        <div class="dialog-header">
+          <h3>📊 KPI Benchmark Configuration</h3>
+          <button class="close-btn" style="font-size: 24px;">&times;</button>
+        </div>onfiguring benchmarks
+ *
+ * This component provides:
+ * - A modal window for configuring benchmark parameters
+ * - Layout selection
+ * - Traffic control model selection
+ * - Simulation duration configuration
+ * - Number of cars configuration
+ * - Time factor configuration
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BenchmarkConfigurationComponent = void 0;
+const TrafficControlStrategyManager_1 = __webpack_require__(/*! ../model/traffic-control/TrafficControlStrategyManager */ "./src/model/traffic-control/TrafficControlStrategyManager.ts");
+class BenchmarkConfigurationComponent {
+    /**
+     * Constructor for the benchmark configuration component
+     * @param container - The HTML element to append the configuration modal to
+     * @param layouts - Array of available layouts
+     * @param currentSettings - Current simulation settings
+     * @param callback - Callback function called when configuration is complete
+     */
+    constructor(container, layouts, currentSettings, callback) {
+        this.layouts = [];
+        this.container = container;
+        this.layouts = layouts;
+        this.callback = callback;
+        console.log('📊 BenchmarkConfigurationComponent initialized with:', {
+            layoutsCount: layouts.length,
+            layouts: layouts.map(l => ({ id: l.id, name: l.name })),
+            currentSettings
+        });
+        // Create modal
+        this.createModal(currentSettings);
+    }
+    /**
+     * Create the modal window with benchmark configuration options
+     * @param currentSettings - Current simulation settings
+     */
+    createModal(currentSettings) {
+        var _a, _b, _c, _d;
+        // Create the modal container
+        const modalContainer = document.createElement('div');
+        modalContainer.id = 'benchmark-config-modal';
+        modalContainer.className = 'dialog benchmark-config-dialog';
+        const availableStrategyTypes = TrafficControlStrategyManager_1.trafficControlStrategyManager.getAvailableStrategyTypes();
+        const trafficControlModels = [];
+        // Create a temporary strategy instance to get display names
+        for (const strategyType of availableStrategyTypes) {
+            TrafficControlStrategyManager_1.trafficControlStrategyManager.selectStrategy(strategyType);
+            const strategy = TrafficControlStrategyManager_1.trafficControlStrategyManager.createStrategy();
+            trafficControlModels.push({
+                id: strategyType,
+                name: strategy.displayName
+            });
+        }
+        // Reset to default strategy
+        TrafficControlStrategyManager_1.trafficControlStrategyManager.selectStrategy('fixed-timing');
+        // Set the HTML content for the modal
+        modalContainer.innerHTML = `
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <h3>� KPI Benchmark Configuration</h3>
+          <button class="close-btn" style="font-size: 24px;">&times;</button>
+        </div>
+        <div class="dialog-body">
+          <div class="form-group">
+            <label for="benchmark-layout">Layout:</label>
+            <select id="benchmark-layout" class="form-control">
+              ${this.layouts.length > 0
+            ? this.layouts.map(layout => `<option value="${layout.id}" ${currentSettings.layoutId === layout.id ? 'selected' : ''}>${layout.name || 'Unnamed Layout'}</option>`).join('')
+            : '<option value="default">Default Layout</option>'}
+            </select>
+            ${this.layouts.length === 0 ? '<small class="form-text text-warning">No custom layouts available. Using default layout.</small>' : ''}
+          </div>
+          
+          <div class="form-group">
+            <label for="benchmark-traffic-control">Traffic Control Model:</label>
+            <select id="benchmark-traffic-control" class="form-control">
+              ${trafficControlModels.map(model => `<option value="${model.id}" ${currentSettings.trafficControlModel === model.id ? 'selected' : ''}>${model.name}</option>`).join('')}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="benchmark-duration">Simulation Duration (seconds):</label>
+            <input type="number" id="benchmark-duration" class="form-control" min="10" max="600" value="${currentSettings.duration || 60}">
+          </div>
+          
+          <div class="form-group">
+            <label for="benchmark-cars">Number of Cars:</label>
+            <input type="number" id="benchmark-cars" class="form-control" min="5" max="1000" value="${currentSettings.carsNumber || 50}">
+          </div>
+          
+          <div class="form-group">
+            <label for="benchmark-time-factor">Time Factor:</label>
+            <input type="number" id="benchmark-time-factor" class="form-control" min="0.1" max="10" step="0.1" value="${currentSettings.timeFactor || 1.0}">
+            <small class="form-text text-muted">Higher values make the simulation run faster</small>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button id="cancel-benchmark" class="btn btn-secondary">Cancel</button>
+          <button id="start-benchmark" class="btn btn-primary">Start Benchmark</button>
+        </div>
+      </div>
+    `;
+        // Append the modal to the container
+        this.container.appendChild(modalContainer);
+        // Add event listeners
+        (_a = modalContainer.querySelector('.close-btn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => this.close());
+        (_b = modalContainer.querySelector('#cancel-benchmark')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => this.close());
+        (_c = modalContainer.querySelector('#start-benchmark')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', () => this.startBenchmark());
+        // Prevent clicks on the modal content from closing the modal
+        (_d = modalContainer.querySelector('.dialog-content')) === null || _d === void 0 ? void 0 : _d.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        // Close the modal when clicking outside the content
+        modalContainer.addEventListener('click', () => this.close());
+    }
+    /**
+     * Close the modal and call the callback with null
+     */
+    close() {
+        const modal = document.getElementById('benchmark-config-modal');
+        if (modal && modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+        this.callback(null);
+    }
+    /**
+     * Start the benchmark with the configured settings
+     */
+    startBenchmark() {
+        // Get configuration values from inputs
+        const layoutSelect = document.getElementById('benchmark-layout');
+        const layoutId = layoutSelect.value;
+        const trafficControlModel = document.getElementById('benchmark-traffic-control').value;
+        const simulationDuration = parseInt(document.getElementById('benchmark-duration').value);
+        const carsNumber = parseInt(document.getElementById('benchmark-cars').value);
+        const timeFactor = parseFloat(document.getElementById('benchmark-time-factor').value);
+        // Debug log the layout state
+        console.log('Layout validation check:', {
+            layoutId,
+            layoutSelectValue: layoutSelect.value,
+            selectedIndex: layoutSelect.selectedIndex,
+            options: Array.from(layoutSelect.options).map(o => ({ value: o.value, text: o.text }))
+        });
+        // Skip layout validation entirely - the select box will always have something selected
+        // We'll let the SimulationPageComponent handle layout loading
+        if (isNaN(simulationDuration) || simulationDuration < 10 || simulationDuration > 600) {
+            alert('Please enter a valid simulation duration between 10 and 600 seconds');
+            return;
+        }
+        if (isNaN(carsNumber) || carsNumber < 5 || carsNumber > 1000) {
+            alert('Please enter a valid number of cars between 5 and 1000');
+            return;
+        }
+        if (isNaN(timeFactor) || timeFactor < 0.1 || timeFactor > 10) {
+            alert('Please enter a valid time factor between 0.1 and 10');
+            return;
+        }
+        const selectedLayoutName = layoutSelect.selectedIndex >= 0
+            ? layoutSelect.options[layoutSelect.selectedIndex].text
+            : 'Unknown';
+        console.log('📊 Starting benchmark with configuration:', {
+            layoutId,
+            layoutName: selectedLayoutName,
+            selectedIndex: layoutSelect.selectedIndex,
+            availableLayouts: this.layouts.map(l => `${l.id}: ${l.name || 'Unnamed'}`),
+            trafficControlModel,
+            simulationDuration,
+            carsNumber,
+            timeFactor
+        });
+        // Ensure layout ID is valid
+        const finalLayoutId = layoutId || (this.layouts.length > 0 ? this.layouts[0].id : 'default');
+        // Create the configuration object
+        const config = {
+            layoutId: finalLayoutId,
+            trafficControlModel,
+            simulationDuration,
+            carsNumber,
+            timeFactor
+        };
+        // Close the modal
+        const modal = document.getElementById('benchmark-config-modal');
+        if (modal && modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+        // Call the callback with the configuration
+        this.callback(config);
+    }
+    /**
+     * Show the benchmark configuration modal
+     * @param container - Container element to attach the modal to
+     * @param layouts - Available layouts for selection
+     * @param currentSettings - Current simulation settings
+     * @returns Promise resolving to the selected configuration or null if cancelled
+     */
+    static show(container, layouts, currentSettings) {
+        return new Promise((resolve) => {
+            new BenchmarkConfigurationComponent(container, layouts, currentSettings, resolve);
+        });
+    }
+}
+exports.BenchmarkConfigurationComponent = BenchmarkConfigurationComponent;
 
 
 /***/ }),
@@ -47335,6 +47756,7 @@ const World = __webpack_require__(/*! ../model/world */ "./src/model/world.ts");
 const Visualizer = __webpack_require__(/*! ../visualizer/visualizer */ "./src/visualizer/visualizer.ts");
 const kpi_collector_1 = __webpack_require__(/*! ../model/kpi-collector */ "./src/model/kpi-collector.ts");
 const KPIVisualizationComponent_1 = __webpack_require__(/*! ../components/KPIVisualizationComponent */ "./src/components/KPIVisualizationComponent.ts");
+const BenchmarkConfigurationComponent_1 = __webpack_require__(/*! ../components/BenchmarkConfigurationComponent */ "./src/components/BenchmarkConfigurationComponent.ts");
 /**
  * Simulation page for running traffic simulations
  */
@@ -48513,12 +48935,15 @@ class SimulationPageComponent {
     // Load a layout by ID
     async loadLayoutById(id) {
         try {
+            console.log('🔄 Starting loadLayoutById for ID:', id);
             // Find the layout in the layouts array
             const layout = this.layouts.find(l => l.id === id);
             if (!layout) {
+                console.error('❌ Layout not found with ID:', id);
                 this.showNotification('Layout not found', 'error');
                 return;
             }
+            console.log('🔄 Found layout:', layout.name);
             // Stop simulation if running
             if (this.isRunning) {
                 this.toggleSimulation();
@@ -48529,9 +48954,11 @@ class SimulationPageComponent {
             this.world.clear();
             // Load the layout data
             if (layout && layout.data) {
+                console.log('🔄 Layout data found, loading into world');
                 const worldData = layout.data;
                 // Load into world
                 this.world.load(JSON.stringify(worldData));
+                console.log('✅ Layout loaded into world');
                 // Reset car count to 100 by default
                 this.world.carsNumber = 100;
                 // Update UI components
@@ -48649,24 +49076,123 @@ class SimulationPageComponent {
         this.showNotification('Simulation reset', 'success');
     }
     // Run a KPI benchmark
-    runBenchmark() {
+    async runBenchmark() {
         // Don't start a benchmark if one is already running
         if (this.isBenchmarkRunning) {
             this.showNotification('Benchmark already running', 'warning');
             return;
         }
-        // Reset simulation first
-        this.resetSimulation();
-        // Initialize benchmark settings
-        this.benchmarkSettings = {
+        // First ensure layouts are loaded
+        if (this.layouts.length === 0) {
+            console.log('🔄 Loading layouts before showing benchmark dialog');
+            await this.loadLayouts();
+            console.log('✅ Loaded layouts:', this.layouts.length);
+        }
+        if (this.layouts.length === 0) {
+            this.showNotification('No layouts available. Please create a layout in the Builder first.', 'warning');
+            return;
+        }
+        // Get the current layout ID if any is loaded, otherwise use the first one
+        const currentLayoutId = this.world && this.world.layoutId ? this.world.layoutId : (this.layouts.length > 0 ? this.layouts[0].id : '');
+        console.log('📊 Current settings for benchmark dialog:', {
+            layoutId: currentLayoutId,
+            availableLayouts: this.layouts.map(l => `${l.id} (${l.name})`)
+        });
+        // Prepare current settings for configuration modal
+        const currentSettings = {
+            layoutId: currentLayoutId,
             duration: this.benchmarkDuration,
             carsNumber: this.world.carsNumber,
             timeFactor: parseFloat(document.getElementById('time-factor-range').value),
-            trafficControlModel: this.selectedTrafficControlModel,
+            trafficControlModel: this.selectedTrafficControlModel
+        };
+        // Show the benchmark configuration modal
+        const config = await BenchmarkConfigurationComponent_1.BenchmarkConfigurationComponent.show(this.container, this.layouts, currentSettings);
+        // If user cancelled, exit
+        if (!config) {
+            console.log('📊 Benchmark cancelled by user');
+            return;
+        }
+        console.log('📊 Benchmark configuration received:', config);
+        // Reset simulation first
+        this.resetSimulation();
+        // Load selected layout
+        try {
+            console.log('🔄 Loading layout with ID:', config.layoutId);
+            console.log('🔄 Available layouts:', this.layouts.map(l => `${l.id} (${l.name})`));
+            const selectedLayout = this.layouts.find(layout => layout.id === config.layoutId);
+            if (selectedLayout) {
+                console.log('🔄 Found layout:', selectedLayout.name);
+                try {
+                    await this.loadLayoutById(selectedLayout.id);
+                    console.log('✅ Layout loaded successfully');
+                }
+                catch (error) {
+                    console.error('❌ Error loading layout:', error);
+                    this.showNotification('Error loading layout. Using default.', 'error');
+                }
+            }
+            else if (this.layouts.length > 0) {
+                // If the specified layout is not found but we have layouts, use the first one
+                console.log('⚠️ Layout not found with ID:', config.layoutId, '. Using first available layout instead.');
+                await this.loadLayoutById(this.layouts[0].id);
+            }
+            else {
+                console.error('❌ No layouts available');
+                this.showNotification('No layouts available. Creating a default layout.', 'warning');
+                // If no layouts are available, just continue with an empty world
+                // The simulation will run on whatever is currently displayed
+            }
+        }
+        catch (error) {
+            console.error('❌ Error in layout loading process:', error);
+        }
+        // Set traffic control model
+        if (config.trafficControlModel !== this.selectedTrafficControlModel) {
+            this.selectedTrafficControlModel = config.trafficControlModel;
+            this.updateTrafficControlModel();
+        }
+        // Set car number
+        if (config.carsNumber !== this.world.carsNumber) {
+            this.world.carsNumber = config.carsNumber;
+            const carsDisplay = document.getElementById('cars-value');
+            if (carsDisplay) {
+                carsDisplay.textContent = config.carsNumber.toString();
+            }
+            const carsRange = document.getElementById('cars-range');
+            if (carsRange) {
+                carsRange.value = config.carsNumber.toString();
+            }
+        }
+        // Set time factor
+        const timeFactorRange = document.getElementById('time-factor-range');
+        // Always set the time factor to match what was configured
+        timeFactorRange.value = config.timeFactor.toString();
+        const timeFactorValue = document.getElementById('time-factor-value');
+        if (timeFactorValue) {
+            timeFactorValue.textContent = config.timeFactor.toFixed(1);
+        }
+        // Make sure the visualizer has the correct time factor
+        if (this.visualizer) {
+            console.log(`🕒 Setting time factor to ${config.timeFactor}`);
+            this.visualizer.setTimeFactor(config.timeFactor);
+        }
+        // Store benchmark settings
+        this.benchmarkDuration = config.simulationDuration;
+        // Find the layout name
+        const layoutForSettings = this.layouts.find(l => l.id === config.layoutId);
+        const layoutName = layoutForSettings ? layoutForSettings.name : 'Default Layout';
+        this.benchmarkSettings = {
+            layoutId: config.layoutId,
+            layoutName: layoutName,
+            duration: config.simulationDuration,
+            carsNumber: config.carsNumber,
+            timeFactor: config.timeFactor,
+            trafficControlModel: config.trafficControlModel,
             startTime: new Date().toISOString()
         };
         // Show notification
-        this.showNotification(`Starting ${this.benchmarkDuration} second benchmark...`, 'success');
+        this.showNotification(`Starting ${config.simulationDuration} second benchmark...`, 'success');
         // Start simulation
         this.isBenchmarkRunning = true;
         this.benchmarkStartTime = this.world.time;
@@ -48678,7 +49204,16 @@ class SimulationPageComponent {
         benchmarkButton.disabled = true;
         // Start simulation if not already running
         if (!this.isRunning) {
-            this.toggleSimulation();
+            // We can't use toggleSimulation because it blocks during benchmark
+            // So instead we'll directly start the simulation
+            this.isRunning = true;
+            this.visualizer.start();
+            const toggleButton = document.getElementById('toggle-simulation');
+            toggleButton.textContent = '⏸ Pause Simulation';
+            toggleButton.classList.replace('btn-success', 'btn-danger');
+            // Start KPI collection
+            kpi_collector_1.kpiCollector.startRecording();
+            console.log('🚀 Simulation started for benchmark');
         }
         // Set interval to collect samples
         const sampleInterval = window.setInterval(() => {
@@ -48689,7 +49224,7 @@ class SimulationPageComponent {
         this.benchmarkTimer = window.setTimeout(() => {
             clearInterval(sampleInterval);
             this.endBenchmark();
-        }, this.benchmarkDuration * 1000 / this.visualizer.timeFactor);
+        }, config.simulationDuration * 1000 / this.visualizer.timeFactor);
     }
     // End the benchmark and collect results
     endBenchmark() {
@@ -48697,7 +49232,16 @@ class SimulationPageComponent {
         this.isBenchmarkRunning = false;
         // Stop simulation
         if (this.isRunning) {
-            this.toggleSimulation();
+            // We can't use toggleSimulation because it blocks during benchmark
+            // So instead we'll directly stop the simulation
+            this.isRunning = false;
+            this.visualizer.stop();
+            const toggleButton = document.getElementById('toggle-simulation');
+            toggleButton.textContent = '▶️ Start Simulation';
+            toggleButton.classList.replace('btn-danger', 'btn-success');
+            // Stop KPI collection
+            kpi_collector_1.kpiCollector.stopRecording();
+            console.log('🛑 Simulation stopped at end of benchmark');
         }
         // Get final metrics
         const finalMetrics = kpi_collector_1.kpiCollector.getMetrics(this.world.time);

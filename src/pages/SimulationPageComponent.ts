@@ -5,6 +5,7 @@ import _ = require('underscore');
 import { kpiCollector } from '../model/kpi-collector';
 import { trafficControlStrategyManager } from '../model/traffic-control/TrafficControlStrategyManager';
 import { KPIVisualizationComponent, BenchmarkRun } from '../components/KPIVisualizationComponent';
+import { BenchmarkConfigurationComponent, BenchmarkConfiguration } from '../components/BenchmarkConfigurationComponent';
 
 /**
  * Simulation page for running traffic simulations
@@ -1313,13 +1314,17 @@ export class SimulationPageComponent {
   // Load a layout by ID
   private async loadLayoutById(id: string): Promise<void> {
     try {
+      console.log('🔄 Starting loadLayoutById for ID:', id);
       // Find the layout in the layouts array
       const layout = this.layouts.find(l => l.id === id);
       
       if (!layout) {
+        console.error('❌ Layout not found with ID:', id);
         this.showNotification('Layout not found', 'error');
         return;
       }
+      
+      console.log('🔄 Found layout:', layout.name);
       
       // Stop simulation if running
       if (this.isRunning) {
@@ -1334,10 +1339,12 @@ export class SimulationPageComponent {
       
       // Load the layout data
       if (layout && layout.data) {
+        console.log('🔄 Layout data found, loading into world');
         const worldData = layout.data;
         
         // Load into world
         this.world.load(JSON.stringify(worldData));
+        console.log('✅ Layout loaded into world');
         
         // Reset car count to 100 by default
         this.world.carsNumber = 100;
@@ -1476,27 +1483,142 @@ export class SimulationPageComponent {
   }
   
   // Run a KPI benchmark
-  private runBenchmark(): void {
+  private async runBenchmark(): Promise<void> {
     // Don't start a benchmark if one is already running
     if (this.isBenchmarkRunning) {
       this.showNotification('Benchmark already running', 'warning');
       return;
     }
     
-    // Reset simulation first
-    this.resetSimulation();
+    // First ensure layouts are loaded
+    if (this.layouts.length === 0) {
+      console.log('🔄 Loading layouts before showing benchmark dialog');
+      await this.loadLayouts();
+      console.log('✅ Loaded layouts:', this.layouts.length);
+    }
     
-    // Initialize benchmark settings
-    this.benchmarkSettings = {
+    if (this.layouts.length === 0) {
+      this.showNotification('No layouts available. Please create a layout in the Builder first.', 'warning');
+      return;
+    }
+    
+    // Get the current layout ID if any is loaded, otherwise use the first one
+    const currentLayoutId = this.world && this.world.layoutId ? this.world.layoutId : (this.layouts.length > 0 ? this.layouts[0].id : '');
+    
+    console.log('📊 Current settings for benchmark dialog:', {
+      layoutId: currentLayoutId,
+      availableLayouts: this.layouts.map(l => `${l.id} (${l.name})`)
+    });
+    
+    // Prepare current settings for configuration modal
+    const currentSettings = {
+      layoutId: currentLayoutId,
       duration: this.benchmarkDuration,
       carsNumber: this.world.carsNumber,
       timeFactor: parseFloat((document.getElementById('time-factor-range') as HTMLInputElement).value),
-      trafficControlModel: this.selectedTrafficControlModel,
+      trafficControlModel: this.selectedTrafficControlModel
+    };
+    
+    // Show the benchmark configuration modal
+    const config = await BenchmarkConfigurationComponent.show(this.container, this.layouts, currentSettings);
+    
+    // If user cancelled, exit
+    if (!config) {
+      console.log('📊 Benchmark cancelled by user');
+      return;
+    }
+    
+    console.log('📊 Benchmark configuration received:', config);
+    
+    // Reset simulation first
+    this.resetSimulation();
+    
+    // Load selected layout
+    try {
+      console.log('🔄 Loading layout with ID:', config.layoutId);
+      console.log('🔄 Available layouts:', this.layouts.map(l => `${l.id} (${l.name})`));
+      
+      const selectedLayout = this.layouts.find(layout => layout.id === config.layoutId);
+      
+      if (selectedLayout) {
+        console.log('🔄 Found layout:', selectedLayout.name);
+        try {
+          await this.loadLayoutById(selectedLayout.id);
+          console.log('✅ Layout loaded successfully');
+        } catch (error) {
+          console.error('❌ Error loading layout:', error);
+          this.showNotification('Error loading layout. Using default.', 'error');
+        }
+      } else if (this.layouts.length > 0) {
+        // If the specified layout is not found but we have layouts, use the first one
+        console.log('⚠️ Layout not found with ID:', config.layoutId, '. Using first available layout instead.');
+        await this.loadLayoutById(this.layouts[0].id);
+      } else {
+        console.error('❌ No layouts available');
+        this.showNotification('No layouts available. Creating a default layout.', 'warning');
+        
+        // If no layouts are available, just continue with an empty world
+        // The simulation will run on whatever is currently displayed
+      }
+    } catch (error) {
+      console.error('❌ Error in layout loading process:', error);
+    }
+    
+    // Set traffic control model
+    if (config.trafficControlModel !== this.selectedTrafficControlModel) {
+      this.selectedTrafficControlModel = config.trafficControlModel;
+      this.updateTrafficControlModel();
+    }
+    
+    // Set car number
+    if (config.carsNumber !== this.world.carsNumber) {
+      this.world.carsNumber = config.carsNumber;
+      const carsDisplay = document.getElementById('cars-value');
+      if (carsDisplay) {
+        carsDisplay.textContent = config.carsNumber.toString();
+      }
+      
+      const carsRange = document.getElementById('cars-range') as HTMLInputElement;
+      if (carsRange) {
+        carsRange.value = config.carsNumber.toString();
+      }
+    }
+    
+    // Set time factor
+    const timeFactorRange = document.getElementById('time-factor-range') as HTMLInputElement;
+    
+    // Always set the time factor to match what was configured
+    timeFactorRange.value = config.timeFactor.toString();
+    const timeFactorValue = document.getElementById('time-factor-value');
+    if (timeFactorValue) {
+      timeFactorValue.textContent = config.timeFactor.toFixed(1);
+    }
+    
+    // Make sure the visualizer has the correct time factor
+    if (this.visualizer) {
+      console.log(`🕒 Setting time factor to ${config.timeFactor}`);
+      this.visualizer.setTimeFactor(config.timeFactor);
+    }
+    
+    // Store benchmark settings
+    this.benchmarkDuration = config.simulationDuration;
+    
+    // Find the layout name
+    const layoutForSettings = this.layouts.find(l => l.id === config.layoutId);
+    const layoutName = layoutForSettings ? layoutForSettings.name : 'Default Layout';
+    
+    this.benchmarkSettings = {
+      layoutId: config.layoutId,
+      layoutName: layoutName,
+      duration: config.simulationDuration,
+      carsNumber: config.carsNumber,
+      timeFactor: config.timeFactor,
+      trafficControlModel: config.trafficControlModel,
       startTime: new Date().toISOString()
     };
     
     // Show notification
-    this.showNotification(`Starting ${this.benchmarkDuration} second benchmark...`, 'success');
+    this.showNotification(`Starting ${config.simulationDuration} second benchmark...`, 'success');
     
     // Start simulation
     this.isBenchmarkRunning = true;
@@ -1511,7 +1633,19 @@ export class SimulationPageComponent {
     
     // Start simulation if not already running
     if (!this.isRunning) {
-      this.toggleSimulation();
+      // We can't use toggleSimulation because it blocks during benchmark
+      // So instead we'll directly start the simulation
+      this.isRunning = true;
+      this.visualizer.start();
+      
+      const toggleButton = document.getElementById('toggle-simulation')!;
+      toggleButton.textContent = '⏸ Pause Simulation';
+      toggleButton.classList.replace('btn-success', 'btn-danger');
+      
+      // Start KPI collection
+      kpiCollector.startRecording();
+      
+      console.log('🚀 Simulation started for benchmark');
     }
     
     // Set interval to collect samples
@@ -1524,7 +1658,7 @@ export class SimulationPageComponent {
     this.benchmarkTimer = window.setTimeout(() => {
       clearInterval(sampleInterval);
       this.endBenchmark();
-    }, this.benchmarkDuration * 1000 / this.visualizer.timeFactor);
+    }, config.simulationDuration * 1000 / this.visualizer.timeFactor);
   }
   
   // End the benchmark and collect results
@@ -1534,7 +1668,19 @@ export class SimulationPageComponent {
     
     // Stop simulation
     if (this.isRunning) {
-      this.toggleSimulation();
+      // We can't use toggleSimulation because it blocks during benchmark
+      // So instead we'll directly stop the simulation
+      this.isRunning = false;
+      this.visualizer.stop();
+      
+      const toggleButton = document.getElementById('toggle-simulation')!;
+      toggleButton.textContent = '▶️ Start Simulation';
+      toggleButton.classList.replace('btn-danger', 'btn-success');
+      
+      // Stop KPI collection
+      kpiCollector.stopRecording();
+      
+      console.log('🛑 Simulation stopped at end of benchmark');
     }
     
     // Get final metrics
