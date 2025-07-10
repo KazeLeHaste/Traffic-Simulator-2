@@ -745,6 +745,95 @@ export class KPICollector {
   }
 
   /**
+   * Validate export data against current UI display for accuracy
+   * Returns an object with validation results
+   */
+  public validateExportData(): { isValid: boolean; discrepancies: string[]; summary: string } {
+    const currentMetrics = this.getMetrics();
+    const csvData = this.exportMetricsCSV();
+    const jsonData = JSON.parse(this.exportMetricsJSON());
+    
+    const discrepancies: string[] = [];
+    
+    // Validate CSV data structure
+    const csvLines = csvData.split('\n');
+    let csvGlobalMetricsFound = false;
+    let csvLaneMetricsFound = false;
+    let csvIntersectionMetricsFound = false;
+    
+    for (const line of csvLines) {
+      if (line.includes('Total Vehicles,')) {
+        const csvValue = parseInt(line.split(',')[1]);
+        if (csvValue !== currentMetrics.totalVehicles) {
+          discrepancies.push(`Total Vehicles mismatch: CSV=${csvValue}, UI=${currentMetrics.totalVehicles}`);
+        }
+        csvGlobalMetricsFound = true;
+      }
+      
+      if (line.includes('Average Speed (m/s),')) {
+        const csvValue = parseFloat(line.split(',')[1]);
+        const diff = Math.abs(csvValue - currentMetrics.averageSpeed);
+        if (diff > 0.01) {
+          discrepancies.push(`Average Speed mismatch: CSV=${csvValue}, UI=${currentMetrics.averageSpeed.toFixed(2)}`);
+        }
+      }
+      
+      if (line.includes('Lane Performance Metrics')) {
+        csvLaneMetricsFound = true;
+      }
+      
+      if (line.includes('Intersection Performance Metrics')) {
+        csvIntersectionMetricsFound = true;
+      }
+    }
+    
+    // Validate JSON data structure
+    if (jsonData.summary.totalVehicles !== currentMetrics.totalVehicles) {
+      discrepancies.push(`JSON Total Vehicles mismatch: JSON=${jsonData.summary.totalVehicles}, UI=${currentMetrics.totalVehicles}`);
+    }
+    
+    if (Math.abs(jsonData.summary.averageSpeed - currentMetrics.averageSpeed) > 0.01) {
+      discrepancies.push(`JSON Average Speed mismatch: JSON=${jsonData.summary.averageSpeed}, UI=${currentMetrics.averageSpeed.toFixed(2)}`);
+    }
+    
+    // Check lane metrics count
+    const uiLaneCount = Object.keys(currentMetrics.laneMetrics).length;
+    const jsonLaneCount = Object.keys(jsonData.laneMetrics).length;
+    if (jsonLaneCount !== uiLaneCount) {
+      discrepancies.push(`Lane metrics count mismatch: JSON=${jsonLaneCount}, UI=${uiLaneCount}`);
+    }
+    
+    // Check intersection metrics count
+    const uiIntersectionCount = Object.keys(currentMetrics.intersectionMetrics).length;
+    const jsonIntersectionCount = Object.keys(jsonData.intersectionMetrics).length;
+    if (jsonIntersectionCount !== uiIntersectionCount) {
+      discrepancies.push(`Intersection metrics count mismatch: JSON=${jsonIntersectionCount}, UI=${uiIntersectionCount}`);
+    }
+    
+    // Validate required sections exist
+    if (!csvGlobalMetricsFound) {
+      discrepancies.push('CSV missing global metrics section');
+    }
+    if (!csvLaneMetricsFound) {
+      discrepancies.push('CSV missing lane metrics section');
+    }
+    if (!csvIntersectionMetricsFound) {
+      discrepancies.push('CSV missing intersection metrics section');
+    }
+    
+    const isValid = discrepancies.length === 0;
+    const summary = isValid 
+      ? '✅ All export data matches UI display accurately'
+      : `❌ Found ${discrepancies.length} discrepancy/discrepancies between export data and UI`;
+    
+    return {
+      isValid,
+      discrepancies,
+      summary
+    };
+  }
+
+  /**
    * Calculate detailed lane metrics
    */
   private calculateLaneMetrics(): { [laneId: string]: LaneDetailedMetrics } {
@@ -917,6 +1006,56 @@ export class KPICollector {
     const link = document.createElement('a');
     link.setAttribute('href', url);
     link.setAttribute('download', `traffic-metrics-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  /**
+   * Export metrics as JSON format
+   */
+  public exportMetricsJSON(): string {
+    const metrics = this.getMetrics();
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      summary: {
+        totalVehicles: metrics.totalVehicles,
+        activeVehicles: metrics.activeVehicles,
+        completedTrips: metrics.completedTrips,
+        averageSpeed: metrics.averageSpeed,
+        averageWaitTime: metrics.averageWaitTime,
+        maxWaitTime: metrics.maxWaitTime,
+        totalStops: metrics.totalStops,
+        stoppedVehicles: metrics.stoppedVehicles,
+        globalThroughput: metrics.globalThroughput,
+        congestionIndex: metrics.congestionIndex,
+        simulationTime: metrics.simulationTime
+      },
+      laneMetrics: metrics.laneMetrics,
+      intersectionMetrics: metrics.intersectionMetrics,
+      intersectionUtilization: metrics.intersectionUtilization,
+      roadUtilization: metrics.roadUtilization,
+      rawData: {
+        vehicleEvents: this.vehicleMetrics,
+        intersectionEvents: this.intersectionMetrics,
+        laneEvents: this.laneMetrics
+      }
+    };
+    
+    return JSON.stringify(exportData, null, 2);
+  }
+
+  /**
+   * Helper to download metrics as a JSON file
+   */
+  public downloadMetricsJSON(): void {
+    const json = this.exportMetricsJSON();
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `traffic-metrics-${new Date().toISOString().slice(0, 10)}.json`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();

@@ -6011,13 +6011,16 @@ class KPICollector {
     recordVehicleEnter(vehicle, time) {
         if (!this.isRecording)
             return;
+        // Add to active vehicles set
         this.activeVehicles.add(vehicle.id);
+        // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
             timestamp: time,
             speed: vehicle.speed,
             event: VehicleEvent.ENTER_SIMULATION
         });
+        console.log(`KPI Collector: Vehicle ${vehicle.id} entered simulation at time ${time}`);
     }
     /**
      * Record vehicle exiting the simulation
@@ -6025,19 +6028,18 @@ class KPICollector {
     recordVehicleExit(vehicle, time) {
         if (!this.isRecording)
             return;
+        // Remove from active vehicles set
         this.activeVehicles.delete(vehicle.id);
+        // Increment completed trips counter
         this.completedTrips++;
-        // If vehicle was stopped, clear that state
-        if (this.stoppedVehicles.has(vehicle.id)) {
-            this.stoppedVehicles.delete(vehicle.id);
-            delete this.stoppedTimestamps[vehicle.id];
-        }
+        // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
             timestamp: time,
             speed: vehicle.speed,
             event: VehicleEvent.EXIT_SIMULATION
         });
+        console.log(`KPI Collector: Vehicle ${vehicle.id} exited simulation at time ${time}`);
     }
     /**
      * Record vehicle stopping (speed ~= 0)
@@ -6045,18 +6047,17 @@ class KPICollector {
     recordVehicleStop(vehicle, time) {
         if (!this.isRecording)
             return;
-        // Only record if vehicle wasn't already stopped
-        if (!this.stoppedVehicles.has(vehicle.id)) {
-            this.stoppedVehicles.add(vehicle.id);
-            this.stoppedTimestamps[vehicle.id] = time;
-            this.vehicleMetrics.push({
-                vehicleId: vehicle.id,
-                timestamp: time,
-                speed: vehicle.speed,
-                position: vehicle.coords,
-                event: VehicleEvent.STOP_MOVING
-            });
-        }
+        // Add to stopped vehicles set
+        this.stoppedVehicles.add(vehicle.id);
+        // Record stop timestamp for duration calculation later
+        this.stoppedTimestamps[vehicle.id] = time;
+        // Record the vehicle event
+        this.vehicleMetrics.push({
+            vehicleId: vehicle.id,
+            timestamp: time,
+            speed: vehicle.speed,
+            event: VehicleEvent.STOP_MOVING
+        });
     }
     /**
      * Record vehicle starting to move again
@@ -6064,21 +6065,24 @@ class KPICollector {
     recordVehicleStart(vehicle, time) {
         if (!this.isRecording)
             return;
-        // Only record if vehicle was stopped
-        if (this.stoppedVehicles.has(vehicle.id)) {
-            const stoppedTime = time - this.stoppedTimestamps[vehicle.id];
-            this.stoppedVehicles.delete(vehicle.id);
+        // Remove from stopped vehicles set
+        this.stoppedVehicles.delete(vehicle.id);
+        // Calculate stop duration if we have a stop timestamp
+        let duration = 0;
+        if (this.stoppedTimestamps[vehicle.id]) {
+            duration = time - this.stoppedTimestamps[vehicle.id];
             delete this.stoppedTimestamps[vehicle.id];
-            // Record wait time for analytics
-            this.waitTimes.push(stoppedTime);
-            this.vehicleMetrics.push({
-                vehicleId: vehicle.id,
-                timestamp: time,
-                speed: vehicle.speed,
-                duration: stoppedTime,
-                event: VehicleEvent.START_MOVING
-            });
+            // Record wait time for statistics
+            this.waitTimes.push(duration);
         }
+        // Record the vehicle event
+        this.vehicleMetrics.push({
+            vehicleId: vehicle.id,
+            timestamp: time,
+            speed: vehicle.speed,
+            event: VehicleEvent.START_MOVING,
+            duration: duration
+        });
     }
     /**
      * Record vehicle changing lanes
@@ -6199,42 +6203,40 @@ class KPICollector {
         if (!this.laneEntryTimes[vehicle.id]) {
             this.laneEntryTimes[vehicle.id] = {};
         }
-        if (!this.laneWaitTimes[laneId]) {
-            this.laneWaitTimes[laneId] = [];
-        }
-        if (!this.laneTotalSpeeds[laneId]) {
-            this.laneTotalSpeeds[laneId] = { total: 0, count: 0 };
-        }
+        // Add vehicle to lane set
+        this.vehiclesInLane[laneId].add(vehicle.id);
         // Record entry time for calculating wait time later
         this.laneEntryTimes[vehicle.id][laneId] = time;
-        // Add vehicle to the lane
-        this.vehiclesInLane[laneId].add(vehicle.id);
-        // Update lane metrics
-        this.laneMetrics.push({
-            laneId: laneId,
-            timestamp: time,
-            vehicleCount: this.vehiclesInLane[laneId].size,
-            averageSpeed: this.calculateLaneAverageSpeed(laneId),
-            congestionRate: this.calculateLaneCongestion(lane, this.vehiclesInLane[laneId].size)
-        });
-        // Record the event
+        // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
             timestamp: time,
             speed: vehicle.speed,
             laneId: laneId,
+            roadId: lane.road ? lane.road.id : undefined,
             event: VehicleEvent.ENTER_LANE
+        });
+        // Update lane metrics
+        const vehicleCount = this.vehiclesInLane[laneId].size;
+        const averageSpeed = this.calculateAverageLaneSpeed(laneId);
+        const congestionRate = this.calculateLaneCongestion(laneId, lane);
+        // Record lane metrics
+        this.laneMetrics.push({
+            laneId: laneId,
+            timestamp: time,
+            vehicleCount: vehicleCount,
+            averageSpeed: averageSpeed,
+            congestionRate: congestionRate
         });
     }
     /**
      * Record a vehicle exiting a lane
      */
     recordLaneExit(vehicle, lane, time) {
-        var _a, _b;
         if (!this.isRecording)
             return;
         const laneId = lane.id;
-        // Make sure we have tracking data structures
+        // Initialize tracking structures if needed
         if (!this.vehiclesInLane[laneId]) {
             this.vehiclesInLane[laneId] = new Set();
         }
@@ -6247,54 +6249,57 @@ class KPICollector {
         if (!this.laneWaitTimes[laneId]) {
             this.laneWaitTimes[laneId] = [];
         }
+        // Remove vehicle from lane set
+        this.vehiclesInLane[laneId].delete(vehicle.id);
         // Calculate time spent in lane
-        if (this.laneEntryTimes[vehicle.id][laneId]) {
+        if (this.laneEntryTimes[vehicle.id] && this.laneEntryTimes[vehicle.id][laneId]) {
             const timeInLane = time - this.laneEntryTimes[vehicle.id][laneId];
             this.laneWaitTimes[laneId].push(timeInLane);
             delete this.laneEntryTimes[vehicle.id][laneId];
         }
-        // Remove vehicle from lane
-        if (this.vehiclesInLane[laneId]) {
-            this.vehiclesInLane[laneId].delete(vehicle.id);
-        }
-        // Increment throughput count
-        this.laneThroughput[laneId] = (this.laneThroughput[laneId] || 0) + 1;
-        // Update lane metrics
-        this.laneMetrics.push({
-            laneId: laneId,
-            timestamp: time,
-            vehicleCount: ((_a = this.vehiclesInLane[laneId]) === null || _a === void 0 ? void 0 : _a.size) || 0,
-            averageSpeed: this.calculateLaneAverageSpeed(laneId),
-            congestionRate: this.calculateLaneCongestion(lane, ((_b = this.vehiclesInLane[laneId]) === null || _b === void 0 ? void 0 : _b.size) || 0)
-        });
-        // Record the event
+        // Increment lane throughput counter
+        this.laneThroughput[laneId]++;
+        // Record the vehicle event
         this.vehicleMetrics.push({
             vehicleId: vehicle.id,
             timestamp: time,
             speed: vehicle.speed,
             laneId: laneId,
+            roadId: lane.road ? lane.road.id : undefined,
             event: VehicleEvent.EXIT_LANE
+        });
+        // Update lane metrics
+        const vehicleCount = this.vehiclesInLane[laneId].size;
+        const averageSpeed = this.calculateAverageLaneSpeed(laneId);
+        const congestionRate = this.calculateLaneCongestion(laneId, lane);
+        // Record lane metrics
+        this.laneMetrics.push({
+            laneId: laneId,
+            timestamp: time,
+            vehicleCount: vehicleCount,
+            averageSpeed: averageSpeed,
+            congestionRate: congestionRate
         });
     }
     /**
-     * Calculate average speed for a specific lane
+     * Calculate average speed in a lane
      */
-    calculateLaneAverageSpeed(laneId) {
-        const laneSpeedData = this.laneTotalSpeeds[laneId];
-        if (!laneSpeedData || laneSpeedData.count === 0) {
+    calculateAverageLaneSpeed(laneId) {
+        if (!this.laneTotalSpeeds[laneId] || this.laneTotalSpeeds[laneId].count === 0) {
             return 0;
         }
-        return laneSpeedData.total / laneSpeedData.count;
+        return this.laneTotalSpeeds[laneId].total / this.laneTotalSpeeds[laneId].count;
     }
     /**
-     * Calculate congestion rate for a lane (0-1)
-     * Uses vehicle count compared to lane capacity
+     * Calculate lane congestion (0-1 scale)
      */
-    calculateLaneCongestion(lane, vehicleCount) {
-        // Lane capacity is a reasonable estimate based on lane length and minimum safe distance
-        // This is an approximation - actual capacity would depend on lane properties
-        const approximateCapacity = lane.length / 10; // Assuming average vehicle + safe distance is ~10 units
-        return Math.min(1, vehicleCount / approximateCapacity);
+    calculateLaneCongestion(laneId, lane) {
+        if (!this.vehiclesInLane[laneId]) {
+            return 0;
+        }
+        // Assuming a lane can fit roughly lane.length / 5 cars (average car length + safety distance)
+        const laneCapacity = lane.length ? Math.floor(lane.length / 5) : 10;
+        return Math.min(this.vehiclesInLane[laneId].size / laneCapacity, 1);
     }
     /**
      * Sample the current state of a specific lane
@@ -6320,7 +6325,7 @@ class KPICollector {
             laneId: laneId,
             timestamp: time,
             vehicleCount: vehicleCount,
-            averageSpeed: this.calculateLaneAverageSpeed(laneId),
+            averageSpeed: this.calculateAverageLaneSpeed(laneId),
             congestionRate: congestionRate,
             queueLength: this.calculateLaneQueueLength(laneId)
         });
@@ -6454,6 +6459,81 @@ class KPICollector {
             intersectionMetrics: this.calculateIntersectionMetrics(),
             globalThroughput: this.calculateGlobalThroughput(),
             congestionIndex: this.calculateCongestionIndex()
+        };
+    }
+    /**
+     * Validate export data against current UI display for accuracy
+     * Returns an object with validation results
+     */
+    validateExportData() {
+        const currentMetrics = this.getMetrics();
+        const csvData = this.exportMetricsCSV();
+        const jsonData = JSON.parse(this.exportMetricsJSON());
+        const discrepancies = [];
+        // Validate CSV data structure
+        const csvLines = csvData.split('\n');
+        let csvGlobalMetricsFound = false;
+        let csvLaneMetricsFound = false;
+        let csvIntersectionMetricsFound = false;
+        for (const line of csvLines) {
+            if (line.includes('Total Vehicles,')) {
+                const csvValue = parseInt(line.split(',')[1]);
+                if (csvValue !== currentMetrics.totalVehicles) {
+                    discrepancies.push(`Total Vehicles mismatch: CSV=${csvValue}, UI=${currentMetrics.totalVehicles}`);
+                }
+                csvGlobalMetricsFound = true;
+            }
+            if (line.includes('Average Speed (m/s),')) {
+                const csvValue = parseFloat(line.split(',')[1]);
+                const diff = Math.abs(csvValue - currentMetrics.averageSpeed);
+                if (diff > 0.01) {
+                    discrepancies.push(`Average Speed mismatch: CSV=${csvValue}, UI=${currentMetrics.averageSpeed.toFixed(2)}`);
+                }
+            }
+            if (line.includes('Lane Performance Metrics')) {
+                csvLaneMetricsFound = true;
+            }
+            if (line.includes('Intersection Performance Metrics')) {
+                csvIntersectionMetricsFound = true;
+            }
+        }
+        // Validate JSON data structure
+        if (jsonData.summary.totalVehicles !== currentMetrics.totalVehicles) {
+            discrepancies.push(`JSON Total Vehicles mismatch: JSON=${jsonData.summary.totalVehicles}, UI=${currentMetrics.totalVehicles}`);
+        }
+        if (Math.abs(jsonData.summary.averageSpeed - currentMetrics.averageSpeed) > 0.01) {
+            discrepancies.push(`JSON Average Speed mismatch: JSON=${jsonData.summary.averageSpeed}, UI=${currentMetrics.averageSpeed.toFixed(2)}`);
+        }
+        // Check lane metrics count
+        const uiLaneCount = Object.keys(currentMetrics.laneMetrics).length;
+        const jsonLaneCount = Object.keys(jsonData.laneMetrics).length;
+        if (jsonLaneCount !== uiLaneCount) {
+            discrepancies.push(`Lane metrics count mismatch: JSON=${jsonLaneCount}, UI=${uiLaneCount}`);
+        }
+        // Check intersection metrics count
+        const uiIntersectionCount = Object.keys(currentMetrics.intersectionMetrics).length;
+        const jsonIntersectionCount = Object.keys(jsonData.intersectionMetrics).length;
+        if (jsonIntersectionCount !== uiIntersectionCount) {
+            discrepancies.push(`Intersection metrics count mismatch: JSON=${jsonIntersectionCount}, UI=${uiIntersectionCount}`);
+        }
+        // Validate required sections exist
+        if (!csvGlobalMetricsFound) {
+            discrepancies.push('CSV missing global metrics section');
+        }
+        if (!csvLaneMetricsFound) {
+            discrepancies.push('CSV missing lane metrics section');
+        }
+        if (!csvIntersectionMetricsFound) {
+            discrepancies.push('CSV missing intersection metrics section');
+        }
+        const isValid = discrepancies.length === 0;
+        const summary = isValid
+            ? '✅ All export data matches UI display accurately'
+            : `❌ Found ${discrepancies.length} discrepancy/discrepancies between export data and UI`;
+        return {
+            isValid,
+            discrepancies,
+            summary
         };
     }
     /**
@@ -6606,6 +6686,53 @@ class KPICollector {
         const link = document.createElement('a');
         link.setAttribute('href', url);
         link.setAttribute('download', `traffic-metrics-${new Date().toISOString().slice(0, 10)}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    /**
+     * Export metrics as JSON format
+     */
+    exportMetricsJSON() {
+        const metrics = this.getMetrics();
+        const exportData = {
+            timestamp: new Date().toISOString(),
+            summary: {
+                totalVehicles: metrics.totalVehicles,
+                activeVehicles: metrics.activeVehicles,
+                completedTrips: metrics.completedTrips,
+                averageSpeed: metrics.averageSpeed,
+                averageWaitTime: metrics.averageWaitTime,
+                maxWaitTime: metrics.maxWaitTime,
+                totalStops: metrics.totalStops,
+                stoppedVehicles: metrics.stoppedVehicles,
+                globalThroughput: metrics.globalThroughput,
+                congestionIndex: metrics.congestionIndex,
+                simulationTime: metrics.simulationTime
+            },
+            laneMetrics: metrics.laneMetrics,
+            intersectionMetrics: metrics.intersectionMetrics,
+            intersectionUtilization: metrics.intersectionUtilization,
+            roadUtilization: metrics.roadUtilization,
+            rawData: {
+                vehicleEvents: this.vehicleMetrics,
+                intersectionEvents: this.intersectionMetrics,
+                laneEvents: this.laneMetrics
+            }
+        };
+        return JSON.stringify(exportData, null, 2);
+    }
+    /**
+     * Helper to download metrics as a JSON file
+     */
+    downloadMetricsJSON() {
+        const json = this.exportMetricsJSON();
+        const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `traffic-metrics-${new Date().toISOString().slice(0, 10)}.json`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -7625,34 +7752,138 @@ class AdaptiveTimingStrategy extends AbstractTrafficControlStrategy_1.AbstractTr
     /**
      * Create from JSON
      */
+    fromJSON(data, intersection) {
+        // Initialize with the intersection
+        this.initialize(intersection);
+        // Restore state from data
+        if (data.currentPhase !== undefined) {
+            this.currentPhase = data.currentPhase;
+        }
+        if (data.timeInPhase !== undefined) {
+            this.timeInPhase = data.timeInPhase;
+        }
+        if (data.totalPhases !== undefined) {
+            this.totalPhases = data.totalPhases;
+        }
+        if (data.phaseDuration !== undefined) {
+            this.phaseDuration = data.phaseDuration;
+        }
+        // Restore states array if present
+        if (data.states) {
+            this.states = data.states;
+        }
+        // Restore adaptive timing specific properties
+        if (data.minPhaseDuration !== undefined)
+            this.minPhaseDuration = data.minPhaseDuration;
+        if (data.maxPhaseDuration !== undefined)
+            this.maxPhaseDuration = data.maxPhaseDuration;
+        if (data.basePhaseDuration !== undefined)
+            this.basePhaseDuration = data.basePhaseDuration;
+        if (data.trafficSensitivity !== undefined)
+            this.trafficSensitivity = data.trafficSensitivity;
+        if (data.queueWeight !== undefined)
+            this.queueWeight = data.queueWeight;
+        if (data.waitTimeWeight !== undefined)
+            this.waitTimeWeight = data.waitTimeWeight;
+        if (data.flowRateWeight !== undefined)
+            this.flowRateWeight = data.flowRateWeight;
+        if (data.trendWeight !== undefined)
+            this.trendWeight = data.trendWeight;
+        if (data.prioritizeLeftTurns !== undefined)
+            this.prioritizeLeftTurns = data.prioritizeLeftTurns;
+        if (data.enableLogging !== undefined)
+            this.enableLogging = data.enableLogging;
+        if (data.emergencyMode !== undefined)
+            this.emergencyMode = data.emergencyMode;
+        if (data.fairnessWeight !== undefined)
+            this.fairnessWeight = data.fairnessWeight;
+        // Restore metrics
+        if (data.queueLengths)
+            this.queueLengths = data.queueLengths;
+        if (data.waitTimes)
+            this.waitTimes = data.waitTimes;
+        if (data.flowRates)
+            this.flowRates = data.flowRates;
+        if (data.congestionScores)
+            this.congestionScores = data.congestionScores;
+        if (data.throughputRates)
+            this.throughputRates = data.throughputRates;
+        if (data.saturationRates)
+            this.saturationRates = data.saturationRates;
+        if (data.fairnessMetric !== undefined)
+            this.fairnessMetric = data.fairnessMetric;
+        if (data.emergencyActivations !== undefined)
+            this.emergencyActivations = data.emergencyActivations;
+        // Restore history arrays
+        if (data.queueHistory)
+            this.queueHistory = data.queueHistory;
+        if (data.waitTimeHistory)
+            this.waitTimeHistory = data.waitTimeHistory;
+        if (data.flowRateHistory)
+            this.flowRateHistory = data.flowRateHistory;
+        if (data.phaseDurationHistory)
+            this.phaseDurationHistory = data.phaseDurationHistory;
+        if (data.trafficScoreHistory)
+            this.trafficScoreHistory = data.trafficScoreHistory;
+        if (data.phaseChanges !== undefined)
+            this.phaseChanges = data.phaseChanges;
+        // Restore configuration
+        if (data.configOptions) {
+            this.configOptions = { ...this.configOptions, ...data.configOptions };
+        }
+        if (this.enableLogging) {
+            console.log(`Restored AdaptiveTimingStrategy from saved data for intersection ${intersection.id}`);
+        }
+        return this;
+    }
+    /**
+     * Create strategy from JSON data (static factory method)
+     */
     static fromJSON(data, intersection) {
         const strategy = new AdaptiveTimingStrategy();
-        // Restore state from saved data
-        strategy.currentPhase = data.currentPhase || 0;
-        strategy.timeInPhase = data.timeInPhase || 0;
-        strategy.totalPhases = data.totalPhases || 4;
-        strategy.phaseDuration = data.phaseDuration || 30;
-        strategy.configOptions = data.configOptions || {};
-        // Restore adaptive-specific properties
-        strategy.minPhaseDuration = data.minPhaseDuration || strategy.configOptions.minPhaseDuration || 10;
-        strategy.maxPhaseDuration = data.maxPhaseDuration || strategy.configOptions.maxPhaseDuration || 60;
-        strategy.basePhaseDuration = data.basePhaseDuration || strategy.configOptions.baseDuration || 30;
-        strategy.trafficSensitivity = data.trafficSensitivity || strategy.configOptions.trafficSensitivity || 0.5;
-        strategy.queueWeight = data.queueWeight || strategy.configOptions.queueWeight || 1.0;
-        strategy.waitTimeWeight = data.waitTimeWeight || strategy.configOptions.waitTimeWeight || 1.0;
-        strategy.flowRateWeight = data.flowRateWeight || strategy.configOptions.flowRateWeight || 0.5;
-        strategy.trendWeight = data.trendWeight || strategy.configOptions.trendWeight || 0.3;
-        strategy.prioritizeLeftTurns = data.prioritizeLeftTurns !== undefined ?
-            data.prioritizeLeftTurns : strategy.configOptions.prioritizeLeftTurns !== undefined ?
-            strategy.configOptions.prioritizeLeftTurns : true;
-        strategy.enableLogging = data.enableLogging || strategy.configOptions.enableLogging || false;
-        strategy.emergencyMode = data.emergencyMode || strategy.configOptions.emergencyMode || false;
-        strategy.fairnessWeight = data.fairnessWeight || strategy.configOptions.fairnessWeight || 0.5;
-        // If states array was saved, restore it
+        // Restore state from data
+        if (data.currentPhase !== undefined) {
+            strategy.currentPhase = data.currentPhase;
+        }
+        if (data.timeInPhase !== undefined) {
+            strategy.timeInPhase = data.timeInPhase;
+        }
+        if (data.totalPhases !== undefined) {
+            strategy.totalPhases = data.totalPhases;
+        }
+        if (data.phaseDuration !== undefined) {
+            strategy.phaseDuration = data.phaseDuration;
+        }
+        // Restore states array if present
         if (data.states) {
             strategy.states = data.states;
         }
-        // Restore metrics if available
+        // Restore adaptive timing specific properties
+        if (data.minPhaseDuration !== undefined)
+            strategy.minPhaseDuration = data.minPhaseDuration;
+        if (data.maxPhaseDuration !== undefined)
+            strategy.maxPhaseDuration = data.maxPhaseDuration;
+        if (data.basePhaseDuration !== undefined)
+            strategy.basePhaseDuration = data.basePhaseDuration;
+        if (data.trafficSensitivity !== undefined)
+            strategy.trafficSensitivity = data.trafficSensitivity;
+        if (data.queueWeight !== undefined)
+            strategy.queueWeight = data.queueWeight;
+        if (data.waitTimeWeight !== undefined)
+            strategy.waitTimeWeight = data.waitTimeWeight;
+        if (data.flowRateWeight !== undefined)
+            strategy.flowRateWeight = data.flowRateWeight;
+        if (data.trendWeight !== undefined)
+            strategy.trendWeight = data.trendWeight;
+        if (data.prioritizeLeftTurns !== undefined)
+            strategy.prioritizeLeftTurns = data.prioritizeLeftTurns;
+        if (data.enableLogging !== undefined)
+            strategy.enableLogging = data.enableLogging;
+        if (data.emergencyMode !== undefined)
+            strategy.emergencyMode = data.emergencyMode;
+        if (data.fairnessWeight !== undefined)
+            strategy.fairnessWeight = data.fairnessWeight;
+        // Restore metrics
         if (data.queueLengths)
             strategy.queueLengths = data.queueLengths;
         if (data.waitTimes)
@@ -7682,6 +7913,10 @@ class AdaptiveTimingStrategy extends AbstractTrafficControlStrategy_1.AbstractTr
             strategy.trafficScoreHistory = data.trafficScoreHistory;
         if (data.phaseChanges !== undefined)
             strategy.phaseChanges = data.phaseChanges;
+        // Restore configuration
+        if (data.configOptions) {
+            strategy.configOptions = { ...strategy.configOptions, ...data.configOptions };
+        }
         strategy.initialize(intersection);
         return strategy;
     }
@@ -7810,7 +8045,7 @@ class AllRedFlashingStrategy extends AbstractTrafficControlStrategy_1.AbstractTr
         ];
     }
     /**
-     * Create from JSON
+     * Create from JSON (static method)
      */
     static fromJSON(data, intersection) {
         const strategy = new AllRedFlashingStrategy();
@@ -7824,6 +8059,35 @@ class AllRedFlashingStrategy extends AbstractTrafficControlStrategy_1.AbstractTr
         }
         strategy.initialize(intersection);
         return strategy;
+    }
+    /**
+     * Create from JSON (instance method)
+     */
+    fromJSON(data, intersection) {
+        // Initialize with the intersection
+        this.initialize(intersection);
+        // Restore state from saved data
+        if (data.flashInterval !== undefined) {
+            this.flashInterval = data.flashInterval;
+        }
+        if (data.signalsVisible !== undefined) {
+            this.signalsVisible = data.signalsVisible;
+        }
+        if (data.timeInFlashState !== undefined) {
+            this.timeInFlashState = data.timeInFlashState;
+        }
+        // Restore common properties
+        if (data.currentPhase !== undefined) {
+            this.currentPhase = data.currentPhase;
+        }
+        if (data.timeInPhase !== undefined) {
+            this.timeInPhase = data.timeInPhase;
+        }
+        // Apply configuration options
+        if (data.configOptions) {
+            this.configOptions = { ...this.configOptions, ...data.configOptions };
+        }
+        return this;
     }
     /**
      * Convert to JSON
@@ -8112,6 +8376,51 @@ class FixedTimingStrategy extends AbstractTrafficControlStrategy_1.AbstractTraff
         this.enableLogging = enabled;
         this.configOptions.enableLogging = enabled;
         this.log(`Logging ${enabled ? 'enabled' : 'disabled'}`);
+    }
+    /**
+     * Create from JSON data
+     * @param data The serialized strategy data
+     * @param intersection The intersection to control
+     * @returns Initialized strategy instance
+     */
+    fromJSON(data, intersection) {
+        // Initialize with the intersection
+        this.initialize(intersection);
+        // Restore state from data
+        if (data.currentPhase !== undefined) {
+            this.currentPhase = data.currentPhase;
+        }
+        if (data.timeInPhase !== undefined) {
+            this.timeInPhase = data.timeInPhase;
+        }
+        if (data.totalPhases !== undefined) {
+            this.totalPhases = data.totalPhases;
+        }
+        if (data.phaseDuration !== undefined) {
+            this.phaseDuration = data.phaseDuration;
+        }
+        // Restore flipMultiplier if present
+        if (data.flipMultiplier !== undefined) {
+            this.flipMultiplier = data.flipMultiplier;
+        }
+        // Restore states array if present
+        if (data.states) {
+            this.states = data.states;
+        }
+        // Restore configuration
+        if (data.configOptions) {
+            this.configOptions = { ...this.configOptions, ...data.configOptions };
+            // Apply specific config options
+            if (this.configOptions.enableLogging !== undefined) {
+                this.enableLogging = this.configOptions.enableLogging;
+            }
+        }
+        // Reset timing stats with the correct number of phases
+        this.resetTimingStats();
+        if (this.enableLogging) {
+            this.log(`Restored FixedTimingStrategy from saved data for intersection ${intersection.id}`);
+        }
+        return this;
     }
 }
 exports.FixedTimingStrategy = FixedTimingStrategy;
@@ -8767,6 +9076,59 @@ class TrafficEnforcerStrategy extends AbstractTrafficControlStrategy_1.AbstractT
             strategy.timeSinceLastDecision = data.timeSinceLastDecision;
         strategy.initialize(intersection);
         return strategy;
+    }
+    /**
+     * Create from JSON (instance method)
+     */
+    fromJSON(data, intersection) {
+        // Initialize with the intersection
+        this.initialize(intersection);
+        // Restore state from data
+        if (data.currentPhase !== undefined) {
+            this.currentPhase = data.currentPhase;
+        }
+        if (data.timeInPhase !== undefined) {
+            this.timeInPhase = data.timeInPhase;
+        }
+        if (data.phaseDuration !== undefined) {
+            this.phaseDuration = data.phaseDuration;
+        }
+        // Restore traffic enforcer specific properties
+        if (data.decisionInterval !== undefined) {
+            this.decisionInterval = data.decisionInterval;
+        }
+        if (data.timeSinceLastDecision !== undefined) {
+            this.timeSinceLastDecision = data.timeSinceLastDecision;
+        }
+        if (data.minimumGreenTime !== undefined) {
+            this.minimumGreenTime = data.minimumGreenTime;
+        }
+        if (data.currentSignals) {
+            this.currentSignals = data.currentSignals;
+        }
+        if (data.queueLengths) {
+            this.queueLengths = data.queueLengths;
+        }
+        if (data.waitTimes) {
+            this.waitTimes = data.waitTimes;
+        }
+        if (data.flowRates) {
+            this.flowRates = data.flowRates;
+        }
+        if (data.congestionScores) {
+            this.congestionScores = data.congestionScores;
+        }
+        if (data.greenTimers) {
+            this.greenTimers = data.greenTimers;
+        }
+        if (data.activeMovements) {
+            this.activeMovements = data.activeMovements;
+        }
+        // Restore configuration
+        if (data.configOptions) {
+            this.configOptions = { ...this.configOptions, ...data.configOptions };
+        }
+        return this;
     }
     /**
      * Convert to JSON for serialization

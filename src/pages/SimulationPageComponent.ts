@@ -4,6 +4,7 @@ import Visualizer = require('../visualizer/visualizer');
 import _ = require('underscore');
 import { kpiCollector } from '../model/kpi-collector';
 import { trafficControlStrategyManager } from '../model/traffic-control/TrafficControlStrategyManager';
+import { KPIVisualizationComponent, BenchmarkRun } from '../components/KPIVisualizationComponent';
 
 /**
  * Simulation page for running traffic simulations
@@ -37,6 +38,9 @@ export class SimulationPageComponent {
 
   // GUI control for settings
   private gui: any = null;
+  
+  // KPI Visualization Component
+  private kpiVisualization: KPIVisualizationComponent | null = null;
   
   constructor(container: HTMLElement) {
     this.container = container;
@@ -328,8 +332,9 @@ export class SimulationPageComponent {
                 </div>
                 
                 <div class="analytics-actions">
-                  <button id="export-metrics" class="btn btn-sm btn-success">Export CSV</button>
-                  <button id="validate-metrics" class="btn btn-sm btn-info">Validate Metrics</button>
+                  <button id="export-metrics-csv" class="btn btn-sm btn-success">📄 Export CSV</button>
+                  <button id="export-metrics-json" class="btn btn-sm btn-info">📋 Export JSON</button>
+                  <button id="validate-metrics" class="btn btn-sm btn-secondary">✓ Validate Data</button>
                 </div>
                 
                 <!-- Developer Tools Section -->
@@ -640,6 +645,93 @@ export class SimulationPageComponent {
         
         if (loadButton) loadButton.disabled = false;
         if (deleteButton) deleteButton.disabled = false;
+      }
+    });
+    
+    // Export metrics buttons
+    const exportCSVButton = document.getElementById('export-metrics-csv');
+    exportCSVButton?.addEventListener('click', () => {
+      kpiCollector.downloadMetricsCSV();
+      this.showNotification('CSV exported successfully', 'success');
+    });
+    
+    const exportJSONButton = document.getElementById('export-metrics-json');
+    exportJSONButton?.addEventListener('click', () => {
+      kpiCollector.downloadMetricsJSON();
+      this.showNotification('JSON exported successfully', 'success');
+    });
+    
+    // Validate metrics button (enhanced functionality)
+    const validateMetricsButton = document.getElementById('validate-metrics');
+    validateMetricsButton?.addEventListener('click', () => {
+      // Get validation results from KPI collection accuracy
+      const kpiValidationResults = kpiCollector.validateMetrics();
+      
+      // Get export validation results
+      const exportValidation = kpiCollector.validateExportData();
+      
+      const validationOutput = document.getElementById('validation-output');
+      const validationHtmlResults = document.getElementById('validation-html-results');
+      
+      if (validationOutput && validationHtmlResults) {
+        // Combine both validation results
+        let combinedResults = `
+          <div class="validation-section">
+            <h4>📊 KPI Collection Validation</h4>
+            ${kpiValidationResults}
+          </div>
+          
+          <div class="validation-section">
+            <h4>📤 Export Data Validation</h4>
+            <div class="export-validation-summary">
+              <p><strong>${exportValidation.summary}</strong></p>
+            </div>
+            
+            ${exportValidation.discrepancies.length > 0 ? `
+              <div class="validation-discrepancies">
+                <h5>Found Discrepancies:</h5>
+                <ul>
+                  ${exportValidation.discrepancies.map(d => `<li class="validation-error">${d}</li>`).join('')}
+                </ul>
+              </div>
+            ` : `
+              <div class="validation-success">
+                <p>✅ All export formats (CSV and JSON) accurately match the UI display data.</p>
+                <p>✅ Data integrity verified across all metric categories.</p>
+              </div>
+            `}
+          </div>
+        `;
+        
+        validationHtmlResults.innerHTML = combinedResults;
+        validationOutput.style.display = 'block';
+      }
+      
+      const notificationType = exportValidation.isValid ? 'success' : 'warning';
+      const notificationMessage = exportValidation.isValid 
+        ? 'All validations passed - data is accurate and complete'
+        : `Validation completed with ${exportValidation.discrepancies.length} issue(s) found`;
+        
+      this.showNotification(notificationMessage, notificationType);
+    });
+    
+    // Toggle lane metrics table
+    const toggleLaneMetricsButton = document.getElementById('toggle-lane-metrics');
+    toggleLaneMetricsButton?.addEventListener('click', () => {
+      const container = document.getElementById('lane-metrics-container');
+      if (container) {
+        const isHidden = container.style.display === 'none';
+        container.style.display = isHidden ? 'block' : 'none';
+      }
+    });
+    
+    // Toggle intersection metrics table
+    const toggleIntersectionMetricsButton = document.getElementById('toggle-intersection-metrics');
+    toggleIntersectionMetricsButton?.addEventListener('click', () => {
+      const container = document.getElementById('intersection-metrics-container');
+      if (container) {
+        const isHidden = container.style.display === 'none';
+        container.style.display = isHidden ? 'block' : 'none';
       }
     });
   }
@@ -1479,29 +1571,16 @@ export class SimulationPageComponent {
     if (!dialog) {
       dialog = document.createElement('div');
       dialog.id = 'benchmark-results-dialog';
-      dialog.className = 'dialog';
+      dialog.className = 'dialog benchmark-dialog';
       
       dialog.innerHTML = `
-        <div class="dialog-content" style="max-width: 800px;">
+        <div class="dialog-content" style="max-width: 95vw; max-height: 90vh; width: 1400px;">
           <div class="dialog-header">
-            <h3>Benchmark Results</h3>
-            <button class="close-btn">&times;</button>
+            <h3>📊 KPI Benchmark Results</h3>
+            <button class="close-btn" style="font-size: 24px;">&times;</button>
           </div>
-          <div class="dialog-body">
-            <div class="benchmark-results-container">
-              <h4>Benchmark Summary</h4>
-              <div id="benchmark-summary"></div>
-              
-              <h4>Performance Metrics</h4>
-              <div id="benchmark-metrics"></div>
-              
-              <h4>Validation</h4>
-              <div id="benchmark-validation"></div>
-            </div>
-            <div class="form-actions">
-              <button id="save-benchmark" class="btn btn-primary">Save Results</button>
-              <button class="btn btn-secondary close-dialog">Close</button>
-            </div>
+          <div class="dialog-body" style="max-height: calc(90vh - 100px); overflow-y: auto;">
+            <div id="kpi-visualization-container"></div>
           </div>
         </div>
       `;
@@ -1509,26 +1588,40 @@ export class SimulationPageComponent {
       document.body.appendChild(dialog);
       
       // Add close button events
-      const closeButtons = dialog.querySelectorAll('.close-btn, .close-dialog');
+      const closeButtons = dialog.querySelectorAll('.close-btn');
       closeButtons.forEach(button => {
         button.addEventListener('click', () => {
           dialog!.style.display = 'none';
+          // Clean up KPI visualization
+          if (this.kpiVisualization) {
+            this.kpiVisualization.destroy();
+            this.kpiVisualization = null;
+          }
         });
-      });
-      
-      // Add save button event
-      const saveButton = dialog.querySelector('#save-benchmark');
-      saveButton?.addEventListener('click', () => {
-        this.saveBenchmarkResults();
-        dialog!.style.display = 'none';
       });
     }
     
     // Show dialog
     dialog.style.display = 'block';
     
-    // Populate results
-    this.populateBenchmarkResultsUI();
+    // Create benchmark run data for the KPI visualization component
+    const benchmarkRun: BenchmarkRun = {
+      id: `benchmark_${Date.now()}`,
+      name: `Benchmark ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+      timestamp: this.benchmarkResults.endTime,
+      finalMetrics: this.benchmarkResults.finalMetrics,
+      samples: this.benchmarkResults.samples,
+      settings: this.benchmarkResults.settings,
+      validation: this.benchmarkResults.validation
+    };
+    
+    // Initialize KPI visualization component
+    const container = document.getElementById('kpi-visualization-container')!;
+    if (this.kpiVisualization) {
+      this.kpiVisualization.destroy();
+    }
+    this.kpiVisualization = new KPIVisualizationComponent(container);
+    this.kpiVisualization.displayBenchmarkResults(benchmarkRun);
   }
   
   // Populate benchmark results UI
@@ -2215,6 +2308,12 @@ export class SimulationPageComponent {
     // Stop the simulation if running
     if (this.isRunning) {
       this.stop();
+    }
+    
+    // Clean up KPI visualization
+    if (this.kpiVisualization) {
+      this.kpiVisualization.destroy();
+      this.kpiVisualization = null;
     }
     
     // Clean up world
