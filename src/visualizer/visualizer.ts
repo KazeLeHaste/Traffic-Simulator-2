@@ -88,9 +88,9 @@ class Visualizer {
     this.previousTime = 0;
     this.timeFactor = settings.defaultTimeFactor;
     this.debug = {
-      enabled: false,
-      showIds: false,
-      showIntersections: true
+      enabled: false, // Disable debug by default
+      showIds: false, // Disable showing IDs by default
+      showIntersections: false // Disable showing intersection details by default
     };
     
     // Add window resize listener
@@ -118,13 +118,44 @@ class Visualizer {
       this.graphics.stroke(settings.colors.roadMarking);
       this.graphics.fillRect(intersection.rect, color, alpha);
       
-      // Debug information display for intersections
+      // Get center point of intersection for emoji placement
+      const center = intersection.rect.center();
+      
+      // Add traffic control emoji based on the active strategy
+      this.ctx.save();
+      this.ctx.fillStyle = "black";
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "middle";
+      
+      // Determine which emoji to use based on traffic control strategy
+      let trafficControlEmoji = '🚦'; // Default fixed timing traffic light
+      let strategyType = 'fixed-timing'; // Default strategy
+      
+      if (intersection.trafficLightController) {
+        const strategy = intersection.trafficLightController.getStrategy();
+        strategyType = strategy.strategyType;
+        
+        if (strategyType === 'adaptive-timing') {
+          trafficControlEmoji = '🚥'; // Adaptive timing traffic light
+        } else if (strategyType === 'traffic-enforcer') {
+          trafficControlEmoji = '👮'; // Traffic enforcer
+        }
+      }
+      
+      // Adjust font size based on intersection dimensions
+      const rectSize = Math.min(intersection.rect.width(), intersection.rect.height());
+      const fontSize = rectSize * 0.5; // Reduced to 50% of intersection size (was 70%)
+      
+      this.ctx.font = `${fontSize}px Arial`;
+      this.ctx.fillText(trafficControlEmoji, center.x, center.y);
+      this.ctx.restore();
+      
+      // Debug information display for intersections (only if explicitly enabled)
       if (this.debug && this.debug.enabled) {
         this.ctx.save();
         this.ctx.fillStyle = "white";
         this.ctx.font = "1.2px Arial";
         this.ctx.textAlign = "center";
-        const center = intersection.rect.center();
         
         // Display intersection ID if debug is enabled and showIds is true
         if (this.debug.showIds) {
@@ -224,18 +255,8 @@ class Visualizer {
       }
       this.ctx.restore();
       
-      if (this.debug) {
-        this.ctx.save();
-        this.ctx.fillStyle = "black";
-        this.ctx.font = "1px Arial";
-        const center = intersection.rect.center();
-        if (intersection.controlSignals.flipInterval && intersection.controlSignals.phaseOffset) {
-          const flipInterval = Math.round(intersection.controlSignals.flipInterval * 100) / 100;
-          const phaseOffset = Math.round(intersection.controlSignals.phaseOffset * 100) / 100;
-          this.ctx.fillText(flipInterval + ' ' + phaseOffset, center.x, center.y);
-        }
-        this.ctx.restore();
-      }
+      // Debug information for signals is completely disabled
+      // No signal timing details will be shown
     } catch (error) {
       // Silently handle drawing errors to prevent console spam
     }
@@ -332,20 +353,41 @@ class Visualizer {
       
       // Draw the car with the calculated or fallback style
       this.graphics.fillRect(boundRect, style);
+      
+      // Draw vehicle emoji based on car size and color
+      this.ctx.save();
+      this.ctx.fillStyle = "black";
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "middle";
+      
+      // Select emoji based on vehicle size and other attributes
+      let emoji = '🚗'; // Default car emoji
+      
+      // Use different emojis based on car dimensions
+      if (car.length > 4.5) {
+        emoji = '🚚'; // Truck for longer vehicles
+      } else if (car.length > 3.8) {
+        emoji = '🚙'; // SUV for medium-sized vehicles
+      } else if (car.length < 3.2 && car.width < 1.6) {
+        emoji = '🏍️'; // Motorcycle for smaller vehicles
+      } else if (car.color === 60) { // Yellow hue in HSL
+        emoji = '🚕'; // Taxi for yellow cars
+      } else if (car.length > 3.5 && car.width > 2.0) {
+        emoji = '🚌'; // Bus for wider vehicles
+      }
+      
+      // Adjust font size based on car dimensions
+      const fontSize = Math.min(car.length, car.width) * 0.9;
+      this.ctx.font = `${fontSize}px Arial`;
+      
+      // Draw the emoji centered within the car
+      this.ctx.fillText(emoji, 0, 0);
+      this.ctx.restore();
+      
       this.graphics.restore();
       
-      if (this.debug) {
-        this.ctx.save();
-        this.ctx.fillStyle = "black";
-        this.ctx.font = "1px Arial";
-        this.ctx.fillText(car.id.toString(), center.x, center.y);
-  
-        const curve = car.trajectory?.temp?.lane;
-        if (curve) {
-          this.graphics.drawCurve(curve, 0.1, 'red');
-        }
-        this.ctx.restore();
-      }
+      // Debug information is completely disabled for clean visualization
+      // No car IDs or trajectory paths will be shown
     } catch (error) {
       console.error('🎨 [VIZ ERROR] Error in drawCar:', error);
       // Continue execution - don't let one car crash the whole render

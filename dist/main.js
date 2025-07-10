@@ -213,6 +213,59 @@ var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js
 
 /***/ }),
 
+/***/ "./css/dialog.css":
+/*!************************!*\
+  !*** ./css/dialog.css ***!
+  \************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js */ "./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/styleDomAPI.js */ "./node_modules/style-loader/dist/runtime/styleDomAPI.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/insertBySelector.js */ "./node_modules/style-loader/dist/runtime/insertBySelector.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js */ "./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/insertStyleElement.js */ "./node_modules/style-loader/dist/runtime/insertStyleElement.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! !../node_modules/style-loader/dist/runtime/styleTagTransform.js */ "./node_modules/style-loader/dist/runtime/styleTagTransform.js");
+/* harmony import */ var _node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _node_modules_css_loader_dist_cjs_js_dialog_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! !!../node_modules/css-loader/dist/cjs.js!./dialog.css */ "./node_modules/css-loader/dist/cjs.js!./css/dialog.css");
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (_node_modules_style_loader_dist_runtime_styleTagTransform_js__WEBPACK_IMPORTED_MODULE_5___default());
+options.setAttributes = (_node_modules_style_loader_dist_runtime_setAttributesWithoutAttributes_js__WEBPACK_IMPORTED_MODULE_3___default());
+options.insert = _node_modules_style_loader_dist_runtime_insertBySelector_js__WEBPACK_IMPORTED_MODULE_2___default().bind(null, "head");
+options.domAPI = (_node_modules_style_loader_dist_runtime_styleDomAPI_js__WEBPACK_IMPORTED_MODULE_1___default());
+options.insertStyleElement = (_node_modules_style_loader_dist_runtime_insertStyleElement_js__WEBPACK_IMPORTED_MODULE_4___default());
+
+var update = _node_modules_style_loader_dist_runtime_injectStylesIntoStyleTag_js__WEBPACK_IMPORTED_MODULE_0___default()(_node_modules_css_loader_dist_cjs_js_dialog_css__WEBPACK_IMPORTED_MODULE_6__["default"], options);
+
+
+
+
+       /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_css_loader_dist_cjs_js_dialog_css__WEBPACK_IMPORTED_MODULE_6__["default"] && _node_modules_css_loader_dist_cjs_js_dialog_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals ? _node_modules_css_loader_dist_cjs_js_dialog_css__WEBPACK_IMPORTED_MODULE_6__["default"].locals : undefined);
+
+
+/***/ }),
+
 /***/ "./css/fullscreen-kpi.css":
 /*!********************************!*\
   !*** ./css/fullscreen-kpi.css ***!
@@ -20222,6 +20275,235 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* dat-gui overrides for single panel 
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/dist/cjs.js!./css/dialog.css":
+/*!**************************************************************!*\
+  !*** ./node_modules/css-loader/dist/cjs.js!./css/dialog.css ***!
+  \**************************************************************/
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../node_modules/css-loader/dist/runtime/sourceMaps.js */ "./node_modules/css-loader/dist/runtime/sourceMaps.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `/* Dialog styling */
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dialog-content {
+  width: 800px;
+  max-width: 95%;
+  max-height: 90vh;
+  background: #2d2d2d;
+  border-radius: 6px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  overflow: auto;
+}
+
+.dialog-header {
+  padding: 15px 20px;
+  background: #333;
+  border-bottom: 1px solid #404040;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dialog-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  color: #f44336;
+}
+
+.dialog-body {
+  padding: 20px;
+}
+
+/* Layout grid styling for builder page style */
+.layouts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.layout-item {
+  background: rgba(30, 30, 30, 0.7);
+  border-radius: 6px;
+  border: 1px solid #404040;
+  padding: 15px;
+  overflow: hidden;
+}
+
+.layout-title {
+  font-size: 1.1rem;
+  margin: 0 0 10px 0;
+  color: #fff;
+}
+
+.layout-date {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin: 0 0 15px 0;
+}
+
+.layout-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* List style for compatibility with current implementation */
+.list-container {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.list-empty-message {
+  padding: 20px;
+  text-align: center;
+  color: #888;
+}
+
+.layout-list-item {
+  padding: 12px 15px;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.layout-list-item:last-child {
+  border-bottom: none;
+}
+
+.layout-list-item:hover {
+  background-color: rgba(55, 90, 127, 0.2);
+}
+
+.layout-list-item.selected {
+  background-color: rgba(55, 90, 127, 0.4);
+}
+
+.layout-list-title {
+  font-weight: 500;
+  margin: 0 0 5px 0;
+}
+
+.layout-list-date {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin: 0;
+}
+
+/* Dialog footer and actions */
+.dialog-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #404040;
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background: #2d2d2d;
+  position: sticky;
+  bottom: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* Instruction text */
+.dialog-instruction {
+  margin-bottom: 20px;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+/* Button styling */
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border: none;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #375a7f;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #4a6fa5;
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #f44336;
+}
+
+.btn-secondary {
+  background: #555;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #666;
+}
+`, "",{"version":3,"sources":["webpack://./css/dialog.css"],"names":[],"mappings":"AAAA,mBAAmB;AACnB;EACE,eAAe;EACf,MAAM;EACN,OAAO;EACP,WAAW;EACX,YAAY;EACZ,oCAAoC;EACpC,aAAa;EACb,aAAa;EACb,uBAAuB;EACvB,mBAAmB;AACrB;;AAEA;EACE,YAAY;EACZ,cAAc;EACd,gBAAgB;EAChB,mBAAmB;EACnB,kBAAkB;EAClB,uCAAuC;EACvC,cAAc;AAChB;;AAEA;EACE,kBAAkB;EAClB,gBAAgB;EAChB,gCAAgC;EAChC,aAAa;EACb,8BAA8B;EAC9B,mBAAmB;EACnB,gBAAgB;EAChB,MAAM;EACN,WAAW;AACb;;AAEA;EACE,SAAS;EACT,cAAc;EACd,iBAAiB;AACnB;;AAEA;EACE,uBAAuB;EACvB,YAAY;EACZ,cAAc;EACd,iBAAiB;EACjB,eAAe;EACf,UAAU;EACV,cAAc;AAChB;;AAEA;EACE,cAAc;AAChB;;AAEA;EACE,aAAa;AACf;;AAEA,+CAA+C;AAC/C;EACE,aAAa;EACb,4DAA4D;EAC5D,SAAS;EACT,mBAAmB;AACrB;;AAEA;EACE,iCAAiC;EACjC,kBAAkB;EAClB,yBAAyB;EACzB,aAAa;EACb,gBAAgB;AAClB;;AAEA;EACE,iBAAiB;EACjB,kBAAkB;EAClB,WAAW;AACb;;AAEA;EACE,iBAAiB;EACjB,WAAW;EACX,kBAAkB;AACpB;;AAEA;EACE,aAAa;EACb,SAAS;AACX;;AAEA,6DAA6D;AAC7D;EACE,iBAAiB;EACjB,gBAAgB;EAChB,mBAAmB;EACnB,yBAAyB;EACzB,kBAAkB;EAClB,8BAA8B;AAChC;;AAEA;EACE,aAAa;EACb,kBAAkB;EAClB,WAAW;AACb;;AAEA;EACE,kBAAkB;EAClB,6BAA6B;EAC7B,eAAe;EACf,iCAAiC;AACnC;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,wCAAwC;AAC1C;;AAEA;EACE,wCAAwC;AAC1C;;AAEA;EACE,gBAAgB;EAChB,iBAAiB;AACnB;;AAEA;EACE,iBAAiB;EACjB,WAAW;EACX,SAAS;AACX;;AAEA,8BAA8B;AAC9B;EACE,kBAAkB;EAClB,6BAA6B;EAC7B,iBAAiB;EACjB,aAAa;EACb,yBAAyB;EACzB,SAAS;EACT,mBAAmB;EACnB,gBAAgB;EAChB,SAAS;AACX;;AAEA;EACE,aAAa;EACb,yBAAyB;EACzB,SAAS;EACT,gBAAgB;AAClB;;AAEA,qBAAqB;AACrB;EACE,mBAAmB;EACnB,WAAW;EACX,iBAAiB;AACnB;;AAEA,mBAAmB;AACnB;EACE,iBAAiB;EACjB,kBAAkB;EAClB,eAAe;EACf,iBAAiB;EACjB,YAAY;EACZ,oBAAoB;AACtB;;AAEA;EACE,mBAAmB;EACnB,YAAY;AACd;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,mBAAmB;EACnB,YAAY;AACd;;AAEA;EACE,mBAAmB;AACrB;;AAEA;EACE,gBAAgB;EAChB,YAAY;AACd;;AAEA;EACE,gBAAgB;AAClB","sourcesContent":["/* Dialog styling */\r\n.dialog {\r\n  position: fixed;\r\n  top: 0;\r\n  left: 0;\r\n  width: 100%;\r\n  height: 100%;\r\n  background-color: rgba(0, 0, 0, 0.7);\r\n  z-index: 1000;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-items: center;\r\n}\r\n\r\n.dialog-content {\r\n  width: 800px;\r\n  max-width: 95%;\r\n  max-height: 90vh;\r\n  background: #2d2d2d;\r\n  border-radius: 6px;\r\n  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);\r\n  overflow: auto;\r\n}\r\n\r\n.dialog-header {\r\n  padding: 15px 20px;\r\n  background: #333;\r\n  border-bottom: 1px solid #404040;\r\n  display: flex;\r\n  justify-content: space-between;\r\n  align-items: center;\r\n  position: sticky;\r\n  top: 0;\r\n  z-index: 10;\r\n}\r\n\r\n.dialog-header h3 {\r\n  margin: 0;\r\n  color: #ffffff;\r\n  font-size: 1.2rem;\r\n}\r\n\r\n.close-btn {\r\n  background: transparent;\r\n  border: none;\r\n  color: #ffffff;\r\n  font-size: 1.5rem;\r\n  cursor: pointer;\r\n  padding: 0;\r\n  line-height: 1;\r\n}\r\n\r\n.close-btn:hover {\r\n  color: #f44336;\r\n}\r\n\r\n.dialog-body {\r\n  padding: 20px;\r\n}\r\n\r\n/* Layout grid styling for builder page style */\r\n.layouts-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\r\n  gap: 20px;\r\n  margin-bottom: 20px;\r\n}\r\n\r\n.layout-item {\r\n  background: rgba(30, 30, 30, 0.7);\r\n  border-radius: 6px;\r\n  border: 1px solid #404040;\r\n  padding: 15px;\r\n  overflow: hidden;\r\n}\r\n\r\n.layout-title {\r\n  font-size: 1.1rem;\r\n  margin: 0 0 10px 0;\r\n  color: #fff;\r\n}\r\n\r\n.layout-date {\r\n  font-size: 0.8rem;\r\n  color: #aaa;\r\n  margin: 0 0 15px 0;\r\n}\r\n\r\n.layout-actions {\r\n  display: flex;\r\n  gap: 10px;\r\n}\r\n\r\n/* List style for compatibility with current implementation */\r\n.list-container {\r\n  max-height: 300px;\r\n  overflow-y: auto;\r\n  margin-bottom: 20px;\r\n  border: 1px solid #404040;\r\n  border-radius: 4px;\r\n  background: rgba(0, 0, 0, 0.2);\r\n}\r\n\r\n.list-empty-message {\r\n  padding: 20px;\r\n  text-align: center;\r\n  color: #888;\r\n}\r\n\r\n.layout-list-item {\r\n  padding: 12px 15px;\r\n  border-bottom: 1px solid #333;\r\n  cursor: pointer;\r\n  transition: background-color 0.2s;\r\n}\r\n\r\n.layout-list-item:last-child {\r\n  border-bottom: none;\r\n}\r\n\r\n.layout-list-item:hover {\r\n  background-color: rgba(55, 90, 127, 0.2);\r\n}\r\n\r\n.layout-list-item.selected {\r\n  background-color: rgba(55, 90, 127, 0.4);\r\n}\r\n\r\n.layout-list-title {\r\n  font-weight: 500;\r\n  margin: 0 0 5px 0;\r\n}\r\n\r\n.layout-list-date {\r\n  font-size: 0.8rem;\r\n  color: #aaa;\r\n  margin: 0;\r\n}\r\n\r\n/* Dialog footer and actions */\r\n.dialog-footer {\r\n  padding: 15px 20px;\r\n  border-top: 1px solid #404040;\r\n  text-align: right;\r\n  display: flex;\r\n  justify-content: flex-end;\r\n  gap: 10px;\r\n  background: #2d2d2d;\r\n  position: sticky;\r\n  bottom: 0;\r\n}\r\n\r\n.form-actions {\r\n  display: flex;\r\n  justify-content: flex-end;\r\n  gap: 10px;\r\n  margin-top: 15px;\r\n}\r\n\r\n/* Instruction text */\r\n.dialog-instruction {\r\n  margin-bottom: 20px;\r\n  color: #ccc;\r\n  font-size: 0.9rem;\r\n}\r\n\r\n/* Button styling */\r\n.btn {\r\n  padding: 8px 16px;\r\n  border-radius: 4px;\r\n  cursor: pointer;\r\n  font-size: 0.9rem;\r\n  border: none;\r\n  transition: all 0.2s;\r\n}\r\n\r\n.btn-primary {\r\n  background: #375a7f;\r\n  color: white;\r\n}\r\n\r\n.btn-primary:hover {\r\n  background: #4a6fa5;\r\n}\r\n\r\n.btn-danger {\r\n  background: #e74c3c;\r\n  color: white;\r\n}\r\n\r\n.btn-danger:hover {\r\n  background: #f44336;\r\n}\r\n\r\n.btn-secondary {\r\n  background: #555;\r\n  color: white;\r\n}\r\n\r\n.btn-secondary:hover {\r\n  background: #666;\r\n}\r\n"],"sourceRoot":""}]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/dist/cjs.js!./css/fullscreen-kpi.css":
 /*!**********************************************************************!*\
   !*** ./node_modules/css-loader/dist/cjs.js!./css/fullscreen-kpi.css ***!
@@ -38641,6 +38923,7 @@ __webpack_require__(/*! ../css/kpi-visualization.css */ "./css/kpi-visualization
 __webpack_require__(/*! ../css/fullscreen-kpi.css */ "./css/fullscreen-kpi.css"); // Fullscreen KPI visualization styles
 __webpack_require__(/*! ../css/benchmark-configuration.css */ "./css/benchmark-configuration.css"); // Benchmark configuration component styles
 __webpack_require__(/*! ../css/analytics.css */ "./css/analytics.css"); // Analytics page styles
+__webpack_require__(/*! ../css/dialog.css */ "./css/dialog.css"); // Dialog styling for load layout and other popups
 const $ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 __webpack_require__(/*! jquery-mousewheel */ "./node_modules/jquery-mousewheel/jquery.mousewheel.js");
 // Import the new architecture components
@@ -51315,33 +51598,6 @@ class SimulationPageComponent {
               </div>
             </div>
             
-            <!-- Scenario Management Panel -->
-            <div class="panel">
-              <h3>Scenario Management</h3>
-              
-              <div class="control-group">
-                <button id="save-scenario" class="btn btn-primary btn-block">
-                  💾 Save Current Scenario
-                </button>
-              </div>
-              
-              <div class="control-group">
-                <button id="load-scenario" class="btn btn-info btn-block">
-                  📂 Load Scenario
-                </button>
-              </div>
-              
-              <div class="scenario-status">
-                <small class="text-muted">
-                  ${this.scenarios.length > 0
-            ? `${this.scenarios.length} saved scenario(s) available`
-            : 'No saved scenarios found.'}
-                </small>
-                ${this.currentScenario
-            ? `<div class="current-scenario-info">Current: ${this.currentScenario.name}</div>`
-            : ''}
-              </div>
-            </div>
             
             <!-- Simulation Controls -->
             <div class="panel">
@@ -52234,13 +52490,13 @@ class SimulationPageComponent {
             <button class="close-btn">&times;</button>
           </div>
           <div class="dialog-body">
-            <div id="layouts-list" class="list-container">
+            <p class="dialog-instruction">Select a layout to load:</p>
+            <div id="layouts-grid" class="layouts-grid">
               <div class="list-empty-message">No saved layouts found.</div>
             </div>
-            <div class="form-actions">
-              <button id="load-layout-confirm" class="btn btn-primary">Load</button>
-              <button class="btn btn-secondary close-dialog">Cancel</button>
-            </div>
+          </div>
+          <div class="dialog-footer">
+            <button class="btn btn-secondary close-dialog">Cancel</button>
           </div>
         </div>
       `;
@@ -52252,24 +52508,11 @@ class SimulationPageComponent {
                     dialog.style.display = 'none';
                 });
             });
-            // Add load button event
-            const loadButton = dialog.querySelector('#load-layout-confirm');
-            loadButton === null || loadButton === void 0 ? void 0 : loadButton.addEventListener('click', () => {
-                const selectedItem = document.querySelector('.list-item.selected');
-                if (selectedItem) {
-                    const layoutId = selectedItem.getAttribute('data-id');
-                    this.loadLayoutById(layoutId);
-                    dialog.style.display = 'none';
-                }
-                else {
-                    this.showNotification('No layout selected', 'warning');
-                }
-            });
         }
         // Show dialog
         dialog.style.display = 'block';
-        // Populate layouts list
-        this.populateLayoutsListUI();
+        // Populate layouts grid
+        this.populateLayoutsGridUI();
     }
     // Populate the layouts list in the UI
     populateLayoutsListUI() {
@@ -52303,6 +52546,37 @@ class SimulationPageComponent {
                 layoutItem.classList.add('selected');
             });
             layoutsList.appendChild(layoutItem);
+        });
+    }
+    // Populate the layouts grid in the UI
+    populateLayoutsGridUI() {
+        const layoutsGrid = document.getElementById('layouts-grid');
+        // Clear the grid
+        layoutsGrid.innerHTML = '';
+        if (this.layouts.length === 0) {
+            layoutsGrid.innerHTML = '<div class="list-empty-message">No saved layouts found.</div>';
+            return;
+        }
+        // Add each layout to the grid
+        this.layouts.forEach(layout => {
+            const layoutItem = document.createElement('div');
+            layoutItem.className = 'layout-item';
+            const date = new Date(layout.createdAt).toLocaleDateString();
+            const time = new Date(layout.createdAt).toLocaleTimeString();
+            layoutItem.innerHTML = `
+        <h4 class="layout-title">${layout.name}</h4>
+        <div class="layout-date">Created: ${date} ${time}</div>
+        <div class="layout-actions">
+          <button class="btn btn-primary load-btn">Load</button>
+        </div>
+      `;
+            // Add click event to load the layout
+            const loadBtn = layoutItem.querySelector('.load-btn');
+            loadBtn === null || loadBtn === void 0 ? void 0 : loadBtn.addEventListener('click', () => {
+                this.loadLayoutById(layout.id);
+                document.getElementById('load-layout-dialog').style.display = 'none';
+            });
+            layoutsGrid.appendChild(layoutItem);
         });
     }
     // Load a layout by ID
@@ -52354,7 +52628,7 @@ class SimulationPageComponent {
     toggleSimulation() {
         // Don't allow toggling during benchmark
         if (this.isBenchmarkRunning) {
-            this.showNotification('Cannot toggle simulation during benchmark', 'warning');
+            this.showNotification('Benchmark already running', 'warning');
             return;
         }
         // Check if visualizer exists
@@ -53026,6 +53300,7 @@ class SimulationPageComponent {
         display: inline-block;
         font-weight: 400;
         text-align: center;
+
         white-space: nowrap;
         vertical-align: middle;
         user-select: none;
@@ -53228,6 +53503,9 @@ class SimulationPageComponent {
         max-width: 600px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         color: #fff;
+        align-self: center;
+        justify-self: center;
+        margin-top: 24px
       }
       
       .dialog-header {
